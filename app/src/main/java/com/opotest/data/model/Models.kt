@@ -52,9 +52,9 @@ enum class GameMode(val displayName: String, val icon: String) {
 }
 
 enum class ChestType(val icon: String, val label: String) {
-    WOOD("🪵", "Cofre de Madera"),
-    SILVER("🥈", "Cofre de Plata"),
-    GOLD("🥇", "Cofre de Oro")
+    WOOD("📦", "Cofre de Madera"),
+    SILVER("🗃️", "Cofre de Plata"),
+    GOLD("�", "Cofre de Oro")
 }
 
 data class ChestReward(
@@ -92,8 +92,7 @@ data class Mission(
 
 data class MissionData(
     val date: String,
-    val missions: List<Mission>,
-    var allCompletedStreak: Int
+    val missions: List<Mission>
 )
 
 data class XPProgress(

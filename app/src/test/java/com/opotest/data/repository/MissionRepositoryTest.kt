@@ -45,7 +45,7 @@ class MissionRepositoryTest {
     fun fun_saveDailyMissions() {
         val data = MissionData("2026-01-01", listOf(
             Mission("streak", "🎯", "Text", 10, 0, false, 50, "streak")
-        ), 0)
+        ))
         repo.saveDailyMissions(data)
         val loaded = repo.getDailyMissions()
         assertNotNull(loaded)

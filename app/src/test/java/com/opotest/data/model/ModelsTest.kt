@@ -145,10 +145,9 @@ class ModelsTest {
 
     @JTest
     fun fun_missionData_creation() {
-        val md = MissionData("2026-01-01", emptyList(), 0)
+        val md = MissionData("2026-01-01", emptyList())
         assertEquals("2026-01-01", md.date)
         assertTrue(md.missions.isEmpty())
-        assertEquals(0, md.allCompletedStreak)
     }
 
     @JTest

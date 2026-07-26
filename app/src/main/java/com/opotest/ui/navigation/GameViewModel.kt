@@ -237,7 +237,7 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
 
         missionRepo.checkOnGameOver(mode, engine.score, engine.maxCombo, engine.correctCount, engine.totalAnswered, engine.category)
 
-        val chest = chestSystem.generateChest(_newRecord.value, acc, engine.totalAnswered)
+        val chest = chestSystem.generateChest(_newRecord.value, acc, engine.totalAnswered, engine.score)
         _chestReward.value = chest
     }
 

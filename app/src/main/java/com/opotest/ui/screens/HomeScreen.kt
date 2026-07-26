@@ -37,13 +37,7 @@ fun HomeScreen(navController: NavController, gameViewModel: GameViewModel) {
 
     val rank = remember { progressRepo.getRank() }
     val xpProgress = remember { progressRepo.getXPProgress() }
-    val xp = remember { progressRepo.getXP() }
     val missions = remember { missionRepo.generateDailyMissions() }
-    val bestRecord = remember {
-        listOf("survival", "timetrial", "quick", "challenge").maxOf { progressRepo.getRecord(it) }
-    }
-
-    var showRankUp by remember { mutableStateOf<com.opotest.data.model.RankUpOverlay?>(null) }
 
     val scrollState = rememberScrollState()
     val infiniteTransition = rememberInfiniteTransition(label = "home")
@@ -114,21 +108,6 @@ fun HomeScreen(navController: NavController, gameViewModel: GameViewModel) {
 
         Spacer(Modifier.height(24.dp))
 
-        // Record
-        GlassCard(Modifier.fillMaxWidth()) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Text("🏆", fontSize = 22.sp)
-                Spacer(Modifier.width(12.dp))
-                if (bestRecord > 0) {
-                    Text("Récord: $bestRecord pts", color = Warning, fontWeight = FontWeight.Bold, fontSize = 16.sp)
-                } else {
-                    Text("¡Empieza tu primera partida!", color = Accent, fontWeight = FontWeight.Bold, fontSize = 14.sp)
-                }
-            }
-        }
-
-        Spacer(Modifier.height(20.dp))
-
         // Missions
         if (missions.missions.isNotEmpty()) {
             Text("📋 Misiones diarias", color = TextLight, fontWeight = FontWeight.Bold, fontSize = 16.sp)
@@ -158,9 +137,6 @@ fun HomeScreen(navController: NavController, gameViewModel: GameViewModel) {
                     }
                 }
                 Spacer(Modifier.height(10.dp))
-            }
-            if (missions.allCompletedStreak > 0) {
-                Text("🔥 Racha: ${missions.allCompletedStreak} días", color = Warning, fontSize = 11.sp)
             }
         } else {
             GlassCard(Modifier.fillMaxWidth()) {

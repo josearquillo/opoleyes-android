@@ -1,5 +1,6 @@
 package com.opotest.ui.screens
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.animation.*
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.*
@@ -17,7 +18,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.opotest.data.model.GameMode
-import com.opotest.data.repository.ProgressRepository
 import com.opotest.ui.components.*
 import com.opotest.ui.navigation.GameViewModel
 import com.opotest.ui.navigation.Routes
@@ -26,8 +26,6 @@ import kotlinx.coroutines.delay
 
 @Composable
 fun GameScreen(navController: NavController, gameViewModel: GameViewModel) {
-    val context = navController.context
-    val progressRepo = ProgressRepository(context)
     val uiState by gameViewModel.uiState.collectAsState()
     val popups by gameViewModel.popups.collectAsState()
     val powerUpToast by gameViewModel.powerUpToast.collectAsState()
@@ -41,6 +39,8 @@ fun GameScreen(navController: NavController, gameViewModel: GameViewModel) {
 
     var showExitDialog by remember { mutableStateOf(false) }
     var autoAdvanceTriggered by remember { mutableStateOf(false) }
+
+    BackHandler { showExitDialog = true }
 
     // Timer countdown
     LaunchedEffect(uiState.mode, uiState.timer) {
@@ -102,16 +102,6 @@ fun GameScreen(navController: NavController, gameViewModel: GameViewModel) {
 
     Box(modifier = Modifier.fillMaxSize().background(BgDark)) {
         Column(modifier = Modifier.fillMaxSize().padding(8.dp)) {
-            // Top bar with exit button + HUD
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                GameButton("← Salir", modifier = Modifier.height(36.dp), color1 = SurfaceVariant, color2 = BgCard) {
-                    showExitDialog = true
-                }
-                Spacer(Modifier.weight(1f))
-            }
             Spacer(Modifier.height(4.dp))
             HudBar(
                 score = uiState.score,

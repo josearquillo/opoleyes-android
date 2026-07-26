@@ -84,8 +84,7 @@ class MissionRepository(private val context: Context) {
             selected.add(pool.removeAt(idx))
         }
 
-        val allCompletedStreak = existing?.allCompletedStreak ?: 0
-        val data = MissionData(today, selected, allCompletedStreak)
+        val data = MissionData(today, selected)
         saveDailyMissions(data)
         return data
     }
@@ -109,7 +108,6 @@ class MissionRepository(private val context: Context) {
             }
         }
         if (anyCompleted && data.missions.all { it.completed }) {
-            data.allCompletedStreak += 1
             progressRepo.addXP(200)
         }
         saveDailyMissions(data)

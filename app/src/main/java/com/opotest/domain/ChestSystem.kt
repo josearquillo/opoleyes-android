@@ -11,10 +11,12 @@ class ChestSystem(private val context: Context) {
     private val progressRepo = ProgressRepository(context)
     private val gameRepo = GameRepository(context)
 
-    fun generateChest(newRecord: Boolean, accuracy: Int, totalAnswered: Int): ChestReward {
+    fun generateChest(newRecord: Boolean, accuracy: Int, totalAnswered: Int, score: Int): ChestReward? {
+        if (totalAnswered < 5 || score < 100) return null
         val type = when {
-            newRecord && accuracy >= 90 && totalAnswered >= 5 -> ChestType.GOLD
-            newRecord -> ChestType.SILVER
+            newRecord && accuracy >= 90 && totalAnswered >= 10 -> ChestType.GOLD
+            newRecord && accuracy >= 70 -> ChestType.SILVER
+            accuracy >= 80 && totalAnswered >= 10 -> ChestType.SILVER
             else -> ChestType.WOOD
         }
         val rankIdx = progressRepo.getRankIndex()

@@ -185,7 +185,7 @@ fun ChestOverlay(chest: ChestReward, opened: Boolean, onOpen: () -> Unit, onDism
 
     if (!visible) return
 
-    val typeIcon = when (chest.type) { ChestType.WOOD -> "🪵"; ChestType.SILVER -> "🥈"; ChestType.GOLD -> "🥇" }
+    val typeIcon = when (chest.type) { ChestType.WOOD -> "📦"; ChestType.SILVER -> "🗃️"; ChestType.GOLD -> "�" }
     val typeLabel = chest.type.label
     val typeColor = when (chest.type) { ChestType.WOOD -> TextMuted; ChestType.SILVER -> Color(0xFFcbd5e1); ChestType.GOLD -> Warning }
 
@@ -242,6 +242,12 @@ fun ChestOverlay(chest: ChestReward, opened: Boolean, onOpen: () -> Unit, onDism
 
 @Composable
 fun RankUpOverlayView(overlay: RankUpOverlay, onDismiss: () -> Unit) {
+    var visible by remember { mutableStateOf(false) }
+    LaunchedEffect(Unit) {
+        delay(500)
+        visible = true
+    }
+
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -249,14 +255,49 @@ fun RankUpOverlayView(overlay: RankUpOverlay, onDismiss: () -> Unit) {
             .clickable { onDismiss() },
         contentAlignment = Alignment.Center
     ) {
-        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            Text(overlay.newRank.icon, fontSize = 72.sp)
-            Spacer(Modifier.height(16.dp))
-            Text("¡Has subido a ${overlay.newRank.name}!", color = Warning, fontSize = 24.sp, fontWeight = FontWeight.Bold)
-            Spacer(Modifier.height(8.dp))
-            Text("${overlay.oldRank.icon} ${overlay.oldRank.name} → ${overlay.newRank.icon} ${overlay.newRank.name}", color = Color(0xFFfcd34d), fontSize = 16.sp)
-            Spacer(Modifier.height(24.dp))
-            GameButton("Continuar", color1 = Primary, color2 = PurpleDark) { onDismiss() }
+        AnimatedVisibility(
+            visible = visible,
+            enter = scaleIn(animationSpec = tween(600, easing = androidx.compose.animation.core.EaseOutBack)) + fadeIn(tween(400))
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth(0.85f)
+                    .clip(RoundedCornerShape(20.dp))
+                    .background(Brush.verticalGradient(listOf(BgCard, BgCardDark)))
+                    .border(2.dp, Warning, RoundedCornerShape(20.dp))
+                    .padding(28.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text("🎉", fontSize = 56.sp)
+                Spacer(Modifier.height(12.dp))
+                Text(overlay.newRank.icon, fontSize = 64.sp)
+                Spacer(Modifier.height(12.dp))
+                Text("¡Has subido a ${overlay.newRank.name}!", color = Warning, fontSize = 22.sp, fontWeight = FontWeight.Bold)
+                Spacer(Modifier.height(8.dp))
+                Text("${overlay.oldRank.icon} ${overlay.oldRank.name} → ${overlay.newRank.icon} ${overlay.newRank.name}", color = Color(0xFFfcd34d), fontSize = 15.sp)
+
+                val unlockText = com.opotest.data.Constants.RANK_UNLOCKS[overlay.newRank.index]
+                if (unlockText != null) {
+                    Spacer(Modifier.height(20.dp))
+                    Text("🔓 Has desbloqueado:", color = TextLight, fontSize = 14.sp, fontWeight = FontWeight.Bold)
+                    Spacer(Modifier.height(8.dp))
+                    Surface(
+                        shape = RoundedCornerShape(12.dp),
+                        color = Color.White.copy(alpha = 0.08f)
+                    ) {
+                        Text(
+                            unlockText,
+                            color = AccentLight,
+                            fontSize = 16.sp,
+                            fontWeight = FontWeight.Bold,
+                            modifier = Modifier.padding(horizontal = 20.dp, vertical = 12.dp)
+                        )
+                    }
+                }
+
+                Spacer(Modifier.height(24.dp))
+                GameButton("Continuar", color1 = Primary, color2 = PurpleDark) { onDismiss() }
+            }
         }
     }
 }

@@ -225,6 +225,10 @@ class GameViewModelTest {
     @Test
     fun fun_onGameOver_setsChestReward() {
         vm.startAllLawsGame()
+        repeat(6) {
+            vm.engine.nextQuestion()
+            vm.engine.answer(vm.engine.currentQ!!.correct)
+        }
         vm.onGameOver()
         assertNotNull(vm.chestReward.value)
     }
@@ -232,6 +236,10 @@ class GameViewModelTest {
     @Test
     fun fun_openChest_addsXP() {
         vm.startAllLawsGame()
+        repeat(6) {
+            vm.engine.nextQuestion()
+            vm.engine.answer(vm.engine.currentQ!!.correct)
+        }
         vm.onGameOver()
         val xpBefore = vm.getProgressRepo().getXP()
         vm.openChest()
