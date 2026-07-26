@@ -24,5 +24,5 @@ object DataProvider {
 
     fun getTests(context: Context) = loadData(context).map { it.test }
 
-    fun getTemaTests(context: Context) = loadData(context).map { it.test }.filter { it.tema != null }
+    fun getTemaTests(context: Context) = loadData(context).map { it.test }.filter { it.tema != null }.sortedBy { it.tema }
 }
