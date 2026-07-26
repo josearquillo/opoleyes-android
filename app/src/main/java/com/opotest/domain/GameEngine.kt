@@ -98,18 +98,18 @@ class GameEngine(private val context: Context) {
         return true
     }
 
-    fun startTemaGame(testId: String): Boolean {
+    fun startTemaGame(testId: String, gameMode: GameMode = GameMode.SURVIVAL): Boolean {
         category = testId
-        mode = GameMode.SURVIVAL
+        mode = gameMode
         pool = gameRepo.startTemaGame(testId)
         if (pool.isEmpty()) return false
         initGameStats()
         return true
     }
 
-    fun startAllLawsGame(): Boolean {
+    fun startAllLawsGame(gameMode: GameMode = GameMode.SURVIVAL): Boolean {
         category = ""
-        mode = if (mode == GameMode.CHALLENGE) GameMode.CHALLENGE else GameMode.SURVIVAL
+        mode = gameMode
         pool = gameRepo.startAllLawsGame()
         if (pool.isEmpty()) return false
         initGameStats()

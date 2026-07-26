@@ -19,6 +19,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.opotest.data.Constants
 import com.opotest.data.local.DataProvider
+import com.opotest.data.model.GameMode
 import com.opotest.data.model.Mission
 import com.opotest.data.model.MissionData
 import com.opotest.data.repository.MissionRepository
@@ -48,7 +49,7 @@ fun HomeScreen(navController: NavController, gameViewModel: GameViewModel) {
     val infiniteTransition = rememberInfiniteTransition(label = "home")
     val logoScale by infiniteTransition.animateFloat(
         initialValue = 0.97f, targetValue = 1.03f,
-        animationSpec = infiniteRepeatable(tween(2, easing = LinearEasing), RepeatMode.Reverse),
+        animationSpec = infiniteRepeatable(tween(1500, easing = LinearEasing), RepeatMode.Reverse),
         label = "logo"
     )
 
@@ -135,6 +136,7 @@ fun HomeScreen(navController: NavController, gameViewModel: GameViewModel) {
             missions.missions.forEach { m ->
                 MissionCard(m) {
                     if (!m.completed) {
+                        gameViewModel.pendingMode = GameMode.SURVIVAL
                         when (m.type) {
                             "review" -> {
                                 gameViewModel.startQuickGame()

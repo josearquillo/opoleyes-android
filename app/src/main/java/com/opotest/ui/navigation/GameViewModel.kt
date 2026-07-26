@@ -102,14 +102,16 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
         return ok
     }
 
+    var pendingMode: GameMode = GameMode.SURVIVAL
+
     fun startTemaGame(testId: String): Boolean {
-        val ok = engine.startTemaGame(testId)
+        val ok = engine.startTemaGame(testId, pendingMode)
         if (ok) { engine.nextQuestion(); updateUiState() }
         return ok
     }
 
     fun startAllLawsGame(): Boolean {
-        val ok = engine.startAllLawsGame()
+        val ok = engine.startAllLawsGame(pendingMode)
         if (ok) { engine.nextQuestion(); updateUiState() }
         return ok
     }

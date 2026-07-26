@@ -61,11 +61,14 @@ fun ModeSelectScreen(navController: NavController, gameViewModel: GameViewModel)
                         GameMode.CHALLENGE -> {
                             if (gameViewModel.startChallengeGame()) navController.navigate(Routes.GAME)
                         }
-                        else -> navController.navigate(Routes.TEMA_SELECT)
+                        else -> {
+                            gameViewModel.pendingMode = mode.mode
+                            navController.navigate(Routes.TEMA_SELECT)
+                        }
                     }
                 }
-                Spacer(Modifier.height(12.dp))
             }
+            Spacer(Modifier.height(12.dp))
         }
     }
 }

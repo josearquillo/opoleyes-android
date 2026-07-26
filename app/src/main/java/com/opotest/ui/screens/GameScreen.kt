@@ -225,13 +225,19 @@ fun GameScreen(navController: NavController, gameViewModel: GameViewModel) {
                         visible = true
                     }
                     AnimatedVisibility(visible = visible) {
-                        Text(
-                            popup.text,
-                            color = popup.color,
-                            fontSize = popup.size.sp,
-                            fontWeight = FontWeight.Bold,
+                        Surface(
+                            shape = RoundedCornerShape(8.dp),
+                            color = Color.Black.copy(alpha = 0.6f),
                             modifier = Modifier.padding(vertical = 4.dp)
-                        )
+                        ) {
+                            Text(
+                                popup.text,
+                                color = popup.color,
+                                fontSize = popup.size.sp,
+                                fontWeight = FontWeight.Bold,
+                                modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp)
+                            )
+                        }
                     }
                 }
             }

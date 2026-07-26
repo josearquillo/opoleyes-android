@@ -37,7 +37,7 @@ fun NavGraph() {
     NavHost(
         navController = navController,
         startDestination = Routes.LOADING,
-        modifier = Modifier.fillMaxSize(),
+        modifier = Modifier.fillMaxSize().windowInsetsPadding(WindowInsets.systemBars),
         enterTransition = { slideInHorizontally(animationSpec = tween(300), initialOffsetX = { it / 4 }) + fadeIn(tween(300)) },
         exitTransition = { fadeOut(tween(200)) },
         popEnterTransition = { slideInHorizontally(animationSpec = tween(300), initialOffsetX = { -it / 4 }) + fadeIn(tween(300)) },
