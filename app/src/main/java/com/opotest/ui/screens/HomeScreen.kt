@@ -17,11 +17,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import com.opotest.data.Constants
-import com.opotest.data.local.DataProvider
 import com.opotest.data.model.GameMode
 import com.opotest.data.model.Mission
-import com.opotest.data.model.MissionData
 import com.opotest.data.repository.MissionRepository
 import com.opotest.data.repository.ProgressRepository
 import com.opotest.ui.components.*

@@ -37,8 +37,6 @@ fun TestBrowserScreen(navController: NavController, trainingViewModel: TrainingV
         return
     }
 
-    val am = td.answers.associate { it.id to it.correct }
-    val correctAnswer = am[currentQ.id]
     val isLast = uiState.currentIndex == td.questions.size - 1
     val letters = listOf("A", "B", "C", "D")
 
@@ -64,9 +62,9 @@ fun TestBrowserScreen(navController: NavController, trainingViewModel: TrainingV
     Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
         Row(
             modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Spacer(Modifier.weight(1f))
             Text("Pregunta ${uiState.currentIndex + 1} de ${uiState.totalQuestions} 🚩", color = TextLight, fontSize = 14.sp)
         }
         Spacer(Modifier.height(12.dp))

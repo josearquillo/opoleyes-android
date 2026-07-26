@@ -1,9 +1,12 @@
 package com.opotest.ui.components
 
 import androidx.compose.animation.core.*
+import androidx.compose.foundation.LocalIndication
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -31,7 +34,8 @@ fun GameButton(
     enabled: Boolean = true,
     onClick: () -> Unit
 ) {
-    var isPressed by remember { mutableStateOf(false) }
+    val interactionSource = remember { MutableInteractionSource() }
+    val isPressed by interactionSource.collectIsPressedAsState()
     val scale by animateFloatAsState(
         targetValue = if (isPressed) 0.96f else 1f,
         animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy),
@@ -42,7 +46,7 @@ fun GameButton(
             .scale(scale)
             .clip(RoundedCornerShape(14.dp))
             .background(Brush.verticalGradient(listOf(color1, color2)))
-            .clickable(enabled = enabled) { isPressed = true; onClick() }
+            .clickable(interactionSource, LocalIndication.current, enabled = enabled) { onClick() }
             .padding(horizontal = 12.dp, vertical = 10.dp),
         contentAlignment = Alignment.Center
     ) {

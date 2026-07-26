@@ -18,7 +18,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.opotest.data.local.DataProvider
-import com.opotest.data.repository.ProgressRepository
 import com.opotest.ui.components.GameButton
 import com.opotest.ui.navigation.TrainingViewModel
 import com.opotest.ui.navigation.Routes
@@ -27,8 +26,6 @@ import com.opotest.ui.theme.*
 @Composable
 fun TrainSelectScreen(navController: NavController, trainingViewModel: TrainingViewModel) {
     val context = navController.context
-    val progressRepo = ProgressRepository(context)
-    val unlocks = remember { progressRepo.getUnlocks() }
     val tests = remember { DataProvider.getTemaTests(context) }
     var selectedTab by remember { mutableStateOf(0) }
     var query by remember { mutableStateOf("") }
