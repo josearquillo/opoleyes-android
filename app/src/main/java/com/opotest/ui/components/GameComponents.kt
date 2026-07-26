@@ -1,0 +1,279 @@
+package com.opotest.ui.components
+
+import androidx.compose.animation.core.*
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.scale
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import com.opotest.ui.theme.*
+
+@Composable
+fun GameButton(
+    text: String,
+    icon: String = "",
+    modifier: Modifier = Modifier,
+    color1: Color = Primary,
+    color2: Color = PurpleDark,
+    enabled: Boolean = true,
+    onClick: () -> Unit
+) {
+    var isPressed by remember { mutableStateOf(false) }
+    val scale by animateFloatAsState(
+        targetValue = if (isPressed) 0.96f else 1f,
+        animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy),
+        label = "buttonScale"
+    )
+    Box(
+        modifier = modifier
+            .scale(scale)
+            .clip(RoundedCornerShape(14.dp))
+            .background(Brush.verticalGradient(listOf(color1, color2)))
+            .clickable(enabled = enabled) { isPressed = true; onClick() }
+            .padding(horizontal = 24.dp, vertical = 14.dp),
+        contentAlignment = Alignment.Center
+    ) {
+        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.Center) {
+            if (icon.isNotEmpty()) Text(icon, fontSize = 20.sp)
+            if (icon.isNotEmpty()) Spacer(Modifier.width(8.dp))
+            Text(text, color = Color.White, fontWeight = FontWeight.Bold, fontSize = 18.sp)
+        }
+    }
+}
+
+@Composable
+fun OptionCard(
+    letter: String,
+    text: String,
+    modifier: Modifier = Modifier,
+    isCorrect: Boolean = false,
+    isSelected: Boolean = false,
+    isWrong: Boolean = false,
+    isHintRemoved: Boolean = false,
+    isFiftyFiftyRemoved: Boolean = false,
+    answered: Boolean = false,
+    enabled: Boolean = true,
+    onClick: () -> Unit = {}
+) {
+    if (isFiftyFiftyRemoved) return
+    val bgColor = when {
+        answered && isCorrect -> Brush.verticalGradient(listOf(SuccessDark, Success))
+        answered && isWrong -> Brush.verticalGradient(listOf(DangerDark, Danger))
+        !answered && isSelected -> Brush.verticalGradient(listOf(Primary, PurpleDark))
+        !answered && isHintRemoved -> Brush.verticalGradient(listOf(Color(0xFF1a1a2e), Color(0xFF0f0f1e)))
+        else -> Brush.verticalGradient(listOf(BgCard, BgCardDark))
+    }
+    val badgeColor = when {
+        answered && isCorrect -> Success
+        answered && isWrong -> Danger
+        isSelected -> Primary
+        else -> SurfaceVariant
+    }
+    val textColor = when {
+        isHintRemoved && !answered -> TextDim
+        isSelected || (isCorrect && answered) -> Color.White
+        else -> Color(0xFFcbd5e1)
+    }
+    val borderColor = if (answered && isCorrect) Success else if (answered && isWrong) Danger else Color.Transparent
+    val borderWidth = if (answered && (isCorrect || isWrong)) 2.dp else 0.dp
+
+    Box(
+        modifier = modifier
+            .clip(RoundedCornerShape(12.dp))
+            .background(bgColor)
+            .border(borderWidth, borderColor, RoundedCornerShape(12.dp))
+            .clickable(enabled = enabled && !answered && !isHintRemoved) { onClick() }
+            .padding(12.dp)
+    ) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Box(
+                modifier = Modifier
+                    .size(32.dp)
+                    .clip(CircleShape)
+                    .background(badgeColor),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(letter, color = Color.White, fontWeight = FontWeight.Bold, fontSize = 16.sp)
+            }
+            Spacer(Modifier.width(12.dp))
+            Text(
+                text = text,
+                color = textColor,
+                fontSize = 15.sp,
+                modifier = Modifier.weight(1f)
+            )
+        }
+    }
+}
+
+@Composable
+fun HudBar(
+    score: Int,
+    combo: Int,
+    lives: Int,
+    timer: Float,
+    mode: com.opotest.data.model.GameMode,
+    questionNum: Int,
+    shieldCharges: Int,
+    freezeActive: Boolean,
+    modifier: Modifier = Modifier
+) {
+    Row(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(horizontal = 12.dp, vertical = 8.dp),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            if (mode == com.opotest.data.model.GameMode.SURVIVAL || mode == com.opotest.data.model.GameMode.QUICK) {
+                repeat(lives) { Text("❤️", fontSize = 18.sp) }
+            }
+            if (shieldCharges > 0) {
+                Spacer(Modifier.width(4.dp))
+                Text("🛡️", fontSize = 18.sp)
+            }
+        }
+        Text(
+            "$score pts",
+            color = PrimaryLight,
+            fontWeight = FontWeight.Bold,
+            fontSize = 20.sp
+        )
+        if (mode == com.opotest.data.model.GameMode.TIMETRIAL || mode == com.opotest.data.model.GameMode.CHALLENGE) {
+            val timerColor = if (timer < 10) Danger else TextLight
+            val timerText = if (freezeActive) "🧊 ${timer.toInt()}s" else "⏱️ ${timer.toInt()}s"
+            Text(timerText, color = timerColor, fontWeight = FontWeight.Bold, fontSize = 18.sp)
+        }
+        if (combo > 0) {
+            val comboColor = when {
+                combo >= 20 -> Warning
+                combo >= 10 -> Danger
+                else -> Orange
+            }
+            Text("🔥 x$combo", color = comboColor, fontWeight = FontWeight.Bold, fontSize = 16.sp)
+        }
+        Text("#$questionNum", color = TextDim, fontSize = 13.sp)
+    }
+}
+
+@Composable
+fun ComboBar(
+    fill: Float,
+    overchargeActive: Boolean,
+    overchargeCharges: Int,
+    modifier: Modifier = Modifier
+) {
+    Column(modifier = modifier.padding(horizontal = 60.dp)) {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(8.dp)
+                .clip(RoundedCornerShape(4.dp))
+                .background(Color.White.copy(alpha = 0.1f))
+        ) {
+            val gradient = if (overchargeActive) {
+                Brush.horizontalGradient(listOf(Warning, Color(0xFFf59e0b), Warning))
+            } else if (fill < 0.3f) {
+                Brush.horizontalGradient(listOf(Primary, PrimaryLight))
+            } else if (fill < 0.7f) {
+                Brush.horizontalGradient(listOf(Orange, OrangeDark))
+            } else {
+                Brush.horizontalGradient(listOf(Danger, Warning))
+            }
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth(fill.coerceIn(0f, 1f))
+                    .height(8.dp)
+                    .clip(RoundedCornerShape(4.dp))
+                    .background(gradient)
+            )
+        }
+        if (overchargeActive) {
+            Text(
+                "⚡ OVERCHARGE x$overchargeCharges",
+                color = Warning,
+                fontWeight = FontWeight.Bold,
+                fontSize = 12.sp,
+                modifier = Modifier.padding(top = 4.dp)
+            )
+        }
+    }
+}
+
+@Composable
+fun ProgressBar(
+    progress: Float,
+    modifier: Modifier = Modifier,
+    color: Color = Primary,
+    height: Int = 8
+) {
+    Box(
+        modifier = modifier
+            .fillMaxWidth()
+            .height(height.dp)
+            .clip(RoundedCornerShape((height / 2).dp))
+            .background(Color.White.copy(alpha = 0.1f))
+    ) {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth(progress.coerceIn(0f, 1f))
+                .height(height.dp)
+                .clip(RoundedCornerShape((height / 2).dp))
+                .background(color)
+        )
+    }
+}
+
+@Composable
+fun StatCard(value: String, label: String, modifier: Modifier = Modifier) {
+    Column(
+        modifier = modifier
+            .clip(RoundedCornerShape(12.dp))
+            .background(Brush.verticalGradient(listOf(BgCard, BgCardDark)))
+            .padding(12.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text(value, color = TextLight, fontWeight = FontWeight.Bold, fontSize = 22.sp)
+        Text(label, color = TextDim, fontSize = 11.sp)
+    }
+}
+
+@Composable
+fun GlassCard(
+    modifier: Modifier = Modifier,
+    content: @Composable ColumnScope.() -> Unit
+) {
+    Column(
+        modifier = modifier
+            .clip(RoundedCornerShape(14.dp))
+            .background(Color.White.copy(alpha = 0.06f))
+            .padding(16.dp),
+        content = content
+    )
+}
+
+@Composable
+fun RankBadge(rank: com.opotest.data.model.Rank, modifier: Modifier = Modifier) {
+    Box(
+        modifier = modifier
+            .clip(RoundedCornerShape(16.dp))
+            .background(Brush.horizontalGradient(listOf(Primary, Accent)))
+            .padding(horizontal = 14.dp, vertical = 8.dp)
+    ) {
+        Text("${rank.icon} ${rank.name}", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 13.sp)
+    }
+}

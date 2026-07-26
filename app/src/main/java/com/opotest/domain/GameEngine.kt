@@ -1,0 +1,286 @@
+package com.opotest.domain
+
+import android.content.Context
+import com.opotest.data.Constants
+import com.opotest.data.local.DataProvider
+import com.opotest.data.local.PreferencesManager
+import com.opotest.data.model.GameMode
+import com.opotest.data.model.QuestionEntry
+import com.opotest.data.repository.GameRepository
+import com.opotest.data.repository.ProgressRepository
+import com.opotest.data.repository.StatsRepository
+
+class GameEngine(private val context: Context) {
+    private val gameRepo = GameRepository(context)
+    private val statsRepo = StatsRepository(context)
+    private val progressRepo = ProgressRepository(context)
+    private val prefs = PreferencesManager(context)
+
+    var mode: GameMode = GameMode.SURVIVAL
+    var category: String = ""
+    var pool: List<QuestionEntry> = emptyList()
+    var currentQ: QuestionEntry? = null
+    var askedIds: MutableSet<String> = mutableSetOf()
+    var questionNum: Int = 0
+    var score: Int = 0
+    var combo: Int = 0
+    var maxCombo: Int = 0
+    var correctCount: Int = 0
+    var totalAnswered: Int = 0
+    var streak: Int = 0
+    var lives: Int = 0
+    var timer: Float = 0f
+    var answered: Boolean = false
+    var selectedOption: String? = null
+    var comboBarFill: Float = 0f
+    var comboOverchargeActive: Boolean = false
+    var comboOverchargeCharges: Int = 0
+    var startRankIndex: Int = 0
+    var startXP: Int = 0
+
+    var fiftyFiftyCharges: Int = 0
+    var fiftyFiftyActive: Boolean = false
+    var fiftyFiftyRemoved: List<String> = emptyList()
+    var freezeCharges: Int = 0
+    var freezeActive: Boolean = false
+    var freezeTimer: Float = 0f
+    var doubleScoreCharges: Int = 0
+    var doubleScoreActive: Boolean = false
+    var hintCharges: Int = 0
+    var hintActive: Boolean = false
+    var hintRemoved: List<String> = emptyList()
+    var shieldCharges: Int = 0
+    var ctxFiftyFiftyUsed: Boolean = false
+    var ctxLifeRecovered: Boolean = false
+
+    fun initGameStats() {
+        score = 0; combo = 0; maxCombo = 0; correctCount = 0; totalAnswered = 0; streak = 0
+        comboBarFill = 0f; comboOverchargeActive = false; comboOverchargeCharges = 0
+        answered = false; selectedOption = null; questionNum = 0
+        askedIds.clear()
+        fiftyFiftyCharges = 0; fiftyFiftyActive = false; fiftyFiftyRemoved = emptyList()
+        freezeCharges = 0; freezeActive = false; freezeTimer = 0f
+        doubleScoreCharges = 0; doubleScoreActive = false
+        hintCharges = 0; hintActive = false; hintRemoved = emptyList()
+        shieldCharges = 0; ctxFiftyFiftyUsed = false; ctxLifeRecovered = false
+        startRankIndex = progressRepo.getRankIndex()
+        startXP = progressRepo.getXP()
+
+        if (progressRepo.isUnlocked("fiftyFifty")) fiftyFiftyCharges = 1
+        if (progressRepo.isUnlocked("freezeTime")) freezeCharges = 1
+        if (progressRepo.isUnlocked("doubleScore")) doubleScoreCharges = 1
+        hintCharges = if (progressRepo.isUnlocked("hint")) 1 else 0
+
+        val freePowerUps = prefs.getFreePowerUps()
+        for (pu in freePowerUps) {
+            when (pu) {
+                "shield" -> shieldCharges++
+                "fiftyFifty" -> fiftyFiftyCharges++
+                "hint" -> hintCharges++
+                "doubleScore" -> doubleScoreCharges++
+                "freezeTime" -> freezeCharges++
+            }
+        }
+        prefs.clearFreePowerUps()
+
+        when (mode) {
+            GameMode.TIMETRIAL -> { timer = 180f; lives = 0 }
+            GameMode.CHALLENGE -> { lives = 0; timer = 120f }
+            else -> { lives = 3; timer = 0f }
+        }
+    }
+
+    fun startQuickGame(): Boolean {
+        mode = GameMode.QUICK; category = ""
+        pool = gameRepo.startQuickGame()
+        if (pool.isEmpty()) return false
+        initGameStats()
+        return true
+    }
+
+    fun startTemaGame(testId: String): Boolean {
+        category = testId
+        mode = GameMode.SURVIVAL
+        pool = gameRepo.startTemaGame(testId)
+        if (pool.isEmpty()) return false
+        initGameStats()
+        return true
+    }
+
+    fun startAllLawsGame(): Boolean {
+        category = ""
+        mode = if (mode == GameMode.CHALLENGE) GameMode.CHALLENGE else GameMode.SURVIVAL
+        pool = gameRepo.startAllLawsGame()
+        if (pool.isEmpty()) return false
+        initGameStats()
+        return true
+    }
+
+    fun startChallengeGame(): Boolean {
+        mode = GameMode.CHALLENGE; category = ""
+        pool = gameRepo.startAllLawsGame()
+        if (pool.isEmpty()) return false
+        initGameStats()
+        return true
+    }
+
+    fun nextQuestion(): Boolean {
+        if (mode == GameMode.SURVIVAL && lives <= 0) return false
+        if (mode == GameMode.QUICK && (lives <= 0 || questionNum >= Constants.QUICK_MODE_QUESTIONS)) return false
+        if (mode == GameMode.TIMETRIAL && timer <= 0) return false
+        if (mode == GameMode.CHALLENGE && (questionNum >= 15 || timer <= 0)) return false
+
+        val available = pool.filter { !askedIds.contains("${it.testId}:${it.origId}") }
+        val usePool = if (available.isNotEmpty()) available else pool
+        val tw = usePool.sumOf { it.weight }
+        currentQ = if (tw == 0) {
+            usePool.random()
+        } else {
+            var r = (0 until tw).random()
+            var cum = 0
+            var selected: QuestionEntry? = null
+            for (item in usePool) {
+                cum += item.weight
+                if (r < cum) { selected = item; break }
+            }
+            selected ?: usePool.random()
+        }
+        askedIds.add("${currentQ!!.testId}:${currentQ!!.origId}")
+        answered = false; selectedOption = null; questionNum++
+        fiftyFiftyActive = false; fiftyFiftyRemoved = emptyList()
+        hintActive = false; hintRemoved = emptyList()
+        return true
+    }
+
+    fun answer(letter: String): AnswerResult {
+        if (answered) return AnswerResult.ALREADY_ANSWERED
+        selectedOption = letter
+        answered = true
+        totalAnswered++
+        val q = currentQ ?: return AnswerResult.ERROR
+        val isCorrect = letter == q.correct
+        val key = "${q.testId}:${q.origId}"
+
+        if (isCorrect) {
+            statsRepo.updateStat(key, true)
+            combo++
+            maxCombo = maxOf(maxCombo, combo)
+
+            if (!comboOverchargeActive) {
+                comboBarFill = minOf(1f, comboBarFill + 0.1f)
+                if (comboBarFill >= 1f) {
+                    comboOverchargeActive = true; comboOverchargeCharges = 3; comboBarFill = 0f
+                }
+            } else {
+                comboOverchargeCharges--
+                if (mode == GameMode.SURVIVAL || mode == GameMode.QUICK) {
+                    if (lives < 3) lives++
+                } else {
+                    timer = minOf(300f, timer + 30f)
+                }
+                if (comboOverchargeCharges <= 0) comboOverchargeActive = false
+            }
+
+            var pts = 10 * combo
+            if (doubleScoreActive) { pts *= 2; doubleScoreActive = false }
+            score += pts
+            correctCount++
+            progressRepo.addXP(pts)
+
+            streak++
+            if (streak > 0 && streak % 5 == 0) {
+                if (mode == GameMode.SURVIVAL) {
+                    if (progressRepo.isUnlocked("lifeRecovery") && lives < 3) {
+                        lives++; ctxLifeRecovered = true
+                    } else if (progressRepo.isUnlocked("fiftyFifty")) {
+                        fiftyFiftyCharges++
+                    }
+                } else if (mode == GameMode.TIMETRIAL || mode == GameMode.CHALLENGE) {
+                    timer = minOf(300f, timer + 20f)
+                }
+                if (mode == GameMode.TIMETRIAL && progressRepo.isUnlocked("fiftyFifty")) fiftyFiftyCharges++
+                if (streak % 10 == 0 && mode == GameMode.TIMETRIAL && progressRepo.isUnlocked("freezeTime")) freezeCharges++
+                if (streak % 15 == 0 && progressRepo.isUnlocked("doubleScore") && mode != GameMode.CHALLENGE && mode != GameMode.QUICK) doubleScoreCharges++
+            }
+
+            if (mode == GameMode.TIMETRIAL || mode == GameMode.CHALLENGE) {
+                timer = minOf(300f, timer + 15f)
+            }
+
+            if (q.testId.isNotEmpty()) {
+                val newPct = statsRepo.getLeyProgress(q.testId)
+                if (newPct >= 100 && !prefs.isLawMastered(q.testId)) {
+                    prefs.setLawMastered(q.testId)
+                    progressRepo.addXP(200)
+                }
+            }
+
+            return AnswerResult.CORRECT
+        } else {
+            if (shieldCharges > 0) {
+                shieldCharges = 0
+                statsRepo.updateStat(key, false)
+                return AnswerResult.SHIELD_USED
+            }
+            streak = 0
+            statsRepo.updateStat(key, false)
+            combo = 0; comboBarFill = 0f; comboOverchargeActive = false; comboOverchargeCharges = 0
+            if (mode == GameMode.SURVIVAL || mode == GameMode.QUICK) {
+                lives--
+            } else {
+                timer = maxOf(0f, timer - 10f)
+            }
+            return AnswerResult.WRONG
+        }
+    }
+
+    fun activateFiftyFifty() {
+        if (fiftyFiftyCharges <= 0 || fiftyFiftyActive || answered) return
+        fiftyFiftyCharges--; fiftyFiftyActive = true; ctxFiftyFiftyUsed = true
+        val q = currentQ ?: return
+        val wrong = listOf("A", "B", "C", "D").filter {
+            it != q.correct && q.opciones[it] != null && !hintRemoved.contains(it)
+        }.toMutableList()
+        val removed = mutableListOf<String>()
+        while (removed.size < 2 && wrong.isNotEmpty()) {
+            val idx = (0 until wrong.size).random()
+            removed.add(wrong.removeAt(idx))
+        }
+        fiftyFiftyRemoved = removed
+    }
+
+    fun activateFreeze() {
+        if (freezeCharges <= 0 || freezeActive || answered) return
+        freezeCharges--; freezeActive = true; freezeTimer = 10f
+    }
+
+    fun activateDoubleScore() {
+        if (doubleScoreCharges <= 0 || doubleScoreActive || answered) return
+        doubleScoreCharges--; doubleScoreActive = true
+    }
+
+    fun useHint() {
+        if (hintCharges <= 0 || hintActive || answered) return
+        val q = currentQ ?: return
+        val wrong = listOf("A", "B", "C", "D").filter {
+            it != q.correct && q.opciones[it] != null && !fiftyFiftyRemoved.contains(it) && !hintRemoved.contains(it)
+        }
+        if (wrong.isEmpty()) return
+        val remove = wrong.random()
+        hintRemoved = hintRemoved + remove
+        hintActive = true; hintCharges--
+    }
+
+    fun isGameOver(): Boolean {
+        if (mode == GameMode.SURVIVAL && lives <= 0) return true
+        if (mode == GameMode.QUICK && (lives <= 0 || questionNum >= Constants.QUICK_MODE_QUESTIONS)) return true
+        if (mode == GameMode.TIMETRIAL && timer <= 0) return true
+        if (mode == GameMode.CHALLENGE && (questionNum >= 15 || timer <= 0)) return true
+        return false
+    }
+
+    fun getAccuracy(): Int =
+        if (totalAnswered > 0) correctCount * 100 / totalAnswered else 0
+
+    enum class AnswerResult { CORRECT, WRONG, SHIELD_USED, ALREADY_ANSWERED, ERROR }
+}
