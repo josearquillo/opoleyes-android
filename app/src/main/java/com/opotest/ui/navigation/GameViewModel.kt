@@ -97,6 +97,7 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun startQuickGame(): Boolean {
+        _popups.value = emptyList()
         val ok = engine.startQuickGame()
         if (ok) { engine.nextQuestion(); updateUiState() }
         return ok
@@ -105,18 +106,21 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
     var pendingMode: GameMode = GameMode.SURVIVAL
 
     fun startTemaGame(testId: String): Boolean {
+        _popups.value = emptyList()
         val ok = engine.startTemaGame(testId, pendingMode)
         if (ok) { engine.nextQuestion(); updateUiState() }
         return ok
     }
 
     fun startAllLawsGame(): Boolean {
+        _popups.value = emptyList()
         val ok = engine.startAllLawsGame(pendingMode)
         if (ok) { engine.nextQuestion(); updateUiState() }
         return ok
     }
 
     fun startChallengeGame(): Boolean {
+        _popups.value = emptyList()
         val ok = engine.startChallengeGame()
         if (ok) { engine.nextQuestion(); updateUiState() }
         return ok

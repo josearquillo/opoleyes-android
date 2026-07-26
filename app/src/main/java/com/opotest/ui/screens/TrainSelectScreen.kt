@@ -82,11 +82,11 @@ fun TrainSelectScreen(navController: NavController, trainingViewModel: TrainingV
         } else {
             Text("Cantidad de preguntas:", color = TextLight, fontSize = 16.sp)
             Spacer(Modifier.height(12.dp))
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                listOf(10, 20, 30, 50).forEach { count ->
+            Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                listOf(10, 20, 30, 50, 100).forEach { count ->
                     GameButton(
                         text = count.toString(),
-                        modifier = Modifier.weight(1f).height(48.dp),
+                        modifier = Modifier.weight(1f).height(44.dp),
                         color1 = if (selectedCount == count) Primary else SurfaceVariant,
                         color2 = if (selectedCount == count) PurpleDark else BgCard
                     ) { selectedCount = count }
@@ -94,7 +94,7 @@ fun TrainSelectScreen(navController: NavController, trainingViewModel: TrainingV
             }
             Spacer(Modifier.height(24.dp))
             GameButton(
-                text = "Empezar entrenamiento",
+                text = "Empezar",
                 icon = "🎯",
                 modifier = Modifier.fillMaxWidth().height(56.dp),
                 color1 = Primary,

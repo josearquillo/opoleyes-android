@@ -43,7 +43,7 @@ fun GameButton(
             .clip(RoundedCornerShape(14.dp))
             .background(Brush.verticalGradient(listOf(color1, color2)))
             .clickable(enabled = enabled) { isPressed = true; onClick() }
-            .padding(horizontal = 24.dp, vertical = 14.dp),
+            .padding(horizontal = 12.dp, vertical = 10.dp),
         contentAlignment = Alignment.Center
     ) {
         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.Center) {

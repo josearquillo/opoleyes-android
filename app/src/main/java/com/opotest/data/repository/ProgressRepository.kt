@@ -48,7 +48,7 @@ class ProgressRepository(private val context: Context) {
             quick = r >= 2,
             challenge = r >= 4,
             powerUps = r >= 3,
-            hint = true,
+            hint = r >= 2,
             shield = r >= 1,
             fiftyFifty = r >= 3,
             lifeRecovery = r >= 4,

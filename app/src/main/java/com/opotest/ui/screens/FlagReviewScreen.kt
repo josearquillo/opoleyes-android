@@ -92,10 +92,10 @@ fun FlagReviewScreen(navController: NavController, trainingViewModel: TrainingVi
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            GameButton("← Anterior", modifier = Modifier.weight(1f).height(44.dp), color1 = SurfaceVariant, color2 = BgCard) {
+            GameButton("←", modifier = Modifier.weight(1f).height(44.dp), color1 = SurfaceVariant, color2 = BgCard) {
                 if (trainingViewModel.flaggedIndex > 0) trainingViewModel.flaggedIndex--
             }
-            GameButton("Quitar 🚩", modifier = Modifier.weight(1f).height(44.dp), color1 = Warning, color2 = Color(0xFF92400e)) {
+            GameButton("🚩", modifier = Modifier.weight(1f).height(44.dp), color1 = Warning, color2 = Color(0xFF92400e)) {
                 trainingViewModel.flaggedQuestions.remove(currentQ.id)
                 trainingViewModel.buildFlaggedList()
                 if (trainingViewModel.flaggedList.isEmpty()) {
@@ -104,7 +104,7 @@ fun FlagReviewScreen(navController: NavController, trainingViewModel: TrainingVi
                 }
             }
             GameButton(
-                text = if (isLast) "Entregar ✓" else "Siguiente →",
+                text = if (isLast) "✓" else "→",
                 modifier = Modifier.weight(1f).height(44.dp),
                 color1 = Primary,
                 color2 = PurpleDark,

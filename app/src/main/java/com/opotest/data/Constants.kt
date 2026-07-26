@@ -61,7 +61,7 @@ object Constants {
 
     val RANK_UNLOCKS = mapOf(
         1 to "🛡️ Escudo + ⏱️ Contrarreloj",
-        2 to "⚡ Repaso Express + 2 misiones",
+        2 to "⚡ Repaso Express + 💡 Pista + 2 misiones",
         3 to "🎯 50/50",
         4 to "🏆 Modo Reto + ❤️ Recuperación de vida",
         5 to "✨ Double Score",

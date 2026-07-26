@@ -101,7 +101,7 @@ class ProgressRepositoryTest {
         assertFalse(u.timetrial)
         assertFalse(u.quick)
         assertFalse(u.challenge)
-        assertTrue(u.hint)
+        assertFalse(u.hint)
         assertEquals(1, u.dailyMissions)
     }
 
@@ -119,6 +119,7 @@ class ProgressRepositoryTest {
         repo.addXP(1500)
         val u = repo.getUnlocks()
         assertTrue(u.quick)
+        assertTrue(u.hint)
         assertEquals(2, u.dailyMissions)
     }
 

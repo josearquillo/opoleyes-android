@@ -87,11 +87,11 @@ fun WrongReviewScreen(navController: NavController, trainingViewModel: TrainingV
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            GameButton("← Anterior", modifier = Modifier.weight(1f).height(44.dp), color1 = SurfaceVariant, color2 = BgCard) {
+            GameButton("←", modifier = Modifier.weight(1f).height(44.dp), color1 = SurfaceVariant, color2 = BgCard) {
                 if (trainingViewModel.reviewWrongIndex > 0) trainingViewModel.reviewWrongIndex--
             }
             GameButton(
-                text = if (isLast) "Ver resultados ✓" else "Siguiente →",
+                text = if (isLast) "✓" else "→",
                 modifier = Modifier.weight(1f).height(44.dp),
                 color1 = Primary,
                 color2 = PurpleDark

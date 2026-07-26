@@ -1,5 +1,6 @@
 package com.opotest.ui.screens
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -42,6 +43,7 @@ fun TestBrowserScreen(navController: NavController, trainingViewModel: TrainingV
     val letters = listOf("A", "B", "C", "D")
 
     var showExitDialog by remember { mutableStateOf(false) }
+    BackHandler { showExitDialog = true }
 
     if (showExitDialog) {
         AlertDialog(
@@ -64,9 +66,6 @@ fun TestBrowserScreen(navController: NavController, trainingViewModel: TrainingV
             modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            GameButton("← Salir", modifier = Modifier.height(36.dp), color1 = SurfaceVariant, color2 = BgCard) {
-                showExitDialog = true
-            }
             Spacer(Modifier.weight(1f))
             Text("Pregunta ${uiState.currentIndex + 1} de ${uiState.totalQuestions} 🚩", color = TextLight, fontSize = 14.sp)
         }
@@ -113,17 +112,17 @@ fun TestBrowserScreen(navController: NavController, trainingViewModel: TrainingV
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            GameButton("← Anterior", modifier = Modifier.weight(1f).height(44.dp), color1 = SurfaceVariant, color2 = BgCard) {
+            GameButton("←", modifier = Modifier.weight(1f).height(44.dp), color1 = SurfaceVariant, color2 = BgCard) {
                 trainingViewModel.prevQuestion()
             }
             GameButton(
-                text = if (uiState.isFlagged) "Quitar 🚩" else "🚩 Dudosa",
+                text = if (uiState.isFlagged) "Quitar 🚩" else "🚩",
                 modifier = Modifier.weight(1f).height(44.dp),
                 color1 = Warning,
                 color2 = Color(0xFF92400e)
             ) { trainingViewModel.toggleFlag(currentQ.id) }
             GameButton(
-                text = if (isLast) "Finalizar ✓" else "Siguiente →",
+                text = if (isLast) "✓" else "→",
                 modifier = Modifier.weight(1f).height(44.dp),
                 color1 = Primary,
                 color2 = PurpleDark
