@@ -63,6 +63,11 @@ fun HelpScreen(navController: NavController) {
             "Puedes tener entre 1 y 3 misiones según tu rango.",
             "Cada misión completada te da 50 XP. Si completas todas, recibes 200 XP extra.",
             "¡Intenta completarlas todos los días seguidos para mantener tu racha!"
+        )),
+        HelpSectionData("ℹ️", "Información", listOf(
+            "Las preguntas están actualizadas a la legislación vigente de 2025.",
+            "La legislación puede cambiar con el tiempo. Consulta siempre las leyes vigentes antes del examen.",
+            "Esta aplicación no sustituye el estudio oficial ni garantiza la aprobación del examen."
         ))
     )
 
