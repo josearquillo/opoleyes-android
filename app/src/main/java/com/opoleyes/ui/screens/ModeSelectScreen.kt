@@ -20,6 +20,7 @@ import androidx.navigation.NavController
 import com.opoleyes.data.model.GameMode
 import com.opoleyes.data.repository.ProgressRepository
 import com.opoleyes.ui.components.GameButton
+import com.opoleyes.ui.components.LoadingOverlay
 import com.opoleyes.ui.navigation.GameViewModel
 import com.opoleyes.ui.navigation.Routes
 import com.opoleyes.ui.theme.*
@@ -30,6 +31,7 @@ fun ModeSelectScreen(navController: NavController, gameViewModel: GameViewModel)
     val progressRepo = ProgressRepository(context)
     val unlocks = remember { progressRepo.getUnlocks() }
     val rankIndex = remember { progressRepo.getRankIndex() }
+    val isLoading by gameViewModel.isLoading.collectAsState()
 
     val modes = listOf(
         ModeInfo(GameMode.SURVIVAL, "❤️", "Supervivencia", "3 vidas, sin tiempo. Los combos recuperan vida.", true, 0),
@@ -56,10 +58,10 @@ fun ModeSelectScreen(navController: NavController, gameViewModel: GameViewModel)
                 ModeCard(mode, rankIndex) {
                     when (mode.mode) {
                         GameMode.QUICK -> {
-                            if (gameViewModel.startQuickGame()) navController.navigate(Routes.GAME)
+                            gameViewModel.startQuickGameAsync { ok -> if (ok) navController.navigate(Routes.GAME) }
                         }
                         GameMode.CHALLENGE -> {
-                            if (gameViewModel.startChallengeGame()) navController.navigate(Routes.GAME)
+                            gameViewModel.startChallengeGameAsync { ok -> if (ok) navController.navigate(Routes.GAME) }
                         }
                         else -> {
                             gameViewModel.pendingMode = mode.mode
@@ -70,6 +72,10 @@ fun ModeSelectScreen(navController: NavController, gameViewModel: GameViewModel)
             }
             Spacer(Modifier.height(12.dp))
         }
+    }
+
+    if (isLoading) {
+        LoadingOverlay()
     }
 }
 

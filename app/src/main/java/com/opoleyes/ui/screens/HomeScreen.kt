@@ -35,6 +35,7 @@ fun HomeScreen(navController: NavController, gameViewModel: GameViewModel) {
     val context = navController.context
     val progressRepo = ProgressRepository(context)
     val missionRepo = MissionRepository(context)
+    val isLoading by gameViewModel.isLoading.collectAsState()
 
     val rank = remember { progressRepo.getRank() }
     val xpProgress = remember { progressRepo.getXPProgress() }
@@ -163,18 +164,17 @@ fun HomeScreen(navController: NavController, gameViewModel: GameViewModel) {
                             gameViewModel.pendingMode = GameMode.SURVIVAL
                             when (m.type) {
                                 "review" -> {
-                                    if (gameViewModel.startQuickGame()) navController.navigate(Routes.GAME)
+                                    gameViewModel.startQuickGameAsync { ok -> if (ok) navController.navigate(Routes.GAME) }
                                 }
                                 "progress", "variety" -> {
-                                    val started = if (m.testId != null) {
-                                        gameViewModel.startTemaGame(m.testId)
+                                    if (m.testId != null) {
+                                        gameViewModel.startTemaGameAsync(m.testId) { ok -> if (ok) navController.navigate(Routes.GAME) }
                                     } else {
-                                        gameViewModel.startAllLawsGame()
+                                        gameViewModel.startAllLawsGameAsync { ok -> if (ok) navController.navigate(Routes.GAME) }
                                     }
-                                    if (started) navController.navigate(Routes.GAME)
                                 }
                                 "quality", "combo" -> {
-                                    if (gameViewModel.startAllLawsGame()) navController.navigate(Routes.GAME)
+                                    gameViewModel.startAllLawsGameAsync { ok -> if (ok) navController.navigate(Routes.GAME) }
                                 }
                             }
                         }
@@ -210,6 +210,10 @@ fun HomeScreen(navController: NavController, gameViewModel: GameViewModel) {
                 iconFontSize = 32
             ) { navController.navigate(Routes.MODE_SELECT) }
         }
+    }
+
+    if (isLoading) {
+        LoadingOverlay()
     }
 }
 

@@ -20,6 +20,8 @@ import androidx.compose.ui.draw.scale
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -340,5 +342,35 @@ fun StatCardWithIcon(
         Spacer(Modifier.height(4.dp))
         Text(value, color = color, fontWeight = FontWeight.Bold, fontSize = 22.sp)
         Text(label, color = TextDim, fontSize = 11.sp)
+    }
+}
+
+@Composable
+fun LoadingOverlay() {
+    val rotation by rememberInfiniteTransition(label = "loading").animateFloat(
+        initialValue = 0f,
+        targetValue = 360f,
+        animationSpec = infiniteRepeatable(tween(1000, easing = LinearEasing), RepeatMode.Restart),
+        label = "rotation"
+    )
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color.Black.copy(alpha = 0.7f)),
+        contentAlignment = Alignment.Center
+    ) {
+        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            Canvas(modifier = Modifier.size(48.dp)) {
+                drawArc(
+                    color = Primary,
+                    startAngle = rotation,
+                    sweepAngle = 270f,
+                    useCenter = false,
+                    style = Stroke(width = 5f, cap = StrokeCap.Round)
+                )
+            }
+            Spacer(Modifier.height(16.dp))
+            Text("Cargando preguntas...", color = TextLight, fontSize = 14.sp)
+        }
     }
 }

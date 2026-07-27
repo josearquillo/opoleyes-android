@@ -22,6 +22,7 @@ import androidx.navigation.NavController
 import com.opoleyes.data.local.DataProvider
 import com.opoleyes.data.model.Test
 import com.opoleyes.data.repository.StatsRepository
+import com.opoleyes.ui.components.LoadingOverlay
 import com.opoleyes.ui.navigation.GameViewModel
 import com.opoleyes.ui.navigation.Routes
 import com.opoleyes.ui.theme.*
@@ -32,6 +33,7 @@ fun TemaSelectScreen(navController: NavController, gameViewModel: GameViewModel)
     val statsRepo = StatsRepository(context)
     val tests = remember { DataProvider.getTemaTests(context) }
     var query by remember { mutableStateOf("") }
+    val isLoading by gameViewModel.isLoading.collectAsState()
 
     val filteredTests = if (query.isBlank()) tests else tests.filter {
         (it.title.ifEmpty { it.name }).contains(query, ignoreCase = true)
@@ -56,7 +58,7 @@ fun TemaSelectScreen(navController: NavController, gameViewModel: GameViewModel)
         Spacer(Modifier.height(12.dp))
 
         TemaCard("📚", "Todas las leyes", 0) {
-            if (gameViewModel.startAllLawsGame()) navController.navigate(Routes.GAME)
+            gameViewModel.startAllLawsGameAsync { ok -> if (ok) navController.navigate(Routes.GAME) }
         }
         Spacer(Modifier.height(8.dp))
 
@@ -64,11 +66,15 @@ fun TemaSelectScreen(navController: NavController, gameViewModel: GameViewModel)
             items(filteredTests, key = { it.id }) { test ->
                 val progress = statsRepo.getLeyProgress(test.id)
                 TemaCard("📖", test.title.ifEmpty { test.name }, progress) {
-                    if (gameViewModel.startTemaGame(test.id)) navController.navigate(Routes.GAME)
+                    gameViewModel.startTemaGameAsync(test.id) { ok -> if (ok) navController.navigate(Routes.GAME) }
                 }
                 Spacer(Modifier.height(6.dp))
             }
         }
+    }
+
+    if (isLoading) {
+        LoadingOverlay()
     }
 }
 

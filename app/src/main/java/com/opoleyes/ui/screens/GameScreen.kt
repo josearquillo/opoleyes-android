@@ -261,9 +261,10 @@ fun GameScreen(navController: NavController, gameViewModel: GameViewModel) {
                                     Spacer(Modifier.height(12.dp))
                                 }
 
-                                // Options
-                                val letters = listOf("A", "B", "C", "D")
-                                letters.forEachIndexed { index, letter ->
+                                // Options (shuffled display order)
+                                val allLetters = listOf("A", "B", "C", "D")
+                                val shuffledLetters = remember(q) { allLetters.shuffled() }
+                                shuffledLetters.forEachIndexed { index, letter ->
                                     val text = q.opciones[letter] ?: return@forEachIndexed
                                     val isFiftyFiftyRemoved = uiState.fiftyFiftyActive && uiState.fiftyFiftyRemoved.contains(letter)
                                     if (isFiftyFiftyRemoved) return@forEachIndexed

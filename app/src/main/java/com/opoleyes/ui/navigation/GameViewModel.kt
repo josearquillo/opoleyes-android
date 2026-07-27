@@ -12,10 +12,12 @@ import com.opoleyes.domain.AchievementChecker
 import com.opoleyes.domain.AchievementContext
 import com.opoleyes.domain.ChestSystem
 import com.opoleyes.domain.GameEngine
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class GameViewModel(application: Application) : AndroidViewModel(application) {
     private val progressRepo = ProgressRepository(application)
@@ -39,6 +41,9 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
 
     private val _powerUpToast = MutableStateFlow<PowerUpToast?>(null)
     val powerUpToast: StateFlow<PowerUpToast?> = _powerUpToast.asStateFlow()
+
+    private val _isLoading = MutableStateFlow(false)
+    val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
 
     private val _chestReward = MutableStateFlow<ChestReward?>(null)
     val chestReward: StateFlow<ChestReward?> = _chestReward.asStateFlow()
@@ -98,6 +103,7 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
 
     fun startQuickGame(): Boolean {
         _popups.value = emptyList()
+        _toasts.value = emptyList()
         val ok = engine.startQuickGame()
         if (ok) { engine.nextQuestion(); updateUiState() }
         return ok
@@ -107,6 +113,7 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
 
     fun startTemaGame(testId: String): Boolean {
         _popups.value = emptyList()
+        _toasts.value = emptyList()
         val ok = engine.startTemaGame(testId, pendingMode)
         if (ok) { engine.nextQuestion(); updateUiState() }
         return ok
@@ -114,6 +121,7 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
 
     fun startAllLawsGame(): Boolean {
         _popups.value = emptyList()
+        _toasts.value = emptyList()
         val ok = engine.startAllLawsGame(pendingMode)
         if (ok) { engine.nextQuestion(); updateUiState() }
         return ok
@@ -121,9 +129,46 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
 
     fun startChallengeGame(): Boolean {
         _popups.value = emptyList()
+        _toasts.value = emptyList()
         val ok = engine.startChallengeGame()
         if (ok) { engine.nextQuestion(); updateUiState() }
         return ok
+    }
+
+    fun startQuickGameAsync(onDone: (Boolean) -> Unit) {
+        _isLoading.value = true
+        viewModelScope.launch {
+            val ok = withContext(Dispatchers.Default) { startQuickGame() }
+            _isLoading.value = false
+            onDone(ok)
+        }
+    }
+
+    fun startTemaGameAsync(testId: String, onDone: (Boolean) -> Unit) {
+        _isLoading.value = true
+        viewModelScope.launch {
+            val ok = withContext(Dispatchers.Default) { startTemaGame(testId) }
+            _isLoading.value = false
+            onDone(ok)
+        }
+    }
+
+    fun startAllLawsGameAsync(onDone: (Boolean) -> Unit) {
+        _isLoading.value = true
+        viewModelScope.launch {
+            val ok = withContext(Dispatchers.Default) { startAllLawsGame() }
+            _isLoading.value = false
+            onDone(ok)
+        }
+    }
+
+    fun startChallengeGameAsync(onDone: (Boolean) -> Unit) {
+        _isLoading.value = true
+        viewModelScope.launch {
+            val ok = withContext(Dispatchers.Default) { startChallengeGame() }
+            _isLoading.value = false
+            onDone(ok)
+        }
     }
 
     fun answer(letter: String): GameEngine.AnswerResult {
