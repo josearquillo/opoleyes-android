@@ -121,6 +121,7 @@ fun HomeScreen(navController: NavController, gameViewModel: GameViewModel) {
                     Text("${xpProgress.intoRank} / ${xpProgress.rankSpan} XP", color = TextMuted, fontSize = 10.sp)
                 }
                 // Help button
+                Spacer(Modifier.width(8.dp))
                 Box(
                     modifier = Modifier
                         .size(36.dp)
@@ -202,11 +203,13 @@ fun HomeScreen(navController: NavController, gameViewModel: GameViewModel) {
                 icon = "🎮",
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(76.dp)
+                    .height(80.dp)
                     .scale(playPulse)
                     .shadow((playGlow * 16).dp, RoundedCornerShape(14.dp), clip = false, ambientColor = Success.copy(alpha = playGlow), spotColor = Success.copy(alpha = playGlow)),
                 color1 = Success,
-                color2 = SuccessDark
+                color2 = SuccessDark,
+                textFontSize = 28,
+                iconFontSize = 32
             ) { navController.navigate(Routes.MODE_SELECT) }
         }
     }

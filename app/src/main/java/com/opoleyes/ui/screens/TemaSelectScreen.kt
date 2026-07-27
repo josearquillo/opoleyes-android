@@ -19,7 +19,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import com.opoleyes.data.Constants
 import com.opoleyes.data.local.DataProvider
 import com.opoleyes.data.model.Test
 import com.opoleyes.data.repository.StatsRepository
@@ -33,21 +32,9 @@ fun TemaSelectScreen(navController: NavController, gameViewModel: GameViewModel)
     val statsRepo = StatsRepository(context)
     val tests = remember { DataProvider.getTemaTests(context) }
     var query by remember { mutableStateOf("") }
-    val expandedGroups = remember { mutableStateMapOf<String, Boolean>() }
 
     val filteredTests = if (query.isBlank()) tests else tests.filter {
-        (it.title.ifEmpty { it.name }).contains(query, ignoreCase = true) ||
-        (it.tema?.toString() ?: "").contains(query)
-    }
-
-    val grouped = remember(filteredTests) {
-        Constants.LEY_GROUPS.mapNotNull { (leyName, range) ->
-            val groupTests = filteredTests.filter { test ->
-                val num = test.name.removePrefix("Tema N").toIntOrNull() ?: return@filter false
-                num in range
-            }
-            if (groupTests.isNotEmpty()) leyName to groupTests else null
-        }
+        (it.title.ifEmpty { it.name }).contains(query, ignoreCase = true)
     }
 
     Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
@@ -74,66 +61,12 @@ fun TemaSelectScreen(navController: NavController, gameViewModel: GameViewModel)
         Spacer(Modifier.height(8.dp))
 
         LazyColumn {
-            grouped.forEach { (leyName, groupTests) ->
-                item(key = "header_$leyName") {
-                    val isExpanded = expandedGroups[leyName] ?: false
-                    val avgProgress = if (query.isBlank()) {
-                        groupTests.map { statsRepo.getLeyProgress(it.id) }.average().toInt()
-                    } else 0
-
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clip(RoundedCornerShape(12.dp))
-                            .background(Brush.verticalGradient(listOf(Primary, PurpleDark)))
-                            .clickable { expandedGroups[leyName] = !isExpanded }
-                            .padding(horizontal = 16.dp, vertical = 12.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Text(
-                            if (isExpanded) "▼" else "▶",
-                            color = Color.White,
-                            fontSize = 14.sp
-                        )
-                        Spacer(Modifier.width(10.dp))
-                        Text(
-                            leyName,
-                            color = Color.White,
-                            fontSize = 14.sp,
-                            fontWeight = FontWeight.Bold,
-                            modifier = Modifier.weight(1f)
-                        )
-                        Text(
-                            "${groupTests.size}",
-                            color = Color.White.copy(alpha = 0.7f),
-                            fontSize = 12.sp
-                        )
-                        if (avgProgress > 0) {
-                            Spacer(Modifier.width(8.dp))
-                            Text(
-                                "$avgProgress%",
-                                color = Color.White.copy(alpha = 0.8f),
-                                fontSize = 12.sp,
-                                fontWeight = FontWeight.Bold
-                            )
-                        }
-                    }
-                    Spacer(Modifier.height(4.dp))
+            items(filteredTests, key = { it.id }) { test ->
+                val progress = statsRepo.getLeyProgress(test.id)
+                TemaCard("📖", test.title.ifEmpty { test.name }, progress) {
+                    if (gameViewModel.startTemaGame(test.id)) navController.navigate(Routes.GAME)
                 }
-
-                if (expandedGroups[leyName] == true) {
-                    item(key = "content_$leyName") {
-                        Column {
-                            groupTests.forEach { test ->
-                                val progress = statsRepo.getLeyProgress(test.id)
-                                TemaCard("📖", test.title.ifEmpty { test.name }, progress) {
-                                    if (gameViewModel.startTemaGame(test.id)) navController.navigate(Routes.GAME)
-                                }
-                                Spacer(Modifier.height(4.dp))
-                            }
-                        }
-                    }
-                }
+                Spacer(Modifier.height(6.dp))
             }
         }
     }
@@ -160,7 +93,7 @@ private fun TemaCard(icon: String, title: String, progress: Int, onClick: () -> 
         Text(icon, fontSize = 24.sp)
         Spacer(Modifier.width(12.dp))
         Column(modifier = Modifier.weight(1f)) {
-            Text(title, color = TextLight, fontSize = 14.sp, fontWeight = FontWeight.Medium)
+            Text(title, color = TextLight, fontSize = 15.sp, fontWeight = FontWeight.Medium)
             if (progress > 0) {
                 Text("$progress% dominado", color = heatColor, fontSize = 11.sp)
             }

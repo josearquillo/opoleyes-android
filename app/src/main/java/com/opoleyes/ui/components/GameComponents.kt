@@ -35,6 +35,8 @@ fun GameButton(
     color1: Color = Primary,
     color2: Color = PurpleDark,
     enabled: Boolean = true,
+    textFontSize: Int = 18,
+    iconFontSize: Int = 20,
     onClick: () -> Unit
 ) {
     val interactionSource = remember { MutableInteractionSource() }
@@ -60,9 +62,9 @@ fun GameButton(
         contentAlignment = Alignment.Center
     ) {
         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.Center) {
-            if (icon.isNotEmpty()) Text(icon, fontSize = 20.sp)
+            if (icon.isNotEmpty()) Text(icon, fontSize = iconFontSize.sp)
             if (icon.isNotEmpty()) Spacer(Modifier.width(8.dp))
-            Text(text, color = Color.White, fontWeight = FontWeight.Bold, fontSize = 18.sp)
+            Text(text, color = Color.White, fontWeight = FontWeight.Bold, fontSize = textFontSize.sp)
         }
     }
 }

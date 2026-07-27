@@ -57,7 +57,7 @@ class MissionRepository(private val context: Context) {
                 "Acierta ${maxOf(3, Math.ceil(comboRecord * 0.7).toInt())} preguntas seguidas en Supervivencia (todas las leyes)",
                 maxOf(3, Math.ceil(comboRecord * 0.7).toInt()), 0, false, 50, "streak"),
             Mission("progress", "📈",
-                if (lowestLaw != null) "Sube el progreso de \"${if (lowestLaw.tema != null) "Tema ${lowestLaw.tema}: " else ""}${lowestLaw.title.ifEmpty { lowestLaw.name }}\" al ${minOf(100, lowestPct + 5)}% en Supervivencia"
+                if (lowestLaw != null) "Sube el progreso de \"${lowestLaw.title.ifEmpty { lowestLaw.name }}\" al ${minOf(100, lowestPct + 5)}% en Supervivencia"
                 else "Juega una partida de Supervivencia",
                 if (lowestLaw != null) minOf(100, lowestPct + 5) else 1,
                 if (lowestLaw != null) lowestPct else 0, false, 50,
@@ -69,7 +69,7 @@ class MissionRepository(private val context: Context) {
                 minOf(20, maxOf(5, wrongCount)), 0, false, 50, "quick_review"))
         }
         candidates.add(Mission("variety", "🌍",
-            if (unplayedLaw != null) "Juega Supervivencia en \"${if (unplayedLaw.tema != null) "Tema ${unplayedLaw.tema}: " else ""}${unplayedLaw.title.ifEmpty { unplayedLaw.name }}\""
+            if (unplayedLaw != null) "Juega Supervivencia en \"${unplayedLaw.title.ifEmpty { unplayedLaw.name }}\""
             else "Juega Supervivencia en cualquier ley",
             1, 0, false, 50, "variety_${unplayedLaw?.id ?: "any"}", unplayedLaw?.id))
         candidates.add(Mission("combo", "🔥",
