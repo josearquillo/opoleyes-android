@@ -1,5 +1,5 @@
 # Gson
--keep class com.opotest.data.model.** { *; }
+-keep class com.opoleyes.data.model.** { *; }
 -keepattributes Signature
 -keepattributes *Annotation*
 
