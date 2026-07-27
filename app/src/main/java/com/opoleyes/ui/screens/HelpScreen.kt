@@ -13,6 +13,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.opoleyes.BuildConfig
 import com.opoleyes.data.local.PreferencesManager
 import com.opoleyes.ui.theme.*
 
@@ -83,9 +84,11 @@ fun HelpScreen(navController: NavController) {
             modifier = Modifier.combinedClickable(
                 onClick = {},
                 onLongClick = {
-                    debugMode = !debugMode
-                    prefs.setDebugMode(debugMode)
-                    debugToast = if (debugMode) "Modo debug activado" else "Modo debug desactivado"
+                    if (BuildConfig.DEBUG) {
+                        debugMode = !debugMode
+                        prefs.setDebugMode(debugMode)
+                        debugToast = if (debugMode) "Modo debug activado" else "Modo debug desactivado"
+                    }
                 }
             )
         )
