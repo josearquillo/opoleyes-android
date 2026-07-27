@@ -91,7 +91,8 @@ class GameEngineTest {
     }
 
     @Test
-    fun fun_initGameStats_powerUpsAvailableFromStart() {
+    fun fun_initGameStats_loadsPowerUpsFromInventory() {
+        prefs.setFreePowerUps(listOf("shield", "fiftyFifty", "hint", "doubleScore"))
         engine.mode = GameMode.SURVIVAL
         engine.initGameStats()
         assertEquals(1, engine.fiftyFiftyCharges)
@@ -417,6 +418,40 @@ class GameEngineTest {
         assertEquals(0, engine.fiftyFiftyCharges)
         assertEquals(2, engine.fiftyFiftyRemoved.size)
         assertTrue(engine.ctxFiftyFiftyUsed)
+    }
+
+    @Test
+    fun fun_activateFiftyFifty_neverRemovesCorrectAnswer() {
+        engine.fiftyFiftyCharges = 1
+        engine.currentQ = makeQuestion("A")
+        engine.activateFiftyFifty()
+        assertFalse(engine.fiftyFiftyRemoved.contains("A"))
+    }
+
+    @Test
+    fun fun_activateFiftyFifty_keepsAtLeast2Options() {
+        engine.fiftyFiftyCharges = 1
+        engine.currentQ = makeQuestion("A")
+        engine.activateFiftyFifty()
+        val allOptions = listOf("A", "B", "C", "D")
+        val remaining = allOptions.filter { it !in engine.fiftyFiftyRemoved }
+        assertTrue("Should have at least 2 remaining options", remaining.size >= 2)
+    }
+
+    @Test
+    fun fun_saveRemainingPowerUps_savesToInventory() {
+        engine.fiftyFiftyCharges = 2
+        engine.hintCharges = 1
+        engine.shieldCharges = 0
+        engine.doubleScoreCharges = 1
+        prefs.clearFreePowerUps()
+        engine.saveRemainingPowerUps()
+        val powerUps = prefs.getFreePowerUps()
+        assertEquals(4, powerUps.size)
+        assertTrue(powerUps.contains("fiftyFifty"))
+        assertTrue(powerUps.contains("hint"))
+        assertTrue(powerUps.contains("doubleScore"))
+        assertFalse(powerUps.contains("shield"))
     }
 
     @Test

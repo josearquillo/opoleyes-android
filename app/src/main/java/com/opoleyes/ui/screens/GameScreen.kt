@@ -161,6 +161,7 @@ fun GameScreen(navController: NavController, gameViewModel: GameViewModel) {
             confirmButton = {
                 TextButton(onClick = {
                     showExitDialog = false
+                    gameViewModel.exitGame()
                     navController.navigate(Routes.HOME) { popUpTo(Routes.HOME) { inclusive = true } }
                 }) { Text("Salir") }
             },

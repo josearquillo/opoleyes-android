@@ -298,6 +298,7 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
     fun clearToasts() { _toasts.value = emptyList() }
 
     fun onGameOver() {
+        engine.saveRemainingPowerUps()
         val mode = engine.mode.name.lowercase()
         val record = progressRepo.getRecord(mode)
         _newRecord.value = engine.score > record
@@ -368,6 +369,10 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
     fun getGameRepo() = gameRepo
     fun getMissionRepo() = missionRepo
     fun getPrefs() = prefs
+
+    fun exitGame() {
+        engine.saveRemainingPowerUps()
+    }
 }
 
 data class GameUiState(

@@ -19,10 +19,19 @@ class PreferencesManager(private val context: Context) {
         const val XP_MULTIPLIER = "xp_multiplier"
         const val DAILY_MISSIONS_JSON = "daily_missions_json"
         const val DEBUG_MODE = "debug_mode"
+        const val POWERUPS_INITIALIZED = "powerups_initialized"
         fun recordKey(mode: String) = "record_$mode"
         fun recordComboKey(mode: String) = "record_combo_$mode"
         fun recordAccKey(mode: String) = "record_acc_$mode"
         fun lawMasteredKey(testId: String) = "law_mastered_$testId"
+    }
+
+    fun initPowerUpsIfNeeded() {
+        if (!prefs.getBoolean(POWERUPS_INITIALIZED, false)) {
+            val initial = listOf("shield", "fiftyFifty", "hint", "doubleScore")
+            setFreePowerUps(initial)
+            prefs.edit().putBoolean(POWERUPS_INITIALIZED, true).apply()
+        }
     }
 
     fun getXP(): Int = prefs.getInt(XP, 0)

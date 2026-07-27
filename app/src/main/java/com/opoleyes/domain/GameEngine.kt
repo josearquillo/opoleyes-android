@@ -62,11 +62,6 @@ class GameEngine(private val context: Context) {
         startRankIndex = progressRepo.getRankIndex()
         startXP = progressRepo.getXP()
 
-        fiftyFiftyCharges = 1
-        doubleScoreCharges = 1
-        hintCharges = 1
-        shieldCharges = 1
-
         val freePowerUps = prefs.getFreePowerUps()
         for (pu in freePowerUps) {
             when (pu) {
@@ -243,6 +238,14 @@ class GameEngine(private val context: Context) {
             val idx = (0 until wrong.size).random()
             removed.add(wrong.removeAt(idx))
         }
+        // Safeguard: never remove the correct answer
+        removed.remove(q.correct)
+        // Safeguard: ensure at least 2 options remain visible
+        val remainingCount = allOptions.size - removed.size
+        if (remainingCount < 2) {
+            val toKeep = allOptions.filter { it !in removed }.take(2)
+            removed.retainAll(allOptions.filter { it !in toKeep })
+        }
         fiftyFiftyRemoved = removed
     }
 
@@ -273,6 +276,19 @@ class GameEngine(private val context: Context) {
 
     fun getAccuracy(): Int =
         if (totalAnswered > 0) correctCount * 100 / totalAnswered else 0
+
+    fun saveRemainingPowerUps() {
+        val remaining = mutableListOf<String>()
+        repeat(shieldCharges) { remaining.add("shield") }
+        repeat(fiftyFiftyCharges) { remaining.add("fiftyFifty") }
+        repeat(hintCharges) { remaining.add("hint") }
+        repeat(doubleScoreCharges) { remaining.add("doubleScore") }
+        if (remaining.isNotEmpty()) {
+            val current = prefs.getFreePowerUps().toMutableList()
+            current.addAll(remaining)
+            prefs.setFreePowerUps(current)
+        }
+    }
 
     enum class AnswerResult { CORRECT, WRONG, SHIELD_USED, ALREADY_ANSWERED, ERROR }
 }
