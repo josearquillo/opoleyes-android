@@ -1,5 +1,6 @@
 package com.opoleyes.ui.screens
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.animation.*
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
@@ -53,6 +54,24 @@ fun ExamScreen(navController: NavController, gameViewModel: GameViewModel) {
 
     val allLetters = listOf("A", "B", "C", "D")
     val displayLetters = remember(question) { allLetters.filter { question.opciones[it] != null } }
+
+    var showExitDialog by remember { mutableStateOf(false) }
+    BackHandler { showExitDialog = true }
+
+    if (showExitDialog) {
+        AlertDialog(
+            onDismissRequest = { showExitDialog = false },
+            title = { Text("¿Salir del examen?") },
+            text = { Text("Perderás tu progreso del examen.") },
+            confirmButton = {
+                TextButton(onClick = {
+                    showExitDialog = false
+                    navController.navigate(Routes.HOME) { popUpTo(Routes.HOME) { inclusive = true } }
+                }) { Text("Salir") }
+            },
+            dismissButton = { TextButton(onClick = { showExitDialog = false }) { Text("Cancelar") } }
+        )
+    }
 
     Box(modifier = Modifier.fillMaxSize().background(BgDark)) {
         Column(

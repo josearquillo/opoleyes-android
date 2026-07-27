@@ -195,11 +195,11 @@ class ChestSystemTest {
     @Test
     fun fun_generateChest_lifeRecoveryAvailableAtRank4() {
         progressRepo.addXP(7000)
-        var foundLifeRecovery = false
         repeat(30) {
             val chest = chestSystem.generateChest(true, 95, 10, 500)
-            if (chest!!.powerUps.contains("lifeRecovery")) foundLifeRecovery = true
+            chest!!.powerUps.forEach { pu ->
+                assertTrue("lifeRecovery should not appear in chests (passive unlock)", pu != "lifeRecovery")
+            }
         }
-        assertTrue("lifeRecovery should eventually appear at rank 4+", foundLifeRecovery)
     }
 }

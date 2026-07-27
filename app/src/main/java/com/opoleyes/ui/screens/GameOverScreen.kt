@@ -176,6 +176,7 @@ fun GameOverScreen(navController: NavController, gameViewModel: GameViewModel) {
                                 gameViewModel.startAllLawsGame()
                         }
                     }
+                    gameViewModel.nextQuestion()
                     navController.navigate(Routes.GAME) { popUpTo(Routes.GAME) { inclusive = true } }
                 }
                 GameButton(

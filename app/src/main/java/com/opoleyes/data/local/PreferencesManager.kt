@@ -126,7 +126,7 @@ class PreferencesManager(private val context: Context) {
     }
 
     fun resetAll() {
-        prefs.edit().clear().apply()
+        prefs.edit().clear().commit()
     }
 }
 

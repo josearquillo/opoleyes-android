@@ -152,7 +152,7 @@ fun HudBar(
             }
             if (shieldCharges > 0) {
                 Spacer(Modifier.width(4.dp))
-                Text("🛡️", fontSize = 18.sp)
+                Text("🛡️$shieldCharges", fontSize = 16.sp)
             }
         }
         Text(

@@ -56,7 +56,6 @@ class ChestSystem(private val context: Context) {
 
     private fun pickRandomPowerUp(rankIdx: Int): String {
         val available = mutableListOf("shield", "fiftyFifty", "hint", "doubleScore")
-        if (rankIdx >= 4) available.add("lifeRecovery")
         return available.random()
     }
 }

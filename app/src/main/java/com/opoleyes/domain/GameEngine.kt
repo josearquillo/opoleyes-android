@@ -179,7 +179,8 @@ class GameEngine(private val context: Context) {
 
             streak++
             if (streak > 0 && streak % 5 == 0) {
-                if (mode == GameMode.SURVIVAL) {
+                val lifeRecoveryUnlocked = progressRepo.isUnlocked("lifeRecovery")
+                if (mode == GameMode.SURVIVAL && lifeRecoveryUnlocked) {
                     if (lives < 3) {
                         lives++; ctxLifeRecovered = true
                     } else {

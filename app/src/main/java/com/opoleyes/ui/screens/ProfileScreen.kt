@@ -62,6 +62,7 @@ fun ProfileScreen(navController: NavController) {
             confirmButton = {
                 TextButton(onClick = {
                     progressRepo.resetAll()
+                    PreferencesManager(context).initPowerUpsIfNeeded()
                     showResetDialog = false
                     navController.navigate(Routes.HOME) { popUpTo(0) }
                 }) { Text("Reiniciar", color = Danger) }

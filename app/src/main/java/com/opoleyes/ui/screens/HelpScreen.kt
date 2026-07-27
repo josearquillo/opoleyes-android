@@ -70,6 +70,13 @@ fun HelpScreen(navController: NavController) {
     var debugMode by remember { mutableStateOf(prefs.isDebugMode()) }
     var debugToast by remember { mutableStateOf<String?>(null) }
 
+    LaunchedEffect(debugToast) {
+        if (debugToast != null) {
+            kotlinx.coroutines.delay(2000)
+            debugToast = null
+        }
+    }
+
     val scrollState = rememberScrollState()
     Column(
         modifier = Modifier

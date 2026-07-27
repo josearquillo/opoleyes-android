@@ -82,10 +82,11 @@ class ExamEngine(private val context: Context) {
         val totalWeight = lawWeights.values.sum()
         for ((law, weight) in lawWeights) {
             val pool = poolsByLaw[law] ?: continue
-            val count = (questionCount * weight / totalWeight).coerceAtLeast(1)
-            selected.addAll(pool.take(count))
+            val count = questionCount * weight / totalWeight
+            if (count > 0) selected.addAll(pool.take(count))
         }
 
+        // Fill remaining slots from all pools
         while (selected.size < questionCount) {
             val remaining = poolsByLaw.values.flatten().filter { it !in selected }
             if (remaining.isEmpty()) break
@@ -93,9 +94,7 @@ class ExamEngine(private val context: Context) {
         }
 
         selected.shuffle()
-        selected.take(questionCount).let {
-            questions = it.map { eq -> ExamQuestion(eq) }
-        }
+        questions = selected.take(questionCount).map { eq -> ExamQuestion(eq) }
         currentIndex = 0
     }
 

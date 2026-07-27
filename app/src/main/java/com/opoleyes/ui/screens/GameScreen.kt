@@ -215,31 +215,44 @@ fun GameScreen(navController: NavController, gameViewModel: GameViewModel) {
                 )
 
                 // Combo with bounce effect
-                if (uiState.combo > 0) {
+                if (uiState.combo > 0 || uiState.doubleScoreActive) {
                     Spacer(Modifier.height(4.dp))
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.Center
                     ) {
-                        val comboColor = when {
-                            uiState.combo >= 20 -> Warning
-                            uiState.combo >= 10 -> Danger
-                            else -> Orange
+                        if (uiState.combo > 0) {
+                            val comboColor = when {
+                                uiState.combo >= 20 -> Warning
+                                uiState.combo >= 10 -> Danger
+                                else -> Orange
+                            }
+                            Text(
+                                "🔥 x${uiState.combo}",
+                                color = comboColor,
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 18.sp,
+                                modifier = Modifier.scale(comboScale)
+                            )
                         }
-                        Text(
-                            "🔥 x${uiState.combo}",
-                            color = comboColor,
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 18.sp,
-                            modifier = Modifier.scale(comboScale)
+                        if (uiState.doubleScoreActive) {
+                            if (uiState.combo > 0) Spacer(Modifier.width(12.dp))
+                            Text(
+                                "✨ x2",
+                                color = Warning,
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 18.sp
+                            )
+                        }
+                    }
+                    if (uiState.combo > 0) {
+                        Spacer(Modifier.height(2.dp))
+                        ComboBar(
+                            fill = if (uiState.comboOverchargeActive) 1f else uiState.comboBarFill,
+                            overchargeActive = uiState.comboOverchargeActive,
+                            overchargeCharges = uiState.comboOverchargeCharges
                         )
                     }
-                    Spacer(Modifier.height(2.dp))
-                    ComboBar(
-                        fill = if (uiState.comboOverchargeActive) 1f else uiState.comboBarFill,
-                        overchargeActive = uiState.comboOverchargeActive,
-                        overchargeCharges = uiState.comboOverchargeCharges
-                    )
                 }
 
                 Spacer(Modifier.height(16.dp))
