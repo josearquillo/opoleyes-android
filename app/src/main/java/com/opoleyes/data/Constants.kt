@@ -57,13 +57,25 @@ object Constants {
     const val QUICK_MODE_QUESTIONS = 20
 
     val RANK_UNLOCKS = mapOf(
-        1 to "🛡️ Escudo + ⏱️ Contrarreloj",
-        2 to "⚡ Repaso Express + 💡 Pista + 2 misiones",
-        3 to "🎯 50/50",
+        1 to "⏱️ Contrarreloj + 🛡️ Escudo",
+        2 to "⚡ Repaso Express + 2 misiones",
+        3 to "📝 Modo Examen",
         4 to "🏆 Modo Reto + ❤️ Recuperación de vida",
-        5 to "✨ Double Score",
-        6 to "🧊 Freeze Time",
         8 to "📋 3 misiones diarias",
+    )
+
+    val RANK_POWERUP_REWARDS = mapOf(
+        1 to listOf("shield", "hint"),
+        2 to listOf("fiftyFifty", "shield"),
+        3 to listOf("doubleScore"),
+        4 to listOf("fiftyFifty", "hint"),
+        5 to listOf("shield", "shield", "doubleScore"),
+        6 to listOf("fiftyFifty", "fiftyFifty", "hint"),
+        7 to listOf("shield", "doubleScore", "fiftyFifty"),
+        8 to listOf("shield", "fiftyFifty", "hint", "doubleScore", "shield"),
+        9 to listOf("shield", "fiftyFifty", "hint", "doubleScore", "fiftyFifty"),
+        10 to listOf("shield", "fiftyFifty", "hint", "doubleScore", "shield", "fiftyFifty", "hint"),
+        11 to listOf("shield", "fiftyFifty", "hint", "doubleScore", "shield", "fiftyFifty", "hint", "doubleScore"),
     )
 
     fun getRankByIndex(index: Int): Rank = RANKS.getOrElse(index) { RANKS.last() }

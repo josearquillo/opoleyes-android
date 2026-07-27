@@ -92,7 +92,7 @@ fun GameScreen(navController: NavController, gameViewModel: GameViewModel) {
                 Lifecycle.Event.ON_RESUME -> {
                     if (pausedAtMs > 0L) {
                         val elapsed = (System.currentTimeMillis() - pausedAtMs) / 1000f
-                        if ((gameViewModel.engine.mode == GameMode.TIMETRIAL || gameViewModel.engine.mode == GameMode.CHALLENGE) && !gameViewModel.engine.freezeActive) {
+                        if ((gameViewModel.engine.mode == GameMode.TIMETRIAL || gameViewModel.engine.mode == GameMode.CHALLENGE)) {
                             gameViewModel.engine.timer = (gameViewModel.engine.timer - elapsed).coerceAtLeast(0f)
                             if (gameViewModel.engine.timer <= 0) {
                                 gameViewModel.onGameOver()
@@ -115,17 +115,15 @@ fun GameScreen(navController: NavController, gameViewModel: GameViewModel) {
     // Timer countdown
     LaunchedEffect(uiState.mode, uiState.timer) {
         if ((uiState.mode == GameMode.TIMETRIAL || uiState.mode == GameMode.CHALLENGE) && !uiState.answered && uiState.timer > 0) {
-            if (!gameViewModel.engine.freezeActive) {
-                delay(1000)
-                gameViewModel.engine.timer = (gameViewModel.engine.timer - 1f).coerceAtLeast(0f)
-                if (gameViewModel.engine.timer <= 0) {
-                    gameViewModel.onGameOver()
-                    navController.navigate(Routes.GAME_OVER) {
-                        popUpTo(Routes.GAME) { inclusive = true }
-                    }
+            delay(1000)
+            gameViewModel.engine.timer = (gameViewModel.engine.timer - 1f).coerceAtLeast(0f)
+            if (gameViewModel.engine.timer <= 0) {
+                gameViewModel.onGameOver()
+                navController.navigate(Routes.GAME_OVER) {
+                    popUpTo(Routes.GAME) { inclusive = true }
                 }
-                gameViewModel.updateUiState()
             }
+            gameViewModel.updateUiState()
         }
     }
 
@@ -212,8 +210,7 @@ fun GameScreen(navController: NavController, gameViewModel: GameViewModel) {
                     timer = uiState.timer,
                     mode = uiState.mode,
                     questionNum = uiState.questionNum,
-                    shieldCharges = uiState.shieldCharges,
-                    freezeActive = uiState.freezeActive
+                    shieldCharges = uiState.shieldCharges
                 )
 
                 // Combo with bounce effect
@@ -287,9 +284,6 @@ fun GameScreen(navController: NavController, gameViewModel: GameViewModel) {
                                         }
                                         if (uiState.fiftyFiftyCharges > 0 && !uiState.fiftyFiftyActive && uiState.mode != GameMode.CHALLENGE && uiState.mode != GameMode.QUICK) {
                                             PowerUpButton("🎯 50/50", "x${uiState.fiftyFiftyCharges}", Purple) { gameViewModel.activateFiftyFifty() }
-                                        }
-                                        if (uiState.freezeCharges > 0 && !uiState.freezeActive && uiState.mode == GameMode.TIMETRIAL) {
-                                            PowerUpButton("🧊 Congelar", "x${uiState.freezeCharges}", Cyan) { gameViewModel.activateFreeze() }
                                         }
                                         if (uiState.doubleScoreCharges > 0 && !uiState.doubleScoreActive && uiState.mode != GameMode.CHALLENGE && uiState.mode != GameMode.QUICK) {
                                             PowerUpButton("✨ x2", "x${uiState.doubleScoreCharges}", Warning) { gameViewModel.activateDoubleScore() }

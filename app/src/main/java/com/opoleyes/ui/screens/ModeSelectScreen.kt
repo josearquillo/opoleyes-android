@@ -37,8 +37,11 @@ fun ModeSelectScreen(navController: NavController, gameViewModel: GameViewModel)
         ModeInfo(GameMode.SURVIVAL, "❤️", "Supervivencia", "3 vidas, sin tiempo. Los combos recuperan vida.", true, 0),
         ModeInfo(GameMode.TIMETRIAL, "⏱️", "Contrarreloj", "180s. +15s acierto, -10s fallo.", unlocks.timetrial, 1),
         ModeInfo(GameMode.QUICK, "⚡", "Repaso Express", "20 preguntas enfocadas en fallos previos.", unlocks.quick, 2),
+        ModeInfo(GameMode.EXAM, "📝", "Modo Examen", "Simula el examen oficial. Sin vidas, sin power-ups, corrección al final.", unlocks.exam, 3),
         ModeInfo(GameMode.CHALLENGE, "🏆", "Modo Reto", "120s, máxima dificultad, todas las leyes.", unlocks.challenge, 4),
     )
+
+    var showExamDialog by remember { mutableStateOf(false) }
 
     Column(
         modifier = Modifier
@@ -63,6 +66,9 @@ fun ModeSelectScreen(navController: NavController, gameViewModel: GameViewModel)
                         GameMode.CHALLENGE -> {
                             gameViewModel.startChallengeGameAsync { ok -> if (ok) navController.navigate(Routes.GAME) }
                         }
+                        GameMode.EXAM -> {
+                            showExamDialog = true
+                        }
                         else -> {
                             gameViewModel.pendingMode = mode.mode
                             navController.navigate(Routes.TEMA_SELECT)
@@ -77,6 +83,18 @@ fun ModeSelectScreen(navController: NavController, gameViewModel: GameViewModel)
     if (isLoading) {
         LoadingOverlay()
     }
+
+    if (showExamDialog) {
+        ExamConfigDialog(
+            onDismiss = { showExamDialog = false },
+            onStart = { count ->
+                showExamDialog = false
+                gameViewModel.startExamAsync(count) { ok ->
+                    if (ok) navController.navigate(Routes.EXAM)
+                }
+            }
+        )
+    }
 }
 
 @Composable
@@ -86,6 +104,7 @@ private fun ModeCard(mode: ModeInfo, rankIndex: Int, onClick: () -> Unit) {
         GameMode.SURVIVAL -> listOf(Danger, DangerDark)
         GameMode.TIMETRIAL -> listOf(Cyan, Color(0xFF155e75))
         GameMode.QUICK -> listOf(Warning, Color(0xFF92400e))
+        GameMode.EXAM -> listOf(Success, SuccessDark)
         GameMode.CHALLENGE -> listOf(Accent, PurpleDark)
     }
     Box(
@@ -121,3 +140,87 @@ private data class ModeInfo(
     val unlocked: Boolean,
     val requiredRank: Int
 )
+
+@Composable
+private fun ExamConfigDialog(
+    onDismiss: () -> Unit,
+    onStart: (Int) -> Unit
+) {
+    var customCount by remember { mutableStateOf("25") }
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        containerColor = BgCard,
+        titleContentColor = TextLight,
+        title = { Text("📝 Configurar examen", color = TextLight, fontWeight = FontWeight.Bold) },
+        text = {
+            Column {
+                Text("Selecciona el número de preguntas:", color = TextMuted, fontSize = 13.sp)
+                Spacer(Modifier.height(16.dp))
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    ExamPresetButton("Auxilio\n50 preg.", 50, onStart)
+                    ExamPresetButton("Tramitación\n100 preg.", 100, onStart)
+                }
+                Spacer(Modifier.height(8.dp))
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    ExamPresetButton("Gestión\n100 preg.", 100, onStart)
+                    ExamPresetButton("Rápido\n25 preg.", 25, onStart)
+                }
+                Spacer(Modifier.height(16.dp))
+                Text("Personalizado:", color = TextMuted, fontSize = 12.sp)
+                Spacer(Modifier.height(4.dp))
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    OutlinedTextField(
+                        value = customCount,
+                        onValueChange = { customCount = it.filter { c -> c.isDigit() } },
+                        modifier = Modifier.weight(1f),
+                        singleLine = true,
+                        textStyle = androidx.compose.ui.text.TextStyle(color = TextLight),
+                        colors = TextFieldDefaults.colors(
+                            focusedContainerColor = BgCard,
+                            unfocusedContainerColor = BgCard,
+                            focusedIndicatorColor = Primary,
+                            unfocusedIndicatorColor = SurfaceVariant
+                        )
+                    )
+                    Button(
+                        onClick = {
+                            val count = customCount.toIntOrNull()?.coerceIn(5, 200) ?: 25
+                            onStart(count)
+                        },
+                        colors = ButtonDefaults.buttonColors(containerColor = Primary)
+                    ) { Text("Empezar") }
+                }
+            }
+        },
+        confirmButton = {},
+        dismissButton = {
+            TextButton(onClick = onDismiss) { Text("Cancelar", color = TextMuted) }
+        }
+    )
+}
+
+@Composable
+private fun ExamPresetButton(label: String, count: Int, onStart: (Int) -> Unit) {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth(0.48f)
+            .clip(RoundedCornerShape(12.dp))
+            .background(SurfaceVariant)
+            .clickable { onStart(count) }
+            .padding(12.dp),
+        contentAlignment = Alignment.Center
+    ) {
+        Text(label, color = TextLight, fontSize = 12.sp, fontWeight = FontWeight.Medium)
+    }
+}

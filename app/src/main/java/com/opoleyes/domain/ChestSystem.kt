@@ -21,7 +21,7 @@ class ChestSystem(private val context: Context) {
         }
         val rankIdx = progressRepo.getRankIndex()
         val hasPowerUps = progressRepo.isUnlocked("shield") || progressRepo.isUnlocked("fiftyFifty") ||
-                progressRepo.isUnlocked("doubleScore") || progressRepo.isUnlocked("freezeTime")
+                progressRepo.isUnlocked("doubleScore")
         val xpBonus = if (hasPowerUps) 1 else 2
 
         val (xpMin, xpMax) = when (type) {
@@ -55,12 +55,8 @@ class ChestSystem(private val context: Context) {
     }
 
     private fun pickRandomPowerUp(rankIdx: Int): String {
-        val available = mutableListOf<String>()
-        if (rankIdx >= 1) available.add("shield")
-        if (rankIdx >= 3) available.add("fiftyFifty")
+        val available = mutableListOf("shield", "fiftyFifty", "hint", "doubleScore")
         if (rankIdx >= 4) available.add("lifeRecovery")
-        if (rankIdx >= 5) available.add("doubleScore")
-        if (rankIdx >= 6) available.add("freezeTime")
-        return if (available.isEmpty()) "hint" else available.random()
+        return available.random()
     }
 }

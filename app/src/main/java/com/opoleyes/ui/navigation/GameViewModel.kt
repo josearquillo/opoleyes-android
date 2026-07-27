@@ -11,6 +11,7 @@ import com.opoleyes.data.repository.StatsRepository
 import com.opoleyes.domain.AchievementChecker
 import com.opoleyes.domain.AchievementContext
 import com.opoleyes.domain.ChestSystem
+import com.opoleyes.domain.ExamEngine
 import com.opoleyes.domain.GameEngine
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -29,6 +30,7 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
     private val prefs = com.opoleyes.data.local.PreferencesManager(application)
 
     val engine = GameEngine(application)
+    val examEngine = ExamEngine(application)
 
     private val _uiState = MutableStateFlow(GameUiState())
     val uiState: StateFlow<GameUiState> = _uiState.asStateFlow()
@@ -66,6 +68,15 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
     private val _medal = MutableStateFlow("")
     val medal: StateFlow<String> = _medal.asStateFlow()
 
+    private val _examQuestionNum = MutableStateFlow(0)
+    val examQuestionNum: StateFlow<Int> = _examQuestionNum.asStateFlow()
+
+    private val _examAnswered = MutableStateFlow(0)
+    val examAnswered: StateFlow<Int> = _examAnswered.asStateFlow()
+
+    private val _examResult = MutableStateFlow<ExamEngine.ExamResult?>(null)
+    val examResult: StateFlow<ExamEngine.ExamResult?> = _examResult.asStateFlow()
+
     private val _accuracy = MutableStateFlow(0)
     val accuracy: StateFlow<Int> = _accuracy.asStateFlow()
 
@@ -86,8 +97,6 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
             fiftyFiftyCharges = engine.fiftyFiftyCharges,
             fiftyFiftyActive = engine.fiftyFiftyActive,
             fiftyFiftyRemoved = engine.fiftyFiftyRemoved,
-            freezeCharges = engine.freezeCharges,
-            freezeActive = engine.freezeActive,
             doubleScoreCharges = engine.doubleScoreCharges,
             doubleScoreActive = engine.doubleScoreActive,
             hintCharges = engine.hintCharges,
@@ -171,6 +180,55 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
+    fun startExamAsync(questionCount: Int, onDone: (Boolean) -> Unit) {
+        _isLoading.value = true
+        _examResult.value = null
+        viewModelScope.launch {
+            withContext(Dispatchers.Default) { examEngine.loadExam(questionCount) }
+            _examQuestionNum.value = 0
+            _examAnswered.value = 0
+            _isLoading.value = false
+            onDone(true)
+        }
+    }
+
+    fun examAnswer(letter: String) {
+        examEngine.answer(letter)
+        _examAnswered.value = examEngine.getAnsweredCount()
+    }
+
+    fun examNavigate(index: Int) {
+        examEngine.navigateTo(index)
+        _examQuestionNum.value = examEngine.getCurrentIndex()
+    }
+
+    fun examNext(): Boolean {
+        val ok = examEngine.next()
+        _examQuestionNum.value = examEngine.getCurrentIndex()
+        return ok
+    }
+
+    fun examPrev(): Boolean {
+        val ok = examEngine.prev()
+        _examQuestionNum.value = examEngine.getCurrentIndex()
+        return ok
+    }
+
+    fun finishExam() {
+        val result = examEngine.grade()
+        _examResult.value = result
+        progressRepo.incrementGamesPlayed()
+        val xp = result.correct * 10
+        progressRepo.addXP(xp)
+        _xpGained.value = xp
+    }
+
+    fun clearExamResult() {
+        _examResult.value = null
+        _examQuestionNum.value = 0
+        _examAnswered.value = 0
+    }
+
     fun answer(letter: String): GameEngine.AnswerResult {
         val result = engine.answer(letter)
         updateUiState()
@@ -223,7 +281,6 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
     fun isGameOver(): Boolean = engine.isGameOver()
 
     fun activateFiftyFifty() { engine.activateFiftyFifty(); updateUiState() }
-    fun activateFreeze() { engine.activateFreeze(); _powerUpToast.value = PowerUpToast("🧊 ¡Tiempo congelado 10s!", "🧊"); updateUiState() }
     fun activateDoubleScore() { engine.activateDoubleScore(); _powerUpToast.value = PowerUpToast("✨ ¡Doble puntuación activada!", "✨"); updateUiState() }
     fun useHint() { engine.useHint(); updateUiState() }
 
@@ -261,6 +318,14 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
         val rankBefore = engine.startRankIndex
         val rankAfter = progressRepo.getRankIndex()
         if (rankAfter > rankBefore) {
+            for (r in (rankBefore + 1)..rankAfter) {
+                val rewards = com.opoleyes.data.Constants.RANK_POWERUP_REWARDS[r]
+                if (rewards != null) {
+                    val current = prefs.getFreePowerUps().toMutableList()
+                    current.addAll(rewards)
+                    prefs.setFreePowerUps(current)
+                }
+            }
             _rankUpOverlay.value = RankUpOverlay(
                 com.opoleyes.data.Constants.getRankByIndex(rankBefore),
                 com.opoleyes.data.Constants.getRankByIndex(rankAfter)
@@ -321,8 +386,6 @@ data class GameUiState(
     val fiftyFiftyCharges: Int = 0,
     val fiftyFiftyActive: Boolean = false,
     val fiftyFiftyRemoved: List<String> = emptyList(),
-    val freezeCharges: Int = 0,
-    val freezeActive: Boolean = false,
     val doubleScoreCharges: Int = 0,
     val doubleScoreActive: Boolean = false,
     val hintCharges: Int = 0,

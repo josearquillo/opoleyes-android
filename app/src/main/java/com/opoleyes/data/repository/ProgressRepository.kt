@@ -47,13 +47,13 @@ class ProgressRepository(private val context: Context) {
                 timetrial = true,
                 quick = true,
                 challenge = true,
+                exam = true,
                 powerUps = true,
                 hint = true,
                 shield = true,
                 fiftyFifty = true,
                 lifeRecovery = true,
                 doubleScore = true,
-                freezeTime = true,
                 dailyMissions = 3
             )
         }
@@ -63,13 +63,13 @@ class ProgressRepository(private val context: Context) {
             timetrial = r >= 1,
             quick = r >= 2,
             challenge = r >= 4,
-            powerUps = r >= 3,
-            hint = r >= 2,
-            shield = r >= 1,
-            fiftyFifty = r >= 3,
+            exam = r >= 3,
+            powerUps = true,
+            hint = true,
+            shield = true,
+            fiftyFifty = true,
             lifeRecovery = r >= 4,
-            doubleScore = r >= 5,
-            freezeTime = r >= 6,
+            doubleScore = true,
             dailyMissions = if (r >= 8) 3 else if (r >= 2) 2 else 1
         )
     }
@@ -81,13 +81,13 @@ class ProgressRepository(private val context: Context) {
             "timetrial" -> u.timetrial
             "quick" -> u.quick
             "challenge" -> u.challenge
+            "exam" -> u.exam
             "powerUps" -> u.powerUps
             "hint" -> u.hint
             "shield" -> u.shield
             "fiftyFifty" -> u.fiftyFifty
             "lifeRecovery" -> u.lifeRecovery
             "doubleScore" -> u.doubleScore
-            "freezeTime" -> u.freezeTime
             else -> false
         }
     }
@@ -127,12 +127,12 @@ data class Unlocks(
     val timetrial: Boolean,
     val quick: Boolean,
     val challenge: Boolean,
+    val exam: Boolean,
     val powerUps: Boolean,
     val hint: Boolean,
     val shield: Boolean,
     val fiftyFifty: Boolean,
     val lifeRecovery: Boolean,
     val doubleScore: Boolean,
-    val freezeTime: Boolean,
     val dailyMissions: Int
 )

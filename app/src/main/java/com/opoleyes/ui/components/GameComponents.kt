@@ -135,7 +135,6 @@ fun HudBar(
     mode: com.opoleyes.data.model.GameMode,
     questionNum: Int,
     shieldCharges: Int,
-    freezeActive: Boolean,
     modifier: Modifier = Modifier
 ) {
     Row(
@@ -164,7 +163,7 @@ fun HudBar(
         )
         if (mode == com.opoleyes.data.model.GameMode.TIMETRIAL || mode == com.opoleyes.data.model.GameMode.CHALLENGE) {
             val timerColor = if (timer < 10) Danger else TextLight
-            val timerText = if (freezeActive) "🧊 ${timer.toInt()}s" else "⏱️ ${timer.toInt()}s"
+            val timerText = "⏱️ ${timer.toInt()}s"
             Text(timerText, color = timerColor, fontWeight = FontWeight.Bold, fontSize = 18.sp)
         }
         if (combo > 0) {

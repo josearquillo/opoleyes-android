@@ -19,6 +19,8 @@ object Routes {
     const val TEMA_SELECT = "temaselect"
     const val GAME = "game"
     const val GAME_OVER = "gameover"
+    const val EXAM = "exam"
+    const val EXAM_RESULT = "examresult"
     const val PROFILE = "profile"
     const val HELP = "help"
 }
@@ -53,6 +55,8 @@ fun NavGraph() {
         composable(Routes.TEMA_SELECT) { TemaSelectScreen(navController, gameViewModel) }
         composable(Routes.GAME) { GameScreen(navController, gameViewModel) }
         composable(Routes.GAME_OVER) { GameOverScreen(navController, gameViewModel) }
+        composable(Routes.EXAM) { ExamScreen(navController, gameViewModel) }
+        composable(Routes.EXAM_RESULT) { ExamResultScreen(navController, gameViewModel) }
         composable(Routes.PROFILE) { ProfileScreen(navController) }
         composable(Routes.HELP) { HelpScreen(navController) }
     }

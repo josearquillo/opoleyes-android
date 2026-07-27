@@ -48,7 +48,8 @@ enum class GameMode(val displayName: String, val icon: String) {
     SURVIVAL("Supervivencia", "❤️"),
     TIMETRIAL("Contrarreloj", "⏱️"),
     QUICK("Repaso Express", "⚡"),
-    CHALLENGE("Modo Reto", "🏆")
+    CHALLENGE("Modo Reto", "🏆"),
+    EXAM("Modo Examen", "📝")
 }
 
 enum class ChestType(val icon: String, val label: String) {

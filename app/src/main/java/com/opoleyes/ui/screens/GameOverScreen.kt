@@ -83,6 +83,7 @@ fun GameOverScreen(navController: NavController, gameViewModel: GameViewModel) {
         GameMode.TIMETRIAL -> "⏱️ Contrarreloj"
         GameMode.QUICK -> "⚡ Repaso Express"
         GameMode.CHALLENGE -> "🏆 Modo Reto"
+        GameMode.EXAM -> "📝 Modo Examen"
     }
 
     // Staggered appearance
@@ -299,7 +300,7 @@ fun ChestOverlay(chest: ChestReward, opened: Boolean, shakeCount: Int, onOpen: (
                                 chest.powerUps.forEach { pu ->
                                     val puIcon = when (pu) {
                                         "shield" -> "🛡️"; "fiftyFifty" -> "🎯"; "hint" -> "💡"
-                                        "lifeRecovery" -> "❤️"; "doubleScore" -> "✨"; "freezeTime" -> "🧊"
+                                        "lifeRecovery" -> "❤️"; "doubleScore" -> "✨"
                                         else -> "🎁"
                                     }
                                     Text(puIcon, fontSize = 28.sp)

@@ -41,9 +41,6 @@ class GameEngine(private val context: Context) {
     var fiftyFiftyCharges: Int = 0
     var fiftyFiftyActive: Boolean = false
     var fiftyFiftyRemoved: List<String> = emptyList()
-    var freezeCharges: Int = 0
-    var freezeActive: Boolean = false
-    var freezeTimer: Float = 0f
     var doubleScoreCharges: Int = 0
     var doubleScoreActive: Boolean = false
     var hintCharges: Int = 0
@@ -59,17 +56,16 @@ class GameEngine(private val context: Context) {
         answered = false; selectedOption = null; questionNum = 0
         askedIds.clear()
         fiftyFiftyCharges = 0; fiftyFiftyActive = false; fiftyFiftyRemoved = emptyList()
-        freezeCharges = 0; freezeActive = false; freezeTimer = 0f
         doubleScoreCharges = 0; doubleScoreActive = false
         hintCharges = 0; hintActive = false; hintRemoved = emptyList()
         shieldCharges = 0; ctxFiftyFiftyUsed = false; ctxLifeRecovered = false
         startRankIndex = progressRepo.getRankIndex()
         startXP = progressRepo.getXP()
 
-        if (progressRepo.isUnlocked("fiftyFifty")) fiftyFiftyCharges = 1
-        if (progressRepo.isUnlocked("freezeTime")) freezeCharges = 1
-        if (progressRepo.isUnlocked("doubleScore")) doubleScoreCharges = 1
-        hintCharges = if (progressRepo.isUnlocked("hint")) 1 else 0
+        fiftyFiftyCharges = 1
+        doubleScoreCharges = 1
+        hintCharges = 1
+        shieldCharges = 1
 
         val freePowerUps = prefs.getFreePowerUps()
         for (pu in freePowerUps) {
@@ -78,7 +74,6 @@ class GameEngine(private val context: Context) {
                 "fiftyFifty" -> fiftyFiftyCharges++
                 "hint" -> hintCharges++
                 "doubleScore" -> doubleScoreCharges++
-                "freezeTime" -> freezeCharges++
             }
         }
         prefs.clearFreePowerUps()
@@ -190,17 +185,16 @@ class GameEngine(private val context: Context) {
             streak++
             if (streak > 0 && streak % 5 == 0) {
                 if (mode == GameMode.SURVIVAL) {
-                    if (progressRepo.isUnlocked("lifeRecovery") && lives < 3) {
+                    if (lives < 3) {
                         lives++; ctxLifeRecovered = true
-                    } else if (progressRepo.isUnlocked("fiftyFifty")) {
+                    } else {
                         fiftyFiftyCharges++
                     }
                 } else if (mode == GameMode.TIMETRIAL || mode == GameMode.CHALLENGE) {
                     timer = minOf(300f, timer + 20f)
                 }
-                if (mode == GameMode.TIMETRIAL && progressRepo.isUnlocked("fiftyFifty")) fiftyFiftyCharges++
-                if (streak % 10 == 0 && mode == GameMode.TIMETRIAL && progressRepo.isUnlocked("freezeTime")) freezeCharges++
-                if (streak % 15 == 0 && progressRepo.isUnlocked("doubleScore") && mode != GameMode.CHALLENGE && mode != GameMode.QUICK) doubleScoreCharges++
+                if (mode == GameMode.TIMETRIAL) fiftyFiftyCharges++
+                if (streak % 15 == 0 && mode != GameMode.CHALLENGE && mode != GameMode.QUICK) doubleScoreCharges++
             }
 
             if (mode == GameMode.TIMETRIAL || mode == GameMode.CHALLENGE) {
@@ -250,11 +244,6 @@ class GameEngine(private val context: Context) {
             removed.add(wrong.removeAt(idx))
         }
         fiftyFiftyRemoved = removed
-    }
-
-    fun activateFreeze() {
-        if (freezeCharges <= 0 || freezeActive || answered) return
-        freezeCharges--; freezeActive = true; freezeTimer = 10f
     }
 
     fun activateDoubleScore() {
