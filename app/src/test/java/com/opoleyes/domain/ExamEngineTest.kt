@@ -289,4 +289,82 @@ class ExamEngineTest {
         assertEquals(4, result.unanswered)
         assertEquals(3f, result.score, 0.01f)
     }
+
+    // === Weighted distribution tests ===
+
+    @Test
+    fun fun_loadExam_lopjHasMostQuestions() {
+        examEngine.loadExam(100)
+        for (i in 0 until examEngine.getQuestionCount()) {
+            examEngine.navigateTo(i)
+            examEngine.answer(examEngine.getCurrentQuestion()!!.question.correct)
+        }
+        val result = examEngine.grade()
+        val lopj = result.perLaw["LOPJ"]
+        // LOPJ has weight 28 (highest), so it should be present if data exists
+        if (lopj != null) {
+            val maxOther = result.perLaw.filterKeys { it != "LOPJ" }.values.maxOfOrNull { it.total } ?: 0
+            assertTrue("LOPJ should have the most questions", lopj.total >= maxOther)
+        }
+    }
+
+    @Test
+    fun fun_loadExam_distributionIsProportional() {
+        examEngine.loadExam(50)
+        for (i in 0 until examEngine.getQuestionCount()) {
+            examEngine.navigateTo(i)
+            examEngine.answer(examEngine.getCurrentQuestion()!!.question.correct)
+        }
+        val result = examEngine.grade()
+        // LOPJ weight is 28 out of 100 total, so ~28% of questions
+        val lopj = result.perLaw["LOPJ"]
+        if (lopj != null) {
+            val pct = lopj.total * 100 / 50
+            assertTrue("LOPJ should be roughly 28%: got $pct%", pct in 15..40)
+        }
+        // LEC weight is 22, so ~22%
+        val lec = result.perLaw["LEC"]
+        if (lec != null) {
+            val pct = lec.total * 100 / 50
+            assertTrue("LEC should be roughly 22%: got $pct%", pct in 10..35)
+        }
+    }
+
+    @Test
+    fun fun_loadExam_multipleLawsPresent() {
+        examEngine.loadExam(50)
+        for (i in 0 until examEngine.getQuestionCount()) {
+            examEngine.navigateTo(i)
+            examEngine.answer(examEngine.getCurrentQuestion()!!.question.correct)
+        }
+        val result = examEngine.grade()
+        assertTrue("Per-law breakdown should not be empty", result.perLaw.isNotEmpty())
+    }
+
+    @Test
+    fun fun_loadExam_concursalHasFewestOrZero() {
+        examEngine.loadExam(50)
+        for (i in 0 until examEngine.getQuestionCount()) {
+            examEngine.navigateTo(i)
+            examEngine.answer(examEngine.getCurrentQuestion()!!.question.correct)
+        }
+        val result = examEngine.grade()
+        val concursal = result.perLaw["Concursal"]
+        val lopj = result.perLaw["LOPJ"]
+        if (concursal != null && lopj != null) {
+            assertTrue("Concursal should have fewer questions than LOPJ",
+                concursal.total <= lopj.total)
+        }
+    }
+
+    @Test
+    fun fun_loadExam_differentLoadsProduceDifferentQuestions() {
+        examEngine.loadExam(20)
+        val firstRun = examEngine.getQuestions().map { "${it.question.testId}:${it.question.origId}" }
+        examEngine.loadExam(20)
+        val secondRun = examEngine.getQuestions().map { "${it.question.testId}:${it.question.origId}" }
+        // With shuffling, it's extremely unlikely both runs are identical
+        assertTrue("Different loads should produce different question sets",
+            firstRun != secondRun)
+    }
 }

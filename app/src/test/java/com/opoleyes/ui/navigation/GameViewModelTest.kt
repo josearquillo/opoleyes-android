@@ -338,4 +338,153 @@ class GameViewModelTest {
         val ok = vm.startTemaGame("nonexistent")
         assertFalse(ok)
     }
+
+    // === Rank-up power-up reward tests ===
+
+    @Test
+    fun fun_onGameOver_rankUp_grantsPowerUps() {
+        vm.startAllLawsGame()
+        vm.engine.startXP = 0
+        vm.engine.startRankIndex = 0
+        vm.getProgressRepo().addXP(600)
+        val powerUpsBefore = vm.getPrefs().getFreePowerUps().size
+        vm.onGameOver()
+        val powerUpsAfter = vm.getPrefs().getFreePowerUps().size
+        assertTrue("Power-ups should increase on rank-up", powerUpsAfter > powerUpsBefore)
+    }
+
+    @Test
+    fun fun_onGameOver_rankUp_grantsCorrectPowerUpsForRank1() {
+        vm.startAllLawsGame()
+        vm.engine.startXP = 0
+        vm.engine.startRankIndex = 0
+        vm.getProgressRepo().addXP(600)
+        vm.onGameOver()
+        val powerUps = vm.getPrefs().getFreePowerUps()
+        val rank1Rewards = com.opoleyes.data.Constants.RANK_POWERUP_REWARDS[1]!!
+        assertEquals(rank1Rewards.size, powerUps.size)
+        rank1Rewards.forEach { pu ->
+            assertTrue("Should contain $pu", powerUps.contains(pu))
+        }
+    }
+
+    @Test
+    fun fun_onGameOver_noRankUp_doesNotGrantPowerUps() {
+        vm.startAllLawsGame()
+        vm.engine.startXP = vm.getProgressRepo().getXP()
+        vm.engine.startRankIndex = vm.getProgressRepo().getRankIndex()
+        val powerUpsBefore = vm.getPrefs().getFreePowerUps().size
+        vm.onGameOver()
+        assertEquals(powerUpsBefore, vm.getPrefs().getFreePowerUps().size)
+    }
+
+    @Test
+    fun fun_onGameOver_multiRankUp_grantsAllRewards() {
+        vm.startAllLawsGame()
+        vm.engine.startXP = 0
+        vm.engine.startRankIndex = 0
+        vm.getProgressRepo().addXP(1600)
+        vm.onGameOver()
+        val powerUps = vm.getPrefs().getFreePowerUps()
+        val expected = (com.opoleyes.data.Constants.RANK_POWERUP_REWARDS[1]!! +
+                com.opoleyes.data.Constants.RANK_POWERUP_REWARDS[2]!!)
+        assertEquals(expected.size, powerUps.size)
+    }
+
+    // === Exam ViewModel tests ===
+
+    @Test
+    fun fun_startExam_loadsQuestions() {
+        vm.examEngine.loadExam(25)
+        assertEquals(25, vm.examEngine.getQuestionCount())
+    }
+
+    @Test
+    fun fun_examAnswer_storesAnswer() {
+        vm.examEngine.loadExam(10)
+        vm.examAnswer("A")
+        val q = vm.examEngine.getCurrentQuestion()
+        assertEquals("A", q?.userAnswer)
+        assertEquals(1, vm.examAnswered.value)
+    }
+
+    @Test
+    fun fun_examNext_advancesIndex() {
+        vm.examEngine.loadExam(10)
+        vm.examNext()
+        assertEquals(1, vm.examQuestionNum.value)
+    }
+
+    @Test
+    fun fun_examPrev_decreasesIndex() {
+        vm.examEngine.loadExam(10)
+        vm.examNavigate(3)
+        vm.examPrev()
+        assertEquals(2, vm.examQuestionNum.value)
+    }
+
+    @Test
+    fun fun_examNavigate_setsIndex() {
+        vm.examEngine.loadExam(10)
+        vm.examNavigate(5)
+        assertEquals(5, vm.examQuestionNum.value)
+    }
+
+    @Test
+    fun fun_examNext_returnsFalseAtLast() {
+        vm.examEngine.loadExam(5)
+        vm.examNavigate(4)
+        assertFalse(vm.examNext())
+    }
+
+    @Test
+    fun fun_examPrev_returnsFalseAtFirst() {
+        vm.examEngine.loadExam(5)
+        assertFalse(vm.examPrev())
+    }
+
+    @Test
+    fun fun_finishExam_setsResult() {
+        vm.examEngine.loadExam(10)
+        for (i in 0 until 10) {
+            vm.examNavigate(i)
+            val q = vm.examEngine.getCurrentQuestion()!!
+            vm.examAnswer(q.question.correct)
+        }
+        vm.finishExam()
+        assertNotNull(vm.examResult.value)
+        assertEquals(10, vm.examResult.value!!.correct)
+    }
+
+    @Test
+    fun fun_finishExam_grantsXP() {
+        vm.examEngine.loadExam(10)
+        for (i in 0 until 10) {
+            vm.examNavigate(i)
+            val q = vm.examEngine.getCurrentQuestion()!!
+            vm.examAnswer(q.question.correct)
+        }
+        val xpBefore = vm.getProgressRepo().getXP()
+        vm.finishExam()
+        assertTrue(vm.getProgressRepo().getXP() > xpBefore)
+    }
+
+    @Test
+    fun fun_finishExam_incrementsGamesPlayed() {
+        vm.examEngine.loadExam(5)
+        val before = vm.getProgressRepo().getGamesPlayed()
+        vm.finishExam()
+        assertEquals(before + 1, vm.getProgressRepo().getGamesPlayed())
+    }
+
+    @Test
+    fun fun_clearExamResult_resetsState() {
+        vm.examEngine.loadExam(10)
+        vm.examAnswer("A")
+        vm.finishExam()
+        vm.clearExamResult()
+        assertEquals(null, vm.examResult.value)
+        assertEquals(0, vm.examQuestionNum.value)
+        assertEquals(0, vm.examAnswered.value)
+    }
 }

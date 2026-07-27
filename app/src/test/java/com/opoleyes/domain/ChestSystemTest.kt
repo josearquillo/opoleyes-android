@@ -144,4 +144,62 @@ class ChestSystemTest {
         ).getFreePowerUps()
         assertTrue(powerUps.isNotEmpty())
     }
+
+    // === Power-up availability tests ===
+
+    @Test
+    fun fun_generateChest_silverHasPowerUpsAtRank0() {
+        val chest = chestSystem.generateChest(true, 70, 10, 200)
+        assertTrue("Silver chest should have power-ups at rank 0", chest!!.powerUps.isNotEmpty())
+    }
+
+    @Test
+    fun fun_generateChest_goldHas2PowerUpsAtRank0() {
+        val chest = chestSystem.generateChest(true, 95, 10, 500)
+        assertEquals(2, chest!!.powerUps.size)
+    }
+
+    @Test
+    fun fun_generateChest_noFreezeTimeInRewards() {
+        progressRepo.addXP(20000)
+        repeat(10) {
+            val chest = chestSystem.generateChest(true, 95, 10, 500)
+            chest!!.powerUps.forEach { pu ->
+                assertTrue("No freezeTime in chest rewards", pu != "freezeTime")
+            }
+        }
+    }
+
+    @Test
+    fun fun_generateChest_powerUpsFromValidPool() {
+        val validPowerUps = setOf("shield", "fiftyFifty", "hint", "doubleScore", "lifeRecovery")
+        repeat(20) {
+            val chest = chestSystem.generateChest(true, 95, 10, 500)
+            chest!!.powerUps.forEach { pu ->
+                assertTrue("Invalid power-up: $pu", validPowerUps.contains(pu))
+            }
+        }
+    }
+
+    @Test
+    fun fun_generateChest_lifeRecoveryOnlyAtRank4Plus() {
+        progressRepo.addXP(3500)
+        repeat(10) {
+            val chest = chestSystem.generateChest(true, 95, 10, 500)
+            chest!!.powerUps.forEach { pu ->
+                assertTrue("lifeRecovery should not appear before rank 4", pu != "lifeRecovery")
+            }
+        }
+    }
+
+    @Test
+    fun fun_generateChest_lifeRecoveryAvailableAtRank4() {
+        progressRepo.addXP(7000)
+        var foundLifeRecovery = false
+        repeat(30) {
+            val chest = chestSystem.generateChest(true, 95, 10, 500)
+            if (chest!!.powerUps.contains("lifeRecovery")) foundLifeRecovery = true
+        }
+        assertTrue("lifeRecovery should eventually appear at rank 4+", foundLifeRecovery)
+    }
 }
