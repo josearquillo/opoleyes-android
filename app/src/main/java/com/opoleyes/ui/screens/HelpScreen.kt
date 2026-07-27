@@ -13,8 +13,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.opoleyes.data.local.PreferencesManager
 import com.opoleyes.ui.theme.*
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun HelpScreen(navController: NavController) {
     val sections = listOf(
@@ -61,6 +63,11 @@ fun HelpScreen(navController: NavController) {
         ))
     )
 
+    val context = navController.context
+    val prefs = PreferencesManager(context)
+    var debugMode by remember { mutableStateOf(prefs.isDebugMode()) }
+    var debugToast by remember { mutableStateOf<String?>(null) }
+
     val scrollState = rememberScrollState()
     Column(
         modifier = Modifier
@@ -68,7 +75,24 @@ fun HelpScreen(navController: NavController) {
             .verticalScroll(scrollState)
             .padding(16.dp)
     ) {
-        Text("❓ Ayuda", color = TextLight, fontSize = 28.sp, fontWeight = FontWeight.Bold)
+        Text(
+            "❓ Ayuda",
+            color = TextLight,
+            fontSize = 28.sp,
+            fontWeight = FontWeight.Bold,
+            modifier = Modifier.combinedClickable(
+                onClick = {},
+                onLongClick = {
+                    debugMode = !debugMode
+                    prefs.setDebugMode(debugMode)
+                    debugToast = if (debugMode) "Modo debug activado" else "Modo debug desactivado"
+                }
+            )
+        )
+        if (debugToast != null) {
+            Spacer(Modifier.height(4.dp))
+            Text(debugToast!!, color = if (debugMode) Success else TextMuted, fontSize = 12.sp)
+        }
         Spacer(Modifier.height(20.dp))
         sections.forEach { section ->
             HelpSection(section)

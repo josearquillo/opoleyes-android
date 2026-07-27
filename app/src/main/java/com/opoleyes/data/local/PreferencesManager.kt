@@ -18,6 +18,7 @@ class PreferencesManager(private val context: Context) {
         const val FREE_POWERUPS_JSON = "free_powerups_json"
         const val XP_MULTIPLIER = "xp_multiplier"
         const val DAILY_MISSIONS_JSON = "daily_missions_json"
+        const val DEBUG_MODE = "debug_mode"
         fun recordKey(mode: String) = "record_$mode"
         fun recordComboKey(mode: String) = "record_combo_$mode"
         fun recordAccKey(mode: String) = "record_acc_$mode"
@@ -107,6 +108,12 @@ class PreferencesManager(private val context: Context) {
 
     fun setLawMastered(testId: String) {
         prefs.edit().putString(lawMasteredKey(testId), "1").apply()
+    }
+
+    fun isDebugMode(): Boolean = prefs.getBoolean(DEBUG_MODE, false)
+
+    fun setDebugMode(enabled: Boolean) {
+        prefs.edit().putBoolean(DEBUG_MODE, enabled).apply()
     }
 
     fun resetAll() {

@@ -10,7 +10,7 @@ import com.opoleyes.data.model.XPProgress
 class ProgressRepository(private val context: Context) {
     private val prefs = PreferencesManager(context)
 
-    fun getXP(): Int = prefs.getXP()
+    fun getXP(): Int = if (prefs.isDebugMode()) 100000 else prefs.getXP()
     fun addXP(amount: Int): Int = prefs.addXP(amount)
 
     fun getRankIndex(): Int {
@@ -41,6 +41,22 @@ class ProgressRepository(private val context: Context) {
     }
 
     fun getUnlocks(): Unlocks {
+        if (prefs.isDebugMode()) {
+            return Unlocks(
+                survival = true,
+                timetrial = true,
+                quick = true,
+                challenge = true,
+                powerUps = true,
+                hint = true,
+                shield = true,
+                fiftyFifty = true,
+                lifeRecovery = true,
+                doubleScore = true,
+                freezeTime = true,
+                dailyMissions = 3
+            )
+        }
         val r = getRankIndex()
         return Unlocks(
             survival = true,
