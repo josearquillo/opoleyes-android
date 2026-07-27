@@ -248,7 +248,12 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
                     addPopup("+15s", com.opoleyes.ui.theme.Cyan, 44, 0.3f)
                 }
                 if (engine.streak > 0 && engine.streak % 5 == 0) {
-                    addPopup("⚡ Racha x${engine.streak}", com.opoleyes.ui.theme.Warning, 42, 0.45f)
+                    val streakMsg = when {
+                        engine.ctxLifeRecovered -> "❤️ ¡Vida recuperada! (Racha x${engine.streak})"
+                        engine.mode == GameMode.TIMETRIAL || engine.mode == GameMode.CHALLENGE -> "⏱️ +20s (Racha x${engine.streak})"
+                        else -> "⚡ Racha x${engine.streak}"
+                    }
+                    addPopup(streakMsg, com.opoleyes.ui.theme.Warning, 38, 0.45f)
                 }
                 if (engine.comboOverchargeActive && engine.comboOverchargeCharges == 3) {
                     addPopup("⚡ ¡OVERCHARGE!", com.opoleyes.ui.theme.Warning, 48, 0f)

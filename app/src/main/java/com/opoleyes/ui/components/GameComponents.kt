@@ -135,6 +135,7 @@ fun HudBar(
     mode: com.opoleyes.data.model.GameMode,
     questionNum: Int,
     shieldCharges: Int,
+    streak: Int = 0,
     modifier: Modifier = Modifier
 ) {
     Row(
@@ -173,6 +174,11 @@ fun HudBar(
                 else -> Orange
             }
             Text("🔥 x$combo", color = comboColor, fontWeight = FontWeight.Bold, fontSize = 16.sp)
+        }
+        if (streak > 0) {
+            val streakLeft = 5 - (streak % 5)
+            val streakColor = if (streakLeft == 1) Warning else TextMuted
+            Text("⚡${streak % 5}/5", color = streakColor, fontWeight = FontWeight.Bold, fontSize = 13.sp)
         }
         Text("#$questionNum", color = TextDim, fontSize = 13.sp)
     }

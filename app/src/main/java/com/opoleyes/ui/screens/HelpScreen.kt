@@ -38,7 +38,8 @@ fun HelpScreen(navController: NavController) {
             "🛡️ Escudo: Si fallas, se consume automáticamente y no te penaliza.",
             "🎯 50/50: Elimina dos respuestas incorrectas de golpe.",
             "✨ x2 pts: La próxima respuesta que aciertes vale el doble de puntos.",
-            "❤️ Recuperación: Recupera 1 vida cada 5 aciertos seguidos.",
+            "❤️ Recuperación: Cada 5 aciertos seguidos recuperas 1 vida automáticamente (Solo Supervivencia). Si ya tienes 3 vidas, recibes una carga de 50/50 en su lugar.",
+            "⏱️ En Contrarreloj y Reto, cada 5 aciertos seguidos te da +20 segundos extra.",
             "📦 Las ayudas se consiguen al subir de rango y al abrir cofres. Se gastan al usarlas."
         )),
         HelpSectionData("🔥", "Combo", listOf(

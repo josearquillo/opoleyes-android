@@ -121,7 +121,10 @@ class GameEngine(private val context: Context) {
         if (mode == GameMode.CHALLENGE && (questionNum >= 15 || timer <= 0)) return false
 
         val available = pool.filter { !askedIds.contains("${it.testId}:${it.origId}") }
-        val usePool = if (available.isNotEmpty()) available else pool
+        val usePool = if (available.isNotEmpty()) available else {
+            askedIds.clear()
+            pool
+        }
         val tw = usePool.sumOf { it.weight }
         currentQ = if (tw == 0) {
             usePool.random()
@@ -147,6 +150,7 @@ class GameEngine(private val context: Context) {
         selectedOption = letter
         answered = true
         totalAnswered++
+        ctxLifeRecovered = false
         val q = currentQ ?: return AnswerResult.ERROR
         val isCorrect = letter == q.correct
         val key = "${q.testId}:${q.origId}"

@@ -211,7 +211,8 @@ fun GameScreen(navController: NavController, gameViewModel: GameViewModel) {
                     timer = uiState.timer,
                     mode = uiState.mode,
                     questionNum = uiState.questionNum,
-                    shieldCharges = uiState.shieldCharges
+                    shieldCharges = uiState.shieldCharges,
+                    streak = uiState.streak
                 )
 
                 // Combo with bounce effect
