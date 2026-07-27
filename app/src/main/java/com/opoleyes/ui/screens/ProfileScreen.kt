@@ -16,6 +16,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.opoleyes.data.Constants
 import com.opoleyes.data.local.DataProvider
+import com.opoleyes.data.local.PreferencesManager
 import com.opoleyes.data.repository.ProgressRepository
 import com.opoleyes.data.repository.StatsRepository
 import com.opoleyes.ui.components.GameButton
@@ -38,6 +39,17 @@ fun ProfileScreen(navController: NavController) {
     val globalProgress = remember { statsRepo.getGlobalProgress() }
     val temaTests = remember { DataProvider.getTemaTests(context) }
     val dominatedLaws = remember { temaTests.count { statsRepo.getLeyProgress(it.id) >= 100 } }
+
+    val prefs = remember { PreferencesManager(context) }
+    val powerUps = remember { prefs.getFreePowerUps() }
+    val powerUpCounts = remember {
+        mapOf(
+            "💡 Pista" to powerUps.count { it == "hint" },
+            "🛡️ Escudo" to powerUps.count { it == "shield" },
+            "🎯 50/50" to powerUps.count { it == "fiftyFifty" },
+            "✨ x2 pts" to powerUps.count { it == "doubleScore" }
+        )
+    }
 
     var showResetDialog by remember { mutableStateOf(false) }
     val scrollState = rememberScrollState()
@@ -88,6 +100,35 @@ fun ProfileScreen(navController: NavController) {
             ) {
                 Text(if (unlocked) label else "$label 🔒", color = if (unlocked) TextLight else TextDim, fontSize = 14.sp)
                 Text(if (unlocked) "$record pts" else "—", color = if (unlocked) Warning else TextDim, fontWeight = FontWeight.Bold, fontSize = 14.sp)
+            }
+        }
+
+        Spacer(Modifier.height(24.dp))
+
+        // Power-ups
+        Text("Ayudas disponibles", color = TextLight, fontSize = 18.sp, fontWeight = FontWeight.Bold)
+        Spacer(Modifier.height(12.dp))
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceEvenly
+        ) {
+            powerUpCounts.forEach { (label, count) ->
+                Column(
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(12.dp))
+                        .background(BgCard)
+                        .padding(12.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Text(label, fontSize = 20.sp)
+                    Spacer(Modifier.height(4.dp))
+                    Text(
+                        if (count > 0) "x$count" else "—",
+                        color = if (count > 0) Warning else TextDim,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 14.sp
+                    )
+                }
             }
         }
 

@@ -35,7 +35,8 @@ class MissionRepository(private val context: Context) {
             val allValid = existing.missions.all { m ->
                 m.testId == null || testDataMap.containsKey(m.testId)
             }
-            if (allValid) return existing
+            val expectedCount = progressRepo.getMissionCount()
+            if (allValid && existing.missions.size == expectedCount) return existing
         }
 
         val seed = today.split("-").map { it.toLong() }.reduce { a, b -> a * 100 + b }

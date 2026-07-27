@@ -30,6 +30,7 @@ fun HelpScreen(navController: NavController) {
             "❤️ Supervivencia: Tienes 3 vidas y sin límite de tiempo. Falla 3 veces y se acaba.",
             "⏱️ Contrarreloj: 3 minutos. Cada acierto suma 15 segundos, cada fallo resta 10.",
             "⚡ Repaso Express: 20 preguntas de las que has fallado antes, para repasar tus errores.",
+            "📝 Modo Examen: Simula el examen oficial. Sin vidas, sin power-ups, corrección al final.",
             "🏆 Modo Reto: 2 minutos, máxima dificultad, preguntas de todas las leyes a la vez."
         )),
         HelpSectionData("✨", "Ayudas (Power-ups)", listOf(
@@ -37,8 +38,8 @@ fun HelpScreen(navController: NavController) {
             "🛡️ Escudo: Si fallas, se consume automáticamente y no te penaliza.",
             "🎯 50/50: Elimina dos respuestas incorrectas de golpe.",
             "✨ x2 pts: La próxima respuesta que aciertes vale el doble de puntos.",
-            "🧊 Congelar: Pausa el cronómetro durante 10 segundos.",
-            "❤️ Recuperación: Recupera 1 vida cada 5 aciertos seguidos."
+            "❤️ Recuperación: Recupera 1 vida cada 5 aciertos seguidos.",
+            "📦 Las ayudas se consiguen al subir de rango y al abrir cofres. Se gastan al usarlas."
         )),
         HelpSectionData("🔥", "Combo", listOf(
             "Cada vez que aciertes seguidas, tu combo sube.",
