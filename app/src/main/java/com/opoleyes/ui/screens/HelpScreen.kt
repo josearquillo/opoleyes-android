@@ -20,44 +20,44 @@ fun HelpScreen(navController: NavController) {
     val sections = listOf(
         HelpSectionData("🎯", "Objetivo", listOf(
             "Responde preguntas de oposiciones de justicia.",
-            "Gana XP, sube de rango y desbloquea modos.",
+            "Gana puntos de experiencia (XP), sube de rango y desbloquea nuevos modos de juego.",
             "Supera tus récords y domina todas las leyes."
         )),
-        HelpSectionData("🎮", "Modos", listOf(
-            "❤️ Supervivencia: 3 vidas, sin tiempo.",
-            "⏱️ Contrarreloj: 180s, +15s acierto, -10s fallo.",
-            "⚡ Repaso Express: 20 preguntas de fallos previos.",
-            "🏆 Modo Reto: 120s, máxima dificultad, todas las leyes."
+        HelpSectionData("🎮", "Modos de juego", listOf(
+            "❤️ Supervivencia: Tienes 3 vidas y sin límite de tiempo. Falla 3 veces y se acaba.",
+            "⏱️ Contrarreloj: 3 minutos. Cada acierto suma 15 segundos, cada fallo resta 10.",
+            "⚡ Repaso Express: 20 preguntas de las que has fallado antes, para repasar tus errores.",
+            "🏆 Modo Reto: 2 minutos, máxima dificultad, preguntas de todas las leyes a la vez."
         )),
-        HelpSectionData("✨", "Power-ups", listOf(
-            "💡 Pista: Elimina 1 opción incorrecta.",
-            "🛡️ Escudo: Auto-consumo al fallar, sin penalización.",
-            "🎯 50/50: Elimina 2 opciones incorrectas.",
-            "✨ x2 pts: Doble puntuación en 1 respuesta.",
-            "🧊 Congelar: Pausa el timer 10s.",
-            "❤️ Recuperación: Recupera 1 vida cada 5 aciertos."
+        HelpSectionData("✨", "Ayudas (Power-ups)", listOf(
+            "💡 Pista: Quita una respuesta incorrecta de la pantalla.",
+            "🛡️ Escudo: Si fallas, se consume automáticamente y no te penaliza.",
+            "🎯 50/50: Elimina dos respuestas incorrectas de golpe.",
+            "✨ x2 pts: La próxima respuesta que aciertes vale el doble de puntos.",
+            "🧊 Congelar: Pausa el cronómetro durante 10 segundos.",
+            "❤️ Recuperación: Recupera 1 vida cada 5 aciertos seguidos."
         )),
         HelpSectionData("🔥", "Combo", listOf(
-            "Cada acierto consecutivo aumenta el combo.",
-            "Puntos = 10 × combo actual.",
-            "La barra de combo se llena cada 10 aciertos.",
-            "Overcharge: 3 cargas gratis (+vida o +30s)."
+            "Cada vez que aciertes seguidas, tu combo sube.",
+            "Cuanto más alto sea el combo, más puntos ganas por respuesta (10 × combo).",
+            "La barra de combo se llena cada 10 aciertos consecutivos.",
+            "Al llenarla, obtienes 3 cargas gratis que puedes canjear por vida extra o tiempo adicional."
         )),
         HelpSectionData("🌱", "Rangos", listOf(
-            "12 rangos desde Novato (0 XP) hasta Leyenda (100.000 XP).",
-            "Cada rango desbloquea nuevos modos y power-ups.",
-            "Gana XP acertando preguntas y completando misiones."
+            "Hay 12 rangos, desde Novato (0 XP) hasta Leyenda (100.000 XP).",
+            "Cada rango desbloquea nuevos modos de juego y ayudas.",
+            "Gana XP acertando preguntas y completando misiones diarias."
         )),
-        HelpSectionData("🪵", "Cofres", listOf(
-            "🪵 Madera: 50-150 XP (default).",
-            "🥈 Plata: 150-350 XP + 1 power-up (récord).",
-            "🥇 Oro: 300-600 XP + 2 power-ups + x2 XP (récord + 90% + 5 preg)."
+        HelpSectionData("🎁", "Cofres", listOf(
+            "📦 Cofre de madera: Entre 50 y 150 XP. Lo recibes al terminar una partida normal.",
+            "📦 Cofre de plata: Entre 150 y 350 XP y una ayuda extra. Lo recibes si bates tu récord de puntuación.",
+            "📦 Cofre de oro: Entre 300 y 600 XP, dos ayudas extra y doble XP. Lo recibes si bates tu récord con un 90% de aciertos respondiendo al menos 5 preguntas."
         )),
-        HelpSectionData("📋", "Misiones", listOf(
-            "Misiones diarias generadas con seed.",
-            "1-3 misiones según rango.",
-            "50 XP por misión, +200 XP si completas todas.",
-            "Racha de días completando todas."
+        HelpSectionData("📋", "Misiones diarias", listOf(
+            "Cada día recibes misiones nuevas y diferentes.",
+            "Puedes tener entre 1 y 3 misiones según tu rango.",
+            "Cada misión completada te da 50 XP. Si completas todas, recibes 200 XP extra.",
+            "¡Intenta completarlas todos los días seguidos para mantener tu racha!"
         ))
     )
 
