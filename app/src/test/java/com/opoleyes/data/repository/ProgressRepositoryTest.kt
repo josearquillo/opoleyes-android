@@ -101,7 +101,13 @@ class ProgressRepositoryTest {
         assertFalse(u.timetrial)
         assertFalse(u.quick)
         assertFalse(u.challenge)
-        assertFalse(u.hint)
+        assertFalse(u.exam)
+        assertTrue(u.powerUps)
+        assertTrue(u.hint)
+        assertTrue(u.shield)
+        assertTrue(u.fiftyFifty)
+        assertTrue(u.doubleScore)
+        assertFalse(u.lifeRecovery)
         assertEquals(1, u.dailyMissions)
     }
 
@@ -112,6 +118,7 @@ class ProgressRepositoryTest {
         assertTrue(u.timetrial)
         assertTrue(u.shield)
         assertFalse(u.quick)
+        assertFalse(u.exam)
     }
 
     @Test
@@ -120,6 +127,7 @@ class ProgressRepositoryTest {
         val u = repo.getUnlocks()
         assertTrue(u.quick)
         assertTrue(u.hint)
+        assertFalse(u.exam)
         assertEquals(2, u.dailyMissions)
     }
 
@@ -129,6 +137,7 @@ class ProgressRepositoryTest {
         val u = repo.getUnlocks()
         assertTrue(u.powerUps)
         assertTrue(u.fiftyFifty)
+        assertTrue(u.exam)
     }
 
     @Test
@@ -147,13 +156,6 @@ class ProgressRepositoryTest {
     }
 
     @Test
-    fun fun_getUnlocks_atRank6() {
-        repo.addXP(20000)
-        val u = repo.getUnlocks()
-        assertTrue(u.freezeTime)
-    }
-
-    @Test
     fun fun_getUnlocks_atRank8() {
         repo.addXP(45000)
         val u = repo.getUnlocks()
@@ -164,6 +166,11 @@ class ProgressRepositoryTest {
     fun fun_isUnlocked() {
         assertTrue(repo.isUnlocked("survival"))
         assertFalse(repo.isUnlocked("timetrial"))
+        assertTrue(repo.isUnlocked("shield"))
+        assertTrue(repo.isUnlocked("hint"))
+        assertTrue(repo.isUnlocked("fiftyFifty"))
+        assertTrue(repo.isUnlocked("doubleScore"))
+        assertFalse(repo.isUnlocked("exam"))
         assertFalse(repo.isUnlocked("nonexistent"))
     }
 

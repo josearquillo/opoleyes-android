@@ -91,6 +91,16 @@ class GameEngineTest {
     }
 
     @Test
+    fun fun_initGameStats_powerUpsAvailableFromStart() {
+        engine.mode = GameMode.SURVIVAL
+        engine.initGameStats()
+        assertEquals(1, engine.fiftyFiftyCharges)
+        assertEquals(1, engine.doubleScoreCharges)
+        assertEquals(1, engine.hintCharges)
+        assertEquals(1, engine.shieldCharges)
+    }
+
+    @Test
     fun fun_startQuickGame_returnsTrue() {
         val ok = engine.startQuickGame()
         assertTrue(ok)
@@ -164,6 +174,7 @@ class GameEngineTest {
     @Test
     fun fun_answer_wrong() {
         engine.startAllLawsGame()
+        engine.shieldCharges = 0
         engine.nextQuestion()
         val q = engine.currentQ!!
         val wrongOption = listOf("A", "B", "C", "D").filter { it != q.correct }.first()
@@ -200,6 +211,7 @@ class GameEngineTest {
     @Test
     fun fun_answer_wrongResetsCombo() {
         engine.startAllLawsGame()
+        engine.shieldCharges = 0
         engine.nextQuestion()
         engine.answer(engine.currentQ!!.correct)
         assertEquals(1, engine.combo)
@@ -239,6 +251,7 @@ class GameEngineTest {
     @Test
     fun fun_answer_streakResetsOnWrong() {
         engine.startAllLawsGame()
+        engine.shieldCharges = 0
         engine.nextQuestion()
         engine.answer(engine.currentQ!!.correct)
         engine.nextQuestion()
@@ -281,6 +294,7 @@ class GameEngineTest {
     @Test
     fun fun_answer_timetrialSubtractsTimeOnWrong() {
         engine.startAllLawsGame()
+        engine.shieldCharges = 0
         engine.mode = GameMode.TIMETRIAL
         engine.timer = 100f
         engine.nextQuestion()
@@ -403,30 +417,6 @@ class GameEngineTest {
         assertEquals(0, engine.fiftyFiftyCharges)
         assertEquals(2, engine.fiftyFiftyRemoved.size)
         assertTrue(engine.ctxFiftyFiftyUsed)
-    }
-
-    @Test
-    fun fun_activateFreeze_noChargesDoesNothing() {
-        engine.freezeCharges = 0
-        engine.activateFreeze()
-        assertFalse(engine.freezeActive)
-    }
-
-    @Test
-    fun fun_activateFreeze_success() {
-        engine.freezeCharges = 1
-        engine.activateFreeze()
-        assertTrue(engine.freezeActive)
-        assertEquals(0, engine.freezeCharges)
-        assertEquals(10f, engine.freezeTimer, 0.01f)
-    }
-
-    @Test
-    fun fun_activateFreeze_alreadyActiveDoesNothing() {
-        engine.freezeCharges = 1
-        engine.freezeActive = true
-        engine.activateFreeze()
-        assertEquals(1, engine.freezeCharges)
     }
 
     @Test

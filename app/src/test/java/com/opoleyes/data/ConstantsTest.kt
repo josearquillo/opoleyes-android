@@ -77,9 +77,51 @@ class ConstantsTest {
         assertTrue(Constants.RANK_UNLOCKS.containsKey(2))
         assertTrue(Constants.RANK_UNLOCKS.containsKey(3))
         assertTrue(Constants.RANK_UNLOCKS.containsKey(4))
-        assertTrue(Constants.RANK_UNLOCKS.containsKey(5))
-        assertTrue(Constants.RANK_UNLOCKS.containsKey(6))
         assertTrue(Constants.RANK_UNLOCKS.containsKey(8))
+    }
+
+    @Test
+    fun rankUnlocks_examAtRank3() {
+        assertEquals("📝 Modo Examen", Constants.RANK_UNLOCKS[3])
+    }
+
+    @Test
+    fun rankUnlocks_noFreezeTimeEntry() {
+        Constants.RANK_UNLOCKS.values.forEach { unlock ->
+            assertTrue("No entry should mention Freeze Time: $unlock",
+                !unlock.contains("Freeze", ignoreCase = true))
+        }
+    }
+
+    @Test
+    fun rankPowerupRewards_hasEntries() {
+        assertTrue(Constants.RANK_POWERUP_REWARDS.isNotEmpty())
+    }
+
+    @Test
+    fun rankPowerupRewards_allContainValidPowerUps() {
+        val validPowerUps = setOf("shield", "fiftyFifty", "hint", "doubleScore")
+        Constants.RANK_POWERUP_REWARDS.forEach { (rank, rewards) ->
+            assertTrue("Rank $rank rewards should not be empty", rewards.isNotEmpty())
+            rewards.forEach { pu ->
+                assertTrue("Rank $rank has invalid power-up: $pu", validPowerUps.contains(pu))
+            }
+        }
+    }
+
+    @Test
+    fun rankPowerupRewards_noFreezeTime() {
+        Constants.RANK_POWERUP_REWARDS.values.forEach { rewards ->
+            assertTrue("No reward should contain freezeTime",
+                !rewards.contains("freezeTime"))
+        }
+    }
+
+    @Test
+    fun rankPowerupRewards_higherRanksGiveMore() {
+        val rank1Rewards = Constants.RANK_POWERUP_REWARDS[1]?.size ?: 0
+        val rank8Rewards = Constants.RANK_POWERUP_REWARDS[8]?.size ?: 0
+        assertTrue("Higher ranks should give more power-ups", rank8Rewards >= rank1Rewards)
     }
 
     @Test

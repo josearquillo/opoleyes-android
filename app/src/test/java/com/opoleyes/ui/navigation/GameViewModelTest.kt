@@ -84,6 +84,7 @@ class GameViewModelTest {
     @Test
     fun fun_answer_wrongUpdatesState() {
         vm.startAllLawsGame()
+        vm.engine.shieldCharges = 0
         val q = vm.engine.currentQ!!
         val wrong = listOf("A", "B", "C", "D").filter { it != q.correct }.first()
         val result = vm.answer(wrong)
@@ -141,7 +142,9 @@ class GameViewModelTest {
 
     @Test
     fun fun_clearPowerUpToast() {
-        vm.activateFreeze()
+        vm.startAllLawsGame()
+        vm.engine.doubleScoreCharges = 1
+        vm.activateDoubleScore()
         vm.clearPowerUpToast()
         assertEquals(null, vm.powerUpToast.value)
     }

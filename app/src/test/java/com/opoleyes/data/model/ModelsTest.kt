@@ -70,8 +70,8 @@ class ModelsTest {
     }
 
     @JTest
-    fun fun_gameMode_has4Modes() {
-        assertEquals(4, GameMode.values().size)
+    fun fun_gameMode_has5Modes() {
+        assertEquals(5, GameMode.values().size)
     }
 
     @JTest
@@ -80,6 +80,7 @@ class ModelsTest {
         assertEquals("Contrarreloj", GameMode.TIMETRIAL.displayName)
         assertEquals("Repaso Express", GameMode.QUICK.displayName)
         assertEquals("Modo Reto", GameMode.CHALLENGE.displayName)
+        assertEquals("Modo Examen", GameMode.EXAM.displayName)
     }
 
     @JTest
@@ -88,6 +89,7 @@ class ModelsTest {
         assertTrue(GameMode.TIMETRIAL.icon.isNotEmpty())
         assertTrue(GameMode.QUICK.icon.isNotEmpty())
         assertTrue(GameMode.CHALLENGE.icon.isNotEmpty())
+        assertTrue(GameMode.EXAM.icon.isNotEmpty())
     }
 
     @JTest
