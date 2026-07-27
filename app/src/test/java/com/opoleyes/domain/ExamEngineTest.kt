@@ -367,4 +367,140 @@ class ExamEngineTest {
         assertTrue("Different loads should produce different question sets",
             firstRun != secondRun)
     }
+
+    // === Bug regression tests ===
+
+    @Test
+    fun fun_loadExam_doesNotExceedRequestedCount() {
+        for (count in listOf(5, 10, 15, 20, 25, 30, 50)) {
+            examEngine.loadExam(count)
+            assertEquals("Exam with $count questions should have exactly $count",
+                count, examEngine.getQuestionCount())
+        }
+    }
+
+    @Test
+    fun fun_loadExam_smallCountDoesNotOverflow() {
+        examEngine.loadExam(3)
+        assertEquals(3, examEngine.getQuestionCount())
+    }
+
+    @Test
+    fun fun_loadExam_1Question() {
+        examEngine.loadExam(1)
+        assertEquals(1, examEngine.getQuestionCount())
+    }
+
+    @Test
+    fun fun_loadExam_2Questions() {
+        examEngine.loadExam(2)
+        assertEquals(2, examEngine.getQuestionCount())
+    }
+
+    @Test
+    fun fun_loadExam_questionsHaveValidOptions() {
+        examEngine.loadExam(10)
+        for (q in examEngine.getQuestions()) {
+            assertTrue("Question should have at least 2 options",
+                q.question.opciones.size >= 2)
+            assertTrue("Correct answer should be in options",
+                q.question.opciones.containsKey(q.question.correct))
+        }
+    }
+
+    @Test
+    fun fun_loadExam_correctAnswerIsInOptions() {
+        examEngine.loadExam(25)
+        for (q in examEngine.getQuestions()) {
+            assertTrue("Correct answer ${q.question.correct} must be in opciones",
+                q.question.opciones.containsKey(q.question.correct))
+        }
+    }
+
+    @Test
+    fun fun_grade_partialAnswersCorrectCount() {
+        examEngine.loadExam(10)
+        examEngine.answer(examEngine.getCurrentQuestion()!!.question.correct)
+        examEngine.navigateTo(1)
+        examEngine.answer(examEngine.getCurrentQuestion()!!.question.correct)
+        val result = examEngine.grade()
+        assertEquals(2, result.correct)
+        assertEquals(8, result.unanswered)
+        assertEquals(0, result.wrong)
+    }
+
+    @Test
+    fun fun_grade_allAnswersPresentInBreakdown() {
+        examEngine.loadExam(10)
+        for (i in 0 until 10) {
+            examEngine.navigateTo(i)
+            examEngine.answer(examEngine.getCurrentQuestion()!!.question.correct)
+        }
+        val result = examEngine.grade()
+        assertEquals(10, result.correct + result.wrong + result.unanswered)
+    }
+
+    @Test
+    fun fun_answer_nullAnswerDoesNotCount() {
+        examEngine.loadExam(10)
+        // Navigate without answering
+        examEngine.navigateTo(5)
+        assertEquals(0, examEngine.getAnsweredCount())
+    }
+
+    @Test
+    fun fun_navigateTo_sameIndexDoesNothing() {
+        examEngine.loadExam(10)
+        examEngine.navigateTo(3)
+        assertEquals(3, examEngine.getCurrentIndex())
+        examEngine.navigateTo(3)
+        assertEquals(3, examEngine.getCurrentIndex())
+    }
+
+    @Test
+    fun fun_loadExam_reloadProducesValidState() {
+        examEngine.loadExam(20)
+        for (i in 0 until 20) {
+            examEngine.navigateTo(i)
+            examEngine.answer("A")
+        }
+        // Reload should reset all answers
+        examEngine.loadExam(20)
+        assertEquals(0, examEngine.getAnsweredCount())
+        assertEquals(0, examEngine.getCurrentIndex())
+    }
+
+    @Test
+    fun fun_grade_scoreIsCorrect() {
+        examEngine.loadExam(10)
+        for (i in 0 until 10) {
+            examEngine.navigateTo(i)
+            examEngine.answer(examEngine.getCurrentQuestion()!!.question.correct)
+        }
+        val result = examEngine.grade()
+        assertEquals(10f, result.score, 0.01f)
+    }
+
+    @Test
+    fun fun_grade_partialScoreIsCorrect() {
+        examEngine.loadExam(10)
+        for (i in 0 until 5) {
+            examEngine.navigateTo(i)
+            examEngine.answer(examEngine.getCurrentQuestion()!!.question.correct)
+        }
+        for (i in 5 until 10) {
+            examEngine.navigateTo(i)
+            val q = examEngine.getCurrentQuestion()!!
+            val wrong = listOf("A", "B", "C", "D").filter { it != q.question.correct }.first()
+            examEngine.answer(wrong)
+        }
+        val result = examEngine.grade()
+        assertEquals(5f, result.score, 0.01f)
+    }
+
+    @Test
+    fun fun_isFinished_falseBeforeGrade() {
+        examEngine.loadExam(10)
+        assertFalse(examEngine.isFinished())
+    }
 }

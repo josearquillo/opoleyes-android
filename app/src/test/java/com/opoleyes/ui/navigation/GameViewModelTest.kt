@@ -487,4 +487,172 @@ class GameViewModelTest {
         assertEquals(0, vm.examQuestionNum.value)
         assertEquals(0, vm.examAnswered.value)
     }
+
+    // === Bug regression tests ===
+
+    @Test
+    fun fun_onGameOver_savesRemainingPowerUps() {
+        vm.startAllLawsGame()
+        vm.engine.shieldCharges = 2
+        vm.engine.fiftyFiftyCharges = 1
+        vm.onGameOver()
+        val powerUps = vm.getPrefs().getFreePowerUps()
+        assertTrue("Remaining power-ups should be saved on game over",
+            powerUps.contains("shield"))
+        assertTrue("Remaining power-ups should be saved on game over",
+            powerUps.contains("fiftyFifty"))
+    }
+
+    @Test
+    fun fun_onGameOver_doesNotSavePowerUpsWhenNoneRemaining() {
+        vm.startAllLawsGame()
+        vm.engine.shieldCharges = 0
+        vm.engine.fiftyFiftyCharges = 0
+        vm.engine.hintCharges = 0
+        vm.engine.doubleScoreCharges = 0
+        vm.onGameOver()
+        val powerUps = vm.getPrefs().getFreePowerUps()
+        assertTrue("No power-ups should be saved when none remaining",
+            !powerUps.contains("shield") && !powerUps.contains("fiftyFifty"))
+    }
+
+    @Test
+    fun fun_exitGame_savesRemainingPowerUps() {
+        vm.startAllLawsGame()
+        vm.engine.shieldCharges = 1
+        val powerUpsBefore = vm.getPrefs().getFreePowerUps().size
+        vm.exitGame()
+        val powerUpsAfter = vm.getPrefs().getFreePowerUps().size
+        assertTrue("exitGame should save remaining power-ups", powerUpsAfter > powerUpsBefore)
+    }
+
+    @Test
+    fun fun_clearChest_setsNull() {
+        vm.startAllLawsGame()
+        repeat(6) {
+            vm.engine.nextQuestion()
+            vm.engine.answer(vm.engine.currentQ!!.correct)
+        }
+        vm.onGameOver()
+        assertNotNull(vm.chestReward.value)
+        vm.clearChest()
+        assertEquals(null, vm.chestReward.value)
+    }
+
+    @Test
+    fun fun_clearRankUp_setsNull() {
+        vm.startAllLawsGame()
+        vm.engine.startXP = 0
+        vm.engine.startRankIndex = 0
+        vm.getProgressRepo().addXP(600)
+        vm.onGameOver()
+        assertNotNull(vm.rankUpOverlay.value)
+        vm.clearRankUp()
+        assertEquals(null, vm.rankUpOverlay.value)
+    }
+
+    @Test
+    fun fun_finishExam_withZeroCorrect() {
+        vm.examEngine.loadExam(10)
+        for (i in 0 until 10) {
+            vm.examNavigate(i)
+            val q = vm.examEngine.getCurrentQuestion()!!
+            val wrong = listOf("A", "B", "C", "D").filter { it != q.question.correct }.first()
+            vm.examAnswer(wrong)
+        }
+        vm.finishExam()
+        assertNotNull(vm.examResult.value)
+        assertEquals(0, vm.examResult.value!!.correct)
+        assertEquals(10, vm.examResult.value!!.wrong)
+    }
+
+    @Test
+    fun fun_finishExam_withAllUnanswered() {
+        vm.examEngine.loadExam(10)
+        vm.finishExam()
+        assertNotNull(vm.examResult.value)
+        assertEquals(0, vm.examResult.value!!.correct)
+        assertEquals(10, vm.examResult.value!!.unanswered)
+    }
+
+    @Test
+    fun fun_answer_shieldUsedShowsInState() {
+        vm.startAllLawsGame()
+        vm.engine.shieldCharges = 1
+        val q = vm.engine.currentQ!!
+        val wrong = listOf("A", "B", "C", "D").filter { it != q.correct }.first()
+        vm.answer(wrong)
+        assertEquals(0, vm.uiState.value.shieldCharges)
+    }
+
+    @Test
+    fun fun_answer_shieldMultipleInState() {
+        vm.startAllLawsGame()
+        vm.engine.shieldCharges = 3
+        val q = vm.engine.currentQ!!
+        val wrong = listOf("A", "B", "C", "D").filter { it != q.correct }.first()
+        vm.answer(wrong)
+        assertEquals("Shield should show 2 remaining in UI state", 2, vm.uiState.value.shieldCharges)
+    }
+
+    @Test
+    fun fun_startGame_loadsPowerUpsIntoState() {
+        prefs.setFreePowerUps(listOf("shield", "shield", "hint"))
+        vm.startAllLawsGame()
+        assertEquals(2, vm.uiState.value.shieldCharges)
+        assertEquals(1, vm.uiState.value.hintCharges)
+    }
+
+    @Test
+    fun fun_onGameOver_setsMedalForHighScore() {
+        vm.startAllLawsGame()
+        vm.engine.score = 1500
+        vm.onGameOver()
+        assertEquals("🥇", vm.medal.value)
+    }
+
+    @Test
+    fun fun_onGameOver_chestGeneratedForValidGame() {
+        vm.startAllLawsGame()
+        repeat(6) {
+            vm.engine.nextQuestion()
+            vm.engine.answer(vm.engine.currentQ!!.correct)
+        }
+        vm.onGameOver()
+        assertNotNull("Chest should be generated after game over", vm.chestReward.value)
+    }
+
+    @Test
+    fun fun_onGameOver_newRecordSetCorrectly() {
+        vm.startAllLawsGame()
+        vm.engine.score = 500
+        vm.onGameOver()
+        assertTrue(vm.newRecord.value)
+        // Second game with lower score should not set new record
+        vm.startAllLawsGame()
+        vm.engine.score = 100
+        vm.onGameOver()
+        assertFalse(vm.newRecord.value)
+    }
+
+    @Test
+    fun fun_examAnswer_canChangeAnswerAndCountStaysSame() {
+        vm.examEngine.loadExam(10)
+        vm.examAnswer("A")
+        assertEquals(1, vm.examAnswered.value)
+        vm.examAnswer("B")
+        assertEquals(1, vm.examAnswered.value)
+    }
+
+    @Test
+    fun fun_updateUiState_reflectsEngineState() {
+        vm.startAllLawsGame()
+        vm.engine.score = 250
+        vm.engine.combo = 5
+        vm.engine.lives = 2
+        vm.updateUiState()
+        assertEquals(250, vm.uiState.value.score)
+        assertEquals(5, vm.uiState.value.combo)
+        assertEquals(2, vm.uiState.value.lives)
+    }
 }

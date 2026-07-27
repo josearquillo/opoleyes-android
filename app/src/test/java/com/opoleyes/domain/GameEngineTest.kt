@@ -1,6 +1,7 @@
 package com.opoleyes.domain
 
 import com.opoleyes.TestContextProvider
+import com.opoleyes.data.local.DataProvider
 import com.opoleyes.data.local.PreferencesManager
 import com.opoleyes.data.model.GameMode
 import com.opoleyes.data.model.QuestionEntry
@@ -523,5 +524,342 @@ class GameEngineTest {
         val expectedScore = 10 * 1 * 2
         assertEquals(expectedScore, engine.score)
         assertFalse(engine.doubleScoreActive)
+    }
+
+    // === Bug regression tests ===
+
+    @Test
+    fun fun_answer_shieldConsumesOnlyOneCharge() {
+        engine.startAllLawsGame()
+        engine.nextQuestion()
+        engine.shieldCharges = 3
+        val q = engine.currentQ!!
+        val wrong = listOf("A", "B", "C", "D").filter { it != q.correct }.first()
+        val result = engine.answer(wrong)
+        assertEquals(GameEngine.AnswerResult.SHIELD_USED, result)
+        assertEquals("Shield should consume only 1 charge", 2, engine.shieldCharges)
+    }
+
+    @Test
+    fun fun_answer_shieldMultipleUses() {
+        engine.startAllLawsGame()
+        engine.shieldCharges = 2
+        // First wrong answer - shield used
+        engine.nextQuestion()
+        val q1 = engine.currentQ!!
+        val wrong1 = listOf("A", "B", "C", "D").filter { it != q1.correct }.first()
+        engine.answer(wrong1)
+        assertEquals(1, engine.shieldCharges)
+        // Second wrong answer - shield used again
+        engine.nextQuestion()
+        val q2 = engine.currentQ!!
+        val wrong2 = listOf("A", "B", "C", "D").filter { it != q2.correct }.first()
+        engine.answer(wrong2)
+        assertEquals(0, engine.shieldCharges)
+        // Third wrong answer - no shield, lose life
+        engine.nextQuestion()
+        val q3 = engine.currentQ!!
+        val wrong3 = listOf("A", "B", "C", "D").filter { it != q3.correct }.first()
+        val result3 = engine.answer(wrong3)
+        assertEquals(GameEngine.AnswerResult.WRONG, result3)
+        assertEquals(2, engine.lives)
+    }
+
+    @Test
+    fun fun_answer_shieldDoesNotConsumeOnCorrect() {
+        engine.startAllLawsGame()
+        engine.shieldCharges = 2
+        engine.nextQuestion()
+        engine.answer(engine.currentQ!!.correct)
+        assertEquals("Shield should not be consumed on correct answer", 2, engine.shieldCharges)
+    }
+
+    @Test
+    fun fun_streak_lifeRecoveryGatedByUnlock() {
+        // At rank 0 (no lifeRecovery unlock), streak of 5 should NOT recover life
+        engine.startAllLawsGame()
+        engine.lives = 1
+        engine.streak = 4
+        engine.nextQuestion()
+        engine.answer(engine.currentQ!!.correct)
+        assertEquals("Life should not be recovered without unlock", 1, engine.lives)
+        assertEquals(5, engine.streak)
+    }
+
+    @Test
+    fun fun_streak_lifeRecoveryWithUnlock() {
+        // With debug mode (all unlocked), streak of 5 should recover life
+        prefs.setDebugMode(true)
+        engine.startAllLawsGame()
+        engine.lives = 1
+        engine.streak = 4
+        engine.nextQuestion()
+        engine.answer(engine.currentQ!!.correct)
+        assertEquals("Life should be recovered with unlock", 2, engine.lives)
+        assertTrue(engine.ctxLifeRecovered)
+    }
+
+    @Test
+    fun fun_streak_lifeRecoveryGivesFiftyFiftyWhenLivesFull() {
+        prefs.setDebugMode(true)
+        engine.startAllLawsGame()
+        engine.lives = 3
+        engine.streak = 4
+        val fiftyFiftyBefore = engine.fiftyFiftyCharges
+        engine.nextQuestion()
+        engine.answer(engine.currentQ!!.correct)
+        assertEquals("Lives should stay at 3", 3, engine.lives)
+        assertEquals("Should get extra fiftyFifty when lives full",
+            fiftyFiftyBefore + 1, engine.fiftyFiftyCharges)
+    }
+
+    @Test
+    fun fun_streak_lifeRecoveryOnlyInSurvival() {
+        prefs.setDebugMode(true)
+        engine.startAllLawsGame()
+        engine.mode = GameMode.TIMETRIAL
+        engine.lives = 0
+        engine.timer = 100f
+        engine.streak = 4
+        val timerBefore = engine.timer
+        engine.nextQuestion()
+        engine.answer(engine.currentQ!!.correct)
+        assertEquals("Life should not change in TIMETRIAL", 0, engine.lives)
+        assertTrue("Timer should increase in TIMETRIAL", engine.timer > timerBefore)
+    }
+
+    @Test
+    fun fun_saveRemainingPowerUps_doesNotSaveLifeRecovery() {
+        engine.shieldCharges = 1
+        engine.fiftyFiftyCharges = 1
+        prefs.clearFreePowerUps()
+        engine.saveRemainingPowerUps()
+        val powerUps = prefs.getFreePowerUps()
+        assertFalse("lifeRecovery should not be saved as it's passive",
+            powerUps.contains("lifeRecovery"))
+    }
+
+    @Test
+    fun fun_saveRemainingPowerUps_emptyWhenNoCharges() {
+        engine.shieldCharges = 0
+        engine.fiftyFiftyCharges = 0
+        engine.hintCharges = 0
+        engine.doubleScoreCharges = 0
+        prefs.clearFreePowerUps()
+        engine.saveRemainingPowerUps()
+        assertTrue("No power-ups should be saved when all charges are 0",
+            prefs.getFreePowerUps().isEmpty())
+    }
+
+    @Test
+    fun fun_saveRemainingPowerUps_appendsToExisting() {
+        prefs.setFreePowerUps(listOf("shield"))
+        engine.fiftyFiftyCharges = 1
+        engine.saveRemainingPowerUps()
+        val powerUps = prefs.getFreePowerUps()
+        assertEquals(2, powerUps.size)
+        assertTrue(powerUps.contains("shield"))
+        assertTrue(powerUps.contains("fiftyFifty"))
+    }
+
+    @Test
+    fun fun_initGameStats_clearsFreePowerUps() {
+        prefs.setFreePowerUps(listOf("shield", "hint"))
+        engine.mode = GameMode.SURVIVAL
+        engine.initGameStats()
+        assertTrue("Free power-ups should be cleared after init", prefs.getFreePowerUps().isEmpty())
+    }
+
+    @Test
+    fun fun_initGameStats_multiplePowerUpsOfSameType() {
+        prefs.setFreePowerUps(listOf("shield", "shield", "shield", "hint"))
+        engine.mode = GameMode.SURVIVAL
+        engine.initGameStats()
+        assertEquals(3, engine.shieldCharges)
+        assertEquals(1, engine.hintCharges)
+    }
+
+    @Test
+    fun fun_activateFiftyFifty_with3Options() {
+        engine.fiftyFiftyCharges = 1
+        engine.currentQ = QuestionEntry(
+            enunciado = "Test",
+            opciones = mapOf("A" to "Opt A", "B" to "Opt B", "C" to "Opt C"),
+            correct = "A",
+            weight = 50,
+            testId = "test1",
+            origId = "1"
+        )
+        engine.activateFiftyFifty()
+        assertTrue(engine.fiftyFiftyActive)
+        val allOptions = listOf("A", "B", "C")
+        val remaining = allOptions.filter { it !in engine.fiftyFiftyRemoved }
+        assertTrue("Should have at least 2 remaining with 3 options", remaining.size >= 2)
+        assertFalse("Correct answer should not be removed", engine.fiftyFiftyRemoved.contains("A"))
+    }
+
+    @Test
+    fun fun_useHint_neverRemovesCorrectAnswer() {
+        engine.hintCharges = 1
+        engine.currentQ = makeQuestion("C")
+        engine.useHint()
+        assertFalse("Hint should never remove the correct answer",
+            engine.hintRemoved.contains("C"))
+    }
+
+    @Test
+    fun fun_useHint_doesNotRemoveFiftyFiftyRemoved() {
+        engine.hintCharges = 1
+        engine.currentQ = makeQuestion("A")
+        engine.fiftyFiftyRemoved = listOf("B")
+        engine.useHint()
+        assertFalse("Hint should not target already fiftyFifty-removed options",
+            engine.hintRemoved.contains("B"))
+    }
+
+    @Test
+    fun fun_answer_doubleScoreConsumesOnNextCorrectOnly() {
+        engine.startAllLawsGame()
+        engine.doubleScoreActive = true
+        engine.nextQuestion()
+        // Wrong answer should NOT consume doubleScore
+        val q = engine.currentQ!!
+        val wrong = listOf("A", "B", "C", "D").filter { it != q.correct }.first()
+        engine.shieldCharges = 0
+        engine.answer(wrong)
+        assertTrue("doubleScore should still be active after wrong answer", engine.doubleScoreActive)
+        // Next correct answer should consume it
+        engine.nextQuestion()
+        engine.answer(engine.currentQ!!.correct)
+        assertFalse("doubleScore should be consumed after correct answer", engine.doubleScoreActive)
+    }
+
+    @Test
+    fun fun_answer_wrongDoesNotResetStreakWhenShieldUsed() {
+        engine.startAllLawsGame()
+        engine.shieldCharges = 1
+        engine.streak = 3
+        engine.nextQuestion()
+        val q = engine.currentQ!!
+        val wrong = listOf("A", "B", "C", "D").filter { it != q.correct }.first()
+        engine.answer(wrong)
+        assertEquals("Streak should not reset when shield is used", 3, engine.streak)
+    }
+
+    @Test
+    fun fun_answer_shieldUsedDoesNotResetCombo() {
+        engine.startAllLawsGame()
+        engine.shieldCharges = 1
+        engine.combo = 5
+        engine.nextQuestion()
+        val q = engine.currentQ!!
+        val wrong = listOf("A", "B", "C", "D").filter { it != q.correct }.first()
+        engine.answer(wrong)
+        assertEquals("Combo should NOT reset when shield is used (early return)", 5, engine.combo)
+    }
+
+    @Test
+    fun fun_nextQuestion_resetsFiftyFiftyState() {
+        engine.startAllLawsGame()
+        engine.fiftyFiftyActive = true
+        engine.fiftyFiftyRemoved = listOf("B", "C")
+        engine.nextQuestion()
+        assertFalse("fiftyFiftyActive should be reset on next question", engine.fiftyFiftyActive)
+        assertTrue("fiftyFiftyRemoved should be cleared on next question", engine.fiftyFiftyRemoved.isEmpty())
+    }
+
+    @Test
+    fun fun_nextQuestion_resetsHintState() {
+        engine.startAllLawsGame()
+        engine.hintActive = true
+        engine.hintRemoved = listOf("B")
+        engine.nextQuestion()
+        assertFalse("hintActive should be reset on next question", engine.hintActive)
+        assertTrue("hintRemoved should be cleared on next question", engine.hintRemoved.isEmpty())
+    }
+
+    @Test
+    fun fun_answer_lawMasteryGrantsXP() {
+        engine.startAllLawsGame()
+        val xpBefore = progressRepo.getXP()
+        // Answer many questions correctly to try to master a law
+        repeat(20) {
+            engine.nextQuestion()
+            engine.answer(engine.currentQ!!.correct)
+        }
+        // XP should have increased significantly
+        assertTrue("XP should increase from answering", progressRepo.getXP() > xpBefore)
+    }
+
+    @Test
+    fun fun_answer_scoreNeverNegative() {
+        engine.startAllLawsGame()
+        engine.score = 0
+        engine.shieldCharges = 0
+        engine.nextQuestion()
+        val q = engine.currentQ!!
+        val wrong = listOf("A", "B", "C", "D").filter { it != q.correct }.first()
+        engine.answer(wrong)
+        assertTrue("Score should never go negative", engine.score >= 0)
+    }
+
+    @Test
+    fun fun_answer_timerNeverNegative() {
+        engine.startAllLawsGame()
+        engine.mode = GameMode.TIMETRIAL
+        engine.timer = 5f
+        engine.shieldCharges = 0
+        engine.nextQuestion()
+        val q = engine.currentQ!!
+        val wrong = listOf("A", "B", "C", "D").filter { it != q.correct }.first()
+        engine.answer(wrong)
+        assertTrue("Timer should never go below 0", engine.timer >= 0f)
+    }
+
+    @Test
+    fun fun_answer_timerCappedAt300() {
+        engine.startAllLawsGame()
+        engine.mode = GameMode.TIMETRIAL
+        engine.timer = 295f
+        engine.nextQuestion()
+        engine.answer(engine.currentQ!!.correct)
+        assertTrue("Timer should be capped at 300", engine.timer <= 300f)
+    }
+
+    @Test
+    fun fun_answer_livesCappedAt3InSurvival() {
+        prefs.setDebugMode(true)
+        engine.startAllLawsGame()
+        engine.lives = 3
+        engine.streak = 4
+        engine.nextQuestion()
+        engine.answer(engine.currentQ!!.correct)
+        assertTrue("Lives should not exceed 3 in survival", engine.lives <= 3)
+    }
+
+    @Test
+    fun fun_isGameOver_quickModeWithLivesAndUnder20() {
+        engine.mode = GameMode.QUICK
+        engine.lives = 3
+        engine.questionNum = 10
+        assertFalse(engine.isGameOver())
+    }
+
+    @Test
+    fun fun_getAccuracy_zeroDivision() {
+        assertEquals(0, engine.getAccuracy())
+    }
+
+    @Test
+    fun fun_nextQuestion_poolExhaustionRecycles() {
+        engine.startTemaGame(DataProvider.getTemaTests(
+            com.opoleyes.TestContextProvider.getContext()
+        ).firstOrNull()?.id ?: return)
+        val poolSize = engine.pool.size
+        for (i in 1..poolSize + 5) {
+            assertTrue("Should keep cycling questions even after pool exhausted",
+                engine.nextQuestion())
+            engine.answer(engine.currentQ!!.correct)
+        }
     }
 }

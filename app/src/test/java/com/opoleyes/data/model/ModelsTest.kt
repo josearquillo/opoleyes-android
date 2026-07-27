@@ -192,4 +192,26 @@ class ModelsTest {
         assertEquals(2, s2.wrong)
         assertEquals(3, s.correct)
     }
+
+    // === Bug regression tests ===
+
+    @JTest
+    fun fun_chestType_iconsNotEmpty() {
+        for (type in ChestType.values()) {
+            assertTrue("${type.name} icon should not be empty", type.icon.isNotEmpty())
+        }
+    }
+
+    @JTest
+    fun fun_chestType_goldIconIsValid() {
+        assertTrue("Gold chest icon should not be empty or corrupted",
+            ChestType.GOLD.icon.isNotEmpty())
+    }
+
+    @JTest
+    fun fun_gameMode_allIconsValid() {
+        for (mode in GameMode.values()) {
+            assertTrue("${mode.name} icon should not be empty", mode.icon.isNotEmpty())
+        }
+    }
 }

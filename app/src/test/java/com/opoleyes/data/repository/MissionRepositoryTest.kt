@@ -155,4 +155,126 @@ class MissionRepositoryTest {
             assertFalse("Mission ${m.key} should not be completed", m.completed)
         }
     }
+
+    // === Bug regression tests ===
+
+    @Test
+    fun fun_generateDailyMissions_debugModeGenerates3Missions() {
+        prefs.setDebugMode(true)
+        val data = repo.generateDailyMissions()
+        assertEquals("Debug mode should generate 3 missions", 3, data.missions.size)
+    }
+
+    @Test
+    fun fun_generateDailyMissions_rank0Generates1Mission() {
+        val data = repo.generateDailyMissions()
+        assertEquals("Rank 0 should generate 1 mission", 1, data.missions.size)
+    }
+
+    @Test
+    fun fun_generateDailyMissions_rank2Generates2Missions() {
+        prefs.addXP(2000)
+        val data = repo.generateDailyMissions()
+        assertEquals("Rank 2 should generate 2 missions", 2, data.missions.size)
+    }
+
+    @Test
+    fun fun_generateDailyMissions_rank8Generates3Missions() {
+        prefs.addXP(45000)
+        val data = repo.generateDailyMissions()
+        assertEquals("Rank 8+ should generate 3 missions", 3, data.missions.size)
+    }
+
+    @Test
+    fun fun_updateProgress_completingAllMissionsGrantsBonusXP() {
+        val data = repo.generateDailyMissions()
+        val xpBefore = prefs.getXP()
+        // Complete all missions
+        for (m in data.missions) {
+            val type = when {
+                m.key == "streak" -> "streak"
+                m.key == "combo" -> "combo"
+                m.key == "quick_review" -> "quick_review"
+                m.key.startsWith("progress_") -> "progress"
+                m.key.startsWith("variety_") -> "variety"
+                else -> m.key
+            }
+            repo.updateProgress(type, m.target)
+        }
+        val xpAfter = prefs.getXP()
+        // Each mission gives 50 XP + 200 bonus for completing all
+        val expectedMin = data.missions.size * 50 + 200
+        assertTrue("Should have gained at least $expectedMin XP: got ${xpAfter - xpBefore}",
+            xpAfter - xpBefore >= expectedMin)
+    }
+
+    @Test
+    fun fun_checkOnGameOver_quickModeUpdatesQuickReview() {
+        prefs.setDebugMode(true)
+        val data = repo.generateDailyMissions()
+        val quickMission = data.missions.find { it.key == "quick_review" }
+        if (quickMission != null) {
+            repo.checkOnGameOver("quick", 200, 5, 10, 15, "")
+            val updated = repo.getDailyMissions()
+            val m = updated?.missions?.find { it.key == "quick_review" }
+            assertTrue("Quick review should be updated", m != null && m.current > 0)
+        }
+    }
+
+    @Test
+    fun fun_checkOnGameOver_survivalUpdatesStreakAndCombo() {
+        repo.generateDailyMissions()
+        repo.checkOnGameOver("survival", 500, 10, 8, 10, "")
+        val data = repo.getDailyMissions()
+        assertNotNull(data)
+        val streakMission = data?.missions?.find { it.key == "streak" }
+        if (streakMission != null) {
+            assertTrue("Streak should be updated", streakMission.current > 0)
+        }
+    }
+
+    @Test
+    fun fun_generateDailyMissions_missionsHaveUniqueKeys() {
+        val data = repo.generateDailyMissions()
+        val keys = data.missions.map { it.key }
+        assertEquals("Mission keys should be unique", keys.size, keys.toSet().size)
+    }
+
+    @Test
+    fun fun_generateDailyMissions_missionsHaveIcons() {
+        val data = repo.generateDailyMissions()
+        data.missions.forEach { m ->
+            assertTrue("Mission ${m.key} should have non-empty icon", m.icon.isNotEmpty())
+        }
+    }
+
+    @Test
+    fun fun_generateDailyMissions_missionsHaveText() {
+        val data = repo.generateDailyMissions()
+        data.missions.forEach { m ->
+            assertTrue("Mission ${m.key} should have non-empty text", m.text.isNotEmpty())
+        }
+    }
+
+    @Test
+    fun fun_updateProgress_doesNotCompleteAlreadyCompletedMission() {
+        val data = repo.generateDailyMissions()
+        val mission = data.missions.first()
+        val type = when {
+            mission.key == "streak" -> "streak"
+            mission.key == "combo" -> "combo"
+            mission.key == "quick_review" -> "quick_review"
+            mission.key.startsWith("progress_") -> "progress"
+            mission.key.startsWith("variety_") -> "variety"
+            else -> mission.key
+        }
+        // Complete it
+        repo.updateProgress(type, mission.target)
+        val xpAfterComplete = prefs.getXP()
+        // Try to complete again - should not grant more XP
+        repo.updateProgress(type, mission.target * 2)
+        val xpAfterSecond = prefs.getXP()
+        assertEquals("Should not grant XP twice for same mission",
+            xpAfterComplete, xpAfterSecond)
+    }
 }
