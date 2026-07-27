@@ -46,6 +46,7 @@ fun ModeSelectScreen(navController: NavController, gameViewModel: GameViewModel)
     Column(
         modifier = Modifier
             .fillMaxSize()
+            .verticalScroll(rememberScrollState())
             .padding(16.dp)
     ) {
         Text("Selecciona modo", color = TextLight, fontSize = 24.sp, fontWeight = FontWeight.Bold)

@@ -276,7 +276,7 @@ fun GameScreen(navController: NavController, gameViewModel: GameViewModel) {
                                 if (!uiState.answered) {
                                     FlowRow(
                                         modifier = Modifier.fillMaxWidth(),
-                                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                        horizontalArrangement = Arrangement.Center,
                                         verticalArrangement = Arrangement.spacedBy(4.dp)
                                     ) {
                                         if (uiState.hintCharges > 0 && !uiState.hintActive && uiState.mode != GameMode.CHALLENGE && uiState.mode != GameMode.QUICK) {
