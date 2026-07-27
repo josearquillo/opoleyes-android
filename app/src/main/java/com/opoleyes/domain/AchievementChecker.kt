@@ -27,7 +27,6 @@ class AchievementChecker(private val context: Context) {
         val unlocked = mutableListOf<Achievement>()
         val totalCorrect = statsRepo.getTotalCorrect()
         val gamesPlayed = progressRepo.getGamesPlayed()
-        val trainingsDone = progressRepo.getTrainingsDone()
         val rankIdx = progressRepo.getRankIndex()
 
         if (ctx.firstCorrect) unlock("first_correct", unlocked)
@@ -49,9 +48,6 @@ class AchievementChecker(private val context: Context) {
         if (gamesPlayed >= 10) unlock("dedicated", unlocked)
         if (gamesPlayed >= 25) unlock("habitual", unlocked)
         if (gamesPlayed >= 50) unlock("addicted", unlocked)
-        if (trainingsDone >= 5) unlock("studious", unlocked)
-        if (trainingsDone >= 10) unlock("student", unlocked)
-        if (trainingsDone >= 25) unlock("professor", unlocked)
         if (rankIdx >= 4) unlock("expert", unlocked)
         if (rankIdx >= 6) unlock("master", unlocked)
         if (rankIdx >= 7) unlock("grandmaster", unlocked)

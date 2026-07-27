@@ -104,34 +104,6 @@ class GameRepositoryTest {
     }
 
     @Test
-    fun fun_startTraining_returnsTestData() {
-        val temaTests = DataProvider.getTemaTests(context)
-        if (temaTests.isNotEmpty()) {
-            val td = repo.startTraining(temaTests[0].id)
-            assertTrue(td.questions.isNotEmpty())
-        }
-    }
-
-    @Test
-    fun fun_startTraining_nonexistentReturnsEmpty() {
-        val td = repo.startTraining("nonexistent")
-        assertTrue(td.questions.isEmpty())
-    }
-
-    @Test
-    fun fun_startTrainingCustom_returnsQuestions() {
-        val td = repo.startTrainingCustom("", 10)
-        assertTrue(td.questions.isNotEmpty())
-        assertTrue(td.questions.size <= 10)
-    }
-
-    @Test
-    fun fun_startTrainingCustom_withCount() {
-        val td = repo.startTrainingCustom("", 5)
-        assertTrue(td.questions.size <= 5)
-    }
-
-    @Test
     fun fun_getFreePowerUps_emptyByDefault() {
         assertTrue(repo.getFreePowerUps().isEmpty())
     }

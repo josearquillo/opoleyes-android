@@ -76,46 +76,6 @@ class GameRepository(private val context: Context) {
         return pool.take(Constants.QUICK_MODE_QUESTIONS)
     }
 
-    fun startTraining(testId: String): TestData {
-        return DataProvider.getTestDataMap(context)[testId] ?: TestData()
-    }
-
-    fun startTrainingCustom(category: String, count: Int): TestData {
-        var pool = mutableListOf<QuestionEntry>()
-        for (d in DataProvider.loadData(context)) {
-            if (category.isNotEmpty() && d.test.category != category) continue
-            val am = d.answers.associate { it.id to it.correct }
-            for (q in d.questions) {
-                val correct = am[q.id] ?: continue
-                val key = (q.test_id) + ":" + (q.orig_id)
-                pool.add(QuestionEntry(
-                    enunciado = q.enunciado,
-                    opciones = q.opciones,
-                    correct = correct,
-                    weight = statsRepo.getWeight(key),
-                    testId = q.test_id,
-                    origId = q.orig_id.toString()
-                ))
-            }
-        }
-        pool = pool.filter { it.weight > 0 }.toMutableList()
-        pool.shuffle()
-        val selected = pool.take(count)
-        val questions = selected.mapIndexed { i, wq ->
-            com.opoleyes.data.model.Question(
-                id = i + 1, test_id = wq.testId, orig_id = wq.origId.toIntOrNull() ?: 0,
-                enunciado = wq.enunciado, opciones = wq.opciones
-            )
-        }
-        val answers = selected.mapIndexed { i, wq ->
-            com.opoleyes.data.model.Answer(id = i + 1, correct = wq.correct)
-        }
-        return TestData(
-            test = com.opoleyes.data.model.Test(id = "training", name = "Entrenamiento", category = category),
-            questions = questions, answers = answers
-        )
-    }
-
     fun getFreePowerUps(): List<String> = prefs.getFreePowerUps()
     fun clearFreePowerUps() = prefs.clearFreePowerUps()
     fun addFreePowerUps(list: List<String>) {

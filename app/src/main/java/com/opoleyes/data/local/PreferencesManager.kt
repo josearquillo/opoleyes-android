@@ -15,7 +15,6 @@ class PreferencesManager(private val context: Context) {
         const val STATS_JSON = "stats_json"
         const val ACHIEVEMENTS_JSON = "achievements_json"
         const val GAMES_PLAYED = "games_played"
-        const val TRAININGS_DONE = "trainings_done"
         const val FREE_POWERUPS_JSON = "free_powerups_json"
         const val XP_MULTIPLIER = "xp_multiplier"
         const val DAILY_MISSIONS_JSON = "daily_missions_json"
@@ -58,14 +57,6 @@ class PreferencesManager(private val context: Context) {
     fun incrementGamesPlayed(): Int {
         val v = getGamesPlayed() + 1
         prefs.edit().putInt(GAMES_PLAYED, v).apply()
-        return v
-    }
-
-    fun getTrainingsDone(): Int = prefs.getInt(TRAININGS_DONE, 0)
-
-    fun incrementTrainingsDone(): Int {
-        val v = getTrainingsDone() + 1
-        prefs.edit().putInt(TRAININGS_DONE, v).apply()
         return v
     }
 

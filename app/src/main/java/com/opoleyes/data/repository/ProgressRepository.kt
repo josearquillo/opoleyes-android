@@ -90,8 +90,6 @@ class ProgressRepository(private val context: Context) {
 
     fun getGamesPlayed(): Int = prefs.getGamesPlayed()
     fun incrementGamesPlayed(): Int = prefs.incrementGamesPlayed()
-    fun getTrainingsDone(): Int = prefs.getTrainingsDone()
-    fun incrementTrainingsDone(): Int = prefs.incrementTrainingsDone()
 
     fun getRecord(mode: String): Int = prefs.getRecord(mode)
     fun setRecord(mode: String, value: Int) = prefs.setRecord(mode, value)

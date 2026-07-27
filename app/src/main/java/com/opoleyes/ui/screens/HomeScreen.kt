@@ -153,14 +153,6 @@ fun HomeScreen(navController: NavController, gameViewModel: GameViewModel) {
             color1 = Success,
             color2 = SuccessDark
         ) { navController.navigate(Routes.MODE_SELECT) }
-        Spacer(Modifier.height(14.dp))
-        GameButton(
-            text = "Entrenar",
-            icon = "🎯",
-            modifier = Modifier.fillMaxWidth().height(56.dp),
-            color1 = Primary,
-            color2 = PurpleDark
-        ) { navController.navigate(Routes.TRAIN_SELECT) }
     }
 }
 

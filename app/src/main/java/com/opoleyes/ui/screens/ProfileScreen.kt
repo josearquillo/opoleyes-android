@@ -33,7 +33,6 @@ fun ProfileScreen(navController: NavController) {
     val xpProgress = remember { progressRepo.getXPProgress() }
     val achievements = remember { progressRepo.getAchievements() }
     val gamesPlayed = remember { progressRepo.getGamesPlayed() }
-    val trainingsDone = remember { progressRepo.getTrainingsDone() }
     val totalCorrect = remember { statsRepo.getTotalCorrect() }
     val totalWrong = remember { statsRepo.getTotalWrong() }
     val globalProgress = remember { statsRepo.getGlobalProgress() }
@@ -128,7 +127,6 @@ fun ProfileScreen(navController: NavController) {
         Spacer(Modifier.height(12.dp))
         listOf(
             "Partidas jugadas" to "$gamesPlayed",
-            "Entrenamientos" to "$trainingsDone",
             "Aciertos totales" to "$totalCorrect",
             "Fallos totales" to "$totalWrong",
             "Progreso global" to "$globalProgress%",

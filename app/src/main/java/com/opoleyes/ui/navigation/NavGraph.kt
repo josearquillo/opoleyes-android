@@ -20,19 +20,12 @@ object Routes {
     const val GAME_OVER = "gameover"
     const val PROFILE = "profile"
     const val HELP = "help"
-    const val TRAIN_SELECT = "trainselect"
-    const val TRAIN_LIST = "trainlist"
-    const val TEST_BROWSER = "testbrowser"
-    const val FLAG_REVIEW = "flagreview"
-    const val WRONG_REVIEW = "wrongreview"
-    const val RESULTS = "results"
 }
 
 @Composable
 fun NavGraph() {
     val navController = rememberNavController()
     val gameViewModel: GameViewModel = viewModel()
-    val trainingViewModel: TrainingViewModel = viewModel()
 
     NavHost(
         navController = navController,
@@ -52,11 +45,5 @@ fun NavGraph() {
         composable(Routes.GAME_OVER) { GameOverScreen(navController, gameViewModel) }
         composable(Routes.PROFILE) { ProfileScreen(navController) }
         composable(Routes.HELP) { HelpScreen(navController) }
-        composable(Routes.TRAIN_SELECT) { TrainSelectScreen(navController, trainingViewModel) }
-        composable(Routes.TRAIN_LIST) { TrainListScreen(navController, trainingViewModel) }
-        composable(Routes.TEST_BROWSER) { TestBrowserScreen(navController, trainingViewModel) }
-        composable(Routes.FLAG_REVIEW) { FlagReviewScreen(navController, trainingViewModel) }
-        composable(Routes.WRONG_REVIEW) { WrongReviewScreen(navController, trainingViewModel) }
-        composable(Routes.RESULTS) { ResultsScreen(navController, trainingViewModel) }
     }
 }

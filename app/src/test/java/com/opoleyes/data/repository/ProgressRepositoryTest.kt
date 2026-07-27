@@ -209,17 +209,6 @@ class ProgressRepositoryTest {
     }
 
     @Test
-    fun fun_trainingsDone_startsAt0() {
-        assertEquals(0, repo.getTrainingsDone())
-    }
-
-    @Test
-    fun fun_incrementTrainingsDone() {
-        assertEquals(1, repo.incrementTrainingsDone())
-        assertEquals(2, repo.incrementTrainingsDone())
-    }
-
-    @Test
     fun fun_record_setAndGet() {
         repo.setRecord("survival", 500)
         assertEquals(500, repo.getRecord("survival"))

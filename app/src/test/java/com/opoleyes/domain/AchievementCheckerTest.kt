@@ -139,27 +139,6 @@ class AchievementCheckerTest {
     }
 
     @Test
-    fun fun_check_studious5Trainings() {
-        repeat(5) { progressRepo.incrementTrainingsDone() }
-        val unlocked = checker.check(AchievementContext())
-        assertTrue(unlocked.map { it.id }.contains("studious"))
-    }
-
-    @Test
-    fun fun_check_student10Trainings() {
-        repeat(10) { progressRepo.incrementTrainingsDone() }
-        val unlocked = checker.check(AchievementContext())
-        assertTrue(unlocked.map { it.id }.contains("student"))
-    }
-
-    @Test
-    fun fun_check_professor25Trainings() {
-        repeat(25) { progressRepo.incrementTrainingsDone() }
-        val unlocked = checker.check(AchievementContext())
-        assertTrue(unlocked.map { it.id }.contains("professor"))
-    }
-
-    @Test
     fun fun_check_expertRank() {
         progressRepo.addXP(7000)
         val unlocked = checker.check(AchievementContext())
