@@ -238,11 +238,14 @@ class GameEngine(private val context: Context) {
         if (fiftyFiftyCharges <= 0 || fiftyFiftyActive || answered) return
         fiftyFiftyCharges--; fiftyFiftyActive = true; ctxFiftyFiftyUsed = true
         val q = currentQ ?: return
-        val wrong = listOf("A", "B", "C", "D").filter {
-            it != q.correct && q.opciones[it] != null && !hintRemoved.contains(it)
+        val allOptions = listOf("A", "B", "C", "D").filter { q.opciones[it] != null }
+        val wrong = allOptions.filter {
+            it != q.correct && !hintRemoved.contains(it)
         }.toMutableList()
+        // Remove up to 2 wrong options, but always keep at least 1 wrong + the correct answer
+        val maxRemovable = minOf(2, wrong.size - 1).coerceAtLeast(0)
         val removed = mutableListOf<String>()
-        while (removed.size < 2 && wrong.isNotEmpty()) {
+        while (removed.size < maxRemovable && wrong.isNotEmpty()) {
             val idx = (0 until wrong.size).random()
             removed.add(wrong.removeAt(idx))
         }

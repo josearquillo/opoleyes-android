@@ -14,9 +14,12 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
 import androidx.navigation.NavController
 import com.opoleyes.data.model.GameMode
 import com.opoleyes.ui.components.*
@@ -25,6 +28,7 @@ import com.opoleyes.ui.navigation.Routes
 import com.opoleyes.ui.theme.*
 import kotlinx.coroutines.delay
 
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun GameScreen(navController: NavController, gameViewModel: GameViewModel) {
     val uiState by gameViewModel.uiState.collectAsState()
@@ -74,6 +78,38 @@ fun GameScreen(navController: NavController, gameViewModel: GameViewModel) {
                 shakeTrigger = Any()
             }
         }
+    }
+
+    // Track background time for timer adjustment
+    var pausedAtMs by remember { mutableStateOf(0L) }
+    val lifecycleOwner = LocalLifecycleOwner.current
+    DisposableEffect(lifecycleOwner) {
+        val observer = LifecycleEventObserver { _, event ->
+            when (event) {
+                Lifecycle.Event.ON_PAUSE -> {
+                    pausedAtMs = System.currentTimeMillis()
+                }
+                Lifecycle.Event.ON_RESUME -> {
+                    if (pausedAtMs > 0L) {
+                        val elapsed = (System.currentTimeMillis() - pausedAtMs) / 1000f
+                        if ((gameViewModel.engine.mode == GameMode.TIMETRIAL || gameViewModel.engine.mode == GameMode.CHALLENGE) && !gameViewModel.engine.freezeActive) {
+                            gameViewModel.engine.timer = (gameViewModel.engine.timer - elapsed).coerceAtLeast(0f)
+                            if (gameViewModel.engine.timer <= 0) {
+                                gameViewModel.onGameOver()
+                                navController.navigate(Routes.GAME_OVER) {
+                                    popUpTo(Routes.GAME) { inclusive = true }
+                                }
+                            }
+                            gameViewModel.updateUiState()
+                        }
+                        pausedAtMs = 0L
+                    }
+                }
+                else -> {}
+            }
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+        onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
     }
 
     // Timer countdown
@@ -241,9 +277,10 @@ fun GameScreen(navController: NavController, gameViewModel: GameViewModel) {
 
                                 // Power-up buttons
                                 if (!uiState.answered) {
-                                    Row(
+                                    FlowRow(
                                         modifier = Modifier.fillMaxWidth(),
-                                        horizontalArrangement = Arrangement.SpaceEvenly
+                                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                        verticalArrangement = Arrangement.spacedBy(4.dp)
                                     ) {
                                         if (uiState.hintCharges > 0 && !uiState.hintActive && uiState.mode != GameMode.CHALLENGE && uiState.mode != GameMode.QUICK) {
                                             PowerUpButton("💡 Pista", "x${uiState.hintCharges}", Color(0xFFa16207)) { gameViewModel.useHint() }
@@ -255,7 +292,7 @@ fun GameScreen(navController: NavController, gameViewModel: GameViewModel) {
                                             PowerUpButton("🧊 Congelar", "x${uiState.freezeCharges}", Cyan) { gameViewModel.activateFreeze() }
                                         }
                                         if (uiState.doubleScoreCharges > 0 && !uiState.doubleScoreActive && uiState.mode != GameMode.CHALLENGE && uiState.mode != GameMode.QUICK) {
-                                            PowerUpButton("✨ x2 pts", "x${uiState.doubleScoreCharges}", Warning) { gameViewModel.activateDoubleScore() }
+                                            PowerUpButton("✨ x2", "x${uiState.doubleScoreCharges}", Warning) { gameViewModel.activateDoubleScore() }
                                         }
                                     }
                                     Spacer(Modifier.height(12.dp))
