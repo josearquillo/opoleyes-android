@@ -56,6 +56,7 @@ fun ExamScreen(navController: NavController, gameViewModel: GameViewModel) {
     val displayLetters = remember(question) { allLetters.filter { question.opciones[it] != null } }
 
     var showExitDialog by remember { mutableStateOf(false) }
+    var showFinishDialog by remember { mutableStateOf(false) }
     BackHandler { showExitDialog = true }
 
     if (showExitDialog) {
@@ -70,6 +71,29 @@ fun ExamScreen(navController: NavController, gameViewModel: GameViewModel) {
                 }) { Text("Salir") }
             },
             dismissButton = { TextButton(onClick = { showExitDialog = false }) { Text("Cancelar") } }
+        )
+    }
+
+    if (showFinishDialog) {
+        val unansweredCount = totalQuestions - examAnswered
+        AlertDialog(
+            onDismissRequest = { showFinishDialog = false },
+            title = { Text("¿Finalizar examen?") },
+            text = {
+                if (unansweredCount > 0) {
+                    Text("Te quedan $unansweredCount pregunta${if (unansweredCount > 1) "s" else ""} sin responder.")
+                } else {
+                    Text("Has respondido todas las preguntas.")
+                }
+            },
+            confirmButton = {
+                TextButton(onClick = {
+                    showFinishDialog = false
+                    gameViewModel.finishExam()
+                    navController.navigate(Routes.EXAM_RESULT)
+                }) { Text("Finalizar", color = Success) }
+            },
+            dismissButton = { TextButton(onClick = { showFinishDialog = false }) { Text("Cancelar") } }
         )
     }
 
@@ -205,10 +229,7 @@ fun ExamScreen(navController: NavController, gameViewModel: GameViewModel) {
 
                 if (isLast) {
                     Button(
-                        onClick = {
-                            gameViewModel.finishExam()
-                            navController.navigate(Routes.EXAM_RESULT)
-                        },
+                        onClick = { showFinishDialog = true },
                         colors = ButtonDefaults.buttonColors(containerColor = Success)
                     ) {
                         Icon(Icons.Default.Flag, contentDescription = null, modifier = Modifier.size(18.dp))

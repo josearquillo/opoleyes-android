@@ -208,7 +208,7 @@ class GameEngine(private val context: Context) {
             return AnswerResult.CORRECT
         } else {
             if (shieldCharges > 0) {
-                shieldCharges = 0
+                shieldCharges--
                 statsRepo.updateStat(key, false)
                 return AnswerResult.SHIELD_USED
             }

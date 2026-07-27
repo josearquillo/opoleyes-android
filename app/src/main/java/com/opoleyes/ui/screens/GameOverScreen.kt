@@ -166,6 +166,8 @@ fun GameOverScreen(navController: NavController, gameViewModel: GameViewModel) {
                     color1 = Success,
                     color2 = SuccessDark
                 ) {
+                    gameViewModel.clearChest()
+                    gameViewModel.clearRankUp()
                     when (uiState.mode) {
                         GameMode.QUICK -> gameViewModel.startQuickGame()
                         GameMode.CHALLENGE -> gameViewModel.startChallengeGame()
