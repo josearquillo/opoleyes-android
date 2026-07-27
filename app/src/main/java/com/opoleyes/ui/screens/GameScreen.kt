@@ -237,7 +237,29 @@ fun GameScreen(navController: NavController, gameViewModel: GameViewModel) {
                                     Text(q.enunciado, color = TextLight, fontSize = 17.sp)
                                 }
 
-                                Spacer(Modifier.height(16.dp))
+                                Spacer(Modifier.height(12.dp))
+
+                                // Power-up buttons
+                                if (!uiState.answered) {
+                                    Row(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        horizontalArrangement = Arrangement.SpaceEvenly
+                                    ) {
+                                        if (uiState.hintCharges > 0 && !uiState.hintActive && uiState.mode != GameMode.CHALLENGE && uiState.mode != GameMode.QUICK) {
+                                            PowerUpButton("💡 Pista", "x${uiState.hintCharges}", Color(0xFFa16207)) { gameViewModel.useHint() }
+                                        }
+                                        if (uiState.fiftyFiftyCharges > 0 && !uiState.fiftyFiftyActive && uiState.mode != GameMode.CHALLENGE && uiState.mode != GameMode.QUICK) {
+                                            PowerUpButton("🎯 50/50", "x${uiState.fiftyFiftyCharges}", Purple) { gameViewModel.activateFiftyFifty() }
+                                        }
+                                        if (uiState.freezeCharges > 0 && !uiState.freezeActive && uiState.mode == GameMode.TIMETRIAL) {
+                                            PowerUpButton("🧊 Congelar", "x${uiState.freezeCharges}", Cyan) { gameViewModel.activateFreeze() }
+                                        }
+                                        if (uiState.doubleScoreCharges > 0 && !uiState.doubleScoreActive && uiState.mode != GameMode.CHALLENGE && uiState.mode != GameMode.QUICK) {
+                                            PowerUpButton("✨ x2 pts", "x${uiState.doubleScoreCharges}", Warning) { gameViewModel.activateDoubleScore() }
+                                        }
+                                    }
+                                    Spacer(Modifier.height(12.dp))
+                                }
 
                                 // Options
                                 val letters = listOf("A", "B", "C", "D")
@@ -266,29 +288,6 @@ fun GameScreen(navController: NavController, gameViewModel: GameViewModel) {
                                             gameViewModel.answer(letter)
                                         }
                                         Spacer(Modifier.height(10.dp))
-                                    }
-                                }
-
-                                Spacer(Modifier.height(16.dp))
-
-                                // Power-up buttons
-                                if (!uiState.answered) {
-                                    Row(
-                                        modifier = Modifier.fillMaxWidth(),
-                                        horizontalArrangement = Arrangement.SpaceEvenly
-                                    ) {
-                                        if (uiState.hintCharges > 0 && !uiState.hintActive && uiState.mode != GameMode.CHALLENGE && uiState.mode != GameMode.QUICK) {
-                                            PowerUpButton("💡 Pista", "x${uiState.hintCharges}", Color(0xFFa16207)) { gameViewModel.useHint() }
-                                        }
-                                        if (uiState.fiftyFiftyCharges > 0 && !uiState.fiftyFiftyActive && uiState.mode != GameMode.CHALLENGE && uiState.mode != GameMode.QUICK) {
-                                            PowerUpButton("🎯 50/50", "x${uiState.fiftyFiftyCharges}", Purple) { gameViewModel.activateFiftyFifty() }
-                                        }
-                                        if (uiState.freezeCharges > 0 && !uiState.freezeActive && uiState.mode == GameMode.TIMETRIAL) {
-                                            PowerUpButton("🧊 Congelar", "x${uiState.freezeCharges}", Cyan) { gameViewModel.activateFreeze() }
-                                        }
-                                        if (uiState.doubleScoreCharges > 0 && !uiState.doubleScoreActive && uiState.mode != GameMode.CHALLENGE && uiState.mode != GameMode.QUICK) {
-                                            PowerUpButton("✨ x2 pts", "x${uiState.doubleScoreCharges}", Warning) { gameViewModel.activateDoubleScore() }
-                                        }
                                     }
                                 }
                             }

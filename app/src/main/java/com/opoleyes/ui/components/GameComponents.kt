@@ -114,16 +114,6 @@ fun OptionCard(
             .padding(12.dp)
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
-            Box(
-                modifier = Modifier
-                    .size(32.dp)
-                    .clip(CircleShape)
-                    .background(badgeColor),
-                contentAlignment = Alignment.Center
-            ) {
-                Text(letter, color = Color.White, fontWeight = FontWeight.Bold, fontSize = 16.sp)
-            }
-            Spacer(Modifier.width(12.dp))
             Text(
                 text = text,
                 color = textColor,
