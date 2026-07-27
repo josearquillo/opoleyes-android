@@ -1,6 +1,7 @@
 package com.opoleyes.ui.components
 
 import androidx.compose.animation.core.*
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.LocalIndication
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -16,8 +17,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -37,13 +40,19 @@ fun GameButton(
     val interactionSource = remember { MutableInteractionSource() }
     val isPressed by interactionSource.collectIsPressedAsState()
     val scale by animateFloatAsState(
-        targetValue = if (isPressed) 0.96f else 1f,
+        targetValue = if (isPressed) 0.94f else 1f,
         animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy),
         label = "buttonScale"
+    )
+    val elevation by animateFloatAsState(
+        targetValue = if (isPressed) 2f else 8f,
+        animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy),
+        label = "buttonElevation"
     )
     Box(
         modifier = modifier
             .scale(scale)
+            .shadow(elevation.dp, RoundedCornerShape(14.dp), clip = false, ambientColor = color1.copy(alpha = 0.4f), spotColor = color1.copy(alpha = 0.6f))
             .clip(RoundedCornerShape(14.dp))
             .background(Brush.verticalGradient(listOf(color1, color2)))
             .clickable(interactionSource, LocalIndication.current, enabled = enabled) { onClick() }
@@ -281,5 +290,63 @@ fun RankBadge(rank: com.opoleyes.data.model.Rank, modifier: Modifier = Modifier)
             .padding(horizontal = 14.dp, vertical = 8.dp)
     ) {
         Text("${rank.icon} ${rank.name}", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 13.sp)
+    }
+}
+
+@Composable
+fun CircularProgressRing(
+    progress: Float,
+    size: Int = 48,
+    strokeWidth: Int = 4,
+    ringColor: Color = Primary,
+    trackColor: Color = Color.White.copy(alpha = 0.1f),
+    modifier: Modifier = Modifier,
+    content: @Composable () -> Unit = {}
+) {
+    val animatedProgress = remember { Animatable(0f) }
+    LaunchedEffect(progress) {
+        animatedProgress.animateTo(progress, animationSpec = tween(800, easing = FastOutSlowInEasing))
+    }
+    Box(modifier = modifier.size(size.dp), contentAlignment = Alignment.Center) {
+        Canvas(modifier = Modifier.size(size.dp)) {
+            val sweep = 360f * animatedProgress.value
+            drawArc(
+                color = trackColor,
+                startAngle = 0f,
+                sweepAngle = 360f,
+                useCenter = false,
+                style = androidx.compose.ui.graphics.drawscope.Stroke(width = strokeWidth.dp.toPx(), cap = androidx.compose.ui.graphics.StrokeCap.Round)
+            )
+            drawArc(
+                color = ringColor,
+                startAngle = -90f,
+                sweepAngle = sweep,
+                useCenter = false,
+                style = androidx.compose.ui.graphics.drawscope.Stroke(width = strokeWidth.dp.toPx(), cap = androidx.compose.ui.graphics.StrokeCap.Round)
+            )
+        }
+        content()
+    }
+}
+
+@Composable
+fun StatCardWithIcon(
+    icon: String,
+    value: String,
+    label: String,
+    color: Color,
+    modifier: Modifier = Modifier
+) {
+    Column(
+        modifier = modifier
+            .clip(RoundedCornerShape(12.dp))
+            .background(Brush.verticalGradient(listOf(BgCard, BgCardDark)))
+            .padding(12.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text(icon, fontSize = 24.sp)
+        Spacer(Modifier.height(4.dp))
+        Text(value, color = color, fontWeight = FontWeight.Bold, fontSize = 22.sp)
+        Text(label, color = TextDim, fontSize = 11.sp)
     }
 }

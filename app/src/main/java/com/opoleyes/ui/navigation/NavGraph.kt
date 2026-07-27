@@ -1,6 +1,7 @@
 package com.opoleyes.ui.navigation
 
 import androidx.compose.animation.*
+import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.*
 import androidx.compose.runtime.*
@@ -31,10 +32,19 @@ fun NavGraph() {
         navController = navController,
         startDestination = Routes.LOADING,
         modifier = Modifier.fillMaxSize().windowInsetsPadding(WindowInsets.systemBars),
-        enterTransition = { slideInHorizontally(animationSpec = tween(300), initialOffsetX = { it / 4 }) + fadeIn(tween(300)) },
-        exitTransition = { fadeOut(tween(200)) },
-        popEnterTransition = { slideInHorizontally(animationSpec = tween(300), initialOffsetX = { -it / 4 }) + fadeIn(tween(300)) },
-        popExitTransition = { slideOutHorizontally(animationSpec = tween(300), targetOffsetX = { it / 4 }) + fadeOut(tween(200)) },
+        enterTransition = {
+            slideInHorizontally(animationSpec = tween(350, easing = FastOutSlowInEasing), initialOffsetX = { it / 3 }) +
+            fadeIn(tween(350)) + scaleIn(initialScale = 0.92f, animationSpec = tween(350))
+        },
+        exitTransition = { fadeOut(tween(200)) + scaleOut(targetScale = 0.95f, animationSpec = tween(200)) },
+        popEnterTransition = {
+            slideInHorizontally(animationSpec = tween(350, easing = FastOutSlowInEasing), initialOffsetX = { -it / 3 }) +
+            fadeIn(tween(350)) + scaleIn(initialScale = 0.92f, animationSpec = tween(350))
+        },
+        popExitTransition = {
+            slideOutHorizontally(animationSpec = tween(350, easing = FastOutSlowInEasing), targetOffsetX = { it / 3 }) +
+            fadeOut(tween(200)) + scaleOut(targetScale = 0.95f, animationSpec = tween(200))
+        },
     ) {
         composable(Routes.LOADING) { LoadingScreen(navController) }
         composable(Routes.ERROR) { ErrorScreen(navController) }

@@ -10,9 +10,12 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.scale
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
@@ -20,9 +23,7 @@ import com.opoleyes.data.model.ChestReward
 import com.opoleyes.data.model.ChestType
 import com.opoleyes.data.model.GameMode
 import com.opoleyes.data.model.RankUpOverlay
-import com.opoleyes.ui.components.GameButton
-import com.opoleyes.ui.components.ProgressBar
-import com.opoleyes.ui.components.StatCard
+import com.opoleyes.ui.components.*
 import com.opoleyes.ui.navigation.GameViewModel
 import com.opoleyes.ui.navigation.Routes
 import com.opoleyes.ui.theme.*
@@ -42,6 +43,8 @@ fun GameOverScreen(navController: NavController, gameViewModel: GameViewModel) {
 
     var displayScore by remember { mutableStateOf(0) }
     var chestOpened by remember { mutableStateOf(false) }
+    var confettiTrigger by remember { mutableStateOf<Any?>(null) }
+    var chestShake by remember { mutableStateOf(0) }
 
     // Score count-up animation
     LaunchedEffect(uiState.score) {
@@ -55,6 +58,22 @@ fun GameOverScreen(navController: NavController, gameViewModel: GameViewModel) {
             delay((duration / steps).toLong())
         }
         displayScore = target
+        // Trigger confetti on new record or rank up
+        if (newRecord || newComboRecord || newAccRecord) {
+            delay(200)
+            confettiTrigger = Any()
+        }
+    }
+
+    // Chest shake animation before opening
+    LaunchedEffect(chestReward) {
+        if (chestReward != null && !chestOpened) {
+            delay(2500)
+            repeat(3) {
+                chestShake++
+                delay(300)
+            }
+        }
     }
 
     val anyRecord = newRecord || newComboRecord || newAccRecord
@@ -64,6 +83,15 @@ fun GameOverScreen(navController: NavController, gameViewModel: GameViewModel) {
         GameMode.TIMETRIAL -> "⏱️ Contrarreloj"
         GameMode.QUICK -> "⚡ Repaso Express"
         GameMode.CHALLENGE -> "🏆 Modo Reto"
+    }
+
+    // Staggered appearance
+    var visibleItems by remember { mutableStateOf(0) }
+    LaunchedEffect(Unit) {
+        for (i in 1..8) {
+            delay(100)
+            visibleItems = i
+        }
     }
 
     val scrollState = rememberScrollState()
@@ -77,7 +105,15 @@ fun GameOverScreen(navController: NavController, gameViewModel: GameViewModel) {
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Spacer(Modifier.height(20.dp))
-            Text(icon, fontSize = 56.sp)
+
+            // Icon with scale-in animation
+            val iconScale by animateFloatAsState(
+                targetValue = if (visibleItems > 0) 1f else 0f,
+                animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy),
+                label = "iconScale"
+            )
+            Text(icon, fontSize = 56.sp, modifier = Modifier.scale(iconScale))
+
             Text("Game Over", color = TextLight, fontSize = 32.sp, fontWeight = FontWeight.Bold)
             Text(modeName, color = TextMuted, fontSize = 14.sp)
 
@@ -106,14 +142,14 @@ fun GameOverScreen(navController: NavController, gameViewModel: GameViewModel) {
 
             Spacer(Modifier.height(24.dp))
 
-            // Stat cards
+            // Stat cards with icons
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(10.dp)
             ) {
-                StatCard("${uiState.totalAnswered}", "Preguntas", Modifier.weight(1f))
-                StatCard("${uiState.maxCombo}", "Combo máx", Modifier.weight(1f))
-                StatCard("$accuracy%", "Precisión", Modifier.weight(1f))
+                StatCardWithIcon("📝", "${uiState.totalAnswered}", "Preguntas", PrimaryLight, Modifier.weight(1f))
+                StatCardWithIcon("🔥", "${uiState.maxCombo}", "Combo máx", Orange, Modifier.weight(1f))
+                StatCardWithIcon("🎯", "$accuracy%", "Precisión", Success, Modifier.weight(1f))
             }
 
             Spacer(Modifier.height(24.dp))
@@ -153,11 +189,18 @@ fun GameOverScreen(navController: NavController, gameViewModel: GameViewModel) {
             Spacer(Modifier.height(40.dp))
         }
 
+        // Confetti overlay
+        ConfettiBurst(
+            trigger = confettiTrigger,
+            modifier = Modifier.fillMaxSize()
+        )
+
         // Chest overlay
         chestReward?.let { chest ->
             ChestOverlay(
                 chest = chest,
                 opened = chestOpened,
+                shakeCount = chestShake,
                 onOpen = {
                     chestOpened = true
                     gameViewModel.openChest()
@@ -179,15 +222,39 @@ fun GameOverScreen(navController: NavController, gameViewModel: GameViewModel) {
 }
 
 @Composable
-fun ChestOverlay(chest: ChestReward, opened: Boolean, onOpen: () -> Unit, onDismiss: () -> Unit) {
+fun ChestOverlay(chest: ChestReward, opened: Boolean, shakeCount: Int, onOpen: () -> Unit, onDismiss: () -> Unit) {
     var visible by remember { mutableStateOf(false) }
     LaunchedEffect(Unit) { delay(2500); visible = true }
 
     if (!visible) return
 
-    val typeIcon = when (chest.type) { ChestType.WOOD -> "📦"; ChestType.SILVER -> "🗃️"; ChestType.GOLD -> "�" }
+    val typeIcon = when (chest.type) { ChestType.WOOD -> "📦"; ChestType.SILVER -> "🗃️"; ChestType.GOLD -> "🎁" }
     val typeLabel = chest.type.label
     val typeColor = when (chest.type) { ChestType.WOOD -> TextMuted; ChestType.SILVER -> Color(0xFFcbd5e1); ChestType.GOLD -> Warning }
+
+    // Shake animation for chest
+    val chestShakeAnim = remember { Animatable(0f) }
+    LaunchedEffect(shakeCount) {
+        if (shakeCount > 0 && !opened) {
+            chestShakeAnim.snapTo(0f)
+            chestShakeAnim.animateTo(1f, animationSpec = keyframes {
+                durationMillis = 300
+                0f at 0 with LinearEasing
+                8f at 50 with LinearEasing
+                -8f at 100 with LinearEasing
+                6f at 150 with LinearEasing
+                -6f at 200 with LinearEasing
+                0f at 300 with LinearEasing
+            })
+        }
+    }
+
+    // Glow on open
+    val openGlow by animateFloatAsState(
+        targetValue = if (opened) 1f else 0f,
+        animationSpec = tween(400),
+        label = "openGlow"
+    )
 
     Box(
         modifier = Modifier
@@ -199,6 +266,7 @@ fun ChestOverlay(chest: ChestReward, opened: Boolean, onOpen: () -> Unit, onDism
         Column(
             modifier = Modifier
                 .fillMaxWidth(0.85f)
+                .shadow((openGlow * 20).dp, RoundedCornerShape(16.dp), clip = false, ambientColor = typeColor.copy(alpha = openGlow * 0.6f), spotColor = typeColor.copy(alpha = openGlow * 0.8f))
                 .clip(RoundedCornerShape(16.dp))
                 .background(Brush.verticalGradient(listOf(BgCard, BgCardDark)))
                 .border(2.dp, typeColor, RoundedCornerShape(16.dp))
@@ -206,32 +274,44 @@ fun ChestOverlay(chest: ChestReward, opened: Boolean, onOpen: () -> Unit, onDism
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             if (!opened) {
-                Text(typeIcon, fontSize = 64.sp)
+                Box(modifier = Modifier.offset { IntOffset(chestShakeAnim.value.toInt(), 0) }) {
+                    Text(typeIcon, fontSize = 64.sp)
+                }
                 Spacer(Modifier.height(16.dp))
                 Text("¡Toca para abrir!", color = Warning, fontSize = 20.sp, fontWeight = FontWeight.Bold)
             } else {
-                Text(typeIcon, fontSize = 32.sp)
-                Spacer(Modifier.height(8.dp))
-                Text(typeLabel, color = typeColor, fontSize = 16.sp, fontWeight = FontWeight.Bold)
-                Spacer(Modifier.height(16.dp))
-                Text("+${chest.xp} XP", color = AccentLight, fontSize = 32.sp, fontWeight = FontWeight.Bold)
-                if (chest.powerUps.isNotEmpty()) {
-                    Spacer(Modifier.height(12.dp))
-                    Row {
-                        chest.powerUps.forEach { pu ->
-                            val puIcon = when (pu) {
-                                "shield" -> "🛡️"; "fiftyFifty" -> "🎯"; "hint" -> "💡"
-                                "lifeRecovery" -> "❤️"; "doubleScore" -> "✨"; "freezeTime" -> "🧊"
-                                else -> "🎁"
+                // Scale-in for opened content
+                val contentScale by animateFloatAsState(
+                    targetValue = 1f,
+                    animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy),
+                    label = "contentScale"
+                )
+                Box(modifier = Modifier.scale(contentScale)) {
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        Text(typeIcon, fontSize = 32.sp)
+                        Spacer(Modifier.height(8.dp))
+                        Text(typeLabel, color = typeColor, fontSize = 16.sp, fontWeight = FontWeight.Bold)
+                        Spacer(Modifier.height(16.dp))
+                        Text("+${chest.xp} XP", color = AccentLight, fontSize = 32.sp, fontWeight = FontWeight.Bold)
+                        if (chest.powerUps.isNotEmpty()) {
+                            Spacer(Modifier.height(12.dp))
+                            Row {
+                                chest.powerUps.forEach { pu ->
+                                    val puIcon = when (pu) {
+                                        "shield" -> "🛡️"; "fiftyFifty" -> "🎯"; "hint" -> "💡"
+                                        "lifeRecovery" -> "❤️"; "doubleScore" -> "✨"; "freezeTime" -> "🧊"
+                                        else -> "🎁"
+                                    }
+                                    Text(puIcon, fontSize = 28.sp)
+                                    Spacer(Modifier.width(16.dp))
+                                }
                             }
-                            Text(puIcon, fontSize = 28.sp)
-                            Spacer(Modifier.width(16.dp))
+                        }
+                        if (chest.multiplier) {
+                            Spacer(Modifier.height(12.dp))
+                            Text("⚡ x2 XP en la próxima partida", color = Warning, fontSize = 12.sp, fontWeight = FontWeight.Bold)
                         }
                     }
-                }
-                if (chest.multiplier) {
-                    Spacer(Modifier.height(12.dp))
-                    Text("⚡ x2 XP en la próxima partida", color = Warning, fontSize = 12.sp, fontWeight = FontWeight.Bold)
                 }
                 Spacer(Modifier.height(16.dp))
                 Text("Toca para continuar", color = TextDim, fontSize = 13.sp)
@@ -243,9 +323,12 @@ fun ChestOverlay(chest: ChestReward, opened: Boolean, onOpen: () -> Unit, onDism
 @Composable
 fun RankUpOverlayView(overlay: RankUpOverlay, onDismiss: () -> Unit) {
     var visible by remember { mutableStateOf(false) }
+    var rankConfetti by remember { mutableStateOf<Any?>(null) }
     LaunchedEffect(Unit) {
         delay(500)
         visible = true
+        delay(300)
+        rankConfetti = Any()
     }
 
     Box(
@@ -255,13 +338,16 @@ fun RankUpOverlayView(overlay: RankUpOverlay, onDismiss: () -> Unit) {
             .clickable { onDismiss() },
         contentAlignment = Alignment.Center
     ) {
+        ConfettiBurst(trigger = rankConfetti, modifier = Modifier.fillMaxSize(), durationMs = 2500)
+
         AnimatedVisibility(
             visible = visible,
-            enter = scaleIn(animationSpec = tween(600, easing = androidx.compose.animation.core.EaseOutBack)) + fadeIn(tween(400))
+            enter = scaleIn(animationSpec = tween(600, easing = EaseOutBack)) + fadeIn(tween(400))
         ) {
             Column(
                 modifier = Modifier
                     .fillMaxWidth(0.85f)
+                    .shadow(16.dp, RoundedCornerShape(20.dp), clip = false, ambientColor = Warning.copy(alpha = 0.4f), spotColor = Warning.copy(alpha = 0.6f))
                     .clip(RoundedCornerShape(20.dp))
                     .background(Brush.verticalGradient(listOf(BgCard, BgCardDark)))
                     .border(2.dp, Warning, RoundedCornerShape(20.dp))
