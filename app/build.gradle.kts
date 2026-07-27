@@ -5,11 +5,11 @@ plugins {
 }
 
 android {
-    namespace = "com.opotest"
+    namespace = "com.opoleyes"
     compileSdk = 34
 
     defaultConfig {
-        applicationId = "com.opotest"
+        applicationId = "com.opoleyes"
         minSdk = 24
         targetSdk = 34
         versionCode = 1

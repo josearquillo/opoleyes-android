@@ -6,13 +6,13 @@
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
     <application
-        android:name=".OpotestApp"
+        android:name=".OpoleyesApp"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
-        android:label="OPOTEST"
+        android:label="OPOLEYES"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/Theme.OPOTEST"
+        android:theme="@style/Theme.OPOLEYES"
         android:screenOrientation="portrait"
         tools:targetApi="31">
 
@@ -23,7 +23,7 @@
         <activity
             android:name=".MainActivity"
             android:exported="true"
-            android:theme="@style/Theme.OPOTEST">
+            android:theme="@style/Theme.OPOLEYES">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
