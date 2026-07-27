@@ -19,7 +19,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
@@ -53,12 +52,13 @@ fun ExamScreen(navController: NavController, gameViewModel: GameViewModel) {
     val isLast = examQuestionNum == totalQuestions - 1
 
     val allLetters = listOf("A", "B", "C", "D")
-    val shuffledLetters = remember(question) { allLetters.shuffled() }
+    val displayLetters = remember(question) { allLetters.filter { question.opciones[it] != null } }
 
     Box(modifier = Modifier.fillMaxSize().background(BgDark)) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
+                .verticalScroll(rememberScrollState())
                 .padding(16.dp)
         ) {
             Row(
@@ -122,23 +122,23 @@ fun ExamScreen(navController: NavController, gameViewModel: GameViewModel) {
 
             Spacer(Modifier.height(16.dp))
 
-            shuffledLetters.forEach { letter ->
+            displayLetters.forEach { letter ->
                 val optionText = question.opciones[letter] ?: return@forEach
                 val isSelected = userAnswer == letter
-                val optionColor = if (isSelected) Primary else BgCard
+                val optionColor = if (isSelected) Brush.verticalGradient(listOf(Primary, PurpleDark)) else Brush.verticalGradient(listOf(BgCard, BgCardDark))
                 val borderColor = if (isSelected) PrimaryLight else Color.Transparent
 
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(vertical = 4.dp)
+                        .padding(vertical = 6.dp)
                         .clip(RoundedCornerShape(12.dp))
                         .background(optionColor)
                         .border(2.dp, borderColor, RoundedCornerShape(12.dp))
                         .clickable { gameViewModel.examAnswer(letter) }
                         .padding(16.dp)
                 ) {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
+                    Row(verticalAlignment = Alignment.Top) {
                         Box(
                             modifier = Modifier
                                 .size(28.dp)
@@ -158,8 +158,6 @@ fun ExamScreen(navController: NavController, gameViewModel: GameViewModel) {
                             optionText,
                             color = if (isSelected) Color.White else TextLight,
                             fontSize = 14.sp,
-                            maxLines = 4,
-                            overflow = TextOverflow.Ellipsis,
                             modifier = Modifier.weight(1f)
                         )
                         if (isSelected) {
@@ -169,7 +167,7 @@ fun ExamScreen(navController: NavController, gameViewModel: GameViewModel) {
                 }
             }
 
-            Spacer(Modifier.weight(1f))
+            Spacer(Modifier.height(16.dp))
 
             Row(
                 modifier = Modifier.fillMaxWidth(),
