@@ -163,20 +163,18 @@ fun HomeScreen(navController: NavController, gameViewModel: GameViewModel) {
                             gameViewModel.pendingMode = GameMode.SURVIVAL
                             when (m.type) {
                                 "review" -> {
-                                    gameViewModel.startQuickGame()
-                                    navController.navigate(Routes.GAME)
+                                    if (gameViewModel.startQuickGame()) navController.navigate(Routes.GAME)
                                 }
                                 "progress", "variety" -> {
-                                    if (m.testId != null) {
+                                    val started = if (m.testId != null) {
                                         gameViewModel.startTemaGame(m.testId)
                                     } else {
                                         gameViewModel.startAllLawsGame()
                                     }
-                                    navController.navigate(Routes.GAME)
+                                    if (started) navController.navigate(Routes.GAME)
                                 }
                                 "quality", "combo" -> {
-                                    gameViewModel.startAllLawsGame()
-                                    navController.navigate(Routes.GAME)
+                                    if (gameViewModel.startAllLawsGame()) navController.navigate(Routes.GAME)
                                 }
                             }
                         }

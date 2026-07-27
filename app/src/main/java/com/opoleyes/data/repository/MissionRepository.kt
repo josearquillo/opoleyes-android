@@ -29,7 +29,14 @@ class MissionRepository(private val context: Context) {
     fun generateDailyMissions(): MissionData {
         val today = getTodayStr()
         val existing = getDailyMissions()
-        if (existing != null && existing.date == today) return existing
+        if (existing != null && existing.date == today) {
+            // Validate that cached mission testIds still exist
+            val testDataMap = DataProvider.getTestDataMap(context)
+            val allValid = existing.missions.all { m ->
+                m.testId == null || testDataMap.containsKey(m.testId)
+            }
+            if (allValid) return existing
+        }
 
         val seed = today.split("-").map { it.toLong() }.reduce { a, b -> a * 100 + b }
         val rng = seededRandom(seed)
