@@ -862,4 +862,273 @@ class GameEngineTest {
             engine.answer(engine.currentQ!!.correct)
         }
     }
+
+    // === Power-up interaction tests ===
+
+    @Test
+    fun fun_hintThenFiftyFifty_ensuresAtLeast2FullyVisible() {
+        engine.hintCharges = 1
+        engine.fiftyFiftyCharges = 1
+        engine.currentQ = makeQuestion("A")
+        engine.useHint()
+        assertTrue("Hint should activate", engine.hintActive)
+        assertEquals(1, engine.hintRemoved.size)
+        engine.activateFiftyFifty()
+        assertTrue("50/50 should activate", engine.fiftyFiftyActive)
+        val allOptions = listOf("A", "B", "C", "D")
+        val fullyVisible = allOptions.filter { it !in engine.fiftyFiftyRemoved && it !in engine.hintRemoved }
+        assertTrue("Should have at least 2 fully visible options after hint + 50/50",
+            fullyVisible.size >= 2)
+    }
+
+    @Test
+    fun fun_fiftyFiftyThenHint_ensuresAtLeast2FullyVisible() {
+        engine.hintCharges = 1
+        engine.fiftyFiftyCharges = 1
+        engine.currentQ = makeQuestion("A")
+        engine.activateFiftyFifty()
+        assertTrue("50/50 should activate", engine.fiftyFiftyActive)
+        assertEquals(2, engine.fiftyFiftyRemoved.size)
+        // Hint should NOT activate because only 2 remain and removing 1 would leave 1
+        engine.useHint()
+        assertFalse("Hint should not activate when only 2 options remain visible",
+            engine.hintActive)
+        val allOptions = listOf("A", "B", "C", "D")
+        val fullyVisible = allOptions.filter { it !in engine.fiftyFiftyRemoved && it !in engine.hintRemoved }
+        assertTrue("Should have at least 2 fully visible options after 50/50 + hint attempt",
+            fullyVisible.size >= 2)
+    }
+
+    @Test
+    fun fun_fiftyFiftyThenHint_hintDoesNotRemoveIfTooFewRemain() {
+        engine.hintCharges = 1
+        engine.fiftyFiftyCharges = 1
+        engine.currentQ = makeQuestion("A")
+        // 50/50 removes 2 wrong options, leaving A + 1 wrong = 2 visible
+        engine.activateFiftyFifty()
+        assertEquals(2, engine.fiftyFiftyRemoved.size)
+        // Hint should NOT activate because only 2 remain and removing 1 would leave 1
+        engine.useHint()
+        assertFalse("Hint should not activate when only 2 options remain visible",
+            engine.hintActive)
+        assertEquals("Hint charge should not be consumed", 1, engine.hintCharges)
+    }
+
+    @Test
+    fun fun_hintThenFiftyFifty_fiftyFiftyDoesNotActivateIfTooFewRemain() {
+        engine.hintCharges = 1
+        engine.fiftyFiftyCharges = 1
+        engine.currentQ = QuestionEntry(
+            enunciado = "Test",
+            opciones = mapOf("A" to "Opt A", "B" to "Opt B", "C" to "Opt C"),
+            correct = "A",
+            weight = 50,
+            testId = "test1",
+            origId = "1"
+        )
+        // Hint removes 1 wrong, leaving A + 1 wrong + 1 hint-removed = 2 fully visible
+        engine.useHint()
+        assertTrue(engine.hintActive)
+        // 50/50 should not remove any because only 2 fully visible remain
+        engine.activateFiftyFifty()
+        assertFalse("50/50 should not activate when only 2 fully visible options remain",
+            engine.fiftyFiftyActive)
+        assertEquals("50/50 charge should not be consumed", 1, engine.fiftyFiftyCharges)
+    }
+
+    @Test
+    fun fun_hintOnQ1_fiftyFiftyOnQ2_stateReset() {
+        engine.startAllLawsGame()
+        engine.hintCharges = 2
+        engine.fiftyFiftyCharges = 2
+        // Q1: use hint
+        engine.nextQuestion()
+        engine.useHint()
+        assertTrue(engine.hintActive)
+        assertEquals(1, engine.hintRemoved.size)
+        assertEquals(1, engine.hintCharges)
+        // Answer Q1
+        engine.answer(engine.currentQ!!.correct)
+        // Q2: use 50/50
+        engine.nextQuestion()
+        assertFalse("hintActive should be reset on Q2", engine.hintActive)
+        assertTrue("hintRemoved should be cleared on Q2", engine.hintRemoved.isEmpty())
+        assertFalse("fiftyFiftyActive should be false on Q2", engine.fiftyFiftyActive)
+        assertTrue("fiftyFiftyRemoved should be cleared on Q2", engine.fiftyFiftyRemoved.isEmpty())
+        engine.activateFiftyFifty()
+        assertTrue("50/50 should activate on Q2", engine.fiftyFiftyActive)
+        assertEquals("50/50 should remove exactly 2 on fresh question", 2, engine.fiftyFiftyRemoved.size)
+        // Verify hint state from Q1 didn't leak
+        assertFalse("Hint should not be active on Q2", engine.hintActive)
+    }
+
+    @Test
+    fun fun_fiftyFiftyOnQ1_hintOnQ2_stateReset() {
+        engine.startAllLawsGame()
+        engine.hintCharges = 2
+        engine.fiftyFiftyCharges = 2
+        // Q1: use 50/50
+        engine.nextQuestion()
+        engine.activateFiftyFifty()
+        assertTrue(engine.fiftyFiftyActive)
+        assertEquals(2, engine.fiftyFiftyRemoved.size)
+        // Answer Q1
+        engine.answer(engine.currentQ!!.correct)
+        // Q2: use hint
+        engine.nextQuestion()
+        assertFalse("fiftyFiftyActive should be reset on Q2", engine.fiftyFiftyActive)
+        assertTrue("fiftyFiftyRemoved should be cleared on Q2", engine.fiftyFiftyRemoved.isEmpty())
+        assertFalse("hintActive should be false on Q2", engine.hintActive)
+        engine.useHint()
+        assertTrue("Hint should activate on Q2", engine.hintActive)
+        assertEquals("Hint should remove exactly 1 on fresh question", 1, engine.hintRemoved.size)
+        // Verify 50/50 state from Q1 didn't leak
+        assertFalse("50/50 should not be active on Q2", engine.fiftyFiftyActive)
+    }
+
+    @Test
+    fun fun_fiftyFifty_neverRemovesCorrectAnswer_evenWithHint() {
+        engine.hintCharges = 1
+        engine.fiftyFiftyCharges = 1
+        engine.currentQ = makeQuestion("C")
+        engine.useHint()
+        engine.activateFiftyFifty()
+        assertFalse("Correct answer C should never be in fiftyFiftyRemoved",
+            engine.fiftyFiftyRemoved.contains("C"))
+        assertFalse("Correct answer C should never be in hintRemoved",
+            engine.hintRemoved.contains("C"))
+    }
+
+    @Test
+    fun fun_hint_neverRemovesCorrectAnswer_evenWithFiftyFifty() {
+        engine.hintCharges = 1
+        engine.fiftyFiftyCharges = 1
+        engine.currentQ = makeQuestion("D")
+        engine.activateFiftyFifty()
+        engine.useHint()
+        assertFalse("Correct answer D should never be in hintRemoved",
+            engine.hintRemoved.contains("D"))
+        assertFalse("Correct answer D should never be in fiftyFiftyRemoved",
+            engine.fiftyFiftyRemoved.contains("D"))
+    }
+
+    @Test
+    fun fun_hintAndFiftyFifty_noOverlapInRemovedOptions() {
+        engine.hintCharges = 1
+        engine.fiftyFiftyCharges = 1
+        engine.currentQ = makeQuestion("A")
+        engine.useHint()
+        engine.activateFiftyFifty()
+        for (opt in engine.fiftyFiftyRemoved) {
+            assertFalse("fiftyFiftyRemoved should not contain hint-removed options",
+                engine.hintRemoved.contains(opt))
+        }
+        for (opt in engine.hintRemoved) {
+            assertFalse("hintRemoved should not contain fiftyFifty-removed options",
+                engine.fiftyFiftyRemoved.contains(opt))
+        }
+    }
+
+    @Test
+    fun fun_fiftyFiftyWith3Options_hintThenFiftyFifty() {
+        engine.hintCharges = 1
+        engine.fiftyFiftyCharges = 1
+        engine.currentQ = QuestionEntry(
+            enunciado = "Test",
+            opciones = mapOf("A" to "Opt A", "B" to "Opt B", "C" to "Opt C"),
+            correct = "A",
+            weight = 50,
+            testId = "test1",
+            origId = "1"
+        )
+        engine.useHint()
+        assertTrue(engine.hintActive)
+        // With 3 options, hint removes 1, leaving 2 fully visible
+        // 50/50 should not activate because only 2 remain
+        engine.activateFiftyFifty()
+        assertFalse("50/50 should not activate with only 2 fully visible after hint",
+            engine.fiftyFiftyActive)
+    }
+
+    @Test
+    fun fun_doubleScoreAndHint_bothActiveSimultaneously() {
+        engine.doubleScoreCharges = 1
+        engine.hintCharges = 1
+        engine.currentQ = makeQuestion("A")
+        engine.activateDoubleScore()
+        assertTrue(engine.doubleScoreActive)
+        engine.useHint()
+        assertTrue("Hint should work independently of doubleScore", engine.hintActive)
+        assertTrue("doubleScore should still be active", engine.doubleScoreActive)
+    }
+
+    @Test
+    fun fun_doubleScoreAndFiftyFifty_bothActiveSimultaneously() {
+        engine.doubleScoreCharges = 1
+        engine.fiftyFiftyCharges = 1
+        engine.currentQ = makeQuestion("A")
+        engine.activateDoubleScore()
+        assertTrue(engine.doubleScoreActive)
+        engine.activateFiftyFifty()
+        assertTrue("50/50 should work independently of doubleScore", engine.fiftyFiftyActive)
+        assertTrue("doubleScore should still be active", engine.doubleScoreActive)
+    }
+
+    @Test
+    fun fun_fiftyFiftyThenHint_totalRemovedAtMost2() {
+        engine.hintCharges = 1
+        engine.fiftyFiftyCharges = 1
+        engine.currentQ = makeQuestion("A")
+        engine.activateFiftyFifty()
+        engine.useHint()
+        val totalRemoved = engine.fiftyFiftyRemoved.size + engine.hintRemoved.size
+        assertTrue("Total removed (50/50 + hint) should not exceed 2 with 4 options",
+            totalRemoved <= 2)
+    }
+
+    @Test
+    fun fun_hintThenFiftyFifty_totalRemovedAtMost2() {
+        engine.hintCharges = 1
+        engine.fiftyFiftyCharges = 1
+        engine.currentQ = makeQuestion("A")
+        engine.useHint()
+        engine.activateFiftyFifty()
+        val totalRemoved = engine.fiftyFiftyRemoved.size + engine.hintRemoved.size
+        assertTrue("Total removed (hint + 50/50) should not exceed 2 with 4 options",
+            totalRemoved <= 2)
+    }
+
+    @Test
+    fun fun_fiftyFifty_doesNotConsumeChargeIfNoRemoval() {
+        engine.fiftyFiftyCharges = 1
+        engine.currentQ = QuestionEntry(
+            enunciado = "Test",
+            opciones = mapOf("A" to "Opt A", "B" to "Opt B"),
+            correct = "A",
+            weight = 50,
+            testId = "test1",
+            origId = "1"
+        )
+        // Only 2 options, can't remove any while keeping 2 visible
+        engine.activateFiftyFifty()
+        assertFalse("50/50 should not activate with only 2 options", engine.fiftyFiftyActive)
+        assertEquals("Charge should not be consumed", 1, engine.fiftyFiftyCharges)
+    }
+
+    @Test
+    fun fun_hint_doesNotConsumeChargeIfNoRemoval() {
+        engine.hintCharges = 1
+        engine.currentQ = QuestionEntry(
+            enunciado = "Test",
+            opciones = mapOf("A" to "Opt A", "B" to "Opt B"),
+            correct = "A",
+            weight = 50,
+            testId = "test1",
+            origId = "1"
+        )
+        // Only 2 options, can't remove any while keeping 2 visible
+        engine.useHint()
+        assertFalse("Hint should not activate with only 2 options", engine.hintActive)
+        assertEquals("Charge should not be consumed", 1, engine.hintCharges)
+    }
 }

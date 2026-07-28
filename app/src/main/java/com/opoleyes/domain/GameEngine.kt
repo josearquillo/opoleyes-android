@@ -230,14 +230,14 @@ class GameEngine(private val context: Context) {
 
     fun activateFiftyFifty() {
         if (fiftyFiftyCharges <= 0 || fiftyFiftyActive || answered) return
-        fiftyFiftyCharges--; fiftyFiftyActive = true; ctxFiftyFiftyUsed = true
         val q = currentQ ?: return
         val allOptions = listOf("A", "B", "C", "D").filter { q.opciones[it] != null }
         val wrong = allOptions.filter {
             it != q.correct && !hintRemoved.contains(it)
         }.toMutableList()
-        // Remove up to 2 wrong options, but always keep at least 1 wrong + the correct answer
-        val maxRemovable = minOf(2, wrong.size - 1).coerceAtLeast(0)
+        // Ensure at least 2 fully visible options remain after hint + 50/50
+        val visibleAfterHint = allOptions.size - hintRemoved.size
+        val maxRemovable = minOf(2, wrong.size - 1, visibleAfterHint - 2).coerceAtLeast(0)
         val removed = mutableListOf<String>()
         while (removed.size < maxRemovable && wrong.isNotEmpty()) {
             val idx = (0 until wrong.size).random()
@@ -251,6 +251,8 @@ class GameEngine(private val context: Context) {
             val toKeep = allOptions.filter { it !in removed }.take(2)
             removed.retainAll(allOptions.filter { it !in toKeep })
         }
+        if (removed.isEmpty()) return
+        fiftyFiftyCharges--; fiftyFiftyActive = true; ctxFiftyFiftyUsed = true
         fiftyFiftyRemoved = removed
     }
 
@@ -262,8 +264,12 @@ class GameEngine(private val context: Context) {
     fun useHint() {
         if (hintCharges <= 0 || hintActive || answered) return
         val q = currentQ ?: return
-        val wrong = listOf("A", "B", "C", "D").filter {
-            it != q.correct && q.opciones[it] != null && !fiftyFiftyRemoved.contains(it) && !hintRemoved.contains(it)
+        val allOptions = listOf("A", "B", "C", "D").filter { q.opciones[it] != null }
+        // Don't remove if it would leave fewer than 2 fully visible options
+        val visibleAfterRemoval = allOptions.size - fiftyFiftyRemoved.size - hintRemoved.size - 1
+        if (visibleAfterRemoval < 2) return
+        val wrong = allOptions.filter {
+            it != q.correct && !fiftyFiftyRemoved.contains(it) && !hintRemoved.contains(it)
         }
         if (wrong.isEmpty()) return
         val remove = wrong.random()

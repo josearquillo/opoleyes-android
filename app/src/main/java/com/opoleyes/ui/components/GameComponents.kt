@@ -95,7 +95,7 @@ fun OptionCard(
         answered && isCorrect -> Brush.verticalGradient(listOf(SuccessDark, Success))
         answered && isWrong -> Brush.verticalGradient(listOf(DangerDark, Danger))
         !answered && isSelected -> Brush.verticalGradient(listOf(Primary, PurpleDark))
-        !answered && isHintRemoved -> Brush.verticalGradient(listOf(Color(0xFF1a1a2e), Color(0xFF0f0f1e)))
+        !answered && isHintRemoved -> Brush.verticalGradient(listOf(Color(0xFF2a2a3e), Color(0xFF1f1f2e)))
         else -> Brush.verticalGradient(listOf(BgCard, BgCardDark))
     }
     val textColor = when {

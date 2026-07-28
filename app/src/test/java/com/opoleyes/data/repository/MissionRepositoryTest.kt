@@ -127,7 +127,7 @@ class MissionRepositoryTest {
     @Test
     fun fun_checkOnGameOver_updatesStreak() {
         repo.generateDailyMissions()
-        repo.checkOnGameOver("survival", 500, 10, 8, 10, "")
+        repo.checkOnGameOver("survival", 10, 10, "")
         val data = repo.getDailyMissions()
         assertNotNull(data)
     }
@@ -214,7 +214,7 @@ class MissionRepositoryTest {
         val data = repo.generateDailyMissions()
         val quickMission = data.missions.find { it.key == "quick_review" }
         if (quickMission != null) {
-            repo.checkOnGameOver("quick", 200, 5, 10, 15, "")
+            repo.checkOnGameOver("quick", 5, 15, "")
             val updated = repo.getDailyMissions()
             val m = updated?.missions?.find { it.key == "quick_review" }
             assertTrue("Quick review should be updated", m != null && m.current > 0)
@@ -224,7 +224,7 @@ class MissionRepositoryTest {
     @Test
     fun fun_checkOnGameOver_survivalUpdatesStreakAndCombo() {
         repo.generateDailyMissions()
-        repo.checkOnGameOver("survival", 500, 10, 8, 10, "")
+        repo.checkOnGameOver("survival", 10, 10, "")
         val data = repo.getDailyMissions()
         assertNotNull(data)
         val streakMission = data?.missions?.find { it.key == "streak" }
