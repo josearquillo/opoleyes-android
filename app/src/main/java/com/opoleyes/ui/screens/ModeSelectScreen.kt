@@ -27,6 +27,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.opoleyes.data.Constants
 import com.opoleyes.data.model.GameMode
 import com.opoleyes.data.repository.ProgressRepository
 import com.opoleyes.ui.components.GameButton
@@ -157,7 +158,7 @@ private fun ModeCard(mode: ModeInfo, onClick: () -> Unit) {
             if (locked) {
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     Icon(Icons.Default.Lock, contentDescription = "Locked", tint = TextDim)
-                    Text("Rango ${mode.requiredRank + 1}", color = TextDim, fontSize = 10.sp)
+                    Text(Constants.getRankByIndex(mode.requiredRank).name, color = TextDim, fontSize = 10.sp)
                 }
             }
         }
