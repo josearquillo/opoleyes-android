@@ -206,6 +206,12 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
         _examCurrentQuestion.value = examEngine.getCurrentQuestion()
     }
 
+    fun examClearAnswer() {
+        examEngine.clearAnswer()
+        _examAnswered.value = examEngine.getAnsweredCount()
+        _examCurrentQuestion.value = examEngine.getCurrentQuestion()
+    }
+
     fun examNavigate(index: Int) {
         examEngine.navigateTo(index)
         _examQuestionNum.value = examEngine.getCurrentIndex()

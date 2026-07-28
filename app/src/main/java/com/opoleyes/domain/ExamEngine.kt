@@ -105,6 +105,13 @@ class ExamEngine(private val context: Context) {
         }
     }
 
+    fun clearAnswer() {
+        if (currentIndex >= questions.size) return
+        questions = questions.toMutableList().also {
+            it[currentIndex] = it[currentIndex].copy(userAnswer = null)
+        }
+    }
+
     fun navigateTo(index: Int) {
         currentIndex = index.coerceIn(0, questions.size - 1)
     }

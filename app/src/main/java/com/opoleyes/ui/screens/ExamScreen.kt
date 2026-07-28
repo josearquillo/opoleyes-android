@@ -5,6 +5,7 @@ import androidx.compose.animation.*
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -186,7 +187,13 @@ fun ExamScreen(navController: NavController, gameViewModel: GameViewModel) {
                         .clip(RoundedCornerShape(12.dp))
                         .background(optionColor)
                         .border(2.dp, borderColor, RoundedCornerShape(12.dp))
-                        .clickable { gameViewModel.examAnswer(letter) }
+                        .clickable {
+                            if (userAnswer == letter) {
+                                gameViewModel.examClearAnswer()
+                            } else {
+                                gameViewModel.examAnswer(letter)
+                            }
+                        }
                         .padding(16.dp)
                 ) {
                     Row(verticalAlignment = Alignment.Top) {
@@ -267,7 +274,21 @@ private fun QuestionNavigationGrid(
     answered: List<Boolean>,
     onNavigate: (Int) -> Unit
 ) {
+    val listState = rememberLazyListState()
+
+    LaunchedEffect(current) {
+        val visibleItems = listState.layoutInfo.visibleItemsInfo
+        if (visibleItems.isNotEmpty()) {
+            val firstVisible = visibleItems.first().index
+            val lastVisible = visibleItems.last().index
+            if (current < firstVisible || current > lastVisible) {
+                listState.animateScrollToItem(current)
+            }
+        }
+    }
+
     LazyRow(
+        state = listState,
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.spacedBy(4.dp)
     ) {

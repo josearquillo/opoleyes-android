@@ -267,7 +267,7 @@ private fun QuestionReviewCard(idx: Int, eq: ExamEngine.ExamQuestion) {
             Spacer(Modifier.height(8.dp))
             Text(eq.question.enunciado, color = TextLight, fontSize = 13.sp)
             Spacer(Modifier.height(8.dp))
-            if (!isUnanswered) {
+            if (!isUnanswered && !isCorrect) {
                 Text("Tu respuesta: ${eq.question.opciones[eq.userAnswer] ?: eq.userAnswer}",
                     color = Danger, fontSize = 12.sp)
             }
