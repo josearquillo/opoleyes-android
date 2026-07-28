@@ -19,6 +19,7 @@ class PreferencesManager(private val context: Context) {
         const val XP_MULTIPLIER = "xp_multiplier"
         const val DAILY_MISSIONS_JSON = "daily_missions_json"
         const val DEBUG_MODE = "debug_mode"
+        const val SAVED_POWERUPS_JSON = "saved_powerups_json"
         const val POWERUPS_INITIALIZED = "powerups_initialized"
         fun recordKey(mode: String) = "record_$mode"
         fun recordComboKey(mode: String) = "record_combo_$mode"
@@ -122,6 +123,27 @@ class PreferencesManager(private val context: Context) {
     fun isDebugMode(): Boolean = prefs.getBoolean(DEBUG_MODE, false)
 
     fun setDebugMode(enabled: Boolean) {
+        if (enabled) {
+            // Save current real power-ups before setting debug power-ups
+            val current = getFreePowerUps()
+            prefs.edit().putString(SAVED_POWERUPS_JSON, gson.toJson(current)).apply()
+            // Set a large number of each power-up for infinite testing
+            val debugPowerUps = mutableListOf<String>()
+            repeat(99) { debugPowerUps.add("shield") }
+            repeat(99) { debugPowerUps.add("fiftyFifty") }
+            repeat(99) { debugPowerUps.add("hint") }
+            repeat(99) { debugPowerUps.add("doubleScore") }
+            setFreePowerUps(debugPowerUps)
+        } else {
+            // Restore saved power-ups
+            val savedJson = prefs.getString(SAVED_POWERUPS_JSON, null)
+            if (savedJson != null) {
+                val type = object : TypeToken<List<String>>() {}.type
+                val saved: List<String> = gson.fromJson(savedJson, type) ?: emptyList()
+                setFreePowerUps(saved)
+                prefs.edit().remove(SAVED_POWERUPS_JSON).apply()
+            }
+        }
         prefs.edit().putBoolean(DEBUG_MODE, enabled).apply()
     }
 

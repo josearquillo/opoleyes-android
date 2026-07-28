@@ -71,7 +71,9 @@ class GameEngine(private val context: Context) {
                 "doubleScore" -> doubleScoreCharges++
             }
         }
-        prefs.clearFreePowerUps()
+        if (!prefs.isDebugMode()) {
+            prefs.clearFreePowerUps()
+        }
 
         when (mode) {
             GameMode.TIMETRIAL -> { timer = 180f; lives = 0 }
@@ -289,6 +291,7 @@ class GameEngine(private val context: Context) {
         if (totalAnswered > 0) correctCount * 100 / totalAnswered else 0
 
     fun saveRemainingPowerUps() {
+        if (prefs.isDebugMode()) return
         val remaining = mutableListOf<String>()
         repeat(shieldCharges) { remaining.add("shield") }
         repeat(fiftyFiftyCharges) { remaining.add("fiftyFifty") }
