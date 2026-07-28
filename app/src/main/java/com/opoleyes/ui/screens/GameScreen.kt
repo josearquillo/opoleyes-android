@@ -294,14 +294,14 @@ fun GameScreen(navController: NavController, gameViewModel: GameViewModel) {
                                     horizontalArrangement = Arrangement.Center,
                                     verticalArrangement = Arrangement.spacedBy(4.dp)
                                 ) {
-                                    if (uiState.hintCharges > 0 && !uiState.hintActive && uiState.mode != GameMode.CHALLENGE && uiState.mode != GameMode.QUICK) {
-                                        PowerUpButton("Pista", "💡", uiState.hintCharges, Color(0xFFa16207), enabled = !uiState.answered) { gameViewModel.useHint() }
+                                    if (uiState.hintCharges > 0 && uiState.mode != GameMode.CHALLENGE && uiState.mode != GameMode.QUICK) {
+                                        PowerUpButton("Pista", "💡", uiState.hintCharges, Color(0xFFa16207), enabled = !uiState.answered && !uiState.hintActive) { gameViewModel.useHint() }
                                     }
-                                    if (uiState.fiftyFiftyCharges > 0 && !uiState.fiftyFiftyActive && uiState.mode != GameMode.CHALLENGE && uiState.mode != GameMode.QUICK) {
-                                        PowerUpButton("50/50", "✂️", uiState.fiftyFiftyCharges, Purple, enabled = !uiState.answered) { gameViewModel.activateFiftyFifty() }
+                                    if (uiState.fiftyFiftyCharges > 0 && uiState.mode != GameMode.CHALLENGE && uiState.mode != GameMode.QUICK) {
+                                        PowerUpButton("50/50", "✂️", uiState.fiftyFiftyCharges, Purple, enabled = !uiState.answered && !uiState.fiftyFiftyActive) { gameViewModel.activateFiftyFifty() }
                                     }
-                                    if (uiState.doubleScoreCharges > 0 && !uiState.doubleScoreActive && uiState.mode != GameMode.CHALLENGE && uiState.mode != GameMode.QUICK) {
-                                        PowerUpButton("x2 pts", "✨", uiState.doubleScoreCharges, Warning, enabled = !uiState.answered) { gameViewModel.activateDoubleScore() }
+                                    if (uiState.doubleScoreCharges > 0 && uiState.mode != GameMode.CHALLENGE && uiState.mode != GameMode.QUICK) {
+                                        PowerUpButton("x2 pts", "✨", uiState.doubleScoreCharges, Warning, enabled = !uiState.answered && !uiState.doubleScoreActive) { gameViewModel.activateDoubleScore() }
                                     }
                                 }
                                 Spacer(Modifier.height(12.dp))
@@ -311,7 +311,7 @@ fun GameScreen(navController: NavController, gameViewModel: GameViewModel) {
                                 val shuffledLetters = remember(q) { allLetters.shuffled() }
                                 shuffledLetters.forEachIndexed { index, letter ->
                                     val text = q.opciones[letter] ?: return@forEachIndexed
-                                    val isFiftyFiftyRemoved = uiState.fiftyFiftyActive && uiState.fiftyFiftyRemoved.contains(letter)
+                                    val isFiftyFiftyRemoved = uiState.fiftyFiftyActive && uiState.fiftyFiftyRemoved.contains(letter) && letter != q.correct
                                     if (isFiftyFiftyRemoved) return@forEachIndexed
 
                                     var visible by remember(q, letter) { mutableStateOf(false) }

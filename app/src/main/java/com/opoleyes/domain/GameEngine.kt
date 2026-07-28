@@ -237,9 +237,11 @@ class GameEngine(private val context: Context) {
         val wrong = allOptions.filter {
             it != q.correct && !hintRemoved.contains(it)
         }.toMutableList()
-        // Ensure at least 2 fully visible options remain after hint + 50/50
-        val visibleAfterHint = allOptions.size - hintRemoved.size
-        val maxRemovable = minOf(2, wrong.size - 1, visibleAfterHint - 2).coerceAtLeast(0)
+        // Ensure at least 2 clickable options remain after hint + 50/50
+        // clickable = allOptions - fiftyFiftyRemoved - hintRemoved
+        // We need: allOptions.size - hintRemoved.size - removed.size >= 2
+        // So: removed.size <= allOptions.size - hintRemoved.size - 2
+        val maxRemovable = minOf(2, wrong.size - 1, allOptions.size - hintRemoved.size - 2).coerceAtLeast(0)
         val removed = mutableListOf<String>()
         while (removed.size < maxRemovable && wrong.isNotEmpty()) {
             val idx = (0 until wrong.size).random()
@@ -247,11 +249,13 @@ class GameEngine(private val context: Context) {
         }
         // Safeguard: never remove the correct answer
         removed.remove(q.correct)
-        // Safeguard: ensure at least 2 options remain visible
-        val remainingCount = allOptions.size - removed.size
-        if (remainingCount < 2) {
-            val toKeep = allOptions.filter { it !in removed }.take(2)
-            removed.retainAll(allOptions.filter { it !in toKeep })
+        // Hard guarantee: at least 2 clickable options must remain
+        // clickable = allOptions - hintRemoved - removed
+        val clickableRemaining = allOptions.size - hintRemoved.size - removed.size
+        if (clickableRemaining < 2) {
+            // Remove fewer items to keep at least 2 clickable
+            val toKeep = allOptions.filter { it != q.correct && it !in hintRemoved && it !in removed }.take(2)
+            removed.retainAll(allOptions.filter { it !in hintRemoved && it !in toKeep && it != q.correct })
         }
         if (removed.isEmpty()) return
         fiftyFiftyCharges--; fiftyFiftyActive = true; ctxFiftyFiftyUsed = true
