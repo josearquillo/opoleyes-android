@@ -6,7 +6,10 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Book
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.LibraryBooks
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -27,6 +30,7 @@ import com.opoleyes.ui.navigation.GameViewModel
 import com.opoleyes.ui.navigation.Routes
 import com.opoleyes.ui.theme.*
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TemaSelectScreen(navController: NavController, gameViewModel: GameViewModel) {
     val context = navController.context
@@ -39,36 +43,54 @@ fun TemaSelectScreen(navController: NavController, gameViewModel: GameViewModel)
         (it.title.ifEmpty { it.name }).contains(query, ignoreCase = true)
     }
 
-    Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
-        OutlinedTextField(
-            value = query,
-            onValueChange = { query = it },
-            modifier = Modifier.fillMaxWidth(),
-            placeholder = { Text("Buscar ley...") },
-            leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
-            trailingIcon = { if (query.isNotEmpty()) IconButton(onClick = { query = "" }) { Icon(Icons.Default.Close, contentDescription = null) } },
-            colors = OutlinedTextFieldDefaults.colors(
-                focusedTextColor = TextLight,
-                unfocusedTextColor = TextLight,
-                focusedBorderColor = Primary,
-                unfocusedBorderColor = SurfaceVariant,
-                cursorColor = Primary
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text("Selecciona ley", color = TextLight, fontWeight = FontWeight.Bold) },
+                navigationIcon = {
+                    IconButton(onClick = { navController.popBackStack() }) {
+                        Icon(Icons.Default.ArrowBack, contentDescription = "Volver", tint = TextLight)
+                    }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = BgDark,
+                    titleContentColor = TextLight
+                )
             )
-        )
-        Spacer(Modifier.height(12.dp))
+        },
+        containerColor = BgDark
+    ) { paddingValues ->
+        Column(modifier = Modifier.fillMaxSize().padding(paddingValues).padding(16.dp)) {
+            OutlinedTextField(
+                value = query,
+                onValueChange = { query = it },
+                modifier = Modifier.fillMaxWidth(),
+                placeholder = { Text("Buscar ley...") },
+                leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
+                trailingIcon = { if (query.isNotEmpty()) IconButton(onClick = { query = "" }) { Icon(Icons.Default.Close, contentDescription = null) } },
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedTextColor = TextLight,
+                    unfocusedTextColor = TextLight,
+                    focusedBorderColor = Primary,
+                    unfocusedBorderColor = SurfaceVariant,
+                    cursorColor = Primary
+                )
+            )
+            Spacer(Modifier.height(12.dp))
 
-        TemaCard("📚", "Todas las leyes", 0) {
-            gameViewModel.startAllLawsGameAsync { ok -> if (ok) navController.navigate(Routes.GAME) }
-        }
-        Spacer(Modifier.height(8.dp))
+            TemaCard(Icons.Default.LibraryBooks, "Todas las leyes", 0) {
+                gameViewModel.startAllLawsGameAsync { ok -> if (ok) navController.navigate(Routes.GAME) }
+            }
+            Spacer(Modifier.height(8.dp))
 
-        LazyColumn {
-            items(filteredTests, key = { it.id }) { test ->
-                val progress = statsRepo.getLeyProgress(test.id)
-                TemaCard("📖", test.title.ifEmpty { test.name }, progress) {
-                    gameViewModel.startTemaGameAsync(test.id) { ok -> if (ok) navController.navigate(Routes.GAME) }
+            LazyColumn {
+                items(filteredTests, key = { it.id }) { test ->
+                    val progress = statsRepo.getLeyProgress(test.id)
+                    TemaCard(Icons.Default.Book, test.title.ifEmpty { test.name }, progress) {
+                        gameViewModel.startTemaGameAsync(test.id) { ok -> if (ok) navController.navigate(Routes.GAME) }
+                    }
+                    Spacer(Modifier.height(6.dp))
                 }
-                Spacer(Modifier.height(6.dp))
             }
         }
     }
@@ -79,7 +101,7 @@ fun TemaSelectScreen(navController: NavController, gameViewModel: GameViewModel)
 }
 
 @Composable
-private fun TemaCard(icon: String, title: String, progress: Int, onClick: () -> Unit) {
+private fun TemaCard(icon: androidx.compose.ui.graphics.vector.ImageVector, title: String, progress: Int, onClick: () -> Unit) {
     val heatColor = when {
         progress >= 80 -> Success
         progress >= 50 -> Warning
@@ -96,7 +118,7 @@ private fun TemaCard(icon: String, title: String, progress: Int, onClick: () -> 
             .padding(16.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Text(icon, fontSize = 24.sp)
+        Icon(icon, contentDescription = null, tint = TextLight, modifier = Modifier.size(24.dp))
         Spacer(Modifier.width(12.dp))
         Column(modifier = Modifier.weight(1f)) {
             Text(title, color = TextLight, fontSize = 15.sp, fontWeight = FontWeight.Medium)

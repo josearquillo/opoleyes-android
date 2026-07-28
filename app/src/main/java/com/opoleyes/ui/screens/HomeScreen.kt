@@ -237,7 +237,7 @@ fun MissionCard(mission: Mission, onClick: () -> Unit) {
             .padding(10.dp)
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
-            Text(if (mission.completed) "✅" else mission.icon, fontSize = 14.sp)
+            Text(if (mission.completed) "✓" else "•", fontSize = 14.sp, color = if (mission.completed) Success else TextMuted)
             Spacer(Modifier.width(8.dp))
             Text(
                 mission.text,

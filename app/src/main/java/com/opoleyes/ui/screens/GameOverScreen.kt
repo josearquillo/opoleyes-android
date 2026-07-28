@@ -5,6 +5,22 @@ import androidx.compose.animation.core.*
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Assignment
+import androidx.compose.material.icons.filled.Celebration
+import androidx.compose.material.icons.filled.EmojiEvents
+import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Inventory2
+import androidx.compose.material.icons.filled.Lightbulb
+import androidx.compose.material.icons.filled.LocalFireDepartment
+import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material.icons.filled.Refresh
+import androidx.compose.material.icons.filled.Redeem
+import androidx.compose.material.icons.filled.Shield
+import androidx.compose.material.icons.filled.SwapHoriz
+import androidx.compose.material.icons.filled.TrackChanges
+import androidx.compose.material.icons.filled.AutoAwesome
+import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -29,6 +45,7 @@ import com.opoleyes.ui.navigation.Routes
 import com.opoleyes.ui.theme.*
 import kotlinx.coroutines.delay
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun GameOverScreen(navController: NavController, gameViewModel: GameViewModel) {
     val uiState by gameViewModel.uiState.collectAsState()
@@ -77,13 +94,12 @@ fun GameOverScreen(navController: NavController, gameViewModel: GameViewModel) {
     }
 
     val anyRecord = newRecord || newComboRecord || newAccRecord
-    val icon = if (anyRecord) "🏆" else medal.ifEmpty { "🎮" }
     val modeName = when (uiState.mode) {
-        GameMode.SURVIVAL -> "❤️ Supervivencia"
-        GameMode.TIMETRIAL -> "⏱️ Contrarreloj"
-        GameMode.QUICK -> "⚡ Repaso Express"
-        GameMode.CHALLENGE -> "🏆 Modo Reto"
-        GameMode.EXAM -> "📝 Modo Examen"
+        GameMode.SURVIVAL -> "Supervivencia"
+        GameMode.TIMETRIAL -> "Contrarreloj"
+        GameMode.QUICK -> "Repaso Express"
+        GameMode.CHALLENGE -> "Modo Reto"
+        GameMode.EXAM -> "Modo Examen"
     }
 
     // Staggered appearance
@@ -98,13 +114,26 @@ fun GameOverScreen(navController: NavController, gameViewModel: GameViewModel) {
     val scrollState = rememberScrollState()
 
     Box(modifier = Modifier.fillMaxSize().background(BgDark)) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .verticalScroll(scrollState)
-                .padding(16.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
+        Scaffold(
+            topBar = {
+                TopAppBar(
+                    title = { Text("Fin de partida", color = TextLight, fontWeight = FontWeight.Bold) },
+                    colors = TopAppBarDefaults.topAppBarColors(
+                        containerColor = BgDark,
+                        titleContentColor = TextLight
+                    )
+                )
+            },
+            containerColor = BgDark
+        ) { paddingValues ->
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .verticalScroll(scrollState)
+                    .padding(paddingValues)
+                    .padding(16.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
             Spacer(Modifier.height(20.dp))
 
             // Icon with scale-in animation
@@ -113,9 +142,14 @@ fun GameOverScreen(navController: NavController, gameViewModel: GameViewModel) {
                 animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy),
                 label = "iconScale"
             )
-            Text(icon, fontSize = 56.sp, modifier = Modifier.scale(iconScale))
+            Icon(
+                if (anyRecord) Icons.Default.EmojiEvents else Icons.Default.Assignment,
+                contentDescription = null,
+                tint = if (anyRecord) Warning else TextLight,
+                modifier = Modifier.size(56.dp).scale(iconScale)
+            )
 
-            Text("Game Over", color = TextLight, fontSize = 32.sp, fontWeight = FontWeight.Bold)
+            Text("Fin de partida", color = TextLight, fontSize = 32.sp, fontWeight = FontWeight.Bold)
             Text(modeName, color = TextMuted, fontSize = 14.sp)
 
             if (anyRecord) {
@@ -123,9 +157,9 @@ fun GameOverScreen(navController: NavController, gameViewModel: GameViewModel) {
                 Text("¡NUEVO RÉCORD!", color = Warning, fontSize = 24.sp, fontWeight = FontWeight.Bold)
                 Spacer(Modifier.height(8.dp))
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    if (newRecord) Text("🏆 Puntuación", color = Warning, fontSize = 10.sp)
-                    if (newComboRecord) Text("🔥 Combo x${uiState.maxCombo}", color = Warning, fontSize = 10.sp)
-                    if (newAccRecord) Text("🎯 $accuracy% precisión", color = Warning, fontSize = 10.sp)
+                    if (newRecord) Text("Puntuación", color = Warning, fontSize = 10.sp)
+                    if (newComboRecord) Text("Combo x${uiState.maxCombo}", color = Warning, fontSize = 10.sp)
+                    if (newAccRecord) Text("$accuracy% precisión", color = Warning, fontSize = 10.sp)
                 }
             } else if (medal.isNotEmpty()) {
                 Spacer(Modifier.height(8.dp))
@@ -148,9 +182,9 @@ fun GameOverScreen(navController: NavController, gameViewModel: GameViewModel) {
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(10.dp)
             ) {
-                StatCardWithIcon("📝", "${uiState.totalAnswered}", "Preguntas", PrimaryLight, Modifier.weight(1f))
-                StatCardWithIcon("🔥", "${uiState.maxCombo}", "Combo máx", Orange, Modifier.weight(1f))
-                StatCardWithIcon("🎯", "$accuracy%", "Precisión", Success, Modifier.weight(1f))
+                StatCardWithIcon(Icons.Default.Assignment, "${uiState.totalAnswered}", "Preguntas", PrimaryLight, Modifier.weight(1f))
+                StatCardWithIcon(Icons.Default.LocalFireDepartment, "${uiState.maxCombo}", "Combo máx", Orange, Modifier.weight(1f))
+                StatCardWithIcon(Icons.Default.TrackChanges, "$accuracy%", "Precisión", Success, Modifier.weight(1f))
             }
 
             Spacer(Modifier.height(24.dp))
@@ -161,7 +195,7 @@ fun GameOverScreen(navController: NavController, gameViewModel: GameViewModel) {
                 horizontalArrangement = Arrangement.spacedBy(10.dp)
             ) {
                 GameButton(
-                    text = "🔄 Jugar",
+                    text = "Jugar",
                     modifier = Modifier.weight(1f).height(50.dp),
                     color1 = Success,
                     color2 = SuccessDark
@@ -182,7 +216,7 @@ fun GameOverScreen(navController: NavController, gameViewModel: GameViewModel) {
                     navController.navigate(Routes.GAME) { popUpTo(Routes.GAME) { inclusive = true } }
                 }
                 GameButton(
-                    text = "🏠 Menú",
+                    text = "Menú",
                     modifier = Modifier.weight(1f).height(50.dp),
                     color1 = Primary,
                     color2 = PurpleDark
@@ -191,6 +225,7 @@ fun GameOverScreen(navController: NavController, gameViewModel: GameViewModel) {
                 }
             }
             Spacer(Modifier.height(40.dp))
+            }
         }
 
         // Confetti overlay
@@ -232,7 +267,7 @@ fun ChestOverlay(chest: ChestReward, opened: Boolean, shakeCount: Int, onOpen: (
 
     if (!visible) return
 
-    val typeIcon = when (chest.type) { ChestType.WOOD -> "📦"; ChestType.SILVER -> "🗃️"; ChestType.GOLD -> "🎁" }
+    val typeIcon = when (chest.type) { ChestType.WOOD -> Icons.Default.Inventory2; ChestType.SILVER -> Icons.Default.Redeem; ChestType.GOLD -> Icons.Default.Redeem }
     val typeLabel = chest.type.label
     val typeColor = when (chest.type) { ChestType.WOOD -> TextMuted; ChestType.SILVER -> Color(0xFFcbd5e1); ChestType.GOLD -> Warning }
 
@@ -279,7 +314,7 @@ fun ChestOverlay(chest: ChestReward, opened: Boolean, shakeCount: Int, onOpen: (
         ) {
             if (!opened) {
                 Box(modifier = Modifier.offset { IntOffset(chestShakeAnim.value.toInt(), 0) }) {
-                    Text(typeIcon, fontSize = 64.sp)
+                    Icon(typeIcon, contentDescription = null, tint = typeColor, modifier = Modifier.size(64.dp))
                 }
                 Spacer(Modifier.height(16.dp))
                 Text("¡Toca para abrir!", color = Warning, fontSize = 20.sp, fontWeight = FontWeight.Bold)
@@ -292,7 +327,7 @@ fun ChestOverlay(chest: ChestReward, opened: Boolean, shakeCount: Int, onOpen: (
                 )
                 Box(modifier = Modifier.scale(contentScale)) {
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        Text(typeIcon, fontSize = 32.sp)
+                        Icon(typeIcon, contentDescription = null, tint = typeColor, modifier = Modifier.size(32.dp))
                         Spacer(Modifier.height(8.dp))
                         Text(typeLabel, color = typeColor, fontSize = 16.sp, fontWeight = FontWeight.Bold)
                         Spacer(Modifier.height(16.dp))
@@ -302,18 +337,18 @@ fun ChestOverlay(chest: ChestReward, opened: Boolean, shakeCount: Int, onOpen: (
                             Row {
                                 chest.powerUps.forEach { pu ->
                                     val puIcon = when (pu) {
-                                        "shield" -> "🛡️"; "fiftyFifty" -> "🎯"; "hint" -> "💡"
-                                        "lifeRecovery" -> "❤️"; "doubleScore" -> "✨"
-                                        else -> "🎁"
+                                        "shield" -> Icons.Default.Shield; "fiftyFifty" -> Icons.Default.SwapHoriz; "hint" -> Icons.Default.Lightbulb
+                                        "lifeRecovery" -> Icons.Default.Favorite; "doubleScore" -> Icons.Default.AutoAwesome
+                                        else -> Icons.Default.Redeem
                                     }
-                                    Text(puIcon, fontSize = 28.sp)
+                                    Icon(puIcon, contentDescription = null, tint = typeColor, modifier = Modifier.size(28.dp))
                                     Spacer(Modifier.width(16.dp))
                                 }
                             }
                         }
                         if (chest.multiplier) {
                             Spacer(Modifier.height(12.dp))
-                            Text("⚡ x2 XP en la próxima partida", color = Warning, fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                            Text("x2 XP en la próxima partida", color = Warning, fontSize = 12.sp, fontWeight = FontWeight.Bold)
                         }
                     }
                 }
@@ -358,7 +393,7 @@ fun RankUpOverlayView(overlay: RankUpOverlay, onDismiss: () -> Unit) {
                     .padding(28.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Text("🎉", fontSize = 56.sp)
+                Icon(Icons.Default.Celebration, contentDescription = null, tint = Warning, modifier = Modifier.size(56.dp))
                 Spacer(Modifier.height(12.dp))
                 Text(overlay.newRank.icon, fontSize = 64.sp)
                 Spacer(Modifier.height(12.dp))
@@ -369,7 +404,7 @@ fun RankUpOverlayView(overlay: RankUpOverlay, onDismiss: () -> Unit) {
                 val unlockText = com.opoleyes.data.Constants.RANK_UNLOCKS[overlay.newRank.index]
                 if (unlockText != null) {
                     Spacer(Modifier.height(20.dp))
-                    Text("🔓 Has desbloqueado:", color = TextLight, fontSize = 14.sp, fontWeight = FontWeight.Bold)
+                    Text("Has desbloqueado:", color = TextLight, fontSize = 14.sp, fontWeight = FontWeight.Bold)
                     Spacer(Modifier.height(8.dp))
                     Surface(
                         shape = RoundedCornerShape(12.dp),

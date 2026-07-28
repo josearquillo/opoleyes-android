@@ -11,6 +11,12 @@ import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.Shield
+import androidx.compose.material.icons.filled.Timer
+import androidx.compose.material.icons.filled.LocalFireDepartment
+import androidx.compose.material.icons.filled.Bolt
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -149,11 +155,14 @@ fun HudBar(
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             if (mode == com.opoleyes.data.model.GameMode.SURVIVAL || mode == com.opoleyes.data.model.GameMode.QUICK) {
-                repeat(lives) { Text("❤️", fontSize = 18.sp) }
+                repeat(lives) { Icon(Icons.Default.Favorite, contentDescription = null, tint = Danger, modifier = Modifier.size(18.dp)) }
             }
             if (shieldCharges > 0) {
                 Spacer(Modifier.width(4.dp))
-                Text("🛡️$shieldCharges", fontSize = 16.sp)
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(Icons.Default.Shield, contentDescription = null, tint = PrimaryLight, modifier = Modifier.size(16.dp))
+                    Text("$shieldCharges", color = PrimaryLight, fontSize = 16.sp)
+                }
             }
         }
         Text(
@@ -164,8 +173,12 @@ fun HudBar(
         )
         if (mode == com.opoleyes.data.model.GameMode.TIMETRIAL || mode == com.opoleyes.data.model.GameMode.CHALLENGE) {
             val timerColor = if (timer < 10) Danger else TextLight
-            val timerText = "⏱️ ${timer.toInt()}s"
-            Text(timerText, color = timerColor, fontWeight = FontWeight.Bold, fontSize = 18.sp)
+            val timerText = "${timer.toInt()}s"
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Icon(Icons.Default.Timer, contentDescription = null, tint = timerColor, modifier = Modifier.size(16.dp))
+                Spacer(Modifier.width(2.dp))
+                Text(timerText, color = timerColor, fontWeight = FontWeight.Bold, fontSize = 18.sp)
+            }
         }
         if (combo > 0) {
             val comboColor = when {
@@ -173,12 +186,19 @@ fun HudBar(
                 combo >= 10 -> Danger
                 else -> Orange
             }
-            Text("🔥 x$combo", color = comboColor, fontWeight = FontWeight.Bold, fontSize = 16.sp)
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Icon(Icons.Default.LocalFireDepartment, contentDescription = null, tint = comboColor, modifier = Modifier.size(16.dp))
+                Spacer(Modifier.width(2.dp))
+                Text("x$combo", color = comboColor, fontWeight = FontWeight.Bold, fontSize = 16.sp)
+            }
         }
         if (streak > 0) {
             val streakLeft = 5 - (streak % 5)
             val streakColor = if (streakLeft == 1) Warning else TextMuted
-            Text("⚡${streak % 5}/5", color = streakColor, fontWeight = FontWeight.Bold, fontSize = 13.sp)
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Icon(Icons.Default.Bolt, contentDescription = null, tint = streakColor, modifier = Modifier.size(13.dp))
+                Text("${streak % 5}/5", color = streakColor, fontWeight = FontWeight.Bold, fontSize = 13.sp)
+            }
         }
         Text("#$questionNum", color = TextDim, fontSize = 13.sp)
     }
@@ -330,7 +350,7 @@ fun CircularProgressRing(
 
 @Composable
 fun StatCardWithIcon(
-    icon: String,
+    icon: androidx.compose.ui.graphics.vector.ImageVector,
     value: String,
     label: String,
     color: Color,
@@ -343,7 +363,7 @@ fun StatCardWithIcon(
             .padding(12.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Text(icon, fontSize = 24.sp)
+        Icon(icon, contentDescription = null, tint = color, modifier = Modifier.size(24.dp))
         Spacer(Modifier.height(4.dp))
         Text(value, color = color, fontWeight = FontWeight.Bold, fontSize = 22.sp)
         Text(label, color = TextDim, fontSize = 11.sp)

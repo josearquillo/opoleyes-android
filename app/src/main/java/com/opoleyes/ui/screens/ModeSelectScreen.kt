@@ -5,7 +5,13 @@ import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Assignment
+import androidx.compose.material.icons.filled.Bolt
+import androidx.compose.material.icons.filled.EmojiEvents
+import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Timer
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -25,6 +31,7 @@ import com.opoleyes.ui.navigation.GameViewModel
 import com.opoleyes.ui.navigation.Routes
 import com.opoleyes.ui.theme.*
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ModeSelectScreen(navController: NavController, gameViewModel: GameViewModel) {
     val context = navController.context
@@ -34,50 +41,66 @@ fun ModeSelectScreen(navController: NavController, gameViewModel: GameViewModel)
     val isLoading by gameViewModel.isLoading.collectAsState()
 
     val modes = listOf(
-        ModeInfo(GameMode.SURVIVAL, "❤️", "Supervivencia", "3 vidas, sin tiempo. Los combos recuperan vida.", true, 0),
-        ModeInfo(GameMode.TIMETRIAL, "⏱️", "Contrarreloj", "180s. +15s acierto, -10s fallo.", unlocks.timetrial, 1),
-        ModeInfo(GameMode.QUICK, "⚡", "Repaso Express", "20 preguntas enfocadas en fallos previos.", unlocks.quick, 2),
-        ModeInfo(GameMode.EXAM, "📝", "Modo Examen", "Simula el examen oficial. Sin vidas, sin power-ups, corrección al final.", unlocks.exam, 3),
-        ModeInfo(GameMode.CHALLENGE, "🏆", "Modo Reto", "120s, máxima dificultad, todas las leyes.", unlocks.challenge, 4),
+        ModeInfo(GameMode.SURVIVAL, Icons.Default.Favorite, "Supervivencia", "3 vidas, sin tiempo. Los combos recuperan vida.", true, 0),
+        ModeInfo(GameMode.TIMETRIAL, Icons.Default.Timer, "Contrarreloj", "180s. +15s acierto, -10s fallo.", unlocks.timetrial, 1),
+        ModeInfo(GameMode.QUICK, Icons.Default.Bolt, "Repaso Express", "20 preguntas enfocadas en fallos previos.", unlocks.quick, 2),
+        ModeInfo(GameMode.EXAM, Icons.Default.Assignment, "Modo Examen", "Simula el examen oficial. Sin vidas, sin power-ups, corrección al final.", unlocks.exam, 3),
+        ModeInfo(GameMode.CHALLENGE, Icons.Default.EmojiEvents, "Modo Reto", "120s, máxima dificultad, todas las leyes.", unlocks.challenge, 4),
     )
 
     var showExamDialog by remember { mutableStateOf(false) }
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .verticalScroll(rememberScrollState())
-            .padding(16.dp)
-    ) {
-        Text("Selecciona modo", color = TextLight, fontSize = 24.sp, fontWeight = FontWeight.Bold)
-        Spacer(Modifier.height(20.dp))
-
-        modes.forEachIndexed { index, mode ->
-            var visible by remember { mutableStateOf(false) }
-            LaunchedEffect(Unit) {
-                kotlinx.coroutines.delay(index * 100L)
-                visible = true
-            }
-            AnimatedVisibility(visible = visible) {
-                ModeCard(mode, rankIndex) {
-                    when (mode.mode) {
-                        GameMode.QUICK -> {
-                            gameViewModel.startQuickGameAsync { ok -> if (ok) navController.navigate(Routes.GAME) }
-                        }
-                        GameMode.CHALLENGE -> {
-                            gameViewModel.startChallengeGameAsync { ok -> if (ok) navController.navigate(Routes.GAME) }
-                        }
-                        GameMode.EXAM -> {
-                            showExamDialog = true
-                        }
-                        else -> {
-                            gameViewModel.pendingMode = mode.mode
-                            navController.navigate(Routes.TEMA_SELECT)
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text("Selecciona modo", color = TextLight, fontWeight = FontWeight.Bold) },
+                navigationIcon = {
+                    IconButton(onClick = { navController.popBackStack() }) {
+                        Icon(Icons.Default.ArrowBack, contentDescription = "Volver", tint = TextLight)
+                    }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = BgDark,
+                    titleContentColor = TextLight
+                )
+            )
+        },
+        containerColor = BgDark
+    ) { paddingValues ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .verticalScroll(rememberScrollState())
+                .padding(paddingValues)
+                .padding(16.dp)
+        ) {
+            modes.forEachIndexed { index, mode ->
+                var visible by remember { mutableStateOf(false) }
+                LaunchedEffect(Unit) {
+                    kotlinx.coroutines.delay(index * 100L)
+                    visible = true
+                }
+                AnimatedVisibility(visible = visible) {
+                    ModeCard(mode, rankIndex) {
+                        when (mode.mode) {
+                            GameMode.QUICK -> {
+                                gameViewModel.startQuickGameAsync { ok -> if (ok) navController.navigate(Routes.GAME) }
+                            }
+                            GameMode.CHALLENGE -> {
+                                gameViewModel.startChallengeGameAsync { ok -> if (ok) navController.navigate(Routes.GAME) }
+                            }
+                            GameMode.EXAM -> {
+                                showExamDialog = true
+                            }
+                            else -> {
+                                gameViewModel.pendingMode = mode.mode
+                                navController.navigate(Routes.TEMA_SELECT)
+                            }
                         }
                     }
                 }
+                Spacer(Modifier.height(12.dp))
             }
-            Spacer(Modifier.height(12.dp))
         }
     }
 
@@ -117,7 +140,12 @@ private fun ModeCard(mode: ModeInfo, rankIndex: Int, onClick: () -> Unit) {
             .padding(20.dp)
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
-            Text(mode.icon, fontSize = 40.sp)
+            Icon(
+                mode.icon,
+                contentDescription = null,
+                tint = if (locked) TextDim else Color.White,
+                modifier = Modifier.size(36.dp)
+            )
             Spacer(Modifier.width(16.dp))
             Column(modifier = Modifier.weight(1f)) {
                 Text(mode.name, color = if (locked) TextDim else Color.White, fontSize = 20.sp, fontWeight = FontWeight.Bold)
@@ -135,7 +163,7 @@ private fun ModeCard(mode: ModeInfo, rankIndex: Int, onClick: () -> Unit) {
 
 private data class ModeInfo(
     val mode: GameMode,
-    val icon: String,
+    val icon: androidx.compose.ui.graphics.vector.ImageVector,
     val name: String,
     val desc: String,
     val unlocked: Boolean,
@@ -153,7 +181,7 @@ private fun ExamConfigDialog(
         onDismissRequest = onDismiss,
         containerColor = BgCard,
         titleContentColor = TextLight,
-        title = { Text("📝 Configurar examen", color = TextLight, fontWeight = FontWeight.Bold) },
+        title = { Text("Configurar examen", color = TextLight, fontWeight = FontWeight.Bold) },
         text = {
             Column {
                 Text("Selecciona el número de preguntas:", color = TextMuted, fontSize = 13.sp)

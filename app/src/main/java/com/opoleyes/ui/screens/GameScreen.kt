@@ -229,7 +229,7 @@ fun GameScreen(navController: NavController, gameViewModel: GameViewModel) {
                                 else -> Orange
                             }
                             Text(
-                                "🔥 x${uiState.combo}",
+                                "x${uiState.combo}",
                                 color = comboColor,
                                 fontWeight = FontWeight.Bold,
                                 fontSize = 18.sp,
@@ -239,7 +239,7 @@ fun GameScreen(navController: NavController, gameViewModel: GameViewModel) {
                         if (uiState.doubleScoreActive) {
                             if (uiState.combo > 0) Spacer(Modifier.width(12.dp))
                             Text(
-                                "✨ x2",
+                                "x2",
                                 color = Warning,
                                 fontWeight = FontWeight.Bold,
                                 fontSize = 18.sp
@@ -295,13 +295,13 @@ fun GameScreen(navController: NavController, gameViewModel: GameViewModel) {
                                         verticalArrangement = Arrangement.spacedBy(4.dp)
                                     ) {
                                         if (uiState.hintCharges > 0 && !uiState.hintActive && uiState.mode != GameMode.CHALLENGE && uiState.mode != GameMode.QUICK) {
-                                            PowerUpButton("💡 Pista", "x${uiState.hintCharges}", Color(0xFFa16207)) { gameViewModel.useHint() }
+                                            PowerUpButton("Pista", "x${uiState.hintCharges}", Color(0xFFa16207)) { gameViewModel.useHint() }
                                         }
                                         if (uiState.fiftyFiftyCharges > 0 && !uiState.fiftyFiftyActive && uiState.mode != GameMode.CHALLENGE && uiState.mode != GameMode.QUICK) {
-                                            PowerUpButton("🎯 50/50", "x${uiState.fiftyFiftyCharges}", Purple) { gameViewModel.activateFiftyFifty() }
+                                            PowerUpButton("50/50", "x${uiState.fiftyFiftyCharges}", Purple) { gameViewModel.activateFiftyFifty() }
                                         }
                                         if (uiState.doubleScoreCharges > 0 && !uiState.doubleScoreActive && uiState.mode != GameMode.CHALLENGE && uiState.mode != GameMode.QUICK) {
-                                            PowerUpButton("✨ x2", "x${uiState.doubleScoreCharges}", Warning) { gameViewModel.activateDoubleScore() }
+                                            PowerUpButton("x2 pts", "x${uiState.doubleScoreCharges}", Warning) { gameViewModel.activateDoubleScore() }
                                         }
                                     }
                                     Spacer(Modifier.height(12.dp))

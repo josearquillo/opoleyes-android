@@ -3,6 +3,8 @@ package com.opoleyes.ui.screens
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -17,7 +19,7 @@ import com.opoleyes.BuildConfig
 import com.opoleyes.data.local.PreferencesManager
 import com.opoleyes.ui.theme.*
 
-@OptIn(ExperimentalFoundationApi::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
 fun HelpScreen(navController: NavController) {
     val sections = listOf(
@@ -84,36 +86,55 @@ fun HelpScreen(navController: NavController) {
     }
 
     val scrollState = rememberScrollState()
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .verticalScroll(scrollState)
-            .padding(16.dp)
-    ) {
-        Text(
-            "❓ Ayuda",
-            color = TextLight,
-            fontSize = 28.sp,
-            fontWeight = FontWeight.Bold,
-            modifier = Modifier.combinedClickable(
-                onClick = {},
-                onLongClick = {
-                    if (BuildConfig.DEBUG) {
-                        debugMode = !debugMode
-                        prefs.setDebugMode(debugMode)
-                        debugToast = if (debugMode) "Modo debug activado" else "Modo debug desactivado"
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text("Ayuda", color = TextLight, fontWeight = FontWeight.Bold) },
+                navigationIcon = {
+                    IconButton(onClick = { navController.popBackStack() }) {
+                        Icon(Icons.Default.ArrowBack, contentDescription = "Volver", tint = TextLight)
                     }
-                }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = BgDark,
+                    titleContentColor = TextLight
+                )
             )
-        )
-        if (debugToast != null) {
-            Spacer(Modifier.height(4.dp))
-            Text(debugToast!!, color = if (debugMode) Success else TextMuted, fontSize = 12.sp)
-        }
-        Spacer(Modifier.height(20.dp))
-        sections.forEach { section ->
-            HelpSection(section)
-            Spacer(Modifier.height(12.dp))
+        },
+        containerColor = BgDark
+    ) { paddingValues ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .verticalScroll(scrollState)
+                .padding(paddingValues)
+                .padding(16.dp)
+        ) {
+            Text(
+                "Ayuda",
+                color = TextLight,
+                fontSize = 28.sp,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.combinedClickable(
+                    onClick = {},
+                    onLongClick = {
+                        if (BuildConfig.DEBUG) {
+                            debugMode = !debugMode
+                            prefs.setDebugMode(debugMode)
+                            debugToast = if (debugMode) "Modo debug activado" else "Modo debug desactivado"
+                        }
+                    }
+                )
+            )
+            if (debugToast != null) {
+                Spacer(Modifier.height(4.dp))
+                Text(debugToast!!, color = if (debugMode) Success else TextMuted, fontSize = 12.sp)
+            }
+            Spacer(Modifier.height(20.dp))
+            sections.forEach { section ->
+                HelpSection(section)
+                Spacer(Modifier.height(12.dp))
+            }
         }
     }
 }

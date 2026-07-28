@@ -3,6 +3,13 @@ package com.opoleyes.ui.screens
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.AutoAwesome
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Lightbulb
+import androidx.compose.material.icons.filled.Shield
+import androidx.compose.material.icons.filled.SwapHoriz
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -24,6 +31,7 @@ import com.opoleyes.ui.components.ProgressBar
 import com.opoleyes.ui.navigation.Routes
 import com.opoleyes.ui.theme.*
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProfileScreen(navController: NavController) {
     val context = navController.context
@@ -44,10 +52,10 @@ fun ProfileScreen(navController: NavController) {
     val powerUps = remember { prefs.getFreePowerUps() }
     val powerUpCounts = remember {
         mapOf(
-            "💡 Pista" to powerUps.count { it == "hint" },
-            "🛡️ Escudo" to powerUps.count { it == "shield" },
-            "🎯 50/50" to powerUps.count { it == "fiftyFifty" },
-            "✨ x2 pts" to powerUps.count { it == "doubleScore" }
+            (Icons.Default.Lightbulb to "Pista") to powerUps.count { it == "hint" },
+            (Icons.Default.Shield to "Escudo") to powerUps.count { it == "shield" },
+            (Icons.Default.SwapHoriz to "50/50") to powerUps.count { it == "fiftyFifty" },
+            (Icons.Default.AutoAwesome to "x2 pts") to powerUps.count { it == "doubleScore" }
         )
     }
 
@@ -71,13 +79,31 @@ fun ProfileScreen(navController: NavController) {
         )
     }
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .verticalScroll(scrollState)
-            .padding(16.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text("Perfil", color = TextLight, fontWeight = FontWeight.Bold) },
+                navigationIcon = {
+                    IconButton(onClick = { navController.popBackStack() }) {
+                        Icon(Icons.Default.ArrowBack, contentDescription = "Volver", tint = TextLight)
+                    }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = BgDark,
+                    titleContentColor = TextLight
+                )
+            )
+        },
+        containerColor = BgDark
+    ) { paddingValues ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .verticalScroll(scrollState)
+                .padding(paddingValues)
+                .padding(16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
         Text(rank.icon, fontSize = 48.sp)
         Text(rank.name, color = TextLight, fontSize = 24.sp, fontWeight = FontWeight.Bold)
         Spacer(Modifier.height(12.dp))
@@ -91,7 +117,7 @@ fun ProfileScreen(navController: NavController) {
         // Records
         Text("Récords", color = TextLight, fontSize = 18.sp, fontWeight = FontWeight.Bold)
         Spacer(Modifier.height(12.dp))
-        val modes = listOf("survival" to "❤️ Supervivencia", "timetrial" to "⏱️ Contrarreloj", "quick" to "⚡ Repaso Express", "challenge" to "🏆 Reto")
+        val modes = listOf("survival" to "Supervivencia", "timetrial" to "Contrarreloj", "quick" to "Repaso Express", "challenge" to "Reto")
         modes.forEach { (mode, label) ->
             val record = progressRepo.getRecord(mode)
             val unlocked = progressRepo.isUnlocked(mode)
@@ -99,7 +125,7 @@ fun ProfileScreen(navController: NavController) {
                 modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                Text(if (unlocked) label else "$label 🔒", color = if (unlocked) TextLight else TextDim, fontSize = 14.sp)
+                Text(if (unlocked) label else "$label (bloqueado)", color = if (unlocked) TextLight else TextDim, fontSize = 14.sp)
                 Text(if (unlocked) "$record pts" else "—", color = if (unlocked) Warning else TextDim, fontWeight = FontWeight.Bold, fontSize = 14.sp)
             }
         }
@@ -113,7 +139,8 @@ fun ProfileScreen(navController: NavController) {
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceEvenly
         ) {
-            powerUpCounts.forEach { (label, count) ->
+            powerUpCounts.forEach { (pair, count) ->
+                val (icon, label) = pair
                 Column(
                     modifier = Modifier
                         .clip(RoundedCornerShape(12.dp))
@@ -121,8 +148,13 @@ fun ProfileScreen(navController: NavController) {
                         .padding(12.dp),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    Text(label, fontSize = 20.sp)
+                    Icon(icon, contentDescription = label, tint = TextLight, modifier = Modifier.size(24.dp))
                     Spacer(Modifier.height(4.dp))
+                    Text(
+                        label,
+                        color = TextMuted,
+                        fontSize = 10.sp
+                    )
                     Text(
                         if (count > 0) "x$count" else "—",
                         color = if (count > 0) Warning else TextDim,
@@ -184,9 +216,10 @@ fun ProfileScreen(navController: NavController) {
         }
 
         Spacer(Modifier.height(24.dp))
-        GameButton("🗑️ Reiniciar progreso", color1 = Danger, color2 = DangerDark, modifier = Modifier.fillMaxWidth()) {
+        GameButton("Reiniciar progreso", color1 = Danger, color2 = DangerDark, modifier = Modifier.fillMaxWidth()) {
             showResetDialog = true
         }
         Spacer(Modifier.height(24.dp))
+        }
     }
 }

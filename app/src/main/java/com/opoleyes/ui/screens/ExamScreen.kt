@@ -10,6 +10,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowForward
+import androidx.compose.material.icons.filled.Assignment
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Flag
 import androidx.compose.material3.*
@@ -28,6 +29,7 @@ import com.opoleyes.ui.navigation.GameViewModel
 import com.opoleyes.ui.navigation.Routes
 import com.opoleyes.ui.theme.*
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ExamScreen(navController: NavController, gameViewModel: GameViewModel) {
     val examQuestionNum by gameViewModel.examQuestionNum.collectAsState()
@@ -98,38 +100,44 @@ fun ExamScreen(navController: NavController, gameViewModel: GameViewModel) {
     }
 
     Box(modifier = Modifier.fillMaxSize().background(BgDark)) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .verticalScroll(rememberScrollState())
-                .padding(16.dp)
-        ) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
+        Scaffold(
+            topBar = {
+                TopAppBar(
+                    title = { Text("Modo Examen", color = TextLight, fontWeight = FontWeight.Bold) },
+                    navigationIcon = {
+                        IconButton(onClick = { showExitDialog = true }) {
+                            Icon(Icons.Default.ArrowBack, contentDescription = "Salir", tint = TextLight)
+                        }
+                    },
+                    actions = {
+                        Text(
+                            "${examAnswered}/$totalQuestions",
+                            color = TextMuted,
+                            fontSize = 14.sp,
+                            modifier = Modifier.padding(end = 16.dp)
+                        )
+                    },
+                    colors = TopAppBarDefaults.topAppBarColors(
+                        containerColor = BgDark,
+                        titleContentColor = TextLight
+                    )
+                )
+            },
+            containerColor = BgDark
+        ) { paddingValues ->
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .verticalScroll(rememberScrollState())
+                    .padding(paddingValues)
+                    .padding(16.dp)
             ) {
-                Text(
-                    "📝 Modo Examen",
-                    color = TextLight,
-                    fontSize = 20.sp,
-                    fontWeight = FontWeight.Bold
+                LinearProgressIndicator(
+                    progress = (examQuestionNum + 1f) / totalQuestions,
+                    modifier = Modifier.fillMaxWidth().clip(RoundedCornerShape(4.dp)),
+                    color = Primary,
+                    trackColor = BgCard
                 )
-                Text(
-                    "${examAnswered}/$totalQuestions respondidas",
-                    color = TextMuted,
-                    fontSize = 13.sp
-                )
-            }
-
-            Spacer(Modifier.height(8.dp))
-
-            LinearProgressIndicator(
-                progress = (examQuestionNum + 1f) / totalQuestions,
-                modifier = Modifier.fillMaxWidth().clip(RoundedCornerShape(4.dp)),
-                color = Primary,
-                trackColor = BgCard
-            )
 
             Spacer(Modifier.height(8.dp))
 
@@ -248,6 +256,7 @@ fun ExamScreen(navController: NavController, gameViewModel: GameViewModel) {
                 }
             }
         }
+    }
     }
 }
 

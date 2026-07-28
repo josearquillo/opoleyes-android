@@ -26,6 +26,7 @@ import com.opoleyes.ui.navigation.GameViewModel
 import com.opoleyes.ui.navigation.Routes
 import com.opoleyes.ui.theme.*
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ExamResultScreen(navController: NavController, gameViewModel: GameViewModel) {
     val result by gameViewModel.examResult.collectAsState()
@@ -43,14 +44,35 @@ fun ExamResultScreen(navController: NavController, gameViewModel: GameViewModel)
     val allQuestions = gameViewModel.examEngine.getQuestions()
     val scrollState = rememberScrollState()
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(BgDark)
-            .verticalScroll(scrollState)
-            .padding(16.dp)
-    ) {
-        Text("📝 Resultado del Examen", color = TextLight, fontSize = 24.sp, fontWeight = FontWeight.Bold)
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text("Resultado del Examen", color = TextLight, fontWeight = FontWeight.Bold) },
+                navigationIcon = {
+                    IconButton(onClick = {
+                        gameViewModel.clearExamResult()
+                        navController.navigate(Routes.HOME) { popUpTo(0) }
+                    }) {
+                        Icon(Icons.Default.ArrowBack, contentDescription = "Volver", tint = TextLight)
+                    }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = BgDark,
+                    titleContentColor = TextLight
+                )
+            )
+        },
+        containerColor = BgDark
+    ) { paddingValues ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(BgDark)
+                .verticalScroll(scrollState)
+                .padding(paddingValues)
+                .padding(16.dp)
+        ) {
+        Text("Resultado del Examen", color = TextLight, fontSize = 24.sp, fontWeight = FontWeight.Bold)
         Spacer(Modifier.height(24.dp))
 
         ScoreCard(r)
@@ -119,6 +141,7 @@ fun ExamResultScreen(navController: NavController, gameViewModel: GameViewModel)
             }
         }
         Spacer(Modifier.height(32.dp))
+        }
     }
 }
 
@@ -165,16 +188,20 @@ private fun StatsRow(r: ExamEngine.ExamResult) {
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceEvenly
     ) {
-        StatItem("✅", r.correct.toString(), "Aciertos", Success)
-        StatItem("❌", r.wrong.toString(), "Fallos", Danger)
-        StatItem("⬜", r.unanswered.toString(), "Sin responder", TextMuted)
+        StatItem(Icons.Default.Check, r.correct.toString(), "Aciertos", Success)
+        StatItem(Icons.Default.Close, r.wrong.toString(), "Fallos", Danger)
+        StatItem("—", r.unanswered.toString(), "Sin responder", TextMuted)
     }
 }
 
 @Composable
-private fun StatItem(icon: String, value: String, label: String, color: Color) {
+private fun StatItem(icon: Any, value: String, label: String, color: Color) {
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
-        Text(icon, fontSize = 24.sp)
+        if (icon is androidx.compose.ui.graphics.vector.ImageVector) {
+            Icon(icon, contentDescription = null, tint = color, modifier = Modifier.size(24.dp))
+        } else {
+            Text(icon as String, fontSize = 24.sp)
+        }
         Text(value, color = color, fontSize = 28.sp, fontWeight = FontWeight.Bold)
         Text(label, color = TextMuted, fontSize = 12.sp)
     }
