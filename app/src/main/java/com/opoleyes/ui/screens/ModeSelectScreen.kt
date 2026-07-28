@@ -1,13 +1,16 @@
 package com.opoleyes.ui.screens
 
 import androidx.compose.animation.*
+import androidx.compose.animation.core.*
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.automirrored.filled.Assignment
 import androidx.compose.material.icons.filled.Bolt
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.EmojiEvents
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Lock
@@ -17,6 +20,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
@@ -175,60 +179,35 @@ private fun ExamConfigDialog(
     onDismiss: () -> Unit,
     onStart: (Int) -> Unit
 ) {
-    var customCount by remember { mutableStateOf("25") }
+    val presets = listOf(
+        ExamPreset("Rápido", 25, Icons.Default.Bolt, Primary, PurpleDark),
+        ExamPreset("Estándar", 50, Icons.Default.Favorite, Danger, Color(0xFF7f1d1d)),
+        ExamPreset("Completo", 100, Icons.Default.EmojiEvents, Warning, Color(0xFF78350f))
+    )
 
     AlertDialog(
         onDismissRequest = onDismiss,
         containerColor = BgCard,
         titleContentColor = TextLight,
-        title = { Text("Configurar examen", color = TextLight, fontWeight = FontWeight.Bold) },
+        title = {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Icon(Icons.AutoMirrored.Filled.Assignment, contentDescription = null, tint = Accent, modifier = Modifier.size(24.dp))
+                Spacer(Modifier.width(8.dp))
+                Text("Configurar examen", color = TextLight, fontWeight = FontWeight.Bold)
+            }
+        },
         text = {
             Column {
-                Text("Selecciona el número de preguntas:", color = TextMuted, fontSize = 13.sp)
-                Spacer(Modifier.height(16.dp))
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    ExamPresetButton("Auxilio\n50 preg.", 50, onStart)
-                    ExamPresetButton("Tramitación\n100 preg.", 100, onStart)
-                }
-                Spacer(Modifier.height(8.dp))
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    ExamPresetButton("Gestión\n100 preg.", 100, onStart)
-                    ExamPresetButton("Rápido\n25 preg.", 25, onStart)
-                }
-                Spacer(Modifier.height(16.dp))
-                Text("Personalizado:", color = TextMuted, fontSize = 12.sp)
-                Spacer(Modifier.height(4.dp))
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    OutlinedTextField(
-                        value = customCount,
-                        onValueChange = { customCount = it.filter { c -> c.isDigit() } },
-                        modifier = Modifier.weight(1f),
-                        singleLine = true,
-                        textStyle = androidx.compose.ui.text.TextStyle(color = TextLight),
-                        colors = TextFieldDefaults.colors(
-                            focusedContainerColor = BgCard,
-                            unfocusedContainerColor = BgCard,
-                            focusedIndicatorColor = Primary,
-                            unfocusedIndicatorColor = SurfaceVariant
-                        )
+                Text("Número de preguntas", color = TextMuted, fontSize = 13.sp)
+                Spacer(Modifier.height(12.dp))
+
+                presets.forEach { preset ->
+                    ExamPresetCard(
+                        preset = preset,
+                        isSelected = false,
+                        onClick = { onStart(preset.count) }
                     )
-                    Button(
-                        onClick = {
-                            val count = customCount.toIntOrNull()?.coerceIn(5, 200) ?: 25
-                            onStart(count)
-                        },
-                        colors = ButtonDefaults.buttonColors(containerColor = Primary)
-                    ) { Text("Empezar") }
+                    Spacer(Modifier.height(8.dp))
                 }
             }
         },
@@ -239,17 +218,45 @@ private fun ExamConfigDialog(
     )
 }
 
+private data class ExamPreset(
+    val name: String,
+    val count: Int,
+    val icon: androidx.compose.ui.graphics.vector.ImageVector,
+    val color1: Color,
+    val color2: Color
+)
+
 @Composable
-private fun ExamPresetButton(label: String, count: Int, onStart: (Int) -> Unit) {
-    Box(
+private fun ExamPresetCard(preset: ExamPreset, isSelected: Boolean, onClick: () -> Unit) {
+    Row(
         modifier = Modifier
-            .fillMaxWidth(0.48f)
+            .fillMaxWidth()
             .clip(RoundedCornerShape(12.dp))
-            .background(SurfaceVariant)
-            .clickable { onStart(count) }
-            .padding(12.dp),
-        contentAlignment = Alignment.Center
+            .background(Brush.horizontalGradient(listOf(preset.color1, preset.color2)))
+            .clickable { onClick() }
+            .padding(horizontal = 14.dp, vertical = 14.dp),
+        verticalAlignment = Alignment.CenterVertically
     ) {
-        Text(label, color = TextLight, fontSize = 12.sp, fontWeight = FontWeight.Medium)
+        Icon(
+            preset.icon,
+            contentDescription = null,
+            tint = Color.White,
+            modifier = Modifier.size(24.dp)
+        )
+        Spacer(Modifier.width(12.dp))
+        Column(modifier = Modifier.weight(1f)) {
+            Text(
+                preset.name,
+                color = Color.White,
+                fontSize = 15.sp,
+                fontWeight = FontWeight.Bold
+            )
+            Text(
+                "${preset.count} preguntas",
+                color = Color.White.copy(alpha = 0.8f),
+                fontSize = 12.sp
+            )
+        }
+        Icon(Icons.AutoMirrored.Filled.ArrowForward, contentDescription = null, tint = Color.White.copy(alpha = 0.6f), modifier = Modifier.size(20.dp))
     }
 }
