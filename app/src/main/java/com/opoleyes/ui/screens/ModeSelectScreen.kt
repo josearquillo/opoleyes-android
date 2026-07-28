@@ -41,7 +41,6 @@ fun ModeSelectScreen(navController: NavController, gameViewModel: GameViewModel)
     val context = navController.context
     val progressRepo = ProgressRepository(context)
     val unlocks = remember { progressRepo.getUnlocks() }
-    val rankIndex = remember { progressRepo.getRankIndex() }
     val isLoading by gameViewModel.isLoading.collectAsState()
 
     val modes = listOf(
@@ -85,7 +84,7 @@ fun ModeSelectScreen(navController: NavController, gameViewModel: GameViewModel)
                     visible = true
                 }
                 AnimatedVisibility(visible = visible) {
-                    ModeCard(mode, rankIndex) {
+                    ModeCard(mode) {
                         when (mode.mode) {
                             GameMode.QUICK -> {
                                 gameViewModel.startQuickGameAsync { ok -> if (ok) navController.navigate(Routes.GAME) }
@@ -126,7 +125,7 @@ fun ModeSelectScreen(navController: NavController, gameViewModel: GameViewModel)
 }
 
 @Composable
-private fun ModeCard(mode: ModeInfo, rankIndex: Int, onClick: () -> Unit) {
+private fun ModeCard(mode: ModeInfo, onClick: () -> Unit) {
     val locked = !mode.unlocked
     val colors = when (mode.mode) {
         GameMode.SURVIVAL -> listOf(Danger, DangerDark)
@@ -204,7 +203,6 @@ private fun ExamConfigDialog(
                 presets.forEach { preset ->
                     ExamPresetCard(
                         preset = preset,
-                        isSelected = false,
                         onClick = { onStart(preset.count) }
                     )
                     Spacer(Modifier.height(8.dp))
@@ -227,7 +225,7 @@ private data class ExamPreset(
 )
 
 @Composable
-private fun ExamPresetCard(preset: ExamPreset, isSelected: Boolean, onClick: () -> Unit) {
+private fun ExamPresetCard(preset: ExamPreset, onClick: () -> Unit) {
     Row(
         modifier = Modifier
             .fillMaxWidth()

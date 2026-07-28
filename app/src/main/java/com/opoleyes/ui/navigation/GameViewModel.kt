@@ -355,7 +355,7 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
             fiftyFiftyUsed = engine.ctxFiftyFiftyUsed, lifeRecovered = engine.ctxLifeRecovered
         ))
 
-        missionRepo.checkOnGameOver(mode, engine.score, engine.maxCombo, engine.correctCount, engine.totalAnswered, engine.category)
+        missionRepo.checkOnGameOver(mode, engine.maxCombo, engine.totalAnswered, engine.category)
 
         val chest = chestSystem.generateChest(_newRecord.value, acc, engine.totalAnswered, engine.score)
         _chestReward.value = chest

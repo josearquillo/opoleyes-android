@@ -57,7 +57,7 @@ class MissionRepository(private val context: Context) {
         val unplayedLaw = temaTests.find { statsRepo.getLeyProgress(it.id) == 0 }
 
         var wrongCount = 0
-        for ((_, v) in stats) wrongCount += v?.wrong ?: 0
+        for ((_, v) in stats) wrongCount += v.wrong
 
         val unlocks = progressRepo.getUnlocks()
         val candidates = mutableListOf<Mission>(
@@ -121,7 +121,7 @@ class MissionRepository(private val context: Context) {
         saveDailyMissions(data)
     }
 
-    fun checkOnGameOver(mode: String, score: Int, maxCombo: Int, correctCount: Int, totalAnswered: Int, gameCategory: String) {
+    fun checkOnGameOver(mode: String, maxCombo: Int, totalAnswered: Int, gameCategory: String) {
         val data = getDailyMissions() ?: return
         updateProgress("streak", maxCombo)
         updateProgress("combo", maxCombo)

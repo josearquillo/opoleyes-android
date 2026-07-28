@@ -79,7 +79,6 @@ fun GameButton(
 
 @Composable
 fun OptionCard(
-    letter: String,
     text: String,
     modifier: Modifier = Modifier,
     isCorrect: Boolean = false,
@@ -98,12 +97,6 @@ fun OptionCard(
         !answered && isSelected -> Brush.verticalGradient(listOf(Primary, PurpleDark))
         !answered && isHintRemoved -> Brush.verticalGradient(listOf(Color(0xFF1a1a2e), Color(0xFF0f0f1e)))
         else -> Brush.verticalGradient(listOf(BgCard, BgCardDark))
-    }
-    val badgeColor = when {
-        answered && isCorrect -> Success
-        answered && isWrong -> Danger
-        isSelected -> Primary
-        else -> SurfaceVariant
     }
     val textColor = when {
         isHintRemoved && !answered -> TextDim

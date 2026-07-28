@@ -19,7 +19,6 @@ class ChestSystem(private val context: Context) {
             accuracy >= 80 && totalAnswered >= 10 -> ChestType.SILVER
             else -> ChestType.WOOD
         }
-        val rankIdx = progressRepo.getRankIndex()
         val hasPowerUps = progressRepo.isUnlocked("shield") || progressRepo.isUnlocked("fiftyFifty") ||
                 progressRepo.isUnlocked("doubleScore")
         val xpBonus = if (hasPowerUps) 1 else 2
@@ -35,10 +34,10 @@ class ChestSystem(private val context: Context) {
         val powerUps = mutableListOf<String>()
         if (hasPowerUps) {
             when (type) {
-                ChestType.SILVER -> powerUps.add(pickRandomPowerUp(rankIdx))
+                ChestType.SILVER -> powerUps.add(pickRandomPowerUp())
                 ChestType.GOLD -> {
-                    powerUps.add(pickRandomPowerUp(rankIdx))
-                    powerUps.add(pickRandomPowerUp(rankIdx))
+                    powerUps.add(pickRandomPowerUp())
+                    powerUps.add(pickRandomPowerUp())
                 }
                 else -> {}
             }
@@ -54,7 +53,7 @@ class ChestSystem(private val context: Context) {
         if (reward.multiplier) gameRepo.setMultiplier(2)
     }
 
-    private fun pickRandomPowerUp(rankIdx: Int): String {
+    private fun pickRandomPowerUp(): String {
         val available = mutableListOf("shield", "fiftyFifty", "hint", "doubleScore")
         return available.random()
     }

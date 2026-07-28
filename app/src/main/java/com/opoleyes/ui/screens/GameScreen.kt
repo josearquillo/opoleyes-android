@@ -322,7 +322,6 @@ fun GameScreen(navController: NavController, gameViewModel: GameViewModel) {
                                     }
                                     AnimatedVisibility(visible = visible) {
                                         OptionCard(
-                                            letter = letter,
                                             text = text,
                                             modifier = Modifier.fillMaxWidth(),
                                             isCorrect = letter == q.correct,

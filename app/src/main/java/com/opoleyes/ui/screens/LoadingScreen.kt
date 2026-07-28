@@ -32,7 +32,6 @@ import kotlin.math.sin
 
 @Composable
 fun LoadingScreen(navController: NavController) {
-    var loading by remember { mutableStateOf(true) }
     var error by remember { mutableStateOf<String?>(null) }
     var fadeOut by remember { mutableStateOf(false) }
 
