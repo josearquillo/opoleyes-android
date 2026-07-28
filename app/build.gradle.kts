@@ -2,6 +2,7 @@ plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
     id("com.google.devtools.ksp")
+    id("jacoco")
 }
 
 android {
@@ -41,13 +42,39 @@ android {
     testOptions {
         unitTests {
             isIncludeAndroidResources = true
+            isReturnDefaultValues = true
         }
     }
 }
 
 tasks.withType<Test> {
-    maxParallelForks = 1
-    forkEvery = 0
+    configure<JacocoTaskExtension> {
+        isIncludeNoLocationClasses = true
+        excludes = listOf("jdk.internal.*")
+    }
+}
+
+tasks.register<JacocoReport>("jacocoTestReport") {
+    dependsOn("testDebugUnitTest")
+    reports {
+        xml.required.set(true)
+        html.required.set(true)
+    }
+    val fileFilter = listOf(
+        "**/R.class", "**/R$*.class", "**/BuildConfig.*", "**/Manifest*.*",
+        "**/*Test.*", "androidx/**", "**/*\$Lambda$*", "**/*\$inlined$*"
+    )
+    val debugTree = fileTree("${project.layout.buildDirectory.get()}/intermediates/javac/debug") {
+        excludes += fileFilter
+    }
+    val kotlinTree = fileTree("${project.layout.buildDirectory.get()}/tmp/kotlin-classes/debug") {
+        excludes += fileFilter
+    }
+    classDirectories.setFrom(listOf(debugTree, kotlinTree))
+    sourceDirectories.setFrom(listOf("src/main/java", "src/main/kotlin"))
+    executionData.setFrom(fileTree(project.layout.buildDirectory.get()) {
+        include("jacoco/testDebugUnitTest.exec")
+    })
 }
 
 dependencies {
