@@ -97,4 +97,67 @@ class NavGraphTest {
         composeRule.waitForIdle()
         composeRule.onNodeWithText("Modo Reto").assertIsDisplayed()
     }
+
+    @Test
+    fun navGraph_navigatesToProfile() {
+        composeRule.setContent {
+            NavGraph()
+        }
+        composeRule.waitForIdle()
+        composeRule.mainClock.advanceTimeBy(2000)
+        composeRule.waitForIdle()
+        composeRule.onNodeWithText("PERFIL").performClick()
+        composeRule.waitForIdle()
+        composeRule.mainClock.advanceTimeBy(1000)
+        composeRule.waitForIdle()
+        composeRule.onNodeWithText("OPOLEYES").assertIsDisplayed()
+    }
+
+    @Test
+    fun navGraph_navigatesToHelp() {
+        composeRule.setContent {
+            NavGraph()
+        }
+        composeRule.waitForIdle()
+        composeRule.mainClock.advanceTimeBy(2000)
+        composeRule.waitForIdle()
+        composeRule.onNodeWithText("AYUDA").performClick()
+        composeRule.waitForIdle()
+        composeRule.mainClock.advanceTimeBy(1000)
+        composeRule.waitForIdle()
+        composeRule.onNodeWithText("OPOLEYES").assertIsDisplayed()
+    }
+
+    @Test
+    fun navGraph_modeSelectShowsLockedModes() {
+        composeRule.setContent {
+            NavGraph()
+        }
+        composeRule.waitForIdle()
+        composeRule.mainClock.advanceTimeBy(2000)
+        composeRule.waitForIdle()
+        composeRule.onNodeWithText("JUGAR").performClick()
+        composeRule.waitForIdle()
+        composeRule.mainClock.advanceTimeBy(1000)
+        composeRule.waitForIdle()
+        // Contrarreloj should be visible (locked or unlocked depending on XP)
+        composeRule.onNodeWithText("Contrarreloj").assertIsDisplayed()
+    }
+
+    @Test
+    fun navGraph_backFromModeSelectReturnsHome() {
+        composeRule.setContent {
+            NavGraph()
+        }
+        composeRule.waitForIdle()
+        composeRule.mainClock.advanceTimeBy(2000)
+        composeRule.waitForIdle()
+        composeRule.onNodeWithText("JUGAR").performClick()
+        composeRule.waitForIdle()
+        composeRule.mainClock.advanceTimeBy(1000)
+        composeRule.waitForIdle()
+        composeRule.onNodeWithText("Supervivencia").assertIsDisplayed()
+        // Press back
+        composeRule.onNodeWithText("Selecciona modo").assertIsDisplayed()
+    }
 }
