@@ -5,12 +5,12 @@ import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Assignment
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.Assignment
 import androidx.compose.material.icons.filled.Bolt
 import androidx.compose.material.icons.filled.EmojiEvents
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Lock
-import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Timer
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -44,7 +44,7 @@ fun ModeSelectScreen(navController: NavController, gameViewModel: GameViewModel)
         ModeInfo(GameMode.SURVIVAL, Icons.Default.Favorite, "Supervivencia", "3 vidas, sin tiempo. Los combos recuperan vida.", true, 0),
         ModeInfo(GameMode.TIMETRIAL, Icons.Default.Timer, "Contrarreloj", "180s. +15s acierto, -10s fallo.", unlocks.timetrial, 1),
         ModeInfo(GameMode.QUICK, Icons.Default.Bolt, "Repaso Express", "20 preguntas enfocadas en fallos previos.", unlocks.quick, 2),
-        ModeInfo(GameMode.EXAM, Icons.Default.Assignment, "Modo Examen", "Simula el examen oficial. Sin vidas, sin power-ups, corrección al final.", unlocks.exam, 3),
+        ModeInfo(GameMode.EXAM, Icons.AutoMirrored.Filled.Assignment, "Modo Examen", "Simula el examen oficial. Sin vidas, sin power-ups, corrección al final.", unlocks.exam, 3),
         ModeInfo(GameMode.CHALLENGE, Icons.Default.EmojiEvents, "Modo Reto", "120s, máxima dificultad, todas las leyes.", unlocks.challenge, 4),
     )
 
@@ -56,7 +56,7 @@ fun ModeSelectScreen(navController: NavController, gameViewModel: GameViewModel)
                 title = { Text("Selecciona modo", color = TextLight, fontWeight = FontWeight.Bold) },
                 navigationIcon = {
                     IconButton(onClick = { navController.popBackStack() }) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Volver", tint = TextLight)
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Volver", tint = TextLight)
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(

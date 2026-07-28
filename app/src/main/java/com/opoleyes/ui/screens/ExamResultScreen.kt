@@ -8,7 +8,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.*
@@ -53,7 +53,7 @@ fun ExamResultScreen(navController: NavController, gameViewModel: GameViewModel)
                         gameViewModel.clearExamResult()
                         navController.navigate(Routes.HOME) { popUpTo(0) }
                     }) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Volver", tint = TextLight)
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Volver", tint = TextLight)
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
@@ -225,7 +225,7 @@ private fun LawBreakdownRow(law: String, lr: ExamEngine.LawResult) {
         }
         Spacer(Modifier.height(4.dp))
         LinearProgressIndicator(
-            progress = if (lr.total > 0) lr.correct.toFloat() / lr.total else 0f,
+            progress = { if (lr.total > 0) lr.correct.toFloat() / lr.total else 0f },
             modifier = Modifier.fillMaxWidth().height(6.dp).clip(RoundedCornerShape(3.dp)),
             color = barColor,
             trackColor = BgCardDark

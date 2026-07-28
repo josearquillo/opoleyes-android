@@ -8,9 +8,8 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.ArrowForward
-import androidx.compose.material.icons.filled.Assignment
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Flag
 import androidx.compose.material3.*
@@ -106,7 +105,7 @@ fun ExamScreen(navController: NavController, gameViewModel: GameViewModel) {
                     title = { Text("Modo Examen", color = TextLight, fontWeight = FontWeight.Bold) },
                     navigationIcon = {
                         IconButton(onClick = { showExitDialog = true }) {
-                            Icon(Icons.Default.ArrowBack, contentDescription = "Salir", tint = TextLight)
+                            Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Salir", tint = TextLight)
                         }
                     },
                     actions = {
@@ -133,7 +132,7 @@ fun ExamScreen(navController: NavController, gameViewModel: GameViewModel) {
                     .padding(16.dp)
             ) {
                 LinearProgressIndicator(
-                    progress = (examQuestionNum + 1f) / totalQuestions,
+                    progress = { (examQuestionNum + 1f) / totalQuestions },
                     modifier = Modifier.fillMaxWidth().clip(RoundedCornerShape(4.dp)),
                     color = Primary,
                     trackColor = BgCard
@@ -230,7 +229,7 @@ fun ExamScreen(navController: NavController, gameViewModel: GameViewModel) {
                     colors = ButtonDefaults.outlinedButtonColors(contentColor = TextLight),
                     border = BorderStroke(1.dp, SurfaceVariant)
                 ) {
-                    Icon(Icons.Default.ArrowBack, contentDescription = null, modifier = Modifier.size(18.dp))
+                    Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = null, modifier = Modifier.size(18.dp))
                     Spacer(Modifier.width(4.dp))
                     Text("Anterior")
                 }
@@ -251,7 +250,7 @@ fun ExamScreen(navController: NavController, gameViewModel: GameViewModel) {
                     ) {
                         Text("Siguiente")
                         Spacer(Modifier.width(4.dp))
-                        Icon(Icons.Default.ArrowForward, contentDescription = null, modifier = Modifier.size(18.dp))
+                        Icon(Icons.AutoMirrored.Filled.ArrowForward, contentDescription = null, modifier = Modifier.size(18.dp))
                     }
                 }
             }

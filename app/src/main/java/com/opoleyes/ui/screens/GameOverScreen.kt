@@ -6,7 +6,7 @@ import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Assignment
+import androidx.compose.material.icons.automirrored.filled.Assignment
 import androidx.compose.material.icons.filled.Celebration
 import androidx.compose.material.icons.filled.EmojiEvents
 import androidx.compose.material.icons.filled.Home
@@ -143,7 +143,7 @@ fun GameOverScreen(navController: NavController, gameViewModel: GameViewModel) {
                 label = "iconScale"
             )
             Icon(
-                if (anyRecord) Icons.Default.EmojiEvents else Icons.Default.Assignment,
+                if (anyRecord) Icons.Default.EmojiEvents else Icons.AutoMirrored.Filled.Assignment,
                 contentDescription = null,
                 tint = if (anyRecord) Warning else TextLight,
                 modifier = Modifier.size(56.dp).scale(iconScale)
@@ -182,7 +182,7 @@ fun GameOverScreen(navController: NavController, gameViewModel: GameViewModel) {
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(10.dp)
             ) {
-                StatCardWithIcon(Icons.Default.Assignment, "${uiState.totalAnswered}", "Preguntas", PrimaryLight, Modifier.weight(1f))
+                StatCardWithIcon(Icons.AutoMirrored.Filled.Assignment, "${uiState.totalAnswered}", "Preguntas", PrimaryLight, Modifier.weight(1f))
                 StatCardWithIcon(Icons.Default.LocalFireDepartment, "${uiState.maxCombo}", "Combo máx", Orange, Modifier.weight(1f))
                 StatCardWithIcon(Icons.Default.TrackChanges, "$accuracy%", "Precisión", Success, Modifier.weight(1f))
             }

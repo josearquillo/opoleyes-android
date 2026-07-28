@@ -5,7 +5,7 @@ import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.HelpOutline
+import androidx.compose.material.icons.automirrored.filled.HelpOutline
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material3.*
@@ -81,7 +81,7 @@ fun HomeScreen(navController: NavController, gameViewModel: GameViewModel) {
                     }
                     IconButton(onClick = { navController.navigate(Routes.HELP) }) {
                         Icon(
-                            Icons.Default.HelpOutline,
+                            Icons.AutoMirrored.Filled.HelpOutline,
                             contentDescription = "Ayuda",
                             tint = TextLight
                         )

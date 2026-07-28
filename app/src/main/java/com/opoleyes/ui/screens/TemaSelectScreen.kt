@@ -6,10 +6,10 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.LibraryBooks
 import androidx.compose.material.icons.filled.Book
 import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.LibraryBooks
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -49,7 +49,7 @@ fun TemaSelectScreen(navController: NavController, gameViewModel: GameViewModel)
                 title = { Text("Selecciona ley", color = TextLight, fontWeight = FontWeight.Bold) },
                 navigationIcon = {
                     IconButton(onClick = { navController.popBackStack() }) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Volver", tint = TextLight)
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Volver", tint = TextLight)
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
@@ -78,12 +78,13 @@ fun TemaSelectScreen(navController: NavController, gameViewModel: GameViewModel)
             )
             Spacer(Modifier.height(12.dp))
 
-            TemaCard(Icons.Default.LibraryBooks, "Todas las leyes", 0) {
-                gameViewModel.startAllLawsGameAsync { ok -> if (ok) navController.navigate(Routes.GAME) }
-            }
-            Spacer(Modifier.height(8.dp))
-
             LazyColumn {
+                item {
+                    TemaCard(Icons.AutoMirrored.Filled.LibraryBooks, "Todas las leyes", 0) {
+                        gameViewModel.startAllLawsGameAsync { ok -> if (ok) navController.navigate(Routes.GAME) }
+                    }
+                    Spacer(Modifier.height(8.dp))
+                }
                 items(filteredTests, key = { it.id }) { test ->
                     val progress = statsRepo.getLeyProgress(test.id)
                     TemaCard(Icons.Default.Book, test.title.ifEmpty { test.name }, progress) {
