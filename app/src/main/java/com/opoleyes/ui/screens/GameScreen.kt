@@ -114,7 +114,7 @@ fun GameScreen(navController: NavController, gameViewModel: GameViewModel) {
     }
 
     // Timer countdown
-    LaunchedEffect(uiState.mode, uiState.timer) {
+    LaunchedEffect(uiState.mode, uiState.timer, uiState.answered) {
         if ((uiState.mode == GameMode.TIMETRIAL || uiState.mode == GameMode.CHALLENGE) && !uiState.answered && uiState.timer > 0) {
             delay(1000)
             gameViewModel.engine.timer = (gameViewModel.engine.timer - 1f).coerceAtLeast(0f)
