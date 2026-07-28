@@ -107,7 +107,8 @@ data class FloatingPopup(
     val text: String,
     val color: Color,
     val size: Int,
-    val delay: Float
+    val delay: Float,
+    val icon: String = ""
 )
 
 data class PowerUpToast(

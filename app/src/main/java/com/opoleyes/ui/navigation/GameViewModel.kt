@@ -256,41 +256,46 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
 
         when (result) {
             GameEngine.AnswerResult.CORRECT -> {
-                addPopup("+${10 * engine.combo} pts", com.opoleyes.ui.theme.Success, 54, 0f)
+                addPopup("+${10 * engine.combo} pts", com.opoleyes.ui.theme.Success, 54, 0f, "⭐")
                 if (engine.combo >= 3) {
                     val comboColor = when {
                         engine.combo >= 20 -> com.opoleyes.ui.theme.Warning
                         engine.combo >= 10 -> com.opoleyes.ui.theme.Danger
                         else -> com.opoleyes.ui.theme.Orange
                     }
-                    addPopup("🔥 COMBO x${engine.combo}", comboColor, 40, 0.15f)
+                    addPopup("COMBO x${engine.combo}", comboColor, 40, 0.15f, "🔥")
                 }
                 if (engine.mode == GameMode.TIMETRIAL || engine.mode == GameMode.CHALLENGE) {
-                    addPopup("+15s", com.opoleyes.ui.theme.Cyan, 44, 0.3f)
+                    addPopup("+15s", com.opoleyes.ui.theme.Cyan, 44, 0.3f, "⏱️")
                 }
                 if (engine.streak > 0 && engine.streak % 5 == 0) {
                     val streakMsg = when {
-                        engine.ctxLifeRecovered -> "❤️ ¡Vida recuperada! (Racha x${engine.streak})"
-                        engine.mode == GameMode.TIMETRIAL || engine.mode == GameMode.CHALLENGE -> "⏱️ +20s (Racha x${engine.streak})"
-                        else -> "⚡ Racha x${engine.streak}"
+                        engine.ctxLifeRecovered -> "¡Vida recuperada! (Racha x${engine.streak})"
+                        engine.mode == GameMode.TIMETRIAL || engine.mode == GameMode.CHALLENGE -> "+20s (Racha x${engine.streak})"
+                        else -> "Racha x${engine.streak}"
                     }
-                    addPopup(streakMsg, com.opoleyes.ui.theme.Warning, 38, 0.45f)
+                    val streakIcon = when {
+                        engine.ctxLifeRecovered -> "❤️"
+                        engine.mode == GameMode.TIMETRIAL || engine.mode == GameMode.CHALLENGE -> "⏱️"
+                        else -> "⚡"
+                    }
+                    addPopup(streakMsg, com.opoleyes.ui.theme.Warning, 38, 0.45f, streakIcon)
                 }
                 if (engine.comboOverchargeActive && engine.comboOverchargeCharges == 3) {
-                    addPopup("⚡ ¡OVERCHARGE!", com.opoleyes.ui.theme.Warning, 48, 0f)
+                    addPopup("¡OVERCHARGE!", com.opoleyes.ui.theme.Warning, 48, 0f, "⚡")
                 }
                 checkAchievements(AchievementContext(firstCorrect = true, maxCombo = engine.maxCombo, score = engine.score, gameMode = engine.mode.name.lowercase()))
             }
             GameEngine.AnswerResult.WRONG -> {
                 if (engine.mode == GameMode.SURVIVAL || engine.mode == GameMode.QUICK) {
-                    addPopup("💔 -1 vida", com.opoleyes.ui.theme.Danger, 42, 0f)
+                    addPopup("-1 vida", com.opoleyes.ui.theme.Danger, 42, 0f, "💔")
                 } else {
-                    addPopup("-10s", com.opoleyes.ui.theme.Danger, 44, 0f)
+                    addPopup("-10s", com.opoleyes.ui.theme.Danger, 44, 0f, "⏱️")
                 }
                 checkAchievements(AchievementContext(maxCombo = engine.maxCombo, score = engine.score, gameMode = engine.mode.name.lowercase()))
             }
             GameEngine.AnswerResult.SHIELD_USED -> {
-                addPopup("🛡️ Escudo usado!", com.opoleyes.ui.theme.Cyan, 44, 0f)
+                addPopup("Escudo usado!", com.opoleyes.ui.theme.Cyan, 44, 0f, "🛡️")
             }
             else -> {}
         }
@@ -312,8 +317,8 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
 
     fun clearPowerUpToast() { _powerUpToast.value = null }
 
-    private fun addPopup(text: String, color: androidx.compose.ui.graphics.Color, size: Int, delay: Float) {
-        _popups.value = _popups.value + FloatingPopup(text, color, size, delay)
+    private fun addPopup(text: String, color: androidx.compose.ui.graphics.Color, size: Int, delay: Float, icon: String = "") {
+        _popups.value = _popups.value + FloatingPopup(text, color, size, delay, icon)
     }
 
     private fun checkAchievements(ctx: AchievementContext) {

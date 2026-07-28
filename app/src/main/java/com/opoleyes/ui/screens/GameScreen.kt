@@ -5,6 +5,7 @@ import androidx.compose.animation.*
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -295,13 +296,13 @@ fun GameScreen(navController: NavController, gameViewModel: GameViewModel) {
                                         verticalArrangement = Arrangement.spacedBy(4.dp)
                                     ) {
                                         if (uiState.hintCharges > 0 && !uiState.hintActive && uiState.mode != GameMode.CHALLENGE && uiState.mode != GameMode.QUICK) {
-                                            PowerUpButton("Pista", "x${uiState.hintCharges}", Color(0xFFa16207)) { gameViewModel.useHint() }
+                                            PowerUpButton("Pista", "💡", uiState.hintCharges, Color(0xFFa16207)) { gameViewModel.useHint() }
                                         }
                                         if (uiState.fiftyFiftyCharges > 0 && !uiState.fiftyFiftyActive && uiState.mode != GameMode.CHALLENGE && uiState.mode != GameMode.QUICK) {
-                                            PowerUpButton("50/50", "x${uiState.fiftyFiftyCharges}", Purple) { gameViewModel.activateFiftyFifty() }
+                                            PowerUpButton("50/50", "✂️", uiState.fiftyFiftyCharges, Purple) { gameViewModel.activateFiftyFifty() }
                                         }
                                         if (uiState.doubleScoreCharges > 0 && !uiState.doubleScoreActive && uiState.mode != GameMode.CHALLENGE && uiState.mode != GameMode.QUICK) {
-                                            PowerUpButton("x2 pts", "x${uiState.doubleScoreCharges}", Warning) { gameViewModel.activateDoubleScore() }
+                                            PowerUpButton("x2 pts", "✨", uiState.doubleScoreCharges, Warning) { gameViewModel.activateDoubleScore() }
                                         }
                                     }
                                     Spacer(Modifier.height(12.dp))
@@ -362,19 +363,52 @@ fun GameScreen(navController: NavController, gameViewModel: GameViewModel) {
                             delay((popup.delay * 1000).toLong())
                             visible = true
                         }
-                        AnimatedVisibility(visible = visible) {
+                        AnimatedVisibility(
+                            visible = visible,
+                            enter = slideInVertically(
+                                animationSpec = spring(
+                                    dampingRatio = Spring.DampingRatioMediumBouncy,
+                                    stiffness = Spring.StiffnessLow
+                                ),
+                                initialOffsetY = { it / 2 }
+                            ) + fadeIn(tween(200)),
+                            exit = fadeOut(tween(400)) + slideOutVertically(
+                                animationSpec = tween(400, easing = FastOutSlowInEasing),
+                                targetOffsetY = { -it / 3 }
+                            )
+                        ) {
                             Surface(
-                                shape = RoundedCornerShape(8.dp),
-                                color = Color.Black.copy(alpha = 0.6f),
-                                modifier = Modifier.padding(vertical = 4.dp)
+                                shape = RoundedCornerShape(16.dp),
+                                color = Color.Black.copy(alpha = 0.75f),
+                                shadowElevation = 8.dp,
+                                modifier = Modifier
+                                    .padding(vertical = 4.dp)
+                                    .clip(RoundedCornerShape(16.dp))
+                                    .background(
+                                        Brush.horizontalGradient(
+                                            listOf(
+                                                popup.color.copy(alpha = 0.3f),
+                                                Color.Black.copy(alpha = 0.75f),
+                                                popup.color.copy(alpha = 0.3f)
+                                            )
+                                        )
+                                    )
                             ) {
-                                Text(
-                                    popup.text,
-                                    color = popup.color,
-                                    fontSize = popup.size.sp,
-                                    fontWeight = FontWeight.Bold,
-                                    modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp)
-                                )
+                                Row(
+                                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    if (popup.icon.isNotEmpty()) {
+                                        Text(popup.icon, fontSize = (popup.size * 0.7f).sp)
+                                        Spacer(Modifier.width(6.dp))
+                                    }
+                                    Text(
+                                        popup.text,
+                                        color = popup.color,
+                                        fontSize = popup.size.sp,
+                                        fontWeight = FontWeight.Bold
+                                    )
+                                }
                             }
                         }
                     }
@@ -383,22 +417,50 @@ fun GameScreen(navController: NavController, gameViewModel: GameViewModel) {
 
             // Power-up toast
             if (powerUpToast != null) {
+                var toastVisible by remember { mutableStateOf(false) }
+                LaunchedEffect(powerUpToast) {
+                    toastVisible = powerUpToast != null
+                }
                 Box(
                     modifier = Modifier.fillMaxSize(),
                     contentAlignment = Alignment.TopCenter
                 ) {
-                    Surface(
-                        modifier = Modifier.padding(top = 60.dp),
-                        shape = RoundedCornerShape(12.dp),
-                        color = SuccessDark
+                    AnimatedVisibility(
+                        visible = toastVisible,
+                        enter = slideInVertically(
+                            animationSpec = spring(
+                                dampingRatio = Spring.DampingRatioMediumBouncy,
+                                stiffness = Spring.StiffnessMedium
+                            ),
+                            initialOffsetY = { -it }
+                        ) + fadeIn(tween(200)),
+                        exit = fadeOut(tween(400)) + slideOutVertically(
+                            animationSpec = tween(400),
+                            targetOffsetY = { -it }
+                        )
                     ) {
-                        Row(
-                            modifier = Modifier.padding(horizontal = 20.dp, vertical = 12.dp),
-                            verticalAlignment = Alignment.CenterVertically
+                        Surface(
+                            modifier = Modifier.padding(top = 60.dp),
+                            shape = RoundedCornerShape(16.dp),
+                            color = Color.Black.copy(alpha = 0.8f),
+                            shadowElevation = 8.dp
                         ) {
-                            Text(powerUpToast!!.icon, fontSize = 18.sp)
-                            Spacer(Modifier.width(8.dp))
-                            Text(powerUpToast!!.text, color = Success, fontWeight = FontWeight.Bold, fontSize = 15.sp)
+                            Box(
+                                modifier = Modifier
+                                    .clip(RoundedCornerShape(16.dp))
+                                    .background(
+                                        Brush.horizontalGradient(
+                                            listOf(SuccessDark, Success.copy(alpha = 0.3f), SuccessDark)
+                                        )
+                                    )
+                                    .padding(horizontal = 20.dp, vertical = 12.dp)
+                            ) {
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    Text(powerUpToast!!.icon, fontSize = 22.sp)
+                                    Spacer(Modifier.width(8.dp))
+                                    Text(powerUpToast!!.text, color = Success, fontWeight = FontWeight.Bold, fontSize = 15.sp)
+                                }
+                            }
                         }
                     }
                 }
@@ -444,16 +506,69 @@ fun GameScreen(navController: NavController, gameViewModel: GameViewModel) {
 }
 
 @Composable
-fun PowerUpButton(text: String, charges: String, color: Color, onClick: () -> Unit) {
-    Column(
+fun PowerUpButton(text: String, icon: String, charges: Int, color: Color, onClick: () -> Unit) {
+    var pressed by remember { mutableStateOf(false) }
+    val scale by animateFloatAsState(
+        targetValue = if (pressed) 0.88f else 1f,
+        animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy),
+        label = "pressScale"
+    )
+    val infiniteTransition = rememberInfiniteTransition(label = "pulse")
+    val pulseAlpha by infiniteTransition.animateFloat(
+        initialValue = 0.3f,
+        targetValue = 0.7f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(1200, easing = FastOutSlowInEasing),
+            repeatMode = RepeatMode.Reverse
+        ),
+        label = "pulseAlpha"
+    )
+
+    Box(
         modifier = Modifier
-            .clip(RoundedCornerShape(8.dp))
-            .background(Brush.verticalGradient(listOf(color, color.copy(alpha = 0.6f))))
-            .clickable { onClick() }
-            .padding(horizontal = 12.dp, vertical = 8.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
+            .scale(scale)
+            .width(72.dp)
+            .clip(RoundedCornerShape(14.dp))
+            .background(Brush.verticalGradient(listOf(color, color.copy(alpha = 0.5f))))
+            .border(1.5.dp, color.copy(alpha = pulseAlpha), RoundedCornerShape(14.dp))
+            .clickable {
+                pressed = true
+                onClick()
+            }
+            .padding(horizontal = 8.dp, vertical = 10.dp)
     ) {
-        Text(text, color = Color.White, fontWeight = FontWeight.Bold, fontSize = 12.sp)
-        Text(charges, color = Color.White.copy(alpha = 0.8f), fontSize = 10.sp)
+        // Glow shadow
+        Box(
+            modifier = Modifier
+                .matchParentSize()
+                .clip(RoundedCornerShape(14.dp))
+                .background(color.copy(alpha = 0.15f))
+        )
+        Column(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Text(icon, fontSize = 22.sp)
+            Spacer(Modifier.height(2.dp))
+            Text(text, color = Color.White, fontWeight = FontWeight.Bold, fontSize = 10.sp)
+        }
+        // Circular badge for charges
+        Box(
+            modifier = Modifier
+                .align(Alignment.TopEnd)
+                .size(18.dp)
+                .clip(CircleShape)
+                .background(Color.White)
+                .border(1.dp, color, CircleShape),
+            contentAlignment = Alignment.Center
+        ) {
+            Text("$charges", color = color, fontSize = 9.sp, fontWeight = FontWeight.Bold)
+        }
+    }
+    LaunchedEffect(pressed) {
+        if (pressed) {
+            delay(150)
+            pressed = false
+        }
     }
 }
