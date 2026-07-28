@@ -5,6 +5,10 @@ plugins {
     id("jacoco")
 }
 
+jacoco {
+    toolVersion = "0.8.11"
+}
+
 android {
     namespace = "com.opoleyes"
     compileSdk = 34
@@ -50,7 +54,7 @@ android {
 tasks.withType<Test> {
     configure<JacocoTaskExtension> {
         isIncludeNoLocationClasses = true
-        excludes = listOf("jdk.internal.*")
+        excludes = listOf("jdk.internal.*", "sun.*")
     }
 }
 
@@ -127,4 +131,12 @@ dependencies {
     testImplementation("androidx.datastore:datastore-preferences:1.0.0")
     testImplementation("com.google.code.gson:gson:2.10.1")
     testImplementation("androidx.compose.ui:ui-test-junit4")
+
+    // Instrumented testing (androidTest)
+    androidTestImplementation(platform("androidx.compose:compose-bom:2024.02.00"))
+    androidTestImplementation("androidx.test.ext:junit:1.1.5")
+    androidTestImplementation("androidx.test:runner:1.5.2")
+    androidTestImplementation("androidx.test:rules:1.5.0")
+    androidTestImplementation("androidx.compose.ui:ui-test-junit4")
+    debugImplementation("androidx.compose.ui:ui-test-manifest")
 }
