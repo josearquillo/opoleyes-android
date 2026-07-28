@@ -288,25 +288,23 @@ fun GameScreen(navController: NavController, gameViewModel: GameViewModel) {
 
                                 Spacer(Modifier.height(12.dp))
 
-                                // Power-up buttons
-                                if (!uiState.answered) {
-                                    FlowRow(
-                                        modifier = Modifier.fillMaxWidth(),
-                                        horizontalArrangement = Arrangement.Center,
-                                        verticalArrangement = Arrangement.spacedBy(4.dp)
-                                    ) {
-                                        if (uiState.hintCharges > 0 && !uiState.hintActive && uiState.mode != GameMode.CHALLENGE && uiState.mode != GameMode.QUICK) {
-                                            PowerUpButton("Pista", "💡", uiState.hintCharges, Color(0xFFa16207)) { gameViewModel.useHint() }
-                                        }
-                                        if (uiState.fiftyFiftyCharges > 0 && !uiState.fiftyFiftyActive && uiState.mode != GameMode.CHALLENGE && uiState.mode != GameMode.QUICK) {
-                                            PowerUpButton("50/50", "✂️", uiState.fiftyFiftyCharges, Purple) { gameViewModel.activateFiftyFifty() }
-                                        }
-                                        if (uiState.doubleScoreCharges > 0 && !uiState.doubleScoreActive && uiState.mode != GameMode.CHALLENGE && uiState.mode != GameMode.QUICK) {
-                                            PowerUpButton("x2 pts", "✨", uiState.doubleScoreCharges, Warning) { gameViewModel.activateDoubleScore() }
-                                        }
+                                // Power-up buttons (always visible to prevent layout shift on answer)
+                                FlowRow(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.Center,
+                                    verticalArrangement = Arrangement.spacedBy(4.dp)
+                                ) {
+                                    if (uiState.hintCharges > 0 && !uiState.hintActive && uiState.mode != GameMode.CHALLENGE && uiState.mode != GameMode.QUICK) {
+                                        PowerUpButton("Pista", "💡", uiState.hintCharges, Color(0xFFa16207), enabled = !uiState.answered) { gameViewModel.useHint() }
                                     }
-                                    Spacer(Modifier.height(12.dp))
+                                    if (uiState.fiftyFiftyCharges > 0 && !uiState.fiftyFiftyActive && uiState.mode != GameMode.CHALLENGE && uiState.mode != GameMode.QUICK) {
+                                        PowerUpButton("50/50", "✂️", uiState.fiftyFiftyCharges, Purple, enabled = !uiState.answered) { gameViewModel.activateFiftyFifty() }
+                                    }
+                                    if (uiState.doubleScoreCharges > 0 && !uiState.doubleScoreActive && uiState.mode != GameMode.CHALLENGE && uiState.mode != GameMode.QUICK) {
+                                        PowerUpButton("x2 pts", "✨", uiState.doubleScoreCharges, Warning, enabled = !uiState.answered) { gameViewModel.activateDoubleScore() }
+                                    }
                                 }
+                                Spacer(Modifier.height(12.dp))
 
                                 // Options (shuffled display order)
                                 val allLetters = listOf("A", "B", "C", "D")
@@ -506,7 +504,7 @@ fun GameScreen(navController: NavController, gameViewModel: GameViewModel) {
 }
 
 @Composable
-fun PowerUpButton(text: String, icon: String, charges: Int, color: Color, onClick: () -> Unit) {
+fun PowerUpButton(text: String, icon: String, charges: Int, color: Color, enabled: Boolean = true, onClick: () -> Unit) {
     var pressed by remember { mutableStateOf(false) }
     val scale by animateFloatAsState(
         targetValue = if (pressed) 0.88f else 1f,
@@ -523,15 +521,16 @@ fun PowerUpButton(text: String, icon: String, charges: Int, color: Color, onClic
         ),
         label = "pulseAlpha"
     )
+    val alpha = if (enabled) 1f else 0.3f
 
     Box(
         modifier = Modifier
             .scale(scale)
             .width(72.dp)
             .clip(RoundedCornerShape(14.dp))
-            .background(Brush.verticalGradient(listOf(color, color.copy(alpha = 0.5f))))
-            .border(1.5.dp, color.copy(alpha = pulseAlpha), RoundedCornerShape(14.dp))
-            .clickable {
+            .background(Brush.verticalGradient(listOf(color.copy(alpha = alpha * 0.5f), color.copy(alpha = alpha * 0.25f))))
+            .border(1.5.dp, if (enabled) color.copy(alpha = pulseAlpha) else color.copy(alpha = 0.15f), RoundedCornerShape(14.dp))
+            .clickable(enabled = enabled) {
                 pressed = true
                 onClick()
             }
@@ -542,15 +541,15 @@ fun PowerUpButton(text: String, icon: String, charges: Int, color: Color, onClic
             modifier = Modifier
                 .matchParentSize()
                 .clip(RoundedCornerShape(14.dp))
-                .background(color.copy(alpha = 0.15f))
+                .background(color.copy(alpha = alpha * 0.15f))
         )
         Column(
             modifier = Modifier.fillMaxWidth(),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Text(icon, fontSize = 22.sp)
+            Text(icon, fontSize = 22.sp, color = Color.White.copy(alpha = alpha))
             Spacer(Modifier.height(2.dp))
-            Text(text, color = Color.White, fontWeight = FontWeight.Bold, fontSize = 10.sp)
+            Text(text, color = Color.White.copy(alpha = alpha), fontWeight = FontWeight.Bold, fontSize = 10.sp)
         }
         // Circular badge for charges
         Box(
@@ -558,8 +557,8 @@ fun PowerUpButton(text: String, icon: String, charges: Int, color: Color, onClic
                 .align(Alignment.TopEnd)
                 .size(18.dp)
                 .clip(CircleShape)
-                .background(Color.White)
-                .border(1.dp, color, CircleShape),
+                .background(Color.White.copy(alpha = alpha))
+                .border(1.dp, color.copy(alpha = alpha), CircleShape),
             contentAlignment = Alignment.Center
         ) {
             Text("$charges", color = color, fontSize = 9.sp, fontWeight = FontWeight.Bold)
