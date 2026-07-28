@@ -19,5 +19,5 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "OPOTEST"
+rootProject.name = "OPOLEYES"
 include(":app")

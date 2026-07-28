@@ -1,11 +1,11 @@
-# OPOTEST Android
+# OPOLEYES Android
 
-Android migration of the OPOTEST quiz game, built with Kotlin + Jetpack Compose.
+Android migration of the OPOLEYES quiz game, built with Kotlin + Jetpack Compose.
 
 ## Project Structure
 
 ```
-opotest-android/
+opoleyes-android/
 ├── app/
 │   ├── build.gradle.kts
 │   ├── proguard-rules.pro
@@ -13,8 +13,8 @@ opotest-android/
 │       ├── AndroidManifest.xml
 │       ├── assets/
 │       │   └── data.json
-│       ├── java/com/opotest/
-│       │   ├── OpotestApp.kt
+│       ├── java/com/opoleyes/
+│       │   ├── OpoleyesApp.kt
 │       │   ├── MainActivity.kt
 │       │   ├── data/
 │       │   │   ├── Constants.kt
@@ -76,7 +76,7 @@ opotest-android/
 ## How to Open
 
 1. Open Android Studio
-2. File → Open → Select `opotest-android` folder
+2. File → Open → Select `opoleyes-android` folder
 3. Let Gradle sync complete
 4. Run on emulator or device
 
