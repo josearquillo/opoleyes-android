@@ -74,6 +74,12 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
     private val _examAnswered = MutableStateFlow(0)
     val examAnswered: StateFlow<Int> = _examAnswered.asStateFlow()
 
+    private val _examCurrentQuestion = MutableStateFlow<ExamEngine.ExamQuestion?>(null)
+    val examCurrentQuestion: StateFlow<ExamEngine.ExamQuestion?> = _examCurrentQuestion.asStateFlow()
+
+    private val _examTotalQuestions = MutableStateFlow(0)
+    val examTotalQuestions: StateFlow<Int> = _examTotalQuestions.asStateFlow()
+
     private val _examResult = MutableStateFlow<ExamEngine.ExamResult?>(null)
     val examResult: StateFlow<ExamEngine.ExamResult?> = _examResult.asStateFlow()
 
@@ -187,6 +193,8 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
             withContext(Dispatchers.Default) { examEngine.loadExam(questionCount) }
             _examQuestionNum.value = 0
             _examAnswered.value = 0
+            _examTotalQuestions.value = examEngine.getQuestionCount()
+            _examCurrentQuestion.value = examEngine.getCurrentQuestion()
             _isLoading.value = false
             onDone(true)
         }
@@ -195,22 +203,27 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
     fun examAnswer(letter: String) {
         examEngine.answer(letter)
         _examAnswered.value = examEngine.getAnsweredCount()
+        _examCurrentQuestion.value = examEngine.getCurrentQuestion()
     }
 
     fun examNavigate(index: Int) {
         examEngine.navigateTo(index)
         _examQuestionNum.value = examEngine.getCurrentIndex()
+        _examCurrentQuestion.value = examEngine.getCurrentQuestion()
+        if (_examTotalQuestions.value == 0) _examTotalQuestions.value = examEngine.getQuestionCount()
     }
 
     fun examNext(): Boolean {
         val ok = examEngine.next()
         _examQuestionNum.value = examEngine.getCurrentIndex()
+        _examCurrentQuestion.value = examEngine.getCurrentQuestion()
         return ok
     }
 
     fun examPrev(): Boolean {
         val ok = examEngine.prev()
         _examQuestionNum.value = examEngine.getCurrentIndex()
+        _examCurrentQuestion.value = examEngine.getCurrentQuestion()
         return ok
     }
 
@@ -227,6 +240,8 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
         _examResult.value = null
         _examQuestionNum.value = 0
         _examAnswered.value = 0
+        _examCurrentQuestion.value = null
+        _examTotalQuestions.value = 0
     }
 
     fun answer(letter: String): GameEngine.AnswerResult {

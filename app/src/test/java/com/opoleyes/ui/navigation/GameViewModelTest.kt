@@ -8,6 +8,7 @@ import com.opoleyes.domain.GameEngine
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNotSame
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
 import org.junit.Before
@@ -654,5 +655,61 @@ class GameViewModelTest {
         assertEquals(250, vm.uiState.value.score)
         assertEquals(5, vm.uiState.value.combo)
         assertEquals(2, vm.uiState.value.lives)
+    }
+
+    // === Exam StateFlow observability regression tests ===
+
+    @Test
+    fun fun_examAnswer_updatesExamCurrentQuestion() {
+        vm.examEngine.loadExam(10)
+        vm.examAnswer("A")
+        assertNotNull("examCurrentQuestion should be updated after answer",
+            vm.examCurrentQuestion.value)
+        assertEquals("A", vm.examCurrentQuestion.value?.userAnswer)
+    }
+
+    @Test
+    fun fun_examNext_updatesExamCurrentQuestion() {
+        vm.examEngine.loadExam(10)
+        val q0 = vm.examCurrentQuestion.value
+        vm.examNext()
+        val q1 = vm.examCurrentQuestion.value
+        assertNotNull(q1)
+        assertNotSame("examCurrentQuestion should be different after next", q0, q1)
+    }
+
+    @Test
+    fun fun_examPrev_updatesExamCurrentQuestion() {
+        vm.examEngine.loadExam(10)
+        vm.examNavigate(3)
+        val q3 = vm.examCurrentQuestion.value
+        vm.examPrev()
+        val q2 = vm.examCurrentQuestion.value
+        assertNotNull(q2)
+        assertNotSame("examCurrentQuestion should be different after prev", q3, q2)
+    }
+
+    @Test
+    fun fun_examNavigate_updatesExamCurrentQuestion() {
+        vm.examEngine.loadExam(10)
+        vm.examNavigate(5)
+        assertNotNull(vm.examCurrentQuestion.value)
+        assertEquals(5, vm.examQuestionNum.value)
+    }
+
+    @Test
+    fun fun_startExam_setsExamTotalQuestions() {
+        vm.examEngine.loadExam(25)
+        assertEquals(25, vm.examEngine.getQuestionCount())
+    }
+
+    @Test
+    fun fun_clearExamResult_resetsExamCurrentQuestion() {
+        vm.examEngine.loadExam(10)
+        vm.examAnswer("A")
+        vm.finishExam()
+        vm.clearExamResult()
+        assertEquals(null, vm.examCurrentQuestion.value)
+        assertEquals(0, vm.examTotalQuestions.value)
     }
 }

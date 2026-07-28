@@ -35,8 +35,8 @@ fun ExamScreen(navController: NavController, gameViewModel: GameViewModel) {
     val examAnswered by gameViewModel.examAnswered.collectAsState()
     val isLoading by gameViewModel.isLoading.collectAsState()
 
-    val currentQ = gameViewModel.examEngine.getCurrentQuestion()
-    val totalQuestions = gameViewModel.examEngine.getQuestionCount()
+    val currentQ by gameViewModel.examCurrentQuestion.collectAsState()
+    val totalQuestions by gameViewModel.examTotalQuestions.collectAsState()
     val allQuestions = gameViewModel.examEngine.getQuestions()
 
     if (currentQ == null || totalQuestions == 0) {
@@ -49,8 +49,9 @@ fun ExamScreen(navController: NavController, gameViewModel: GameViewModel) {
         return
     }
 
-    val question = currentQ.question
-    val userAnswer = currentQ.userAnswer
+    val examQ = currentQ!!
+    val question = examQ.question
+    val userAnswer = examQ.userAnswer
     val isLast = examQuestionNum == totalQuestions - 1
 
     val allLetters = listOf("A", "B", "C", "D")
