@@ -294,13 +294,13 @@ fun GameScreen(navController: NavController, gameViewModel: GameViewModel) {
                                     horizontalArrangement = Arrangement.Center,
                                     verticalArrangement = Arrangement.spacedBy(4.dp)
                                 ) {
-                                    if (uiState.hintCharges > 0 && uiState.mode != GameMode.CHALLENGE && uiState.mode != GameMode.QUICK) {
+                                    if (uiState.hintCharges > 0 && uiState.mode != GameMode.QUICK) {
                                         PowerUpButton("Pista", "💡", uiState.hintCharges, Color(0xFFa16207), enabled = !uiState.answered && !uiState.hintActive && !uiState.powerUpUsedThisQuestion) { gameViewModel.useHint() }
                                     }
-                                    if (uiState.fiftyFiftyCharges > 0 && uiState.mode != GameMode.CHALLENGE && uiState.mode != GameMode.QUICK) {
+                                    if (uiState.fiftyFiftyCharges > 0 && uiState.mode != GameMode.QUICK) {
                                         PowerUpButton("50/50", "✂️", uiState.fiftyFiftyCharges, Purple, enabled = !uiState.answered && !uiState.fiftyFiftyActive && !uiState.powerUpUsedThisQuestion) { gameViewModel.activateFiftyFifty() }
                                     }
-                                    if (uiState.doubleScoreCharges > 0 && uiState.mode != GameMode.CHALLENGE && uiState.mode != GameMode.QUICK) {
+                                    if (uiState.doubleScoreCharges > 0 && uiState.mode != GameMode.QUICK) {
                                         PowerUpButton("x2 pts", "✨", uiState.doubleScoreCharges, Warning, enabled = !uiState.answered && !uiState.doubleScoreActive && !uiState.powerUpUsedThisQuestion) { gameViewModel.activateDoubleScore() }
                                     }
                                 }
@@ -309,30 +309,34 @@ fun GameScreen(navController: NavController, gameViewModel: GameViewModel) {
                                 // Options (shuffled display order)
                                 val allLetters = listOf("A", "B", "C", "D")
                                 val shuffledLetters = remember(q) { allLetters.shuffled() }
-                                shuffledLetters.forEachIndexed { index, letter ->
-                                    val text = q.opciones[letter] ?: return@forEachIndexed
-                                    val isFiftyFiftyRemoved = uiState.fiftyFiftyActive && uiState.fiftyFiftyRemoved.contains(letter) && letter != q.correct
-                                    if (isFiftyFiftyRemoved) return@forEachIndexed
+                                val visibleLetters = shuffledLetters.filter { letter ->
+                                    q.opciones[letter] != null &&
+                                    !(uiState.fiftyFiftyActive && uiState.fiftyFiftyRemoved.contains(letter) && letter != q.correct)
+                                }
+                                visibleLetters.forEachIndexed { index, letter ->
+                                    key(letter) {
+                                        val text = q.opciones[letter]!!
 
-                                    var visible by remember(q, letter) { mutableStateOf(false) }
-                                    LaunchedEffect(q) {
-                                        delay(index * 80L)
-                                        visible = true
-                                    }
-                                    AnimatedVisibility(visible = visible) {
-                                        OptionCard(
-                                            text = text,
-                                            modifier = Modifier.fillMaxWidth(),
-                                            isCorrect = letter == q.correct,
-                                            isSelected = uiState.selectedOption == letter,
-                                            isWrong = uiState.answered && uiState.selectedOption == letter && letter != q.correct,
-                                            isHintRemoved = uiState.hintActive && uiState.hintRemoved.contains(letter),
-                                            answered = uiState.answered,
-                                            enabled = !uiState.answered
-                                        ) {
-                                            gameViewModel.answer(letter)
+                                        var visible by remember(q, letter) { mutableStateOf(false) }
+                                        LaunchedEffect(q) {
+                                            delay(index * 80L)
+                                            visible = true
                                         }
-                                        Spacer(Modifier.height(10.dp))
+                                        AnimatedVisibility(visible = visible) {
+                                            OptionCard(
+                                                text = text,
+                                                modifier = Modifier.fillMaxWidth(),
+                                                isCorrect = letter == q.correct,
+                                                isSelected = uiState.selectedOption == letter,
+                                                isWrong = uiState.answered && uiState.selectedOption == letter && letter != q.correct,
+                                                isHintRemoved = uiState.hintActive && uiState.hintRemoved.contains(letter),
+                                                answered = uiState.answered,
+                                                enabled = !uiState.answered
+                                            ) {
+                                                gameViewModel.answer(letter)
+                                            }
+                                            Spacer(Modifier.height(10.dp))
+                                        }
                                     }
                                 }
                             }
