@@ -49,6 +49,7 @@ class GameEngine(private val context: Context) {
     var shieldCharges: Int = 0
     var ctxFiftyFiftyUsed: Boolean = false
     var ctxLifeRecovered: Boolean = false
+    var powerUpUsedThisQuestion: Boolean = false
 
     fun initGameStats() {
         score = 0; combo = 0; maxCombo = 0; correctCount = 0; totalAnswered = 0; streak = 0
@@ -59,6 +60,7 @@ class GameEngine(private val context: Context) {
         doubleScoreCharges = 0; doubleScoreActive = false
         hintCharges = 0; hintActive = false; hintRemoved = emptyList()
         shieldCharges = 0; ctxFiftyFiftyUsed = false; ctxLifeRecovered = false
+        powerUpUsedThisQuestion = false
         startRankIndex = progressRepo.getRankIndex()
         startXP = progressRepo.getXP()
 
@@ -144,6 +146,7 @@ class GameEngine(private val context: Context) {
         answered = false; selectedOption = null; questionNum++
         fiftyFiftyActive = false; fiftyFiftyRemoved = emptyList()
         hintActive = false; hintRemoved = emptyList()
+        powerUpUsedThisQuestion = false
         return true
     }
 
@@ -231,56 +234,41 @@ class GameEngine(private val context: Context) {
     }
 
     fun activateFiftyFifty() {
-        if (fiftyFiftyCharges <= 0 || fiftyFiftyActive || answered) return
+        if (fiftyFiftyCharges <= 0 || fiftyFiftyActive || answered || powerUpUsedThisQuestion) return
         val q = currentQ ?: return
         val allOptions = listOf("A", "B", "C", "D").filter { q.opciones[it] != null }
-        val wrong = allOptions.filter {
-            it != q.correct && !hintRemoved.contains(it)
-        }.toMutableList()
-        // Ensure at least 2 clickable options remain after hint + 50/50
-        // clickable = allOptions - fiftyFiftyRemoved - hintRemoved
-        // We need: allOptions.size - hintRemoved.size - removed.size >= 2
-        // So: removed.size <= allOptions.size - hintRemoved.size - 2
-        val maxRemovable = minOf(2, wrong.size - 1, allOptions.size - hintRemoved.size - 2).coerceAtLeast(0)
-        val removed = mutableListOf<String>()
-        while (removed.size < maxRemovable && wrong.isNotEmpty()) {
-            val idx = (0 until wrong.size).random()
-            removed.add(wrong.removeAt(idx))
-        }
-        // Safeguard: never remove the correct answer
-        removed.remove(q.correct)
-        // Hard guarantee: at least 2 clickable options must remain
-        // clickable = allOptions - hintRemoved - removed
-        val clickableRemaining = allOptions.size - hintRemoved.size - removed.size
-        if (clickableRemaining < 2) {
-            // Remove fewer items to keep at least 2 clickable
-            val toKeep = allOptions.filter { it != q.correct && it !in hintRemoved && it !in removed }.take(2)
-            removed.retainAll(allOptions.filter { it !in hintRemoved && it !in toKeep && it != q.correct })
-        }
-        if (removed.isEmpty()) return
+        val wrong = allOptions.filter { it != q.correct }
+        // Remove exactly 2 wrong options (or fewer if not enough wrong options)
+        // Always leave at least 2 options visible (correct + 1 wrong)
+        val toRemove = minOf(2, wrong.size - 1).coerceAtLeast(0)
+        if (toRemove <= 0) return
+        val removed = wrong.shuffled().take(toRemove)
+        // Hard guarantee: correct answer is never removed
+        // Hard guarantee: at least 2 options remain visible
+        if (allOptions.size - removed.size < 2) return
         fiftyFiftyCharges--; fiftyFiftyActive = true; ctxFiftyFiftyUsed = true
+        powerUpUsedThisQuestion = true
         fiftyFiftyRemoved = removed
     }
 
     fun activateDoubleScore() {
-        if (doubleScoreCharges <= 0 || doubleScoreActive || answered) return
+        if (doubleScoreCharges <= 0 || doubleScoreActive || answered || powerUpUsedThisQuestion) return
         doubleScoreCharges--; doubleScoreActive = true
+        powerUpUsedThisQuestion = true
     }
 
     fun useHint() {
-        if (hintCharges <= 0 || hintActive || answered) return
+        if (hintCharges <= 0 || hintActive || answered || powerUpUsedThisQuestion) return
         val q = currentQ ?: return
         val allOptions = listOf("A", "B", "C", "D").filter { q.opciones[it] != null }
-        // Don't remove if it would leave fewer than 2 fully visible options
-        val visibleAfterRemoval = allOptions.size - fiftyFiftyRemoved.size - hintRemoved.size - 1
-        if (visibleAfterRemoval < 2) return
-        val wrong = allOptions.filter {
-            it != q.correct && !fiftyFiftyRemoved.contains(it) && !hintRemoved.contains(it)
-        }
+        // Don't remove if it would leave fewer than 2 visible options
+        if (allOptions.size - 1 < 2) return
+        val wrong = allOptions.filter { it != q.correct }
         if (wrong.isEmpty()) return
         val remove = wrong.random()
-        hintRemoved = hintRemoved + remove
+        hintRemoved = listOf(remove)
         hintActive = true; hintCharges--
+        powerUpUsedThisQuestion = true
     }
 
     fun isGameOver(): Boolean {

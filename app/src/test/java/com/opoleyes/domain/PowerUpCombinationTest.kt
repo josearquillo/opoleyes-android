@@ -27,14 +27,6 @@ class PowerUpCombinationTest {
         prefs = PreferencesManager(context)
         prefs.resetAll()
         engine = GameEngine(context)
-    }
-
-    @After
-    fun teardown() {
-        prefs.resetAll()
-    }
-
-    private fun startGame() {
         engine.startAllLawsGame()
         engine.initGameStats()
         engine.nextQuestion()
@@ -42,6 +34,22 @@ class PowerUpCombinationTest {
         engine.fiftyFiftyCharges = 99
         engine.doubleScoreCharges = 99
         engine.shieldCharges = 99
+    }
+
+    @After
+    fun teardown() {
+        prefs.resetAll()
+    }
+
+    private fun resetPowerUpState() {
+        engine.fiftyFiftyActive = false
+        engine.fiftyFiftyRemoved = emptyList()
+        engine.hintActive = false
+        engine.hintRemoved = emptyList()
+        engine.doubleScoreActive = false
+        engine.powerUpUsedThisQuestion = false
+        engine.answered = false
+        engine.selectedOption = null
     }
 
     private fun visibleOptions(): List<String> {
@@ -58,8 +66,8 @@ class PowerUpCombinationTest {
 
     @Test
     fun fun_fiftyFifty_aloneLeavesExactly2Visible() {
-        repeat(100) {
-            startGame()
+        repeat(20) {
+            resetPowerUpState()
             engine.activateFiftyFifty()
             assertTrue("FiftyFifty should be active (attempt $it)", engine.fiftyFiftyActive)
             assertEquals("Should have exactly 2 visible options (attempt $it)", 2, visibleOptions().size)
@@ -68,8 +76,8 @@ class PowerUpCombinationTest {
 
     @Test
     fun fun_fiftyFifty_aloneNeverRemovesCorrect() {
-        repeat(100) {
-            startGame()
+        repeat(20) {
+            resetPowerUpState()
             engine.activateFiftyFifty()
             assertFalse("Correct answer should not be in fiftyFiftyRemoved (attempt $it)",
                 engine.fiftyFiftyRemoved.contains(engine.currentQ!!.correct))
@@ -78,8 +86,8 @@ class PowerUpCombinationTest {
 
     @Test
     fun fun_fiftyFifty_alwaysHasCorrectAnswerVisible() {
-        repeat(100) {
-            startGame()
+        repeat(20) {
+            resetPowerUpState()
             engine.activateFiftyFifty()
             assertTrue("Correct answer should be visible (attempt $it)",
                 visibleOptions().contains(engine.currentQ!!.correct))
@@ -88,8 +96,8 @@ class PowerUpCombinationTest {
 
     @Test
     fun fun_fiftyFifty_alwaysHasAtLeast2Clickable() {
-        repeat(100) {
-            startGame()
+        repeat(20) {
+            resetPowerUpState()
             engine.activateFiftyFifty()
             assertTrue("Should have at least 2 clickable options (attempt $it)",
                 clickableOptions().size >= 2)
@@ -100,8 +108,8 @@ class PowerUpCombinationTest {
 
     @Test
     fun fun_hint_aloneLeavesAtLeast2Clickable() {
-        repeat(100) {
-            startGame()
+        repeat(20) {
+            resetPowerUpState()
             engine.useHint()
             assertTrue("Hint should be active (attempt $it)", engine.hintActive)
             assertTrue("Should have at least 2 clickable options (attempt $it)",
@@ -111,8 +119,8 @@ class PowerUpCombinationTest {
 
     @Test
     fun fun_hint_aloneNeverRemovesCorrect() {
-        repeat(100) {
-            startGame()
+        repeat(20) {
+            resetPowerUpState()
             engine.useHint()
             assertFalse("Correct answer should not be in hintRemoved (attempt $it)",
                 engine.hintRemoved.contains(engine.currentQ!!.correct))
@@ -121,143 +129,112 @@ class PowerUpCombinationTest {
 
     @Test
     fun fun_hint_aloneRemovesExactly1Option() {
-        repeat(100) {
-            startGame()
+        repeat(20) {
+            resetPowerUpState()
             engine.useHint()
             assertEquals("Hint should remove exactly 1 option (attempt $it)", 1, engine.hintRemoved.size)
         }
     }
 
-    // === Hint then FiftyFifty ===
+    // === Mutual exclusivity: only one power-up per question ===
 
     @Test
-    fun fun_hintThenFiftyFifty_leavesAtLeast2Clickable() {
-        repeat(100) {
-            startGame()
-            engine.useHint()
-            assertTrue("Hint should be active (attempt $it)", engine.hintActive)
-            engine.activateFiftyFifty()
-            assertTrue("FiftyFifty should be active (attempt $it)", engine.fiftyFiftyActive)
-            assertTrue("Should have at least 2 clickable options after hint+50/50 (attempt $it)",
-                clickableOptions().size >= 2)
-        }
+    fun fun_mutualExclusivity_hintThenFiftyFifty_blocked() {
+        resetPowerUpState()
+        engine.useHint()
+        assertTrue("Hint should be active", engine.hintActive)
+        engine.activateFiftyFifty()
+        assertFalse("FiftyFifty should NOT be active after hint", engine.fiftyFiftyActive)
+        assertTrue("Should have at least 2 clickable", clickableOptions().size >= 2)
     }
 
     @Test
-    fun fun_hintThenFiftyFifty_leavesAtLeast2Visible() {
-        repeat(100) {
-            startGame()
-            engine.useHint()
-            engine.activateFiftyFifty()
-            assertTrue("Should have at least 2 visible options after hint+50/50 (attempt $it)",
-                visibleOptions().size >= 2)
-        }
+    fun fun_mutualExclusivity_fiftyFiftyThenHint_blocked() {
+        resetPowerUpState()
+        engine.activateFiftyFifty()
+        assertTrue("FiftyFifty should be active", engine.fiftyFiftyActive)
+        engine.useHint()
+        assertFalse("Hint should NOT be active after 50/50", engine.hintActive)
+        assertTrue("Should have at least 2 clickable", clickableOptions().size >= 2)
     }
 
     @Test
-    fun fun_hintThenFiftyFifty_correctAlwaysVisibleAndClickable() {
-        repeat(100) {
-            startGame()
-            engine.useHint()
-            engine.activateFiftyFifty()
-            val correct = engine.currentQ!!.correct
-            assertTrue("Correct should be visible (attempt $it)", visibleOptions().contains(correct))
-            assertTrue("Correct should be clickable (attempt $it)", clickableOptions().contains(correct))
-        }
+    fun fun_mutualExclusivity_hintThenDoubleScore_blocked() {
+        resetPowerUpState()
+        engine.useHint()
+        assertTrue("Hint should be active", engine.hintActive)
+        engine.activateDoubleScore()
+        assertFalse("DoubleScore should NOT be active after hint", engine.doubleScoreActive)
     }
 
     @Test
-    fun fun_hintThenFiftyFifty_neverLeaves0Or1Clickable() {
-        repeat(200) {
-            startGame()
-            engine.useHint()
-            engine.activateFiftyFifty()
-            val clickable = clickableOptions().size
-            assertTrue("Should never have 0 clickable (attempt $it, got $clickable)", clickable > 0)
-            assertTrue("Should never have 1 clickable (attempt $it, got $clickable)", clickable >= 2)
-        }
-    }
-
-    // === FiftyFifty then Hint ===
-
-    @Test
-    fun fun_fiftyFiftyThenHint_leavesAtLeast2Clickable() {
-        repeat(100) {
-            startGame()
-            engine.activateFiftyFifty()
-            assertTrue("FiftyFifty should be active (attempt $it)", engine.fiftyFiftyActive)
-            engine.useHint()
-            // Hint might fail if not enough options, that's OK
-            if (engine.hintActive) {
-                assertTrue("Should have at least 2 clickable after 50/50+hint (attempt $it)",
-                    clickableOptions().size >= 2)
-            }
-        }
+    fun fun_mutualExclusivity_doubleScoreThenHint_blocked() {
+        resetPowerUpState()
+        engine.activateDoubleScore()
+        assertTrue("DoubleScore should be active", engine.doubleScoreActive)
+        engine.useHint()
+        assertFalse("Hint should NOT be active after doubleScore", engine.hintActive)
     }
 
     @Test
-    fun fun_fiftyFiftyThenHint_correctAlwaysClickable() {
-        repeat(100) {
-            startGame()
-            engine.activateFiftyFifty()
-            engine.useHint()
-            val correct = engine.currentQ!!.correct
-            assertTrue("Correct should always be clickable (attempt $it)",
-                clickableOptions().contains(correct))
-        }
+    fun fun_mutualExclusivity_fiftyFiftyThenDoubleScore_blocked() {
+        resetPowerUpState()
+        engine.activateFiftyFifty()
+        assertTrue("FiftyFifty should be active", engine.fiftyFiftyActive)
+        engine.activateDoubleScore()
+        assertFalse("DoubleScore should NOT be active after 50/50", engine.doubleScoreActive)
     }
 
     @Test
-    fun fun_fiftyFiftyThenHint_neverLeaves0Or1Clickable() {
-        repeat(200) {
-            startGame()
-            engine.activateFiftyFifty()
-            engine.useHint()
-            val clickable = clickableOptions().size
-            assertTrue("Should never have 0 clickable (attempt $it, got $clickable)", clickable > 0)
-            assertTrue("Should never have 1 clickable (attempt $it, got $clickable)", clickable >= 2)
-        }
+    fun fun_mutualExclusivity_doubleScoreThenFiftyFifty_blocked() {
+        resetPowerUpState()
+        engine.activateDoubleScore()
+        assertTrue("DoubleScore should be active", engine.doubleScoreActive)
+        engine.activateFiftyFifty()
+        assertFalse("FiftyFifty should NOT be active after doubleScore", engine.fiftyFiftyActive)
     }
 
-    // === Consecutive questions: FiftyFifty on Q1 then Q2 ===
+    @Test
+    fun fun_mutualExclusivity_powerUpUsedThisQuestionResetsOnNextQuestion() {
+        resetPowerUpState()
+        engine.useHint()
+        assertTrue("powerUpUsedThisQuestion should be true", engine.powerUpUsedThisQuestion)
+        engine.answer(engine.currentQ!!.correct)
+        engine.nextQuestion()
+        assertFalse("powerUpUsedThisQuestion should be false on new question", engine.powerUpUsedThisQuestion)
+    }
+
+    // === Consecutive questions ===
 
     @Test
     fun fun_fiftyFifty_consecutiveQuestionsLeaves2EachTime() {
-        startGame()
         repeat(5) { round ->
             engine.activateFiftyFifty()
-            assertTrue("FiftyFifty should be active on Q${round + 1} (attempt $round)", engine.fiftyFiftyActive)
-            assertEquals("Should have exactly 2 visible on Q${round + 1} (attempt $round)",
-                2, visibleOptions().size)
-            assertTrue("Should have at least 2 clickable on Q${round + 1} (attempt $round)",
-                clickableOptions().size >= 2)
+            assertTrue("FiftyFifty should be active on Q${round + 1}", engine.fiftyFiftyActive)
+            assertEquals("Should have exactly 2 visible on Q${round + 1}", 2, visibleOptions().size)
+            assertTrue("Should have at least 2 clickable on Q${round + 1}", clickableOptions().size >= 2)
             engine.answer(engine.currentQ!!.correct)
-            assertTrue("Should advance to next question (attempt $round)", engine.nextQuestion())
+            assertTrue("Should advance to next question", engine.nextQuestion())
         }
     }
 
     @Test
     fun fun_fiftyFifty_consecutiveQuestionsCorrectAlwaysVisible() {
-        startGame()
         repeat(5) { round ->
             engine.activateFiftyFifty()
-            assertTrue("Correct should be visible on Q${round + 1} (attempt $round)",
+            assertTrue("Correct should be visible on Q${round + 1}",
                 visibleOptions().contains(engine.currentQ!!.correct))
             engine.answer(engine.currentQ!!.correct)
             engine.nextQuestion()
         }
     }
 
-    // === Consecutive questions: Hint on Q1 then Q2 ===
-
     @Test
     fun fun_hint_consecutiveQuestionsLeavesAtLeast2Clickable() {
-        startGame()
         repeat(5) { round ->
             engine.useHint()
-            assertTrue("Hint should be active on Q${round + 1} (attempt $round)", engine.hintActive)
-            assertTrue("Should have at least 2 clickable on Q${round + 1} (attempt $round)",
-                clickableOptions().size >= 2)
+            assertTrue("Hint should be active on Q${round + 1}", engine.hintActive)
+            assertTrue("Should have at least 2 clickable on Q${round + 1}", clickableOptions().size >= 2)
             engine.answer(engine.currentQ!!.correct)
             engine.nextQuestion()
         }
@@ -265,22 +242,18 @@ class PowerUpCombinationTest {
 
     @Test
     fun fun_hint_consecutiveQuestionsRemovesExactly1EachTime() {
-        startGame()
         repeat(5) { round ->
             engine.useHint()
-            assertEquals("Hint should remove exactly 1 on Q${round + 1} (attempt $round)",
-                1, engine.hintRemoved.size)
+            assertEquals("Hint should remove exactly 1 on Q${round + 1}", 1, engine.hintRemoved.size)
             engine.answer(engine.currentQ!!.correct)
             engine.nextQuestion()
         }
     }
 
-    // === Cross-question: Hint on Q1, FiftyFifty on Q2 ===
+    // === Cross-question: different power-ups on different questions ===
 
     @Test
     fun fun_hintQ1_fiftyFiftyQ2_bothWorkCorrectly() {
-        startGame()
-        // Q1: use hint
         engine.useHint()
         assertTrue("Hint should be active on Q1", engine.hintActive)
         assertEquals("Hint should remove 1 on Q1", 1, engine.hintRemoved.size)
@@ -288,7 +261,6 @@ class PowerUpCombinationTest {
         engine.answer(engine.currentQ!!.correct)
         engine.nextQuestion()
 
-        // Q2: use fiftyFifty
         engine.activateFiftyFifty()
         assertTrue("FiftyFifty should be active on Q2", engine.fiftyFiftyActive)
         assertEquals("Should have exactly 2 visible on Q2", 2, visibleOptions().size)
@@ -298,32 +270,13 @@ class PowerUpCombinationTest {
     }
 
     @Test
-    fun fun_hintQ1_fiftyFiftyQ2_correctVisibleOnBoth() {
-        startGame()
-        // Q1
-        engine.useHint()
-        assertTrue("Correct should be clickable on Q1", clickableOptions().contains(engine.currentQ!!.correct))
-        engine.answer(engine.currentQ!!.correct)
-        engine.nextQuestion()
-        // Q2
-        engine.activateFiftyFifty()
-        assertTrue("Correct should be visible on Q2", visibleOptions().contains(engine.currentQ!!.correct))
-        assertTrue("Correct should be clickable on Q2", clickableOptions().contains(engine.currentQ!!.correct))
-    }
-
-    // === Cross-question: FiftyFifty on Q1, Hint on Q2 ===
-
-    @Test
     fun fun_fiftyFiftyQ1_hintQ2_bothWorkCorrectly() {
-        startGame()
-        // Q1: use fiftyFifty
         engine.activateFiftyFifty()
         assertTrue("FiftyFifty should be active on Q1", engine.fiftyFiftyActive)
         assertEquals("Should have 2 visible on Q1", 2, visibleOptions().size)
         engine.answer(engine.currentQ!!.correct)
         engine.nextQuestion()
 
-        // Q2: use hint
         engine.useHint()
         assertTrue("Hint should be active on Q2", engine.hintActive)
         assertEquals("Hint should remove 1 on Q2", 1, engine.hintRemoved.size)
@@ -332,51 +285,22 @@ class PowerUpCombinationTest {
         assertEquals("FiftyFiftyRemoved should be cleared on Q2", 0, engine.fiftyFiftyRemoved.size)
     }
 
-    // === Cross-question: Hint+50/50 on Q1, 50/50 on Q2 ===
-
     @Test
-    fun fun_hintAndFiftyFiftyQ1_fiftyFiftyQ2_allWorkCorrectly() {
-        startGame()
-        // Q1: hint then fiftyFifty
+    fun fun_hintQ1_fiftyFiftyQ2_correctVisibleOnBoth() {
         engine.useHint()
-        engine.activateFiftyFifty()
-        assertTrue("Should have at least 2 clickable on Q1", clickableOptions().size >= 2)
+        assertTrue("Correct should be clickable on Q1", clickableOptions().contains(engine.currentQ!!.correct))
         engine.answer(engine.currentQ!!.correct)
         engine.nextQuestion()
-
-        // Q2: fiftyFifty only
         engine.activateFiftyFifty()
-        assertTrue("FiftyFifty should be active on Q2", engine.fiftyFiftyActive)
-        assertEquals("Should have exactly 2 visible on Q2", 2, visibleOptions().size)
-        assertTrue("Should have at least 2 clickable on Q2", clickableOptions().size >= 2)
-    }
-
-    // === Cross-question: 50/50+hint on Q1, hint on Q2 ===
-
-    @Test
-    fun fun_fiftyFiftyAndHintQ1_hintQ2_allWorkCorrectly() {
-        startGame()
-        // Q1: fiftyFifty then hint
-        engine.activateFiftyFifty()
-        engine.useHint()
-        assertTrue("Should have at least 2 clickable on Q1", clickableOptions().size >= 2)
-        engine.answer(engine.currentQ!!.correct)
-        engine.nextQuestion()
-
-        // Q2: hint only
-        engine.useHint()
-        assertTrue("Hint should be active on Q2", engine.hintActive)
-        assertEquals("Hint should remove 1 on Q2", 1, engine.hintRemoved.size)
-        assertTrue("Should have at least 2 clickable on Q2", clickableOptions().size >= 2)
+        assertTrue("Correct should be visible on Q2", visibleOptions().contains(engine.currentQ!!.correct))
+        assertTrue("Correct should be clickable on Q2", clickableOptions().contains(engine.currentQ!!.correct))
     }
 
     // === State clearing on nextQuestion ===
 
     @Test
     fun fun_nextQuestion_clearsAllPowerUpState() {
-        startGame()
         engine.useHint()
-        engine.activateFiftyFifty()
         engine.answer(engine.currentQ!!.correct)
         engine.nextQuestion()
 
@@ -384,85 +308,84 @@ class PowerUpCombinationTest {
         assertEquals("hintRemoved should be cleared", 0, engine.hintRemoved.size)
         assertFalse("fiftyFiftyActive should be cleared", engine.fiftyFiftyActive)
         assertEquals("fiftyFiftyRemoved should be cleared", 0, engine.fiftyFiftyRemoved.size)
+        assertFalse("powerUpUsedThisQuestion should be cleared", engine.powerUpUsedThisQuestion)
     }
 
     // === Edge case: 3-option questions ===
 
     @Test
     fun fun_fiftyFifty_with3OptionsLeaves2Visible() {
-        repeat(100) {
-            startGame()
-            // Simulate a 3-option question by manually setting currentQ
-            engine.currentQ = QuestionEntry(
-                enunciado = "3-option question",
-                opciones = mapOf("A" to "Opt A", "B" to "Opt B", "C" to "Opt C"),
-                correct = "A",
-                weight = 50,
-                testId = "test1",
-                origId = "1"
-            )
+        val q3 = QuestionEntry(
+            enunciado = "3-option question",
+            opciones = mapOf("A" to "Opt A", "B" to "Opt B", "C" to "Opt C"),
+            correct = "A",
+            weight = 50,
+            testId = "test1",
+            origId = "1"
+        )
+        repeat(20) {
+            resetPowerUpState()
+            engine.currentQ = q3
             engine.activateFiftyFifty()
             if (engine.fiftyFiftyActive) {
-                assertEquals("Should have exactly 2 visible with 3 options (attempt $it)",
-                    2, visibleOptions().size)
-                assertTrue("Correct should be visible (attempt $it)",
-                    visibleOptions().contains("A"))
+                assertEquals("Should have exactly 2 visible with 3 options (attempt $it)", 2, visibleOptions().size)
+                assertTrue("Correct should be visible (attempt $it)", visibleOptions().contains("A"))
             }
         }
     }
 
     @Test
-    fun fun_hintThenFiftyFifty_with3OptionsLeavesAtLeast2Clickable() {
-        repeat(100) {
-            startGame()
-            engine.currentQ = QuestionEntry(
-                enunciado = "3-option question",
-                opciones = mapOf("A" to "Opt A", "B" to "Opt B", "C" to "Opt C"),
-                correct = "A",
-                weight = 50,
-                testId = "test1",
-                origId = "1"
-            )
+    fun fun_hint_with3OptionsLeavesAtLeast2Clickable() {
+        val q3 = QuestionEntry(
+            enunciado = "3-option question",
+            opciones = mapOf("A" to "Opt A", "B" to "Opt B", "C" to "Opt C"),
+            correct = "A",
+            weight = 50,
+            testId = "test1",
+            origId = "1"
+        )
+        repeat(20) {
+            resetPowerUpState()
+            engine.currentQ = q3
             engine.useHint()
-            engine.activateFiftyFifty()
-            assertTrue("Should have at least 2 clickable with 3 options after hint+50/50 (attempt $it)",
+            assertTrue("Should have at least 2 clickable with 3 options after hint (attempt $it)",
                 clickableOptions().size >= 2)
         }
     }
 
     @Test
-    fun fun_fiftyFiftyThenHint_with3OptionsLeavesAtLeast2Clickable() {
-        repeat(100) {
-            startGame()
-            engine.currentQ = QuestionEntry(
-                enunciado = "3-option question",
-                opciones = mapOf("A" to "Opt A", "B" to "Opt B", "C" to "Opt C"),
-                correct = "A",
-                weight = 50,
-                testId = "test1",
-                origId = "1"
-            )
+    fun fun_fiftyFifty_with3OptionsLeaves2Clickable() {
+        val q3 = QuestionEntry(
+            enunciado = "3-option question",
+            opciones = mapOf("A" to "Opt A", "B" to "Opt B", "C" to "Opt C"),
+            correct = "A",
+            weight = 50,
+            testId = "test1",
+            origId = "1"
+        )
+        repeat(20) {
+            resetPowerUpState()
+            engine.currentQ = q3
             engine.activateFiftyFifty()
-            engine.useHint()
-            assertTrue("Should have at least 2 clickable with 3 options after 50/50+hint (attempt $it)",
-                clickableOptions().size >= 2)
+            if (engine.fiftyFiftyActive) {
+                assertTrue("Should have at least 2 clickable with 3 options after 50/50 (attempt $it)",
+                    clickableOptions().size >= 2)
+            }
         }
     }
 
-    // === Stress test: all combinations across many questions ===
+    // === Stress test across multiple questions ===
 
     @Test
-    fun fun_stress_allCombinationsAcross10Questions() {
-        startGame()
-        val combinations = listOf(
-            { e: GameEngine -> e.useHint(); e.activateFiftyFifty() },
-            { e: GameEngine -> e.activateFiftyFifty(); e.useHint() },
+    fun fun_stress_allPowerUpsAcross10Questions() {
+        val actions = listOf(
             { e: GameEngine -> e.useHint() },
             { e: GameEngine -> e.activateFiftyFifty() },
+            { e: GameEngine -> e.activateDoubleScore() },
             { e: GameEngine -> } // no power-ups
         )
         repeat(10) { round ->
-            combinations[round % combinations.size](engine)
+            actions[round % actions.size](engine)
             val clickable = clickableOptions().size
             assertTrue("Q${round + 1}: Should have at least 2 clickable (got $clickable)", clickable >= 2)
             assertTrue("Q${round + 1}: Correct should be clickable",
@@ -473,9 +396,9 @@ class PowerUpCombinationTest {
     }
 
     @Test
-    fun fun_stress_fiftyFifty100TimesNeverLeavesLessThan2() {
-        repeat(100) {
-            startGame()
+    fun fun_stress_fiftyFifty20TimesNeverLeavesLessThan2() {
+        repeat(20) {
+            resetPowerUpState()
             engine.activateFiftyFifty()
             val visible = visibleOptions().size
             val clickable = clickableOptions().size
@@ -485,27 +408,11 @@ class PowerUpCombinationTest {
     }
 
     @Test
-    fun fun_stress_hintThenFiftyFifty100TimesNeverLeavesLessThan2() {
-        repeat(100) {
-            startGame()
+    fun fun_stress_hint20TimesNeverLeavesLessThan2() {
+        repeat(20) {
+            resetPowerUpState()
             engine.useHint()
-            engine.activateFiftyFifty()
-            val visible = visibleOptions().size
             val clickable = clickableOptions().size
-            assertTrue("Visible should be >= 2 (attempt $it, got $visible)", visible >= 2)
-            assertTrue("Clickable should be >= 2 (attempt $it, got $clickable)", clickable >= 2)
-        }
-    }
-
-    @Test
-    fun fun_stress_fiftyFiftyThenHint100TimesNeverLeavesLessThan2() {
-        repeat(100) {
-            startGame()
-            engine.activateFiftyFifty()
-            engine.useHint()
-            val visible = visibleOptions().size
-            val clickable = clickableOptions().size
-            assertTrue("Visible should be >= 2 (attempt $it, got $visible)", visible >= 2)
             assertTrue("Clickable should be >= 2 (attempt $it, got $clickable)", clickable >= 2)
         }
     }

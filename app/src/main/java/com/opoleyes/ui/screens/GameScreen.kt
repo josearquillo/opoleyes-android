@@ -295,13 +295,13 @@ fun GameScreen(navController: NavController, gameViewModel: GameViewModel) {
                                     verticalArrangement = Arrangement.spacedBy(4.dp)
                                 ) {
                                     if (uiState.hintCharges > 0 && uiState.mode != GameMode.CHALLENGE && uiState.mode != GameMode.QUICK) {
-                                        PowerUpButton("Pista", "💡", uiState.hintCharges, Color(0xFFa16207), enabled = !uiState.answered && !uiState.hintActive) { gameViewModel.useHint() }
+                                        PowerUpButton("Pista", "💡", uiState.hintCharges, Color(0xFFa16207), enabled = !uiState.answered && !uiState.hintActive && !uiState.powerUpUsedThisQuestion) { gameViewModel.useHint() }
                                     }
                                     if (uiState.fiftyFiftyCharges > 0 && uiState.mode != GameMode.CHALLENGE && uiState.mode != GameMode.QUICK) {
-                                        PowerUpButton("50/50", "✂️", uiState.fiftyFiftyCharges, Purple, enabled = !uiState.answered && !uiState.fiftyFiftyActive) { gameViewModel.activateFiftyFifty() }
+                                        PowerUpButton("50/50", "✂️", uiState.fiftyFiftyCharges, Purple, enabled = !uiState.answered && !uiState.fiftyFiftyActive && !uiState.powerUpUsedThisQuestion) { gameViewModel.activateFiftyFifty() }
                                     }
                                     if (uiState.doubleScoreCharges > 0 && uiState.mode != GameMode.CHALLENGE && uiState.mode != GameMode.QUICK) {
-                                        PowerUpButton("x2 pts", "✨", uiState.doubleScoreCharges, Warning, enabled = !uiState.answered && !uiState.doubleScoreActive) { gameViewModel.activateDoubleScore() }
+                                        PowerUpButton("x2 pts", "✨", uiState.doubleScoreCharges, Warning, enabled = !uiState.answered && !uiState.doubleScoreActive && !uiState.powerUpUsedThisQuestion) { gameViewModel.activateDoubleScore() }
                                     }
                                 }
                                 Spacer(Modifier.height(12.dp))
