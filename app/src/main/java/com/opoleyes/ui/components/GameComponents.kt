@@ -15,7 +15,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Shield
 import androidx.compose.material.icons.filled.Timer
-import androidx.compose.material.icons.filled.LocalFireDepartment
 import androidx.compose.material.icons.filled.Bolt
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -171,18 +170,6 @@ fun HudBar(
                 Icon(Icons.Default.Timer, contentDescription = null, tint = timerColor, modifier = Modifier.size(16.dp))
                 Spacer(Modifier.width(2.dp))
                 Text(timerText, color = timerColor, fontWeight = FontWeight.Bold, fontSize = 18.sp)
-            }
-        }
-        if (combo > 0) {
-            val comboColor = when {
-                combo >= 20 -> Warning
-                combo >= 10 -> Danger
-                else -> Orange
-            }
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Icon(Icons.Default.LocalFireDepartment, contentDescription = null, tint = comboColor, modifier = Modifier.size(16.dp))
-                Spacer(Modifier.width(2.dp))
-                Text("x$combo", color = comboColor, fontWeight = FontWeight.Bold, fontSize = 16.sp)
             }
         }
         if (streak > 0) {

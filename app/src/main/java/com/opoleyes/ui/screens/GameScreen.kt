@@ -48,7 +48,6 @@ fun GameScreen(navController: NavController, gameViewModel: GameViewModel) {
     var questionKey by remember { mutableStateOf(0) }
     var particleTrigger by remember { mutableStateOf<Any?>(null) }
     var shakeTrigger by remember { mutableStateOf<Any?>(null) }
-    var comboScale by remember { mutableStateOf(1f) }
 
     BackHandler { showExitDialog = true }
 
@@ -59,15 +58,6 @@ fun GameScreen(navController: NavController, gameViewModel: GameViewModel) {
         delay(50)
         questionVisible = true
         questionKey++
-    }
-
-    // Combo bounce animation
-    LaunchedEffect(uiState.combo) {
-        if (uiState.combo > 0) {
-            comboScale = 1.3f
-            delay(100)
-            comboScale = 1f
-        }
     }
 
     // Particle/shake on answer
@@ -216,45 +206,14 @@ fun GameScreen(navController: NavController, gameViewModel: GameViewModel) {
                     streak = uiState.streak
                 )
 
-                // Combo with bounce effect
-                if (uiState.combo > 0 || uiState.doubleScoreActive) {
+                // Combo bar (bottom only, no fire icon up top)
+                if (uiState.combo > 0) {
                     Spacer(Modifier.height(4.dp))
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.Center
-                    ) {
-                        if (uiState.combo > 0) {
-                            val comboColor = when {
-                                uiState.combo >= 20 -> Warning
-                                uiState.combo >= 10 -> Danger
-                                else -> Orange
-                            }
-                            Text(
-                                "x${uiState.combo}",
-                                color = comboColor,
-                                fontWeight = FontWeight.Bold,
-                                fontSize = 18.sp,
-                                modifier = Modifier.scale(comboScale)
-                            )
-                        }
-                        if (uiState.doubleScoreActive) {
-                            if (uiState.combo > 0) Spacer(Modifier.width(12.dp))
-                            Text(
-                                "x2",
-                                color = Warning,
-                                fontWeight = FontWeight.Bold,
-                                fontSize = 18.sp
-                            )
-                        }
-                    }
-                    if (uiState.combo > 0) {
-                        Spacer(Modifier.height(2.dp))
-                        ComboBar(
-                            fill = if (uiState.comboOverchargeActive) 1f else uiState.comboBarFill,
-                            overchargeActive = uiState.comboOverchargeActive,
-                            overchargeCharges = uiState.comboOverchargeCharges
-                        )
-                    }
+                    ComboBar(
+                        fill = if (uiState.comboOverchargeActive) 1f else uiState.comboBarFill,
+                        overchargeActive = uiState.comboOverchargeActive,
+                        overchargeCharges = uiState.comboOverchargeCharges
+                    )
                 }
 
                 Spacer(Modifier.height(16.dp))

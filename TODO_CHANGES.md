@@ -24,7 +24,7 @@
 - Quitar el icono de la balanza que se mueve en la pantalla de carga/splash.
 - Dejar solo un spinner o texto de carga simple.
 
-### 5. Combo: quitar fuego de arriba, dejar solo la barra inferior
+### 5. Combo: quitar fuego de arriba, dejar solo la barra inferior ✅
 - Eliminar el indicador de fuego superior que muestra el número de respuestas correctas consecutivas.
 - Mantener únicamente la barra de combo inferior.
 
