@@ -85,7 +85,7 @@ fun ModeSelectScreen(navController: NavController, gameViewModel: GameViewModel)
                     visible = true
                 }
                 AnimatedVisibility(visible = visible) {
-                    ModeCard(mode) {
+                    ModeCard(mode, enabled = !isLoading) {
                         when (mode.mode) {
                             GameMode.QUICK -> {
                                 gameViewModel.startQuickGameAsync { ok -> if (ok) navController.navigate(Routes.GAME) }
@@ -126,7 +126,7 @@ fun ModeSelectScreen(navController: NavController, gameViewModel: GameViewModel)
 }
 
 @Composable
-private fun ModeCard(mode: ModeInfo, onClick: () -> Unit) {
+private fun ModeCard(mode: ModeInfo, enabled: Boolean = true, onClick: () -> Unit) {
     val locked = !mode.unlocked
     val colors = when (mode.mode) {
         GameMode.SURVIVAL -> listOf(Danger, DangerDark)
@@ -140,7 +140,7 @@ private fun ModeCard(mode: ModeInfo, onClick: () -> Unit) {
             .fillMaxWidth()
             .clip(RoundedCornerShape(16.dp))
             .background(Brush.verticalGradient(if (locked) listOf(BgCard, BgCardDark) else colors))
-            .clickable(enabled = !locked) { onClick() }
+            .clickable(enabled = !locked && enabled) { onClick() }
             .padding(20.dp)
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
