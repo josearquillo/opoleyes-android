@@ -8,7 +8,7 @@
 
 ## CAMBIOS EN LA FUNCIONALIDAD
 
-### 2. Escudo se activa como cualquier otro power-up
+### 2. Escudo se activa como cualquier otro power-up ✅
 - Actualmente el escudo funciona de forma pasiva/automática.
 - Cambiar para que el escudo se active manualmente pulsando su botón, igual que 50/50, hint y x2.
 - Consumir un charge al activar. El efecto (protección contra fallo) se aplica en la siguiente respuesta incorrecta.

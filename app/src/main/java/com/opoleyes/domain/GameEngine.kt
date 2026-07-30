@@ -69,6 +69,7 @@ class GameEngine private constructor(
     var hintActive: Boolean = false
     var hintRemoved: List<String> = emptyList()
     var shieldCharges: Int = 0
+    var shieldActive: Boolean = false
     var ctxFiftyFiftyUsed: Boolean = false
     var ctxLifeRecovered: Boolean = false
     var powerUpUsedThisQuestion: Boolean = false
@@ -81,7 +82,7 @@ class GameEngine private constructor(
         fiftyFiftyCharges = 0; fiftyFiftyActive = false; fiftyFiftyRemoved = emptyList()
         doubleScoreCharges = 0; doubleScoreActive = false
         hintCharges = 0; hintActive = false; hintRemoved = emptyList()
-        shieldCharges = 0; ctxFiftyFiftyUsed = false; ctxLifeRecovered = false
+        shieldCharges = 0; shieldActive = false; ctxFiftyFiftyUsed = false; ctxLifeRecovered = false
         powerUpUsedThisQuestion = false
         startRankIndex = progressRepo.getRankIndex()
         startXP = progressRepo.getXP()
@@ -169,6 +170,7 @@ class GameEngine private constructor(
         fiftyFiftyActive = false; fiftyFiftyRemoved = emptyList()
         hintActive = false; hintRemoved = emptyList()
         doubleScoreActive = false
+        shieldActive = false
         powerUpUsedThisQuestion = false
         return true
     }
@@ -239,8 +241,8 @@ class GameEngine private constructor(
 
             return AnswerResult.CORRECT
         } else {
-            if (shieldCharges > 0) {
-                shieldCharges--
+            if (shieldActive) {
+                shieldActive = false
                 statsRepo.updateStat(key, false)
                 return AnswerResult.SHIELD_USED
             }
@@ -277,6 +279,12 @@ class GameEngine private constructor(
     fun activateDoubleScore() {
         if (doubleScoreCharges <= 0 || doubleScoreActive || answered || powerUpUsedThisQuestion) return
         doubleScoreCharges--; doubleScoreActive = true
+        powerUpUsedThisQuestion = true
+    }
+
+    fun activateShield() {
+        if (shieldCharges <= 0 || shieldActive || answered || powerUpUsedThisQuestion) return
+        shieldCharges--; shieldActive = true
         powerUpUsedThisQuestion = true
     }
 

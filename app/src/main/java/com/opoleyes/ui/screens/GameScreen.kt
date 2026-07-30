@@ -294,6 +294,9 @@ fun GameScreen(navController: NavController, gameViewModel: GameViewModel) {
                                     horizontalArrangement = Arrangement.Center,
                                     verticalArrangement = Arrangement.spacedBy(4.dp)
                                 ) {
+                                    if (uiState.shieldCharges > 0 && uiState.mode != GameMode.QUICK) {
+                                        PowerUpButton("Escudo", "🛡️", uiState.shieldCharges, PrimaryLight, enabled = !uiState.answered && !uiState.shieldActive && !uiState.powerUpUsedThisQuestion) { gameViewModel.activateShield() }
+                                    }
                                     if (uiState.hintCharges > 0 && uiState.mode != GameMode.QUICK) {
                                         PowerUpButton("Pista", "💡", uiState.hintCharges, Color(0xFFa16207), enabled = !uiState.answered && !uiState.hintActive && !uiState.powerUpUsedThisQuestion) { gameViewModel.useHint() }
                                     }

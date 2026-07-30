@@ -172,10 +172,13 @@ class GameEngineEdgeCaseTest {
     fun fun_shield_absorbsWrongAnswer() {
         engine.currentQ = makeQuestion(correct = "A")
         engine.shieldCharges = 1
+        engine.activateShield()
+        assertTrue(engine.shieldActive)
         val result = engine.answer("B")
         assertEquals(GameEngine.AnswerResult.SHIELD_USED, result)
         assertEquals(0, engine.shieldCharges)
         assertEquals(0, engine.combo)
+        assertFalse(engine.shieldActive)
     }
 
     @Test

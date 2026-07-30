@@ -502,11 +502,14 @@ class GameEngineTest {
         engine.startAllLawsGame()
         engine.nextQuestion()
         engine.shieldCharges = 1
+        engine.activateShield()
+        assertTrue(engine.shieldActive)
         val q = engine.currentQ!!
         val wrong = listOf("A", "B", "C", "D").filter { it != q.correct }.first()
         val result = engine.answer(wrong)
         assertEquals(GameEngine.AnswerResult.SHIELD_USED, result)
         assertEquals(0, engine.shieldCharges)
+        assertFalse(engine.shieldActive)
     }
 
     @Test
@@ -527,6 +530,7 @@ class GameEngineTest {
         engine.startAllLawsGame()
         engine.nextQuestion()
         engine.shieldCharges = 3
+        engine.activateShield()
         val q = engine.currentQ!!
         val wrong = listOf("A", "B", "C", "D").filter { it != q.correct }.first()
         val result = engine.answer(wrong)
@@ -540,12 +544,14 @@ class GameEngineTest {
         engine.shieldCharges = 2
         // First wrong answer - shield used
         engine.nextQuestion()
+        engine.activateShield()
         val q1 = engine.currentQ!!
         val wrong1 = listOf("A", "B", "C", "D").filter { it != q1.correct }.first()
         engine.answer(wrong1)
         assertEquals(1, engine.shieldCharges)
         // Second wrong answer - shield used again
         engine.nextQuestion()
+        engine.activateShield()
         val q2 = engine.currentQ!!
         val wrong2 = listOf("A", "B", "C", "D").filter { it != q2.correct }.first()
         engine.answer(wrong2)
@@ -566,6 +572,107 @@ class GameEngineTest {
         engine.nextQuestion()
         engine.answer(engine.currentQ!!.correct)
         assertEquals("Shield should not be consumed on correct answer", 2, engine.shieldCharges)
+    }
+
+    @Test
+    fun fun_activateShield_consumesChargeAndSetsActive() {
+        engine.startAllLawsGame()
+        engine.nextQuestion()
+        engine.shieldCharges = 2
+        engine.activateShield()
+        assertTrue("Shield should be active after activation", engine.shieldActive)
+        assertEquals("Shield should consume 1 charge on activation", 1, engine.shieldCharges)
+        assertTrue("powerUpUsedThisQuestion should be true", engine.powerUpUsedThisQuestion)
+    }
+
+    @Test
+    fun fun_activateShield_noChargesDoesNothing() {
+        engine.startAllLawsGame()
+        engine.nextQuestion()
+        engine.shieldCharges = 0
+        engine.activateShield()
+        assertFalse("Shield should not activate with 0 charges", engine.shieldActive)
+    }
+
+    @Test
+    fun fun_activateShield_alreadyActiveDoesNothing() {
+        engine.startAllLawsGame()
+        engine.nextQuestion()
+        engine.shieldCharges = 2
+        engine.activateShield()
+        assertEquals(1, engine.shieldCharges)
+        engine.activateShield()
+        assertEquals("Should not consume another charge", 1, engine.shieldCharges)
+    }
+
+    @Test
+    fun fun_activateShield_whenAnsweredDoesNothing() {
+        engine.startAllLawsGame()
+        engine.nextQuestion()
+        engine.shieldCharges = 1
+        engine.answered = true
+        engine.activateShield()
+        assertFalse("Shield should not activate when already answered", engine.shieldActive)
+    }
+
+    @Test
+    fun fun_shield_notPassiveAnymore() {
+        engine.startAllLawsGame()
+        engine.nextQuestion()
+        engine.shieldCharges = 1
+        // Without activating, wrong answer should NOT use shield
+        val q = engine.currentQ!!
+        val wrong = listOf("A", "B", "C", "D").filter { it != q.correct }.first()
+        val result = engine.answer(wrong)
+        assertEquals("Shield should not be used passively", GameEngine.AnswerResult.WRONG, result)
+        assertEquals("Shield charge should remain", 1, engine.shieldCharges)
+    }
+
+    @Test
+    fun fun_shield_mutualExclusivity_blocksOtherPowerUps() {
+        engine.startAllLawsGame()
+        engine.nextQuestion()
+        engine.shieldCharges = 1
+        engine.hintCharges = 1
+        engine.activateShield()
+        assertTrue(engine.shieldActive)
+        engine.useHint()
+        assertFalse("Hint should be blocked after shield activation", engine.hintActive)
+    }
+
+    @Test
+    fun fun_shield_otherPowerUpsBlockShield() {
+        engine.startAllLawsGame()
+        engine.nextQuestion()
+        engine.shieldCharges = 1
+        engine.hintCharges = 1
+        engine.useHint()
+        assertTrue(engine.hintActive)
+        engine.activateShield()
+        assertFalse("Shield should be blocked after hint activation", engine.shieldActive)
+    }
+
+    @Test
+    fun fun_shield_resetsOnNextQuestion() {
+        engine.startAllLawsGame()
+        engine.nextQuestion()
+        engine.shieldCharges = 1
+        engine.activateShield()
+        assertTrue(engine.shieldActive)
+        engine.answer(engine.currentQ!!.correct)
+        engine.nextQuestion()
+        assertFalse("shieldActive should be reset on next question", engine.shieldActive)
+    }
+
+    @Test
+    fun fun_shield_chargeConsumedEvenIfAnswerCorrect() {
+        engine.startAllLawsGame()
+        engine.nextQuestion()
+        engine.shieldCharges = 1
+        engine.activateShield()
+        assertEquals(0, engine.shieldCharges)
+        engine.answer(engine.currentQ!!.correct)
+        assertEquals("Charge was consumed at activation, not refunded on correct", 0, engine.shieldCharges)
     }
 
     @Test
@@ -737,6 +844,7 @@ class GameEngineTest {
         engine.shieldCharges = 1
         engine.streak = 3
         engine.nextQuestion()
+        engine.activateShield()
         val q = engine.currentQ!!
         val wrong = listOf("A", "B", "C", "D").filter { it != q.correct }.first()
         engine.answer(wrong)
@@ -749,6 +857,7 @@ class GameEngineTest {
         engine.shieldCharges = 1
         engine.combo = 5
         engine.nextQuestion()
+        engine.activateShield()
         val q = engine.currentQ!!
         val wrong = listOf("A", "B", "C", "D").filter { it != q.correct }.first()
         engine.answer(wrong)

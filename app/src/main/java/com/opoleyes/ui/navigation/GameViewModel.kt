@@ -109,6 +109,7 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
             hintActive = engine.hintActive,
             hintRemoved = engine.hintRemoved,
             shieldCharges = engine.shieldCharges,
+            shieldActive = engine.shieldActive,
             powerUpUsedThisQuestion = engine.powerUpUsedThisQuestion,
             currentQ = engine.currentQ,
             mode = engine.mode,
@@ -314,6 +315,7 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
 
     fun activateFiftyFifty() { engine.activateFiftyFifty(); updateUiState() }
     fun activateDoubleScore() { engine.activateDoubleScore(); _powerUpToast.value = PowerUpToast("✨ ¡Doble puntuación activada!", "✨"); updateUiState() }
+    fun activateShield() { engine.activateShield(); _powerUpToast.value = PowerUpToast("🛡️ ¡Escudo activado!", "🛡️"); updateUiState() }
     fun useHint() { engine.useHint(); updateUiState() }
 
     fun clearPowerUpToast() { _powerUpToast.value = null }
@@ -429,6 +431,7 @@ data class GameUiState(
     val hintActive: Boolean = false,
     val hintRemoved: List<String> = emptyList(),
     val shieldCharges: Int = 0,
+    val shieldActive: Boolean = false,
     val powerUpUsedThisQuestion: Boolean = false,
     val currentQ: QuestionEntry? = null,
     val mode: GameMode = GameMode.SURVIVAL,

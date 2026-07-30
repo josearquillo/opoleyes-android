@@ -220,6 +220,7 @@ class GameScreenExhaustiveTest {
 
         // Shield absorbs (engine only, no re-render)
         startSurvival(); vm.engine.shieldCharges = 1; vm.engine.combo = 3; vm.updateUiState()
+        vm.engine.activateShield(); vm.updateUiState()
         val q2 = vm.uiState.value.currentQ!!
         val wrong2 = listOf("A","B","C","D").first { it != q2.correct }
         val result = vm.answer(wrong2)
