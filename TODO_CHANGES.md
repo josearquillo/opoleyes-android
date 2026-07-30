@@ -40,7 +40,7 @@
 - Poner el texto de la pregunta en **negrita**.
 - Cambiar el color de fondo de la tarjeta de pregunta para que resalte respecto a las respuestas.
 
-### 9. Iconos de cofres: rediseñar o eliminar
+### 9. Iconos de cofres: rediseñar o eliminar ✅
 - Los iconos actuales de cofres son visualmente pobres.
 - Opción A: Rediseñar con iconos atractivos.
 - Opción B: Usar icono de regalo/caja.

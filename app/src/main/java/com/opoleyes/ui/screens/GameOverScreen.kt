@@ -267,7 +267,7 @@ fun ChestOverlay(chest: ChestReward, opened: Boolean, shakeCount: Int, onOpen: (
 
     if (!visible) return
 
-    val typeIcon = when (chest.type) { ChestType.WOOD -> Icons.Default.Inventory2; ChestType.SILVER -> Icons.Default.Redeem; ChestType.GOLD -> Icons.Default.Redeem }
+    val typeEmoji = when (chest.type) { ChestType.WOOD -> "📦"; ChestType.SILVER -> "🗃️"; ChestType.GOLD -> "🎁" }
     val typeLabel = chest.type.label
     val typeColor = when (chest.type) { ChestType.WOOD -> TextMuted; ChestType.SILVER -> Color(0xFFcbd5e1); ChestType.GOLD -> Warning }
 
@@ -314,7 +314,7 @@ fun ChestOverlay(chest: ChestReward, opened: Boolean, shakeCount: Int, onOpen: (
         ) {
             if (!opened) {
                 Box(modifier = Modifier.offset { IntOffset(chestShakeAnim.value.toInt(), 0) }) {
-                    Icon(typeIcon, contentDescription = null, tint = typeColor, modifier = Modifier.size(64.dp))
+                    Text(typeEmoji, fontSize = 56.sp)
                 }
                 Spacer(Modifier.height(16.dp))
                 Text("¡Toca para abrir!", color = Warning, fontSize = 20.sp, fontWeight = FontWeight.Bold)
@@ -327,7 +327,7 @@ fun ChestOverlay(chest: ChestReward, opened: Boolean, shakeCount: Int, onOpen: (
                 )
                 Box(modifier = Modifier.scale(contentScale)) {
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        Icon(typeIcon, contentDescription = null, tint = typeColor, modifier = Modifier.size(32.dp))
+                        Text(typeEmoji, fontSize = 28.sp)
                         Spacer(Modifier.height(8.dp))
                         Text(typeLabel, color = typeColor, fontSize = 16.sp, fontWeight = FontWeight.Bold)
                         Spacer(Modifier.height(16.dp))
@@ -336,12 +336,12 @@ fun ChestOverlay(chest: ChestReward, opened: Boolean, shakeCount: Int, onOpen: (
                             Spacer(Modifier.height(12.dp))
                             Row {
                                 chest.powerUps.forEach { pu ->
-                                    val puIcon = when (pu) {
-                                        "shield" -> Icons.Default.Shield; "fiftyFifty" -> Icons.Default.SwapHoriz; "hint" -> Icons.Default.Lightbulb
-                                        "lifeRecovery" -> Icons.Default.Favorite; "doubleScore" -> Icons.Default.AutoAwesome
-                                        else -> Icons.Default.Redeem
+                                    val puEmoji = when (pu) {
+                                        "shield" -> "🛡️"; "fiftyFifty" -> "✂️"; "hint" -> "💡"
+                                        "lifeRecovery" -> "❤️"; "doubleScore" -> "✨"
+                                        else -> "🎁"
                                     }
-                                    Icon(puIcon, contentDescription = null, tint = typeColor, modifier = Modifier.size(28.dp))
+                                    Text(puEmoji, fontSize = 24.sp)
                                     Spacer(Modifier.width(16.dp))
                                 }
                             }
