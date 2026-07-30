@@ -77,9 +77,9 @@ class MissionRepository(private val context: Context) {
                 minOf(20, maxOf(5, wrongCount)), 0, false, 50, "quick_review"))
         }
         candidates.add(Mission("variety", "🌍",
-            if (unplayedLaw != null) "Juega Supervivencia en \"${unplayedLaw.title.ifEmpty { unplayedLaw.name }}\""
-            else "Juega Supervivencia en cualquier ley",
-            1, 0, false, 50, "variety_${unplayedLaw?.id ?: "any"}", unplayedLaw?.id))
+            if (unplayedLaw != null) "Acerta al menos 5 preguntas en Supervivencia en \"${unplayedLaw.title.ifEmpty { unplayedLaw.name }}\""
+            else "Acerta al menos 5 preguntas en Supervivencia en cualquier ley",
+            5, 0, false, 50, "variety_${unplayedLaw?.id ?: "any"}", unplayedLaw?.id))
         candidates.add(Mission("combo", "🔥",
             "Llega a combo x$comboTarget en Supervivencia (todas las leyes)",
             comboTarget, 0, false, 50, "combo"))
@@ -121,7 +121,7 @@ class MissionRepository(private val context: Context) {
         saveDailyMissions(data)
     }
 
-    fun checkOnGameOver(mode: String, maxCombo: Int, totalAnswered: Int, gameCategory: String) {
+    fun checkOnGameOver(mode: String, maxCombo: Int, totalAnswered: Int, gameCategory: String, correctCount: Int) {
         val data = getDailyMissions() ?: return
         updateProgress("streak", maxCombo)
         updateProgress("combo", maxCombo)
@@ -133,7 +133,7 @@ class MissionRepository(private val context: Context) {
             }
             if (m.key.startsWith("variety_")) {
                 val lawId = m.key.removePrefix("variety_")
-                if (lawId == "any" || lawId == gameCategory) updateProgress("variety", 1)
+                if (lawId == "any" || lawId == gameCategory) updateProgress("variety", correctCount)
             }
         }
     }

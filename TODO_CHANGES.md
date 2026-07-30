@@ -14,7 +14,7 @@
 - Consumir un charge al activar. El efecto (protección contra fallo) se aplica en la siguiente respuesta incorrecta.
 - Al activar el escudo, se impide el uso de cualquier otro powerup. Es mutuamente excluyente como todos. 
 
-### 3. Misiones diarias: "jugar en supervivencia" se completa sin esfuerzo
+### 3. Misiones diarias: "jugar en supervivencia" se completa sin esfuerzo ✅
 - La misión se completa solo por jugar, aunque se pierdan las 3 vidas inmediatamente.
 - **Fix**: Cambiar el criterio de la misión para requerir un mínimo de aciertos (ej: "Acerta 5 preguntas en supervivencia") o un mínimo de preguntas respondidas correctamente.
 
