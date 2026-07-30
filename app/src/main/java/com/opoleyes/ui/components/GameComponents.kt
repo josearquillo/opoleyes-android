@@ -31,6 +31,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.lottiefiles.dotlottie.core.compose.ui.DotLottieAnimation
+import com.lottiefiles.dotlottie.core.util.DotLottieSource
+import com.dotlottie.dlplayer.Mode
 import com.opoleyes.ui.theme.*
 
 @Composable
@@ -343,12 +346,6 @@ fun StatCardWithIcon(
 
 @Composable
 fun LoadingOverlay() {
-    val rotation by rememberInfiniteTransition(label = "loading").animateFloat(
-        initialValue = 0f,
-        targetValue = 360f,
-        animationSpec = infiniteRepeatable(tween(1000, easing = LinearEasing), RepeatMode.Restart),
-        label = "rotation"
-    )
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -361,16 +358,16 @@ fun LoadingOverlay() {
         contentAlignment = Alignment.Center
     ) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            Canvas(modifier = Modifier.size(48.dp)) {
-                drawArc(
-                    color = Primary,
-                    startAngle = rotation,
-                    sweepAngle = 270f,
-                    useCenter = false,
-                    style = Stroke(width = 5f, cap = StrokeCap.Round)
-                )
-            }
-            Spacer(Modifier.height(16.dp))
+            DotLottieAnimation(
+                source = DotLottieSource.Asset("law_and_justice.json"),
+                autoplay = true,
+                loop = true,
+                speed = 1.25f,
+                useFrameInterpolation = false,
+                playMode = Mode.FORWARD,
+                modifier = Modifier.size(120.dp)
+            )
+            Spacer(Modifier.height(8.dp))
             Text("Cargando preguntas...", color = TextLight, fontSize = 14.sp)
         }
     }

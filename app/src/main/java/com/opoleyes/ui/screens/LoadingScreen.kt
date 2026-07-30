@@ -1,12 +1,10 @@
 package com.opoleyes.ui.screens
 
 import androidx.compose.animation.core.*
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ErrorOutline
-import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
@@ -18,12 +16,13 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import com.opoleyes.R
+import com.lottiefiles.dotlottie.core.compose.ui.DotLottieAnimation
+import com.lottiefiles.dotlottie.core.util.DotLottieSource
+import com.dotlottie.dlplayer.Mode
 import com.opoleyes.data.local.DataProvider
 import com.opoleyes.data.repository.MissionRepository
 import com.opoleyes.ui.components.GameButton
@@ -38,6 +37,15 @@ fun LoadingScreen(navController: NavController) {
     var logoVisible by remember { mutableStateOf(false) }
     var taglineVisible by remember { mutableStateOf(false) }
     var spinnerVisible by remember { mutableStateOf(false) }
+    var phraseIndex by remember { mutableStateOf(0) }
+
+    val phrases = listOf(
+        "Estudia leyes mientras juegas",
+        "Supervivencia, contrarreloj, examen...",
+        "Sube de rango y desbloquea modos",
+        "Misiones diarias, cofres y logros",
+        "Prepara tu oposición de justicia"
+    )
 
     LaunchedEffect(Unit) {
         delay(100)
@@ -54,7 +62,7 @@ fun LoadingScreen(navController: NavController) {
             } else {
                 val missionRepo = MissionRepository(context)
                 missionRepo.generateDailyMissions()
-                delay(600)
+                delay(3500)
                 fadeOut = true
                 delay(300)
                 navController.navigate(Routes.HOME) {
@@ -63,6 +71,15 @@ fun LoadingScreen(navController: NavController) {
             }
         } catch (e: Exception) {
             error = e.message ?: "Error desconocido"
+        }
+    }
+
+    LaunchedEffect(spinnerVisible) {
+        if (spinnerVisible && error == null) {
+            while (true) {
+                delay(700)
+                phraseIndex = (phraseIndex + 1) % phrases.size
+            }
         }
     }
 
@@ -147,15 +164,19 @@ fun LoadingScreen(navController: NavController) {
                 Box(contentAlignment = Alignment.Center) {
                     Box(
                         modifier = Modifier
-                            .size(160.dp * glowScale)
+                            .size(200.dp * glowScale)
                             .clip(androidx.compose.foundation.shape.CircleShape)
                             .background(Brush.radialGradient(listOf(Primary.copy(alpha = glowAlpha), Color.Transparent)))
                     )
-                    Image(
-                        painter = painterResource(R.drawable.ic_launcher_foreground),
-                        contentDescription = "Opoleyes",
+                    DotLottieAnimation(
+                        source = DotLottieSource.Asset("law_and_justice.json"),
+                        autoplay = true,
+                        loop = true,
+                        speed = 1.25f,
+                        useFrameInterpolation = false,
+                        playMode = Mode.FORWARD,
                         modifier = Modifier
-                            .size(120.dp)
+                            .size(160.dp)
                             .scale(logoScale)
                             .alpha(logoAlpha)
                     )
@@ -195,9 +216,9 @@ fun LoadingScreen(navController: NavController) {
                 Spacer(Modifier.height(12.dp))
 
                 Text(
-                    "Cargando...",
+                    phrases[phraseIndex],
                     color = TextMuted.copy(alpha = pulseAlpha * spinnerAlpha),
-                    fontSize = 13.sp,
+                    fontSize = 14.sp,
                     modifier = Modifier.alpha(spinnerAlpha)
                 )
             }

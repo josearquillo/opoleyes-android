@@ -117,6 +117,9 @@ dependencies {
     // SplashScreen
     implementation("androidx.core:core-splashscreen:1.0.1")
 
+    // Lottie
+    implementation("com.github.LottieFiles:dotlottie-android:0.15.0")
+
     // Debug
     debugImplementation("androidx.compose.ui:ui-tooling")
     debugImplementation("androidx.compose.ui:ui-test-manifest")
