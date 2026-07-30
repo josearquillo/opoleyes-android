@@ -153,7 +153,7 @@ fun LoadingScreen(navController: NavController) {
                     )
                     Image(
                         painter = painterResource(R.drawable.ic_launcher_foreground),
-                        contentDescription = "OPOLEYES",
+                        contentDescription = "Opoleyes",
                         modifier = Modifier
                             .size(120.dp)
                             .scale(logoScale)
@@ -164,7 +164,7 @@ fun LoadingScreen(navController: NavController) {
                 Spacer(Modifier.height(12.dp))
 
                 Text(
-                    "OPOLEYES",
+                    "Opoleyes",
                     color = Accent,
                     fontSize = 42.sp,
                     fontWeight = FontWeight.Bold,

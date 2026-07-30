@@ -52,7 +52,7 @@ private val DarkColorScheme = darkColorScheme(
 )
 
 @Composable
-fun OPOLEYESTheme(content: @Composable () -> Unit) {
+fun OpoleyesTheme(content: @Composable () -> Unit) {
     val colorScheme = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
         dynamicDarkColorScheme(LocalContext.current).copy(
             primary = Primary,

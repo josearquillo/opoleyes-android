@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <style name="Theme.OPOLEYES" parent="android:Theme.Material.NoActionBar">
+    <style name="Theme.Opoleyes" parent="android:Theme.Material.NoActionBar">
         <item name="android:statusBarColor">@color/bg_dark</item>
         <item name="android:navigationBarColor">@color/bg_dark</item>
         <item name="android:windowBackground">@color/bg_dark</item>
     </style>
-    <style name="Theme.OPOLEYES.Splash" parent="Theme.SplashScreen">
+    <style name="Theme.Opoleyes.Splash" parent="Theme.SplashScreen">
         <item name="windowSplashScreenBackground">@color/bg_dark</item>
         <item name="windowSplashScreenAnimatedIcon">@drawable/ic_launcher_foreground</item>
-        <item name="postSplashScreenTheme">@style/Theme.OPOLEYES</item>
+        <item name="postSplashScreenTheme">@style/Theme.Opoleyes</item>
     </style>
 </resources>

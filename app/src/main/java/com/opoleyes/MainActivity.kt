@@ -10,7 +10,7 @@ import androidx.compose.ui.Modifier
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import com.opoleyes.data.local.PreferencesManager
 import com.opoleyes.ui.navigation.NavGraph
-import com.opoleyes.ui.theme.OPOLEYESTheme
+import com.opoleyes.ui.theme.OpoleyesTheme
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -19,7 +19,7 @@ class MainActivity : ComponentActivity() {
         PreferencesManager(this).initPowerUpsIfNeeded()
         enableEdgeToEdge()
         setContent {
-            OPOLEYESTheme {
+            OpoleyesTheme {
                 Surface(modifier = Modifier.fillMaxSize()) {
                     NavGraph()
                 }
