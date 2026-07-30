@@ -66,8 +66,8 @@ class MissionRepository(private val context: Context) {
                 maxOf(3, Math.ceil(comboRecord * 0.7).toInt()), 0, false, 50, "streak"),
             Mission("progress", "📈",
                 if (lowestLaw != null) "Sube el progreso de \"${lowestLaw.title.ifEmpty { lowestLaw.name }}\" al ${minOf(100, lowestPct + 5)}% en Supervivencia"
-                else "Juega una partida de Supervivencia",
-                if (lowestLaw != null) minOf(100, lowestPct + 5) else 1,
+                else "Acerta al menos 5 preguntas en Supervivencia (cualquier ley)",
+                if (lowestLaw != null) minOf(100, lowestPct + 5) else 5,
                 if (lowestLaw != null) lowestPct else 0, false, 50,
                 "progress_${lowestLaw?.id ?: "any"}", lowestLaw?.id),
         )
@@ -129,7 +129,8 @@ class MissionRepository(private val context: Context) {
         for (m in data.missions) {
             if (m.key.startsWith("progress_")) {
                 val lawId = m.key.removePrefix("progress_")
-                if (lawId != "any") updateProgress("progress", statsRepo.getLeyProgress(lawId))
+                if (lawId == "any") updateProgress("progress", correctCount)
+                else updateProgress("progress", statsRepo.getLeyProgress(lawId))
             }
             if (m.key.startsWith("variety_")) {
                 val lawId = m.key.removePrefix("variety_")

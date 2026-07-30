@@ -314,8 +314,8 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
     fun isGameOver(): Boolean = engine.isGameOver()
 
     fun activateFiftyFifty() { engine.activateFiftyFifty(); updateUiState() }
-    fun activateDoubleScore() { engine.activateDoubleScore(); _powerUpToast.value = PowerUpToast("✨ ¡Doble puntuación activada!", "✨"); updateUiState() }
-    fun activateShield() { engine.activateShield(); _powerUpToast.value = PowerUpToast("🛡️ ¡Escudo activado!", "🛡️"); updateUiState() }
+    fun activateDoubleScore() { engine.activateDoubleScore(); _powerUpToast.value = PowerUpToast("¡Doble puntuación activada!", "✨"); updateUiState() }
+    fun activateShield() { engine.activateShield(); _powerUpToast.value = PowerUpToast("¡Escudo activado!", "🛡️"); updateUiState() }
     fun useHint() { engine.useHint(); updateUiState() }
 
     fun clearPowerUpToast() { _powerUpToast.value = null }
