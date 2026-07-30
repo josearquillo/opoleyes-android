@@ -12,16 +12,22 @@ open class GameRepository(private val context: Context) : com.opoleyes.data.IGam
     private val statsRepo = StatsRepository(context)
     private val prefs = PreferencesManager(context)
 
-    private fun buildPoolFromTestData(td: TestData): List<QuestionEntry> {
+    private fun buildPoolFromTestData(td: TestData, stats: Map<String, com.opoleyes.data.model.QuestionStat>): List<QuestionEntry> {
         val am = td.answers.associate { it.id to it.correct }
         return td.questions.mapNotNull { q ->
             val correct = am[q.id] ?: return@mapNotNull null
             val key = (q.test_id) + ":" + (q.orig_id)
+            val s = stats[key]
+            val weight = if (s != null) {
+                val attempted = s.correct + s.wrong
+                if (attempted < 3) 50
+                else maxOf((100 * (1.0 - s.correct.toDouble() / attempted)).toInt(), 5)
+            } else 50
             QuestionEntry(
                 enunciado = q.enunciado,
                 opciones = q.opciones,
                 correct = correct,
-                weight = statsRepo.getWeight(key),
+                weight = weight,
                 testId = q.test_id,
                 origId = q.orig_id.toString()
             )
@@ -30,14 +36,15 @@ open class GameRepository(private val context: Context) : com.opoleyes.data.IGam
 
     override fun startTemaGame(testId: String): List<QuestionEntry> {
         val td = DataProvider.getTestDataMap(context)[testId] ?: return emptyList()
-        return buildPoolFromTestData(td)
+        return buildPoolFromTestData(td, statsRepo.getStats())
     }
 
     override fun startAllLawsGame(): List<QuestionEntry> {
+        val stats = statsRepo.getStats()
         val pool = mutableListOf<QuestionEntry>()
         for (d in DataProvider.loadData(context)) {
             if (d.test.tema == null) continue
-            pool.addAll(buildPoolFromTestData(d))
+            pool.addAll(buildPoolFromTestData(d, stats))
         }
         return pool
     }
@@ -55,11 +62,15 @@ open class GameRepository(private val context: Context) : com.opoleyes.data.IGam
                 val correct = am[q.id] ?: continue
                 val key = (q.test_id) + ":" + (q.orig_id)
                 val s = stats[key]
+                val attempted = if (s != null) s.correct + s.wrong else 0
+                val weight = if (s != null && attempted >= 3)
+                    maxOf((100 * (1.0 - s.correct.toDouble() / attempted)).toInt(), 5)
+                else 50
                 val entry = QuestionEntry(
                     enunciado = q.enunciado,
                     opciones = q.opciones,
                     correct = correct,
-                    weight = statsRepo.getWeight(key),
+                    weight = weight,
                     testId = q.test_id,
                     origId = q.orig_id.toString()
                 )

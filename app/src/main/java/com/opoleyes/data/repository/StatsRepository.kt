@@ -7,9 +7,21 @@ import com.opoleyes.data.model.QuestionStat
 
 open class StatsRepository(private val context: Context) : com.opoleyes.data.IStatsRepository {
     private val prefs = PreferencesManager(context)
+    private var cachedStats: Map<String, QuestionStat>? = null
 
-    override fun getStats(): Map<String, QuestionStat> = prefs.getStats()
-    fun saveStats(stats: Map<String, QuestionStat>) = prefs.saveStats(stats)
+    override fun getStats(): Map<String, QuestionStat> {
+        cachedStats?.let { return it }
+        val stats = prefs.getStats()
+        cachedStats = stats
+        return stats
+    }
+
+    fun invalidateCache() { cachedStats = null }
+
+    fun saveStats(stats: Map<String, QuestionStat>) {
+        prefs.saveStats(stats)
+        cachedStats = stats
+    }
 
     fun getWeight(key: String): Int {
         val stats = getStats()

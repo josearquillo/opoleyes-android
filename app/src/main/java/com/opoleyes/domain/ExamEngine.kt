@@ -53,6 +53,7 @@ class ExamEngine(private val context: Context) {
         )
 
         val allData = DataProvider.loadData(context).filter { it.test.tema != null }
+        val stats = statsRepo.getStats()
         val poolsByLaw = mutableMapOf<String, MutableList<QuestionEntry>>()
         val testLaw = mutableMapOf<String, String>()
 
@@ -63,11 +64,16 @@ class ExamEngine(private val context: Context) {
             for (q in d.questions) {
                 val correct = am[q.id] ?: continue
                 val key = (q.test_id) + ":" + (q.orig_id)
+                val s = stats[key]
+                val attempted = if (s != null) s.correct + s.wrong else 0
+                val weight = if (s != null && attempted >= 3)
+                    maxOf((100 * (1.0 - s.correct.toDouble() / attempted)).toInt(), 5)
+                else 50
                 val entry = QuestionEntry(
                     enunciado = q.enunciado,
                     opciones = q.opciones,
                     correct = correct,
-                    weight = statsRepo.getWeight(key),
+                    weight = weight,
                     testId = q.test_id,
                     origId = q.orig_id.toString()
                 )

@@ -32,6 +32,29 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
     val engine = GameEngine(application)
     val examEngine = ExamEngine(application)
 
+    // Preloaded data for HomeScreen (computed during loading screen)
+    data class HomePreload(
+        val rank: com.opoleyes.data.model.Rank,
+        val xpProgress: com.opoleyes.data.model.XPProgress,
+        val missions: com.opoleyes.data.model.MissionData,
+        val totalCorrect: Int,
+        val totalWrong: Int,
+        val maxCombo: Int
+    )
+    private var _homePreload: HomePreload? = null
+    val homePreload: HomePreload? get() = _homePreload
+
+    fun preloadHomeData() {
+        if (_homePreload != null) return
+        val rank = progressRepo.getRank()
+        val xpProgress = progressRepo.getXPProgress()
+        val missions = missionRepo.generateDailyMissions()
+        val totalCorrect = statsRepo.getTotalCorrect()
+        val totalWrong = statsRepo.getTotalWrong()
+        val maxCombo = progressRepo.getMaxComboRecord()
+        _homePreload = HomePreload(rank, xpProgress, missions, totalCorrect, totalWrong, maxCombo)
+    }
+
     private val _uiState = MutableStateFlow(GameUiState())
     val uiState: StateFlow<GameUiState> = _uiState.asStateFlow()
 
