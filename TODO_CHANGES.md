@@ -46,7 +46,7 @@
 - Opción B: Usar icono de regalo/caja.
 - Opción C: Eliminar icono y solo mostrar texto de puntos extra.
 
-### 10. Actualizar texto de ayuda
+### 10. Actualizar texto de ayuda ✅
 - Actualizar la pantalla/texto de ayuda con todos los cambios anteriores:
   - Escudo ahora se activa manualmente.
   - Modo QUICK da x1.5 puntos.
