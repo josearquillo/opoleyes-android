@@ -171,23 +171,30 @@ fun ProfileScreen(navController: NavController) {
         Text("Logros (${achievements.size}/${Constants.ACHIEVEMENTS.size})", color = TextLight, fontSize = 18.sp, fontWeight = FontWeight.Bold)
         Spacer(Modifier.height(12.dp))
         // Use a simple grid via Rows
-        val chunked = Constants.ACHIEVEMENTS.chunked(5)
+        val chunked = Constants.ACHIEVEMENTS.chunked(4)
         chunked.forEach { row ->
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
                 row.forEach { ach ->
                     val isUnlocked = achievements.containsKey(ach.id)
                     Column(
                         modifier = Modifier
-                            .size(64.dp)
+                            .width(76.dp)
                             .clip(RoundedCornerShape(12.dp))
                             .background(BgCard.copy(alpha = if (isUnlocked) 1f else 0.3f))
                             .alpha(if (isUnlocked) 1f else 0.3f)
-                            .padding(4.dp),
+                            .padding(6.dp),
                         horizontalAlignment = Alignment.CenterHorizontally,
                         verticalArrangement = Arrangement.Center
                     ) {
-                        Text(ach.icon, fontSize = 20.sp)
-                        Text(ach.name, color = TextMuted, fontSize = 7.sp, maxLines = 2)
+                        Text(ach.icon, fontSize = 24.sp)
+                        Spacer(Modifier.height(2.dp))
+                        Text(
+                            ach.name,
+                            color = TextMuted,
+                            fontSize = 10.sp,
+                            maxLines = 2,
+                            textAlign = androidx.compose.ui.text.style.TextAlign.Center
+                        )
                     }
                 }
             }

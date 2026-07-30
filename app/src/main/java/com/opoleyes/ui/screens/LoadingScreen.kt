@@ -14,7 +14,10 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -128,14 +131,35 @@ fun LoadingScreen(navController: NavController) {
                     navController.navigate(Routes.LOADING) { popUpTo(Routes.LOADING) { inclusive = true } }
                 }
             } else {
-                Image(
-                    painter = painterResource(R.drawable.ic_launcher_foreground),
-                    contentDescription = "OPOLEYES",
-                    modifier = Modifier
-                        .size(96.dp)
-                        .scale(logoScale)
-                        .alpha(logoAlpha)
+                // Glow background behind logo
+                val glowScale by infiniteTransition.animateFloat(
+                    initialValue = 0.9f,
+                    targetValue = 1.1f,
+                    animationSpec = infiniteRepeatable(tween(2000, easing = LinearEasing), RepeatMode.Reverse),
+                    label = "glowScale"
                 )
+                val glowAlpha by infiniteTransition.animateFloat(
+                    initialValue = 0.15f,
+                    targetValue = 0.3f,
+                    animationSpec = infiniteRepeatable(tween(2000), RepeatMode.Reverse),
+                    label = "glowAlpha"
+                )
+                Box(contentAlignment = Alignment.Center) {
+                    Box(
+                        modifier = Modifier
+                            .size(160.dp * glowScale)
+                            .clip(androidx.compose.foundation.shape.CircleShape)
+                            .background(Brush.radialGradient(listOf(Primary.copy(alpha = glowAlpha), Color.Transparent)))
+                    )
+                    Image(
+                        painter = painterResource(R.drawable.ic_launcher_foreground),
+                        contentDescription = "OPOLEYES",
+                        modifier = Modifier
+                            .size(120.dp)
+                            .scale(logoScale)
+                            .alpha(logoAlpha)
+                    )
+                }
 
                 Spacer(Modifier.height(12.dp))
 
