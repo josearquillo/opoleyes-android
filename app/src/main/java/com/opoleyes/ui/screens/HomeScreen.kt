@@ -14,6 +14,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
@@ -25,6 +26,7 @@ import com.opoleyes.data.model.GameMode
 import com.opoleyes.data.model.Mission
 import com.opoleyes.data.repository.MissionRepository
 import com.opoleyes.data.repository.ProgressRepository
+import com.opoleyes.data.repository.StatsRepository
 import com.opoleyes.ui.components.*
 import com.opoleyes.ui.navigation.GameViewModel
 import com.opoleyes.ui.navigation.Routes
@@ -37,11 +39,17 @@ fun HomeScreen(navController: NavController, gameViewModel: GameViewModel) {
     val context = navController.context
     val progressRepo = ProgressRepository(context)
     val missionRepo = MissionRepository(context)
+    val statsRepo = StatsRepository(context)
     val isLoading by gameViewModel.isLoading.collectAsState()
 
     val rank = remember { progressRepo.getRank() }
     val xpProgress = remember { progressRepo.getXPProgress() }
     val missions = remember { missionRepo.generateDailyMissions() }
+    val totalCorrect = remember { statsRepo.getTotalCorrect() }
+    val totalWrong = remember { statsRepo.getTotalWrong() }
+    val maxCombo = remember { progressRepo.getMaxComboRecord() }
+    val hasStats = totalCorrect + totalWrong > 0
+    val accuracy = if (hasStats) totalCorrect * 100 / (totalCorrect + totalWrong) else 0
 
     val scrollState = rememberScrollState()
 
@@ -51,10 +59,23 @@ fun HomeScreen(navController: NavController, gameViewModel: GameViewModel) {
         xpAnim.animateTo(xpProgress.pct / 100f, animationSpec = tween(800, easing = FastOutSlowInEasing))
     }
 
+    // Animated stats counters
+    val accuracyAnim = remember { Animatable(0f) }
+    val correctAnim = remember { Animatable(0f) }
+    val comboAnim = remember { Animatable(0f) }
+    LaunchedEffect(hasStats) {
+        if (hasStats) {
+            delay(400)
+            accuracyAnim.animateTo(accuracy.toFloat(), animationSpec = tween(600, easing = FastOutSlowInEasing))
+            correctAnim.animateTo(totalCorrect.toFloat(), animationSpec = tween(600, easing = FastOutSlowInEasing))
+            comboAnim.animateTo(maxCombo.toFloat(), animationSpec = tween(600, easing = FastOutSlowInEasing))
+        }
+    }
+
     // Staggered appearance
     var visibleItems by remember { mutableStateOf(0) }
     LaunchedEffect(Unit) {
-        for (i in 1..6) {
+        for (i in 1..8) {
             delay(60)
             visibleItems = i
         }
@@ -64,27 +85,16 @@ fun HomeScreen(navController: NavController, gameViewModel: GameViewModel) {
         topBar = {
             TopAppBar(
                 title = {
-                    Text(
-                        "OPOLEYES",
-                        color = Accent,
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 22.sp
-                    )
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Text("OPOLEYES", color = Accent, fontWeight = FontWeight.Bold, fontSize = 22.sp)
+                    }
                 },
                 actions = {
                     IconButton(onClick = { navController.navigate(Routes.PROFILE) }) {
-                        Icon(
-                            Icons.Default.Person,
-                            contentDescription = "Perfil",
-                            tint = TextLight
-                        )
+                        Icon(Icons.Default.Person, contentDescription = "Perfil", tint = TextLight)
                     }
                     IconButton(onClick = { navController.navigate(Routes.HELP) }) {
-                        Icon(
-                            Icons.AutoMirrored.Filled.HelpOutline,
-                            contentDescription = "Ayuda",
-                            tint = TextLight
-                        )
+                        Icon(Icons.AutoMirrored.Filled.HelpOutline, contentDescription = "Ayuda", tint = TextLight)
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
@@ -103,38 +113,66 @@ fun HomeScreen(navController: NavController, gameViewModel: GameViewModel) {
                 .padding(horizontal = 16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // Rank + XP card
+            // Hero rank card
             StaggeredAppearance(visibleItems, 0) {
-                Row(
+                Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .clip(RoundedCornerShape(14.dp))
+                        .clip(RoundedCornerShape(16.dp))
                         .background(Brush.verticalGradient(listOf(BgCard, BgCardDark)))
-                        .padding(14.dp),
-                    verticalAlignment = Alignment.CenterVertically
+                        .border(1.dp, Accent.copy(alpha = 0.3f), RoundedCornerShape(16.dp))
+                        .padding(20.dp)
                 ) {
-                    Text(rank.icon, fontSize = 22.sp)
-                    Spacer(Modifier.width(10.dp))
-                    Column(modifier = Modifier.weight(1f)) {
-                        Text(rank.name, color = TextLight, fontWeight = FontWeight.Bold, fontSize = 15.sp)
-                        Spacer(Modifier.height(4.dp))
-                        Row(
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        // Rank badge circle
+                        Box(
                             modifier = Modifier
-                                .fillMaxWidth()
-                                .height(8.dp)
-                                .clip(RoundedCornerShape(4.dp))
-                                .background(Color.White.copy(alpha = 0.1f))
+                                .size(48.dp)
+                                .clip(androidx.compose.foundation.shape.CircleShape)
+                                .background(Brush.horizontalGradient(listOf(Primary, Accent)))
+                                .border(2.dp, AccentLight.copy(alpha = 0.5f), androidx.compose.foundation.shape.CircleShape),
+                            contentAlignment = Alignment.Center
                         ) {
-                            Box(
-                                modifier = Modifier
-                                    .fillMaxWidth(xpAnim.value)
-                                    .height(8.dp)
-                                    .clip(RoundedCornerShape(4.dp))
-                                    .background(Brush.horizontalGradient(listOf(Primary, Accent)))
-                            )
+                            Text(rank.icon, fontSize = 24.sp)
                         }
-                        Spacer(Modifier.height(2.dp))
-                        Text("${xpProgress.intoRank} / ${xpProgress.rankSpan} XP", color = TextMuted, fontSize = 10.sp)
+                        Spacer(Modifier.width(14.dp))
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text(rank.name, color = TextLight, fontWeight = FontWeight.Bold, fontSize = 18.sp)
+                            Spacer(Modifier.height(6.dp))
+                            // XP bar
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(12.dp)
+                                    .clip(RoundedCornerShape(6.dp))
+                                    .background(Color.White.copy(alpha = 0.08f))
+                            ) {
+                                Box(
+                                    modifier = Modifier
+                                        .fillMaxWidth(xpAnim.value)
+                                        .height(12.dp)
+                                        .clip(RoundedCornerShape(6.dp))
+                                        .background(Brush.horizontalGradient(listOf(Primary, Accent)))
+                                )
+                            }
+                            Spacer(Modifier.height(4.dp))
+                            Text("${xpProgress.intoRank} / ${xpProgress.rankSpan} XP", color = TextMuted, fontSize = 11.sp)
+                        }
+                    }
+                }
+            }
+
+            // Stats row
+            if (hasStats) {
+                Spacer(Modifier.height(12.dp))
+                StaggeredAppearance(visibleItems, 1) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(10.dp)
+                    ) {
+                        StatMiniCard("Precisión", "${accuracyAnim.value.toInt()}%", "🎯", Modifier.weight(1f))
+                        StatMiniCard("Aciertos", "${correctAnim.value.toInt()}", "✅", Modifier.weight(1f))
+                        StatMiniCard("Mejor combo", "${comboAnim.value.toInt()}", "🔥", Modifier.weight(1f))
                     }
                 }
             }
@@ -143,12 +181,12 @@ fun HomeScreen(navController: NavController, gameViewModel: GameViewModel) {
 
             // Missions
             if (missions.missions.isNotEmpty()) {
-                StaggeredAppearance(visibleItems, 1) {
-                    Text("Misiones diarias", color = TextLight, fontWeight = FontWeight.Bold, fontSize = 15.sp)
+                StaggeredAppearance(visibleItems, 2) {
+                    Text("Misiones diarias", color = TextLight, fontWeight = FontWeight.Bold, fontSize = 16.sp)
                 }
                 Spacer(Modifier.height(8.dp))
                 missions.missions.forEachIndexed { idx, m ->
-                    StaggeredAppearance(visibleItems, 2 + idx) {
+                    StaggeredAppearance(visibleItems, 3 + idx) {
                         MissionCard(m) {
                             if (!m.completed) {
                                 gameViewModel.pendingMode = GameMode.SURVIVAL
@@ -173,7 +211,7 @@ fun HomeScreen(navController: NavController, gameViewModel: GameViewModel) {
                     }
                 }
             } else {
-                StaggeredAppearance(visibleItems, 2) {
+                StaggeredAppearance(visibleItems, 3) {
                     GlassCard(Modifier.fillMaxWidth()) {
                         Text("Vuelve mañana para nuevas misiones", color = TextMuted, fontSize = 13.sp)
                     }
@@ -183,18 +221,20 @@ fun HomeScreen(navController: NavController, gameViewModel: GameViewModel) {
             Spacer(Modifier.height(16.dp))
 
             // JUGAR button
-            StaggeredAppearance(visibleItems, 5) {
+            StaggeredAppearance(visibleItems, 7) {
                 GameButton(
                     text = "JUGAR",
-                    icon = "▶",
+                    icon = "",
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(64.dp),
+                        .height(72.dp),
                     color1 = Success,
                     color2 = SuccessDark,
-                    textFontSize = 24,
-                    iconFontSize = 24
-                ) { navController.navigate(Routes.MODE_SELECT) }
+                    textFontSize = 26,
+                    iconFontSize = 26
+                ) {
+                    navController.navigate(Routes.MODE_SELECT)
+                }
             }
         }
     }
@@ -212,51 +252,94 @@ fun StaggeredAppearance(visibleCount: Int, index: Int, content: @Composable () -
         animationSpec = tween(250),
         label = "stagger$index"
     )
+    val scale by animateFloatAsState(
+        targetValue = if (visible) 1f else 0.92f,
+        animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy, stiffness = Spring.StiffnessMediumLow),
+        label = "scale$index"
+    )
     val offsetY by animateFloatAsState(
         targetValue = if (visible) 0f else 16f,
         animationSpec = tween(250),
         label = "offset$index"
     )
-    Box(modifier = Modifier.alpha(alpha).offset { IntOffset(0, offsetY.toInt()) }) {
+    Box(modifier = Modifier.alpha(alpha).scale(scale).offset { IntOffset(0, offsetY.toInt()) }) {
         content()
+    }
+}
+
+@Composable
+fun StatMiniCard(label: String, value: String, icon: String, modifier: Modifier = Modifier) {
+    Column(
+        modifier = modifier
+            .clip(RoundedCornerShape(12.dp))
+            .background(Brush.verticalGradient(listOf(BgCard, BgCardDark)))
+            .padding(vertical = 12.dp, horizontal = 8.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text(icon, fontSize = 20.sp)
+        Spacer(Modifier.height(4.dp))
+        Text(value, color = TextLight, fontWeight = FontWeight.Bold, fontSize = 16.sp)
+        Text(label, color = TextMuted, fontSize = 10.sp)
     }
 }
 
 @Composable
 fun MissionCard(mission: Mission, onClick: () -> Unit) {
     val accentColor = if (mission.completed) Success else PrimaryLight
-    Column(
+    val borderColor = when (mission.type) {
+        "quality" -> Warning
+        "progress" -> Primary
+        "variety" -> Accent
+        "combo" -> Orange
+        "review" -> Cyan
+        else -> PrimaryLight
+    }
+    Row(
         modifier = Modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(10.dp))
+            .clip(RoundedCornerShape(12.dp))
             .background(
                 if (mission.completed) Brush.verticalGradient(listOf(SuccessDark, Color(0xFF052e16)))
                 else Brush.verticalGradient(listOf(BgCard, BgCardDark))
             )
+            .border(width = 2.dp, color = if (mission.completed) Success else borderColor.copy(alpha = 0.4f), shape = RoundedCornerShape(12.dp))
             .clickable { onClick() }
-            .padding(10.dp)
+            .padding(12.dp),
+        verticalAlignment = Alignment.CenterVertically
     ) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Text(if (mission.completed) "✓" else "•", fontSize = 14.sp, color = if (mission.completed) Success else TextMuted)
-            Spacer(Modifier.width(8.dp))
+        // Left color bar
+        Box(
+            modifier = Modifier
+                .width(3.dp)
+                .height(36.dp)
+                .clip(RoundedCornerShape(2.dp))
+                .background(if (mission.completed) Success else borderColor)
+        )
+        Spacer(Modifier.width(10.dp))
+        // Mission icon
+        Text(mission.icon, fontSize = 20.sp)
+        Spacer(Modifier.width(8.dp))
+        Column(modifier = Modifier.weight(1f)) {
             Text(
                 mission.text,
                 color = if (mission.completed) Color(0xFF86efac) else Color(0xFFcbd5e1),
-                fontSize = 12.sp,
-                modifier = Modifier.weight(1f)
+                fontSize = 12.sp
             )
+            Spacer(Modifier.height(6.dp))
+            ProgressBar(
+                progress = (mission.current.toFloat() / mission.target).coerceIn(0f, 1f),
+                color = accentColor,
+                height = 4
+            )
+        }
+        Spacer(Modifier.width(8.dp))
+        Column(horizontalAlignment = Alignment.End) {
             Text(
-                "${mission.current}/${mission.target}",
+                if (mission.completed) "✓" else "${mission.current}/${mission.target}",
                 color = accentColor,
                 fontWeight = FontWeight.Bold,
                 fontSize = 12.sp
             )
         }
-        Spacer(Modifier.height(6.dp))
-        ProgressBar(
-            progress = (mission.current.toFloat() / mission.target).coerceIn(0f, 1f),
-            color = accentColor,
-            height = 4
-        )
     }
 }

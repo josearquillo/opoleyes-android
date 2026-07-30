@@ -3,8 +3,11 @@ package com.opoleyes.ui.theme
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.darkColorScheme
+import androidx.compose.material3.dynamicDarkColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
+import android.os.Build
 
 val BgDark = Color(0xFF0f172a)
 val BgCard = Color(0xFF1e293b)
@@ -50,8 +53,17 @@ private val DarkColorScheme = darkColorScheme(
 
 @Composable
 fun OPOLEYESTheme(content: @Composable () -> Unit) {
+    val colorScheme = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+        dynamicDarkColorScheme(LocalContext.current).copy(
+            primary = Primary,
+            secondary = Accent,
+            tertiary = Warning
+        )
+    } else {
+        DarkColorScheme
+    }
     MaterialTheme(
-        colorScheme = DarkColorScheme,
+        colorScheme = colorScheme,
         typography = OPOLEYESTypography,
         shapes = OPOLEYESShapes,
         content = content

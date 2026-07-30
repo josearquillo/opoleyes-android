@@ -1,25 +1,29 @@
 package com.opoleyes.ui.screens
 
 import androidx.compose.animation.core.*
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ErrorOutline
+import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.opoleyes.R
 import com.opoleyes.data.local.DataProvider
 import com.opoleyes.data.repository.MissionRepository
 import com.opoleyes.ui.components.GameButton
-import com.opoleyes.ui.components.ShimmerBox
 import com.opoleyes.ui.navigation.Routes
 import com.opoleyes.ui.theme.*
 import kotlinx.coroutines.delay
@@ -28,8 +32,17 @@ import kotlinx.coroutines.delay
 fun LoadingScreen(navController: NavController) {
     var error by remember { mutableStateOf<String?>(null) }
     var fadeOut by remember { mutableStateOf(false) }
+    var logoVisible by remember { mutableStateOf(false) }
+    var taglineVisible by remember { mutableStateOf(false) }
+    var spinnerVisible by remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
+        delay(100)
+        logoVisible = true
+        delay(300)
+        taglineVisible = true
+        delay(200)
+        spinnerVisible = true
         try {
             val context = navController.context
             val tests = DataProvider.loadData(context)
@@ -38,7 +51,7 @@ fun LoadingScreen(navController: NavController) {
             } else {
                 val missionRepo = MissionRepository(context)
                 missionRepo.generateDailyMissions()
-                delay(400)
+                delay(600)
                 fadeOut = true
                 delay(300)
                 navController.navigate(Routes.HOME) {
@@ -56,18 +69,38 @@ fun LoadingScreen(navController: NavController) {
         label = "fade"
     )
 
-    val infiniteTransition = rememberInfiniteTransition(label = "loading")
-    val logoScale by infiniteTransition.animateFloat(
-        initialValue = 0.95f,
-        targetValue = 1.05f,
-        animationSpec = infiniteRepeatable(tween(1500, easing = LinearEasing), RepeatMode.Reverse),
+    val logoScale by animateFloatAsState(
+        targetValue = if (logoVisible) 1f else 0.5f,
+        animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy, stiffness = Spring.StiffnessLow),
         label = "logoScale"
     )
-    val shimmerAlpha by infiniteTransition.animateFloat(
-        initialValue = 0.3f,
-        targetValue = 0.7f,
-        animationSpec = infiniteRepeatable(tween(800), RepeatMode.Reverse),
-        label = "shimmer"
+    val logoAlpha by animateFloatAsState(
+        targetValue = if (logoVisible) 1f else 0f,
+        animationSpec = tween(400),
+        label = "logoAlpha"
+    )
+    val taglineAlpha by animateFloatAsState(
+        targetValue = if (taglineVisible) 1f else 0f,
+        animationSpec = tween(400),
+        label = "taglineAlpha"
+    )
+    val taglineOffset by animateFloatAsState(
+        targetValue = if (taglineVisible) 0f else 20f,
+        animationSpec = tween(400, easing = FastOutSlowInEasing),
+        label = "taglineOffset"
+    )
+    val spinnerAlpha by animateFloatAsState(
+        targetValue = if (spinnerVisible) 1f else 0f,
+        animationSpec = tween(300),
+        label = "spinnerAlpha"
+    )
+
+    val infiniteTransition = rememberInfiniteTransition(label = "loading")
+    val pulseAlpha by infiniteTransition.animateFloat(
+        initialValue = 0.4f,
+        targetValue = 0.8f,
+        animationSpec = infiniteRepeatable(tween(1000), RepeatMode.Reverse),
+        label = "pulse"
     )
 
     Box(
@@ -76,39 +109,73 @@ fun LoadingScreen(navController: NavController) {
     ) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             if (error != null) {
-                Text(error!!, color = Danger, fontSize = 16.sp)
+                Icon(
+                    Icons.Default.ErrorOutline,
+                    contentDescription = "Error",
+                    tint = Danger,
+                    modifier = Modifier.size(56.dp)
+                )
                 Spacer(Modifier.height(16.dp))
-                GameButton("Volver", color1 = Danger, color2 = DangerDark) {
-                    navController.navigate(Routes.ERROR)
+                Text("No se pudieron cargar los datos", color = TextLight, fontSize = 18.sp, fontWeight = FontWeight.Bold)
+                Spacer(Modifier.height(8.dp))
+                Text(error ?: "", color = TextMuted, fontSize = 14.sp)
+                Spacer(Modifier.height(24.dp))
+                GameButton("Reintentar", color1 = Primary, color2 = PurpleDark) {
+                    error = null
+                    logoVisible = false
+                    taglineVisible = false
+                    spinnerVisible = false
+                    navController.navigate(Routes.LOADING) { popUpTo(Routes.LOADING) { inclusive = true } }
                 }
             } else {
+                Image(
+                    painter = painterResource(R.drawable.ic_launcher_foreground),
+                    contentDescription = "OPOLEYES",
+                    modifier = Modifier
+                        .size(96.dp)
+                        .scale(logoScale)
+                        .alpha(logoAlpha)
+                )
+
+                Spacer(Modifier.height(12.dp))
+
                 Text(
                     "OPOLEYES",
                     color = Accent,
-                    fontSize = 48.sp,
+                    fontSize = 42.sp,
                     fontWeight = FontWeight.Bold,
-                    modifier = Modifier.scale(logoScale)
+                    modifier = Modifier.alpha(logoAlpha)
                 )
 
-                Spacer(Modifier.height(20.dp))
+                Spacer(Modifier.height(4.dp))
 
-                CircularProgressIndicator(color = Primary, strokeWidth = 3.dp)
-
-                Spacer(Modifier.height(16.dp))
-
-                ShimmerBox(
+                Text(
+                    "Oposiciones de Justicia",
+                    color = TextMuted,
+                    fontSize = 15.sp,
                     modifier = Modifier
-                        .width(120.dp)
-                        .height(16.dp)
-                        .clip(RoundedCornerShape(8.dp))
-                        .background(BgCard)
-                ) {
-                    Box(modifier = Modifier.fillMaxSize().background(BgCard))
-                }
+                        .alpha(taglineAlpha)
+                        .padding(start = taglineOffset.dp)
+                )
 
-                Spacer(Modifier.height(6.dp))
+                Spacer(Modifier.height(32.dp))
 
-                Text("Cargando...", color = TextMuted.copy(alpha = shimmerAlpha), fontSize = 14.sp)
+                CircularProgressIndicator(
+                    color = Primary,
+                    strokeWidth = 3.dp,
+                    modifier = Modifier
+                        .size(32.dp)
+                        .alpha(spinnerAlpha)
+                )
+
+                Spacer(Modifier.height(12.dp))
+
+                Text(
+                    "Cargando...",
+                    color = TextMuted.copy(alpha = pulseAlpha * spinnerAlpha),
+                    fontSize = 13.sp,
+                    modifier = Modifier.alpha(spinnerAlpha)
+                )
             }
         }
     }
