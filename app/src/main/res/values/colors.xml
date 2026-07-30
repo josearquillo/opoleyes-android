@@ -2,8 +2,8 @@
 <resources>
     <color name="bg_dark">#0f172a</color>
     <color name="bg_card">#1e293b</color>
-    <color name="primary">#6366f1</color>
-    <color name="accent">#a855f7</color>
+    <color name="primary">#7c3aed</color>
+    <color name="accent">#f5b342</color>
     <color name="success">#22c55e</color>
     <color name="danger">#ef4444</color>
     <color name="warning">#fbbf24</color>

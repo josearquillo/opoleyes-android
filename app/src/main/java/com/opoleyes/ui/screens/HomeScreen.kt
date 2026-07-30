@@ -86,7 +86,7 @@ fun HomeScreen(navController: NavController, gameViewModel: GameViewModel) {
             TopAppBar(
                 title = {
                     Row(verticalAlignment = Alignment.CenterVertically) {
-                        Text("Opoleyes", color = Accent, fontWeight = FontWeight.Bold, fontSize = 22.sp)
+                        Text("OpoLeyes", color = Accent, fontWeight = FontWeight.Bold, fontSize = 22.sp)
                     }
                 },
                 actions = {
