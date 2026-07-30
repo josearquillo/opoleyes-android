@@ -13,7 +13,6 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
-import androidx.compose.material.icons.filled.Shield
 import androidx.compose.material.icons.filled.Timer
 import androidx.compose.material.icons.filled.Bolt
 import androidx.compose.material3.*
@@ -132,7 +131,6 @@ fun HudBar(
     timer: Float,
     mode: com.opoleyes.data.model.GameMode,
     questionNum: Int,
-    shieldCharges: Int,
     streak: Int = 0,
     modifier: Modifier = Modifier
 ) {
@@ -148,13 +146,6 @@ fun HudBar(
         Row(verticalAlignment = Alignment.CenterVertically) {
             if (mode == com.opoleyes.data.model.GameMode.SURVIVAL || mode == com.opoleyes.data.model.GameMode.QUICK) {
                 repeat(lives) { Icon(Icons.Default.Favorite, contentDescription = null, tint = Danger, modifier = Modifier.size(18.dp)) }
-            }
-            if (shieldCharges > 0) {
-                Spacer(Modifier.width(4.dp))
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Icon(Icons.Default.Shield, contentDescription = null, tint = PrimaryLight, modifier = Modifier.size(16.dp))
-                    Text("$shieldCharges", color = PrimaryLight, fontSize = 16.sp)
-                }
             }
         }
         Text(

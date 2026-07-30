@@ -59,6 +59,7 @@ class GameEngine private constructor(
     var comboOverchargeCharges: Int = 0
     var startRankIndex: Int = 0
     var startXP: Int = 0
+    var powerUpsSaved: Boolean = false
 
     var fiftyFiftyCharges: Int = 0
     var fiftyFiftyActive: Boolean = false
@@ -84,6 +85,7 @@ class GameEngine private constructor(
         hintCharges = 0; hintActive = false; hintRemoved = emptyList()
         shieldCharges = 0; shieldActive = false; ctxFiftyFiftyUsed = false; ctxLifeRecovered = false
         powerUpUsedThisQuestion = false
+        powerUpsSaved = false
         startRankIndex = progressRepo.getRankIndex()
         startXP = progressRepo.getXP()
 
@@ -315,6 +317,8 @@ class GameEngine private constructor(
 
     fun saveRemainingPowerUps() {
         if (prefs.isDebugMode()) return
+        if (powerUpsSaved) return
+        powerUpsSaved = true
         val remaining = mutableListOf<String>()
         repeat(shieldCharges) { remaining.add("shield") }
         repeat(fiftyFiftyCharges) { remaining.add("fiftyFifty") }

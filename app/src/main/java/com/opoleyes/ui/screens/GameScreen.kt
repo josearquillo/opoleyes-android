@@ -202,7 +202,6 @@ fun GameScreen(navController: NavController, gameViewModel: GameViewModel) {
                     timer = uiState.timer,
                     mode = uiState.mode,
                     questionNum = uiState.questionNum,
-                    shieldCharges = uiState.shieldCharges,
                     streak = uiState.streak
                 )
 
