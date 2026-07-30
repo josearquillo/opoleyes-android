@@ -32,7 +32,7 @@
 - En la pantalla de configuración de examen, quitar los iconos (rayo, corazón, copa) junto a las opciones de número de preguntas.
 - Dejar solo los números como texto.
 
-### 7. Reducir alto mínimo de la tarjeta de pregunta
+### 7. Reducir alto mínimo de la tarjeta de pregunta ✅
 - Algunas preguntas tienen 1-2 líneas y la tarjeta no se adapta al contenido.
 - Reducir el `minHeight` de la tarjeta de pregunta para aprovechar mejor el espacio.
 

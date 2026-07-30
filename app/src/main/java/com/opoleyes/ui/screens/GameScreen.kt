@@ -240,12 +240,12 @@ fun GameScreen(navController: NavController, gameViewModel: GameViewModel) {
                                         .fillMaxWidth()
                                         .clip(RoundedCornerShape(16.dp))
                                         .background(Brush.verticalGradient(listOf(BgCard, BgCardDark)))
-                                        .padding(20.dp)
+                                        .padding(16.dp)
                                 ) {
                                     Text(q.enunciado, color = TextLight, fontSize = 17.sp)
                                 }
 
-                                Spacer(Modifier.height(12.dp))
+                                Spacer(Modifier.height(8.dp))
 
                                 // Power-up buttons (always visible to prevent layout shift on answer)
                                 FlowRow(
