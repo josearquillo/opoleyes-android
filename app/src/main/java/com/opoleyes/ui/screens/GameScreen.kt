@@ -238,7 +238,7 @@ fun GameScreen(navController: NavController, gameViewModel: GameViewModel) {
                                     modifier = Modifier
                                         .fillMaxWidth()
                                         .clip(RoundedCornerShape(16.dp))
-                                        .background(Brush.verticalGradient(listOf(Color(0xFF1e293b), Color(0xFF0f172a))))
+                                        .background(Brush.verticalGradient(listOf(BgCard, BgCardDark)))
                                         .padding(16.dp)
                                 ) {
                                     Text(q.enunciado, color = TextLight, fontSize = 17.sp, fontWeight = FontWeight.Bold)
@@ -256,10 +256,10 @@ fun GameScreen(navController: NavController, gameViewModel: GameViewModel) {
                                         PowerUpButton("Escudo", "🛡️", uiState.shieldCharges, PrimaryLight, enabled = !uiState.answered && !uiState.shieldActive && !uiState.powerUpUsedThisQuestion) { gameViewModel.activateShield() }
                                     }
                                     if (uiState.hintCharges > 0 && uiState.mode != GameMode.QUICK) {
-                                        PowerUpButton("Pista", "💡", uiState.hintCharges, Color(0xFFa16207), enabled = !uiState.answered && !uiState.hintActive && !uiState.powerUpUsedThisQuestion) { gameViewModel.useHint() }
+                                        PowerUpButton("Pista", "💡", uiState.hintCharges, WarningDark, enabled = !uiState.answered && !uiState.hintActive && !uiState.powerUpUsedThisQuestion) { gameViewModel.useHint() }
                                     }
                                     if (uiState.fiftyFiftyCharges > 0 && uiState.mode != GameMode.QUICK) {
-                                        PowerUpButton("50/50", "✂️", uiState.fiftyFiftyCharges, Purple, enabled = !uiState.answered && !uiState.fiftyFiftyActive && !uiState.powerUpUsedThisQuestion) { gameViewModel.activateFiftyFifty() }
+                                        PowerUpButton("50/50", "✂️", uiState.fiftyFiftyCharges, Primary, enabled = !uiState.answered && !uiState.fiftyFiftyActive && !uiState.powerUpUsedThisQuestion) { gameViewModel.activateFiftyFifty() }
                                     }
                                     if (uiState.doubleScoreCharges > 0 && uiState.mode != GameMode.QUICK) {
                                         PowerUpButton("x2 pts", "✨", uiState.doubleScoreCharges, Warning, enabled = !uiState.answered && !uiState.doubleScoreActive && !uiState.powerUpUsedThisQuestion) { gameViewModel.activateDoubleScore() }

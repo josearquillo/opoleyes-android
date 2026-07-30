@@ -291,7 +291,7 @@ fun MissionCard(mission: Mission, onClick: () -> Unit) {
         "progress" -> Primary
         "variety" -> Accent
         "combo" -> Orange
-        "review" -> Cyan
+        "review" -> Primary
         else -> PrimaryLight
     }
     Row(
@@ -299,7 +299,7 @@ fun MissionCard(mission: Mission, onClick: () -> Unit) {
             .fillMaxWidth()
             .clip(RoundedCornerShape(12.dp))
             .background(
-                if (mission.completed) Brush.verticalGradient(listOf(SuccessDark, Color(0xFF052e16)))
+                if (mission.completed) Brush.verticalGradient(listOf(SuccessDark, SuccessDark))
                 else Brush.verticalGradient(listOf(BgCard, BgCardDark))
             )
             .border(width = 2.dp, color = if (mission.completed) Success else borderColor.copy(alpha = 0.4f), shape = RoundedCornerShape(12.dp))
@@ -322,7 +322,7 @@ fun MissionCard(mission: Mission, onClick: () -> Unit) {
         Column(modifier = Modifier.weight(1f)) {
             Text(
                 mission.text,
-                color = if (mission.completed) Color(0xFF86efac) else Color(0xFFcbd5e1),
+                color = if (mission.completed) SuccessLight else TextOption,
                 fontSize = 12.sp
             )
             Spacer(Modifier.height(6.dp))

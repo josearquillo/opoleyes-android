@@ -96,13 +96,13 @@ fun OptionCard(
         answered && isCorrect -> Brush.verticalGradient(listOf(SuccessDark, Success))
         answered && isWrong -> Brush.verticalGradient(listOf(DangerDark, Danger))
         !answered && isSelected -> Brush.verticalGradient(listOf(Primary, PurpleDark))
-        !answered && isHintRemoved -> Brush.verticalGradient(listOf(Color(0xFF2a2a3e), Color(0xFF1f1f2e)))
+        !answered && isHintRemoved -> Brush.verticalGradient(listOf(HintRemoved, HintRemovedDark))
         else -> Brush.verticalGradient(listOf(BgCard, BgCardDark))
     }
     val textColor = when {
         isHintRemoved && !answered -> TextDim
         isSelected || (isCorrect && answered) -> Color.White
-        else -> Color(0xFFcbd5e1)
+        else -> TextOption
     }
     val borderColor = if (answered && isCorrect) Success else if (answered && isWrong) Danger else Color.Transparent
     val borderWidth = if (answered && (isCorrect || isWrong)) 2.dp else 0.dp
@@ -194,7 +194,7 @@ fun ComboBar(
                 .background(Color.White.copy(alpha = 0.1f))
         ) {
             val gradient = if (overchargeActive) {
-                Brush.horizontalGradient(listOf(Warning, Color(0xFFf59e0b), Warning))
+                Brush.horizontalGradient(listOf(Warning, WarningDark, Warning))
             } else if (fill < 0.3f) {
                 Brush.horizontalGradient(listOf(Primary, PrimaryLight))
             } else if (fill < 0.7f) {

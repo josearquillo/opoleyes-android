@@ -13,6 +13,7 @@ import com.opoleyes.domain.AchievementContext
 import com.opoleyes.domain.ChestSystem
 import com.opoleyes.domain.ExamEngine
 import com.opoleyes.domain.GameEngine
+import com.opoleyes.ui.theme.Primary
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -291,7 +292,7 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
                     addPopup("COMBO x${engine.combo}", comboColor, 40, 0.15f, "🔥")
                 }
                 if (engine.mode == GameMode.TIMETRIAL || engine.mode == GameMode.CHALLENGE) {
-                    addPopup("+15s", com.opoleyes.ui.theme.Cyan, 44, 0.3f, "⏱️")
+                    addPopup("+15s", Primary, 44, 0.3f, "⏱️")
                 }
                 if (engine.streak > 0 && engine.streak % 5 == 0) {
                     val streakMsg = when {
@@ -320,7 +321,7 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
                 checkAchievements(AchievementContext(maxCombo = engine.maxCombo, score = engine.score, gameMode = engine.mode.name.lowercase()))
             }
             GameEngine.AnswerResult.SHIELD_USED -> {
-                addPopup("Escudo usado!", com.opoleyes.ui.theme.Cyan, 44, 0f, "🛡️")
+                addPopup("Escudo usado!", Primary, 44, 0f, "🛡️")
             }
             else -> {}
         }

@@ -149,7 +149,7 @@ private fun HelpSection(data: HelpSectionData) {
             .background(Brush.verticalGradient(listOf(BgCard, BgCardDark)))
             .padding(16.dp)
     ) {
-        Text("${data.icon} ${data.title}", color = PrimaryLight, fontSize = 18.sp, fontWeight = FontWeight.Bold)
+        Text("${data.icon} ${data.title}", color = Accent, fontSize = 18.sp, fontWeight = FontWeight.Bold)
         Spacer(Modifier.height(8.dp))
         data.lines.forEach { line ->
             Text(line, color = TextMuted, fontSize = 14.sp)

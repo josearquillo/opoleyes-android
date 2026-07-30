@@ -33,21 +33,8 @@ import kotlinx.coroutines.withContext
 fun LoadingScreen(navController: NavController) {
     var error by remember { mutableStateOf<String?>(null) }
     var fadeOut by remember { mutableStateOf(false) }
-    var phraseIndex by remember { mutableStateOf(0) }
-    var phraseAlpha by remember { mutableStateOf(0f) }
 
-    // Dynamic phrases like Bitpanda — short, punchy, rotate quickly
-    val phrases = listOf(
-        "Estudia leyes mientras juegas",
-        "Supervivencia, contrarreloj, examen",
-        "Sube de rango y desbloquea modos",
-        "Misiones diarias, cofres y logros",
-        "Prepara tu oposición de justicia",
-        "Más de 7000 preguntas reales",
-        "Aprende de tus errores"
-    )
     val minDisplayTime = 3500
-    val phraseDuration = 700
 
     LaunchedEffect(Unit) {
         try {
@@ -70,14 +57,6 @@ fun LoadingScreen(navController: NavController) {
                 DataProvider.getTestDataMap(context)
             }
 
-            // Show phrases for minDisplayTime, rotating quickly
-            phraseAlpha = 1f
-            val totalPhrases = minDisplayTime / phraseDuration
-            for (i in 0 until totalPhrases) {
-                phraseIndex = i % phrases.size
-                delay(phraseDuration.toLong())
-            }
-
             // Ensure minimum display time
             val elapsed = System.currentTimeMillis() - startTime
             if (elapsed < minDisplayTime) {
@@ -93,13 +72,6 @@ fun LoadingScreen(navController: NavController) {
             error = e.message ?: "Error desconocido"
         }
     }
-
-    // Fade animation for phrase transitions
-    val animatedPhraseAlpha by animateFloatAsState(
-        targetValue = phraseAlpha,
-        animationSpec = tween(300, easing = FastOutSlowInEasing),
-        label = "phraseFade"
-    )
 
     val fadeAlpha by animateFloatAsState(
         targetValue = if (fadeOut) 0f else 1f,
@@ -145,13 +117,12 @@ fun LoadingScreen(navController: NavController) {
 
                 Spacer(Modifier.height(48.dp))
 
-                // Dynamic phrase — fades in, changes every ~0.7s
+                // Status text
                 Text(
-                    phrases[phraseIndex],
+                    "Cargando aplicación...",
                     color = TextMuted,
                     fontSize = 16.sp,
-                    fontWeight = FontWeight.Medium,
-                    modifier = Modifier.alpha(animatedPhraseAlpha)
+                    fontWeight = FontWeight.Medium
                 )
             }
         }

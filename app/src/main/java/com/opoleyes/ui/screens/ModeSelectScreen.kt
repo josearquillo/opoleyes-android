@@ -130,8 +130,8 @@ private fun ModeCard(mode: ModeInfo, enabled: Boolean = true, onClick: () -> Uni
     val locked = !mode.unlocked
     val colors = when (mode.mode) {
         GameMode.SURVIVAL -> listOf(Danger, DangerDark)
-        GameMode.TIMETRIAL -> listOf(Cyan, Color(0xFF155e75))
-        GameMode.QUICK -> listOf(Warning, Color(0xFF92400e))
+        GameMode.TIMETRIAL -> listOf(Primary, PurpleDark)
+        GameMode.QUICK -> listOf(Warning, WarningDark)
         GameMode.EXAM -> listOf(Success, SuccessDark)
         GameMode.CHALLENGE -> listOf(Accent, PurpleDark)
     }
@@ -181,8 +181,8 @@ private fun ExamConfigDialog(
 ) {
     val presets = listOf(
         ExamPreset("Rápido", 25, Primary, PurpleDark),
-        ExamPreset("Estándar", 50, Danger, Color(0xFF7f1d1d)),
-        ExamPreset("Completo", 100, Warning, Color(0xFF78350f))
+        ExamPreset("Estándar", 50, Danger, DangerDark),
+        ExamPreset("Completo", 100, Warning, WarningDark)
     )
 
     AlertDialog(

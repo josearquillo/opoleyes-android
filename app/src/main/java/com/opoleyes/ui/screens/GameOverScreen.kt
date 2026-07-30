@@ -167,7 +167,7 @@ fun GameOverScreen(navController: NavController, gameViewModel: GameViewModel) {
             }
 
             Spacer(Modifier.height(20.dp))
-            Text("$displayScore", color = PrimaryLight, fontSize = 56.sp, fontWeight = FontWeight.Bold)
+            Text("$displayScore", color = Accent, fontSize = 56.sp, fontWeight = FontWeight.Bold)
             Text("puntos", color = TextMuted, fontSize = 16.sp)
 
             if (xpGained > 0) {
@@ -269,7 +269,7 @@ fun ChestOverlay(chest: ChestReward, opened: Boolean, shakeCount: Int, onOpen: (
 
     val typeEmoji = when (chest.type) { ChestType.WOOD -> "📦"; ChestType.SILVER -> "🗃️"; ChestType.GOLD -> "🎁" }
     val typeLabel = chest.type.label
-    val typeColor = when (chest.type) { ChestType.WOOD -> TextMuted; ChestType.SILVER -> Color(0xFFcbd5e1); ChestType.GOLD -> Warning }
+    val typeColor = when (chest.type) { ChestType.WOOD -> TextMuted; ChestType.SILVER -> TextOption; ChestType.GOLD -> Warning }
 
     // Shake animation for chest
     val chestShakeAnim = remember { Animatable(0f) }
@@ -399,7 +399,7 @@ fun RankUpOverlayView(overlay: RankUpOverlay, onDismiss: () -> Unit) {
                 Spacer(Modifier.height(12.dp))
                 Text("¡Has subido a ${overlay.newRank.name}!", color = Warning, fontSize = 22.sp, fontWeight = FontWeight.Bold)
                 Spacer(Modifier.height(8.dp))
-                Text("${overlay.oldRank.icon} ${overlay.oldRank.name} → ${overlay.newRank.icon} ${overlay.newRank.name}", color = Color(0xFFfcd34d), fontSize = 15.sp)
+                Text("${overlay.oldRank.icon} ${overlay.oldRank.name} → ${overlay.newRank.icon} ${overlay.newRank.name}", color = AccentLight, fontSize = 15.sp)
 
                 val unlockText = com.opoleyes.data.Constants.RANK_UNLOCKS[overlay.newRank.index]
                 if (unlockText != null) {
