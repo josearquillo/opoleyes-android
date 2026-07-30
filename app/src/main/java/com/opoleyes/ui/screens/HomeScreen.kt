@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.HelpOutline
-import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -90,9 +89,6 @@ fun HomeScreen(navController: NavController, gameViewModel: GameViewModel) {
                     }
                 },
                 actions = {
-                    IconButton(onClick = { navController.navigate(Routes.PROFILE) }) {
-                        Icon(Icons.Default.Person, contentDescription = "Perfil", tint = TextLight)
-                    }
                     IconButton(onClick = { navController.navigate(Routes.HELP) }) {
                         Icon(Icons.AutoMirrored.Filled.HelpOutline, contentDescription = "Ayuda", tint = TextLight)
                     }
@@ -113,7 +109,7 @@ fun HomeScreen(navController: NavController, gameViewModel: GameViewModel) {
                 .padding(horizontal = 16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // Hero rank card
+            // Hero rank card — tap to open profile
             StaggeredAppearance(visibleItems, 0) {
                 Box(
                     modifier = Modifier
@@ -121,6 +117,7 @@ fun HomeScreen(navController: NavController, gameViewModel: GameViewModel) {
                         .clip(RoundedCornerShape(16.dp))
                         .background(Brush.verticalGradient(listOf(BgCard, BgCardDark)))
                         .border(1.dp, Accent.copy(alpha = 0.3f), RoundedCornerShape(16.dp))
+                        .clickable { navController.navigate(Routes.PROFILE) }
                         .padding(20.dp)
                 ) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
