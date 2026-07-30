@@ -36,7 +36,7 @@
 - Algunas preguntas tienen 1-2 líneas y la tarjeta no se adapta al contenido.
 - Reducir el `minHeight` de la tarjeta de pregunta para aprovechar mejor el espacio.
 
-### 8. Diferenciar pregunta de respuestas visualmente
+### 8. Diferenciar pregunta de respuestas visualmente ✅
 - Poner el texto de la pregunta en **negrita**.
 - Cambiar el color de fondo de la tarjeta de pregunta para que resalte respecto a las respuestas.
 

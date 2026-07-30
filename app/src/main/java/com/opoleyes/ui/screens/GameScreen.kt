@@ -239,10 +239,10 @@ fun GameScreen(navController: NavController, gameViewModel: GameViewModel) {
                                     modifier = Modifier
                                         .fillMaxWidth()
                                         .clip(RoundedCornerShape(16.dp))
-                                        .background(Brush.verticalGradient(listOf(BgCard, BgCardDark)))
+                                        .background(Brush.verticalGradient(listOf(Color(0xFF1e293b), Color(0xFF0f172a))))
                                         .padding(16.dp)
                                 ) {
-                                    Text(q.enunciado, color = TextLight, fontSize = 17.sp)
+                                    Text(q.enunciado, color = TextLight, fontSize = 17.sp, fontWeight = FontWeight.Bold)
                                 }
 
                                 Spacer(Modifier.height(8.dp))
