@@ -16,12 +16,14 @@ import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalLifecycleOwner
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.navigation.NavController
+import com.opoleyes.R
 import com.opoleyes.data.model.GameMode
 import com.opoleyes.ui.components.*
 import com.opoleyes.ui.navigation.GameViewModel
@@ -39,7 +41,14 @@ fun GameScreen(navController: NavController, gameViewModel: GameViewModel) {
 
     val q = uiState.currentQ
     if (q == null) {
-        LaunchedEffect(Unit) { navController.navigate(Routes.GAME_OVER) }
+        // Guard against duplicate navigation on recomposition
+        var navigated by remember { mutableStateOf(false) }
+        LaunchedEffect(Unit) {
+            if (!navigated) {
+                navigated = true
+                navController.navigate(Routes.GAME_OVER)
+            }
+        }
         return
     }
 
@@ -83,15 +92,13 @@ fun GameScreen(navController: NavController, gameViewModel: GameViewModel) {
                 Lifecycle.Event.ON_RESUME -> {
                     if (pausedAtMs > 0L) {
                         val elapsed = (System.currentTimeMillis() - pausedAtMs) / 1000f
-                        if ((gameViewModel.engine.mode == GameMode.TIMETRIAL || gameViewModel.engine.mode == GameMode.CHALLENGE)) {
-                            gameViewModel.engine.timer = (gameViewModel.engine.timer - elapsed).coerceAtLeast(0f)
-                            if (gameViewModel.engine.timer <= 0) {
+                        if (gameViewModel.isTimedMode()) {
+                            if (gameViewModel.applyPausedElapsed(elapsed)) {
                                 gameViewModel.onGameOver()
                                 navController.navigate(Routes.GAME_OVER) {
                                     popUpTo(Routes.GAME) { inclusive = true }
                                 }
                             }
-                            gameViewModel.updateUiState()
                         }
                         pausedAtMs = 0L
                     }
@@ -107,14 +114,12 @@ fun GameScreen(navController: NavController, gameViewModel: GameViewModel) {
     LaunchedEffect(uiState.mode, uiState.timer, uiState.answered) {
         if ((uiState.mode == GameMode.TIMETRIAL || uiState.mode == GameMode.CHALLENGE) && !uiState.answered && uiState.timer > 0) {
             delay(1000)
-            gameViewModel.engine.timer = (gameViewModel.engine.timer - 1f).coerceAtLeast(0f)
-            if (gameViewModel.engine.timer <= 0) {
+            if (gameViewModel.tickTimer()) {
                 gameViewModel.onGameOver()
                 navController.navigate(Routes.GAME_OVER) {
                     popUpTo(Routes.GAME) { inclusive = true }
                 }
             }
-            gameViewModel.updateUiState()
         }
     }
 
@@ -147,16 +152,16 @@ fun GameScreen(navController: NavController, gameViewModel: GameViewModel) {
     if (showExitDialog) {
         AlertDialog(
             onDismissRequest = { showExitDialog = false },
-            title = { Text("¿Volver al menú?") },
-            text = { Text("Perderás tu progreso.") },
+            title = { Text(stringResource(R.string.back_to_menu)) },
+            text = { Text(stringResource(R.string.lose_progress)) },
             confirmButton = {
                 TextButton(onClick = {
                     showExitDialog = false
                     gameViewModel.exitGame()
                     navController.navigate(Routes.HOME) { popUpTo(Routes.HOME) { inclusive = true } }
-                }) { Text("Salir") }
+                }) { Text(stringResource(R.string.exit)) }
             },
-            dismissButton = { TextButton(onClick = { showExitDialog = false }) { Text("Cancelar") } }
+            dismissButton = { TextButton(onClick = { showExitDialog = false }) { Text(stringResource(R.string.cancel)) } }
         )
     }
 
@@ -253,50 +258,64 @@ fun GameScreen(navController: NavController, gameViewModel: GameViewModel) {
                                     verticalArrangement = Arrangement.spacedBy(4.dp)
                                 ) {
                                     if (uiState.shieldCharges > 0 && uiState.mode != GameMode.QUICK) {
-                                        PowerUpButton("Escudo", "🛡️", uiState.shieldCharges, PrimaryLight, enabled = !uiState.answered && !uiState.shieldActive && !uiState.powerUpUsedThisQuestion) { gameViewModel.activateShield() }
+                                        PowerUpButton(stringResource(R.string.shield), "🛡️", uiState.shieldCharges, PrimaryLight, enabled = !uiState.answered && !uiState.shieldActive && !uiState.powerUpUsedThisQuestion) { gameViewModel.activateShield() }
                                     }
                                     if (uiState.hintCharges > 0 && uiState.mode != GameMode.QUICK) {
-                                        PowerUpButton("Pista", "💡", uiState.hintCharges, WarningDark, enabled = !uiState.answered && !uiState.hintActive && !uiState.powerUpUsedThisQuestion) { gameViewModel.useHint() }
+                                        PowerUpButton(stringResource(R.string.hint), "💡", uiState.hintCharges, WarningDark, enabled = !uiState.answered && !uiState.hintActive && !uiState.powerUpUsedThisQuestion) { gameViewModel.useHint() }
                                     }
                                     if (uiState.fiftyFiftyCharges > 0 && uiState.mode != GameMode.QUICK) {
-                                        PowerUpButton("50/50", "✂️", uiState.fiftyFiftyCharges, Primary, enabled = !uiState.answered && !uiState.fiftyFiftyActive && !uiState.powerUpUsedThisQuestion) { gameViewModel.activateFiftyFifty() }
+                                        PowerUpButton(stringResource(R.string.fifty_fifty), "✂️", uiState.fiftyFiftyCharges, Primary, enabled = !uiState.answered && !uiState.fiftyFiftyActive && !uiState.powerUpUsedThisQuestion) { gameViewModel.activateFiftyFifty() }
                                     }
                                     if (uiState.doubleScoreCharges > 0 && uiState.mode != GameMode.QUICK) {
-                                        PowerUpButton("x2 pts", "✨", uiState.doubleScoreCharges, Warning, enabled = !uiState.answered && !uiState.doubleScoreActive && !uiState.powerUpUsedThisQuestion) { gameViewModel.activateDoubleScore() }
+                                        PowerUpButton(stringResource(R.string.double_points), "✨", uiState.doubleScoreCharges, Warning, enabled = !uiState.answered && !uiState.doubleScoreActive && !uiState.powerUpUsedThisQuestion) { gameViewModel.activateDoubleScore() }
                                     }
                                 }
                                 Spacer(Modifier.height(12.dp))
 
-                                // Options (shuffled display order)
+                                // Options (shuffled display order). Iterate over all letters and
+                                // drive visibility with AnimatedVisibility so 50/50 removals animate
+                                // out instead of vanishing abruptly.
                                 val allLetters = listOf("A", "B", "C", "D")
                                 val shuffledLetters = remember(q) { allLetters.shuffled() }
-                                val visibleLetters = shuffledLetters.filter { letter ->
-                                    q.opciones[letter] != null &&
-                                    !(uiState.fiftyFiftyActive && uiState.fiftyFiftyRemoved.contains(letter) && letter != q.correct)
-                                }
-                                visibleLetters.forEachIndexed { index, letter ->
+                                val presentLetters = shuffledLetters.filter { q.opciones[it] != null }
+                                val removedByFiftyFifty = uiState.fiftyFiftyActive && uiState.fiftyFiftyRemoved.isNotEmpty()
+                                presentLetters.forEachIndexed { index, letter ->
                                     key(letter) {
                                         val text = q.opciones[letter]!!
+                                        val isFiftyFiftyRemoved =
+                                            removedByFiftyFifty && uiState.fiftyFiftyRemoved.contains(letter) && letter != q.correct
 
-                                        var visible by remember(q, letter) { mutableStateOf(false) }
+                                        var enterVisible by remember(q, letter) { mutableStateOf(false) }
                                         LaunchedEffect(q) {
                                             delay(index * 80L)
-                                            visible = true
+                                            enterVisible = true
                                         }
-                                        AnimatedVisibility(visible = visible) {
-                                            OptionCard(
-                                                text = text,
-                                                modifier = Modifier.fillMaxWidth(),
-                                                isCorrect = letter == q.correct,
-                                                isSelected = uiState.selectedOption == letter,
-                                                isWrong = uiState.answered && uiState.selectedOption == letter && letter != q.correct,
-                                                isHintRemoved = uiState.hintActive && uiState.hintRemoved.contains(letter),
-                                                answered = uiState.answered,
-                                                enabled = !uiState.answered
-                                            ) {
-                                                gameViewModel.answer(letter)
+                                        AnimatedVisibility(
+                                            visible = enterVisible && !isFiftyFiftyRemoved,
+                                            enter = fadeIn(tween(200)) + slideInVertically(
+                                                animationSpec = tween(250, easing = FastOutSlowInEasing),
+                                                initialOffsetY = { it / 4 }
+                                            ),
+                                            exit = fadeOut(tween(200)) + slideOutHorizontally(
+                                                animationSpec = tween(200),
+                                                targetOffsetX = { -it / 2 }
+                                            )
+                                        ) {
+                                            Column {
+                                                OptionCard(
+                                                    text = text,
+                                                    modifier = Modifier.fillMaxWidth(),
+                                                    isCorrect = letter == q.correct,
+                                                    isSelected = uiState.selectedOption == letter,
+                                                    isWrong = uiState.answered && uiState.selectedOption == letter && letter != q.correct,
+                                                    isHintRemoved = uiState.hintActive && uiState.hintRemoved.contains(letter),
+                                                    answered = uiState.answered,
+                                                    enabled = !uiState.answered
+                                                ) {
+                                                    gameViewModel.answer(letter)
+                                                }
+                                                Spacer(Modifier.height(10.dp))
                                             }
-                                            Spacer(Modifier.height(10.dp))
                                         }
                                     }
                                 }

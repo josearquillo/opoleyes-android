@@ -18,13 +18,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import com.opoleyes.data.local.DataProvider
+import com.opoleyes.R
 import com.opoleyes.data.model.Test
-import com.opoleyes.data.repository.StatsRepository
 import com.opoleyes.ui.components.LoadingOverlay
 import com.opoleyes.ui.navigation.GameViewModel
 import com.opoleyes.ui.navigation.Routes
@@ -33,9 +33,7 @@ import com.opoleyes.ui.theme.*
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TemaSelectScreen(navController: NavController, gameViewModel: GameViewModel) {
-    val context = navController.context
-    val statsRepo = StatsRepository(context)
-    val tests = remember { DataProvider.getTemaTests(context) }
+    val tests = remember { gameViewModel.getTemaTests() }
     var query by remember { mutableStateOf("") }
     val isLoading by gameViewModel.isLoading.collectAsState()
 
@@ -46,10 +44,10 @@ fun TemaSelectScreen(navController: NavController, gameViewModel: GameViewModel)
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Selecciona ley", color = TextLight, fontWeight = FontWeight.Bold) },
+                title = { Text(stringResource(R.string.select_law), color = TextLight, fontWeight = FontWeight.Bold) },
                 navigationIcon = {
                     IconButton(onClick = { navController.popBackStack() }) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Volver", tint = TextLight)
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.back), tint = TextLight)
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
@@ -65,7 +63,7 @@ fun TemaSelectScreen(navController: NavController, gameViewModel: GameViewModel)
                 value = query,
                 onValueChange = { query = it },
                 modifier = Modifier.fillMaxWidth(),
-                placeholder = { Text("Buscar ley...") },
+                placeholder = { Text(stringResource(R.string.search_law)) },
                 leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
                 trailingIcon = { if (query.isNotEmpty()) IconButton(onClick = { query = "" }) { Icon(Icons.Default.Close, contentDescription = null) } },
                 colors = OutlinedTextFieldDefaults.colors(
@@ -80,13 +78,13 @@ fun TemaSelectScreen(navController: NavController, gameViewModel: GameViewModel)
 
             LazyColumn {
                 item {
-                    TemaCard(Icons.AutoMirrored.Filled.LibraryBooks, "Todas las leyes", 0) {
+                    TemaCard(Icons.AutoMirrored.Filled.LibraryBooks, stringResource(R.string.all_laws), 0) {
                         gameViewModel.startAllLawsGameAsync { ok -> if (ok) navController.navigate(Routes.GAME) }
                     }
                     Spacer(Modifier.height(8.dp))
                 }
                 items(filteredTests, key = { it.id }) { test ->
-                    val progress = statsRepo.getLeyProgress(test.id)
+                    val progress = remember(test.id) { gameViewModel.getLeyProgress(test.id) }
                     TemaCard(Icons.Default.Book, test.title.ifEmpty { test.name }, progress) {
                         gameViewModel.startTemaGameAsync(test.id) { ok -> if (ok) navController.navigate(Routes.GAME) }
                     }
@@ -124,7 +122,7 @@ private fun TemaCard(icon: androidx.compose.ui.graphics.vector.ImageVector, titl
         Column(modifier = Modifier.weight(1f)) {
             Text(title, color = TextLight, fontSize = 15.sp, fontWeight = FontWeight.Medium)
             if (progress > 0) {
-                Text("$progress% dominado", color = heatColor, fontSize = 11.sp)
+                Text(stringResource(R.string.dominated_suffix, progress), color = heatColor, fontSize = 11.sp)
             }
         }
         if (progress > 0) {

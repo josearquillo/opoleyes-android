@@ -11,17 +11,19 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.opoleyes.BuildConfig
-import com.opoleyes.data.local.PreferencesManager
+import com.opoleyes.R
+import com.opoleyes.ui.navigation.GameViewModel
 import com.opoleyes.ui.theme.*
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
-fun HelpScreen(navController: NavController) {
+fun HelpScreen(navController: NavController, gameViewModel: GameViewModel) {
     val sections = listOf(
         HelpSectionData("🎯", "Objetivo", listOf(
             "Responde preguntas de oposiciones de justicia.",
@@ -74,9 +76,7 @@ fun HelpScreen(navController: NavController) {
         ))
     )
 
-    val context = navController.context
-    val prefs = PreferencesManager(context)
-    var debugMode by remember { mutableStateOf(prefs.isDebugMode()) }
+    var debugMode by remember { mutableStateOf(gameViewModel.isDebugMode()) }
     var debugToast by remember { mutableStateOf<String?>(null) }
 
     LaunchedEffect(debugToast) {
@@ -90,10 +90,10 @@ fun HelpScreen(navController: NavController) {
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Ayuda", color = TextLight, fontWeight = FontWeight.Bold) },
+                title = { Text(stringResource(R.string.help), color = TextLight, fontWeight = FontWeight.Bold) },
                 navigationIcon = {
                     IconButton(onClick = { navController.popBackStack() }) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Volver", tint = TextLight)
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.back), tint = TextLight)
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
@@ -111,8 +111,10 @@ fun HelpScreen(navController: NavController) {
                 .padding(paddingValues)
                 .padding(16.dp)
         ) {
+            val debugOnText = stringResource(R.string.debug_on)
+            val debugOffText = stringResource(R.string.debug_off)
             Text(
-                "Ayuda",
+                stringResource(R.string.help),
                 color = TextLight,
                 fontSize = 28.sp,
                 fontWeight = FontWeight.Bold,
@@ -121,8 +123,8 @@ fun HelpScreen(navController: NavController) {
                     onLongClick = {
                         if (BuildConfig.DEBUG) {
                             debugMode = !debugMode
-                            prefs.setDebugMode(debugMode)
-                            debugToast = if (debugMode) "Modo debug activado" else "Modo debug desactivado"
+                            gameViewModel.setDebugMode(debugMode)
+                            debugToast = if (debugMode) debugOnText else debugOffText
                         }
                     }
                 )

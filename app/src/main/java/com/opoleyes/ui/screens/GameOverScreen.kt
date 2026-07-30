@@ -30,11 +30,13 @@ import androidx.compose.ui.draw.scale
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.opoleyes.R
 import com.opoleyes.data.model.ChestReward
 import com.opoleyes.data.model.ChestType
 import com.opoleyes.data.model.GameMode
@@ -95,11 +97,11 @@ fun GameOverScreen(navController: NavController, gameViewModel: GameViewModel) {
 
     val anyRecord = newRecord || newComboRecord || newAccRecord
     val modeName = when (uiState.mode) {
-        GameMode.SURVIVAL -> "Supervivencia"
-        GameMode.TIMETRIAL -> "Contrarreloj"
-        GameMode.QUICK -> "Repaso Express"
-        GameMode.CHALLENGE -> "Modo Reto"
-        GameMode.EXAM -> "Modo Examen"
+        GameMode.SURVIVAL -> stringResource(R.string.mode_survival)
+        GameMode.TIMETRIAL -> stringResource(R.string.mode_timetrial)
+        GameMode.QUICK -> stringResource(R.string.mode_quick)
+        GameMode.CHALLENGE -> stringResource(R.string.mode_challenge)
+        GameMode.EXAM -> stringResource(R.string.mode_exam)
     }
 
     // Staggered appearance
@@ -117,7 +119,7 @@ fun GameOverScreen(navController: NavController, gameViewModel: GameViewModel) {
         Scaffold(
             topBar = {
                 TopAppBar(
-                    title = { Text("Fin de partida", color = TextLight, fontWeight = FontWeight.Bold) },
+                    title = { Text(stringResource(R.string.game_over), color = TextLight, fontWeight = FontWeight.Bold) },
                     colors = TopAppBarDefaults.topAppBarColors(
                         containerColor = BgDark,
                         titleContentColor = TextLight
@@ -149,17 +151,17 @@ fun GameOverScreen(navController: NavController, gameViewModel: GameViewModel) {
                 modifier = Modifier.size(56.dp).scale(iconScale)
             )
 
-            Text("Fin de partida", color = TextLight, fontSize = 32.sp, fontWeight = FontWeight.Bold)
+            Text(stringResource(R.string.game_over), color = TextLight, fontSize = 32.sp, fontWeight = FontWeight.Bold)
             Text(modeName, color = TextMuted, fontSize = 14.sp)
 
             if (anyRecord) {
                 Spacer(Modifier.height(12.dp))
-                Text("¡NUEVO RÉCORD!", color = Warning, fontSize = 24.sp, fontWeight = FontWeight.Bold)
+                Text(stringResource(R.string.new_record), color = Warning, fontSize = 24.sp, fontWeight = FontWeight.Bold)
                 Spacer(Modifier.height(8.dp))
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    if (newRecord) Text("Puntuación", color = Warning, fontSize = 10.sp)
+                    if (newRecord) Text(stringResource(R.string.score_label), color = Warning, fontSize = 10.sp)
                     if (newComboRecord) Text("Combo x${uiState.maxCombo}", color = Warning, fontSize = 10.sp)
-                    if (newAccRecord) Text("$accuracy% precisión", color = Warning, fontSize = 10.sp)
+                    if (newAccRecord) Text("$accuracy% ${stringResource(R.string.accuracy_label)}", color = Warning, fontSize = 10.sp)
                 }
             } else if (medal.isNotEmpty()) {
                 Spacer(Modifier.height(8.dp))
@@ -168,7 +170,7 @@ fun GameOverScreen(navController: NavController, gameViewModel: GameViewModel) {
 
             Spacer(Modifier.height(20.dp))
             Text("$displayScore", color = Accent, fontSize = 56.sp, fontWeight = FontWeight.Bold)
-            Text("puntos", color = TextMuted, fontSize = 16.sp)
+            Text(stringResource(R.string.points), color = TextMuted, fontSize = 16.sp)
 
             if (xpGained > 0) {
                 Spacer(Modifier.height(12.dp))
@@ -182,9 +184,9 @@ fun GameOverScreen(navController: NavController, gameViewModel: GameViewModel) {
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(10.dp)
             ) {
-                StatCardWithIcon(Icons.AutoMirrored.Filled.Assignment, "${uiState.totalAnswered}", "Preguntas", PrimaryLight, Modifier.weight(1f))
-                StatCardWithIcon(Icons.Default.LocalFireDepartment, "${uiState.maxCombo}", "Combo máx", Orange, Modifier.weight(1f))
-                StatCardWithIcon(Icons.Default.TrackChanges, "$accuracy%", "Precisión", Success, Modifier.weight(1f))
+                StatCardWithIcon(Icons.AutoMirrored.Filled.Assignment, "${uiState.totalAnswered}", stringResource(R.string.questions_label), PrimaryLight, Modifier.weight(1f))
+                StatCardWithIcon(Icons.Default.LocalFireDepartment, "${uiState.maxCombo}", stringResource(R.string.max_combo_label), Orange, Modifier.weight(1f))
+                StatCardWithIcon(Icons.Default.TrackChanges, "$accuracy%", stringResource(R.string.accuracy_label), Success, Modifier.weight(1f))
             }
 
             Spacer(Modifier.height(24.dp))
@@ -195,7 +197,7 @@ fun GameOverScreen(navController: NavController, gameViewModel: GameViewModel) {
                 horizontalArrangement = Arrangement.spacedBy(10.dp)
             ) {
                 GameButton(
-                    text = "Jugar",
+                    text = stringResource(R.string.play_again),
                     modifier = Modifier.weight(1f).height(50.dp),
                     color1 = Success,
                     color2 = SuccessDark
@@ -206,8 +208,9 @@ fun GameOverScreen(navController: NavController, gameViewModel: GameViewModel) {
                         GameMode.QUICK -> gameViewModel.startQuickGame()
                         GameMode.CHALLENGE -> gameViewModel.startChallengeGame()
                         else -> {
-                            if (gameViewModel.engine.category.isNotEmpty())
-                                gameViewModel.startTemaGame(gameViewModel.engine.category)
+                            val category = gameViewModel.getCategory()
+                            if (category.isNotEmpty())
+                                gameViewModel.startTemaGame(category)
                             else
                                 gameViewModel.startAllLawsGame()
                         }
@@ -216,7 +219,7 @@ fun GameOverScreen(navController: NavController, gameViewModel: GameViewModel) {
                     navController.navigate(Routes.GAME) { popUpTo(Routes.GAME) { inclusive = true } }
                 }
                 GameButton(
-                    text = "Menú",
+                    text = stringResource(R.string.menu),
                     modifier = Modifier.weight(1f).height(50.dp),
                     color1 = Primary,
                     color2 = PurpleDark
@@ -317,7 +320,7 @@ fun ChestOverlay(chest: ChestReward, opened: Boolean, shakeCount: Int, onOpen: (
                     Text(typeEmoji, fontSize = 56.sp)
                 }
                 Spacer(Modifier.height(16.dp))
-                Text("¡Toca para abrir!", color = Warning, fontSize = 20.sp, fontWeight = FontWeight.Bold)
+                Text(stringResource(R.string.tap_to_open), color = Warning, fontSize = 20.sp, fontWeight = FontWeight.Bold)
             } else {
                 // Scale-in for opened content
                 val contentScale by animateFloatAsState(
@@ -348,12 +351,12 @@ fun ChestOverlay(chest: ChestReward, opened: Boolean, shakeCount: Int, onOpen: (
                         }
                         if (chest.multiplier) {
                             Spacer(Modifier.height(12.dp))
-                            Text("x2 XP en la próxima partida", color = Warning, fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                            Text(stringResource(R.string.next_xp_double), color = Warning, fontSize = 12.sp, fontWeight = FontWeight.Bold)
                         }
                     }
                 }
                 Spacer(Modifier.height(16.dp))
-                Text("Toca para continuar", color = TextDim, fontSize = 13.sp)
+                Text(stringResource(R.string.tap_to_continue), color = TextDim, fontSize = 13.sp)
             }
         }
     }
@@ -421,7 +424,7 @@ fun RankUpOverlayView(overlay: RankUpOverlay, onDismiss: () -> Unit) {
                 }
 
                 Spacer(Modifier.height(24.dp))
-                GameButton("Continuar", color1 = Primary, color2 = PurpleDark) { onDismiss() }
+                GameButton(stringResource(R.string.continue_label), color1 = Primary, color2 = PurpleDark) { onDismiss() }
             }
         }
     }

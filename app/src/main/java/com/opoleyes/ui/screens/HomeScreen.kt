@@ -16,16 +16,15 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.opoleyes.R
 import com.opoleyes.data.model.GameMode
 import com.opoleyes.data.model.Mission
-import com.opoleyes.data.repository.MissionRepository
-import com.opoleyes.data.repository.ProgressRepository
-import com.opoleyes.data.repository.StatsRepository
 import com.opoleyes.ui.components.*
 import com.opoleyes.ui.navigation.GameViewModel
 import com.opoleyes.ui.navigation.Routes
@@ -35,18 +34,17 @@ import kotlinx.coroutines.delay
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(navController: NavController, gameViewModel: GameViewModel) {
-    val context = navController.context
-    val progressRepo = ProgressRepository(context)
-    val missionRepo = MissionRepository(context)
-    val statsRepo = StatsRepository(context)
     val isLoading by gameViewModel.isLoading.collectAsState()
 
-    val rank = remember { progressRepo.getRank() }
-    val xpProgress = remember { progressRepo.getXPProgress() }
-    val missions = remember { missionRepo.generateDailyMissions() }
-    val totalCorrect = remember { statsRepo.getTotalCorrect() }
-    val totalWrong = remember { statsRepo.getTotalWrong() }
-    val maxCombo = remember { progressRepo.getMaxComboRecord() }
+    // Data is precomputed off the main thread during the loading screen.
+    // Fallback: compute synchronously (idempotent) if not yet available.
+    val preload = gameViewModel.homePreload ?: remember { gameViewModel.preloadHomeData(); gameViewModel.homePreload!! }
+    val rank = preload.rank
+    val xpProgress = preload.xpProgress
+    val missions = preload.missions
+    val totalCorrect = preload.totalCorrect
+    val totalWrong = preload.totalWrong
+    val maxCombo = preload.maxCombo
     val hasStats = totalCorrect + totalWrong > 0
     val accuracy = if (hasStats) totalCorrect * 100 / (totalCorrect + totalWrong) else 0
 
@@ -85,12 +83,12 @@ fun HomeScreen(navController: NavController, gameViewModel: GameViewModel) {
             TopAppBar(
                 title = {
                     Row(verticalAlignment = Alignment.CenterVertically) {
-                        Text("OpoLeyes", color = Accent, fontWeight = FontWeight.Bold, fontSize = 22.sp)
+                        Text(stringResource(R.string.app_name), color = Accent, fontWeight = FontWeight.Bold, fontSize = 22.sp)
                     }
                 },
                 actions = {
                     IconButton(onClick = { navController.navigate(Routes.HELP) }) {
-                        Icon(Icons.AutoMirrored.Filled.HelpOutline, contentDescription = "Ayuda", tint = TextLight)
+                        Icon(Icons.AutoMirrored.Filled.HelpOutline, contentDescription = stringResource(R.string.help), tint = TextLight)
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
@@ -167,9 +165,9 @@ fun HomeScreen(navController: NavController, gameViewModel: GameViewModel) {
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.spacedBy(10.dp)
                     ) {
-                        StatMiniCard("Precisión", "${accuracyAnim.value.toInt()}%", "🎯", Modifier.weight(1f))
-                        StatMiniCard("Aciertos", "${correctAnim.value.toInt()}", "✅", Modifier.weight(1f))
-                        StatMiniCard("Mejor combo", "${comboAnim.value.toInt()}", "🔥", Modifier.weight(1f))
+                        StatMiniCard(stringResource(R.string.stat_accuracy), "${accuracyAnim.value.toInt()}%", "🎯", Modifier.weight(1f))
+                        StatMiniCard(stringResource(R.string.stat_correct), "${correctAnim.value.toInt()}", "✅", Modifier.weight(1f))
+                        StatMiniCard(stringResource(R.string.stat_best_combo), "${comboAnim.value.toInt()}", "🔥", Modifier.weight(1f))
                     }
                 }
             }
@@ -179,7 +177,7 @@ fun HomeScreen(navController: NavController, gameViewModel: GameViewModel) {
             // Missions
             if (missions.missions.isNotEmpty()) {
                 StaggeredAppearance(visibleItems, 2) {
-                    Text("Misiones diarias", color = TextLight, fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                    Text(stringResource(R.string.daily_missions), color = TextLight, fontWeight = FontWeight.Bold, fontSize = 16.sp)
                 }
                 Spacer(Modifier.height(8.dp))
                 missions.missions.forEachIndexed { idx, m ->
@@ -210,7 +208,7 @@ fun HomeScreen(navController: NavController, gameViewModel: GameViewModel) {
             } else {
                 StaggeredAppearance(visibleItems, 3) {
                     GlassCard(Modifier.fillMaxWidth()) {
-                        Text("Vuelve mañana para nuevas misiones", color = TextMuted, fontSize = 13.sp)
+                        Text(stringResource(R.string.missions_empty), color = TextMuted, fontSize = 13.sp)
                     }
                 }
             }
@@ -220,15 +218,15 @@ fun HomeScreen(navController: NavController, gameViewModel: GameViewModel) {
             // JUGAR button
             StaggeredAppearance(visibleItems, 7) {
                 GameButton(
-                    text = "JUGAR",
-                    icon = "",
+                    text = stringResource(R.string.play),
+                    icon = null,
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(72.dp),
                     color1 = Success,
                     color2 = SuccessDark,
                     textFontSize = 26,
-                    iconFontSize = 26
+                    iconSize = 26
                 ) {
                     navController.navigate(Routes.MODE_SELECT)
                 }

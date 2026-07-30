@@ -20,10 +20,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.opoleyes.R
 import com.opoleyes.ui.components.LoadingOverlay
 import com.opoleyes.ui.navigation.GameViewModel
 import com.opoleyes.ui.navigation.Routes
@@ -38,12 +40,16 @@ fun ExamScreen(navController: NavController, gameViewModel: GameViewModel) {
 
     val currentQ by gameViewModel.examCurrentQuestion.collectAsState()
     val totalQuestions by gameViewModel.examTotalQuestions.collectAsState()
-    val allQuestions = gameViewModel.examEngine.getQuestions()
+    val allQuestions = remember { gameViewModel.getExamQuestions() }
 
     if (currentQ == null || totalQuestions == 0) {
         if (!isLoading) {
+            var navigated by remember { mutableStateOf(false) }
             LaunchedEffect(Unit) {
-                navController.navigate(Routes.HOME) { popUpTo(0) }
+                if (!navigated) {
+                    navigated = true
+                    navController.navigate(Routes.HOME) { popUpTo(0) }
+                }
             }
         }
         if (isLoading) LoadingOverlay()
@@ -65,15 +71,15 @@ fun ExamScreen(navController: NavController, gameViewModel: GameViewModel) {
     if (showExitDialog) {
         AlertDialog(
             onDismissRequest = { showExitDialog = false },
-            title = { Text("¿Salir del examen?") },
-            text = { Text("Perderás tu progreso del examen.") },
+            title = { Text(stringResource(R.string.exit_exam)) },
+            text = { Text(stringResource(R.string.lose_exam_progress)) },
             confirmButton = {
                 TextButton(onClick = {
                     showExitDialog = false
                     navController.navigate(Routes.HOME) { popUpTo(Routes.HOME) { inclusive = true } }
-                }) { Text("Salir") }
+                }) { Text(stringResource(R.string.exit)) }
             },
-            dismissButton = { TextButton(onClick = { showExitDialog = false }) { Text("Cancelar") } }
+            dismissButton = { TextButton(onClick = { showExitDialog = false }) { Text(stringResource(R.string.cancel)) } }
         )
     }
 
@@ -81,12 +87,12 @@ fun ExamScreen(navController: NavController, gameViewModel: GameViewModel) {
         val unansweredCount = totalQuestions - examAnswered
         AlertDialog(
             onDismissRequest = { showFinishDialog = false },
-            title = { Text("¿Finalizar examen?") },
+            title = { Text(stringResource(R.string.finish_exam)) },
             text = {
                 if (unansweredCount > 0) {
-                    Text("Te quedan $unansweredCount pregunta${if (unansweredCount > 1) "s" else ""} sin responder.")
+                    Text(stringResource(R.string.unanswered_remaining, unansweredCount, if (unansweredCount > 1) "s" else ""))
                 } else {
-                    Text("Has respondido todas las preguntas.")
+                    Text(stringResource(R.string.all_answered))
                 }
             },
             confirmButton = {
@@ -94,9 +100,9 @@ fun ExamScreen(navController: NavController, gameViewModel: GameViewModel) {
                     showFinishDialog = false
                     gameViewModel.finishExam()
                     navController.navigate(Routes.EXAM_RESULT)
-                }) { Text("Finalizar", color = Success) }
+                }) { Text(stringResource(R.string.finish), color = Success) }
             },
-            dismissButton = { TextButton(onClick = { showFinishDialog = false }) { Text("Cancelar") } }
+            dismissButton = { TextButton(onClick = { showFinishDialog = false }) { Text(stringResource(R.string.cancel)) } }
         )
     }
 
@@ -104,15 +110,15 @@ fun ExamScreen(navController: NavController, gameViewModel: GameViewModel) {
         Scaffold(
             topBar = {
                 TopAppBar(
-                    title = { Text("Modo Examen", color = TextLight, fontWeight = FontWeight.Bold) },
+                    title = { Text(stringResource(R.string.mode_exam), color = TextLight, fontWeight = FontWeight.Bold) },
                     navigationIcon = {
                         IconButton(onClick = { showExitDialog = true }) {
-                            Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Salir", tint = TextLight)
+                            Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.exit), tint = TextLight)
                         }
                     },
                     actions = {
                         Text(
-                            "${examAnswered}/$totalQuestions",
+                            stringResource(R.string.answered_of, examAnswered, totalQuestions),
                             color = TextMuted,
                             fontSize = 14.sp,
                             modifier = Modifier.padding(end = 16.dp)
@@ -143,7 +149,7 @@ fun ExamScreen(navController: NavController, gameViewModel: GameViewModel) {
             Spacer(Modifier.height(8.dp))
 
             Text(
-                "Pregunta ${examQuestionNum + 1} de $totalQuestions",
+                stringResource(R.string.question_of, examQuestionNum + 1, totalQuestions),
                 color = TextMuted,
                 fontSize = 12.sp
             )
@@ -239,7 +245,7 @@ fun ExamScreen(navController: NavController, gameViewModel: GameViewModel) {
                 ) {
                     Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = null, modifier = Modifier.size(18.dp))
                     Spacer(Modifier.width(4.dp))
-                    Text("Anterior")
+                    Text(stringResource(R.string.previous))
                 }
 
                 if (isLast) {
@@ -249,14 +255,14 @@ fun ExamScreen(navController: NavController, gameViewModel: GameViewModel) {
                     ) {
                         Icon(Icons.Default.Flag, contentDescription = null, modifier = Modifier.size(18.dp))
                         Spacer(Modifier.width(4.dp))
-                        Text("Finalizar")
+                        Text(stringResource(R.string.finish))
                     }
                 } else {
                     Button(
                         onClick = { gameViewModel.examNext() },
                         colors = ButtonDefaults.buttonColors(containerColor = Primary)
                     ) {
-                        Text("Siguiente")
+                        Text(stringResource(R.string.next))
                         Spacer(Modifier.width(4.dp))
                         Icon(Icons.AutoMirrored.Filled.ArrowForward, contentDescription = null, modifier = Modifier.size(18.dp))
                     }

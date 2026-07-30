@@ -37,8 +37,7 @@ opoleyes-android/
 │       │       │   └── GameComponents.kt
 │       │       ├── navigation/
 │       │       │   ├── NavGraph.kt
-│       │       │   ├── GameViewModel.kt
-│       │       │   └── TrainingViewModel.kt
+│       │       │   └── GameViewModel.kt
 │       │       ├── screens/
 │       │       │   ├── LoadingScreen.kt
 │       │       │   ├── ErrorScreen.kt
@@ -47,14 +46,10 @@ opoleyes-android/
 │       │       │   ├── TemaSelectScreen.kt
 │       │       │   ├── GameScreen.kt
 │       │       │   ├── GameOverScreen.kt
+│       │       │   ├── ExamScreen.kt
+│       │       │   ├── ExamResultScreen.kt
 │       │       │   ├── ProfileScreen.kt
-│       │       │   ├── HelpScreen.kt
-│       │       │   ├── TrainSelectScreen.kt
-│       │       │   ├── TrainListScreen.kt
-│       │       │   ├── TestBrowserScreen.kt
-│       │       │   ├── FlagReviewScreen.kt
-│       │       │   ├── WrongReviewScreen.kt
-│       │       │   └── ResultsScreen.kt
+│       │       │   └── HelpScreen.kt
 │       │       └── theme/
 │       │           ├── Theme.kt
 │       │           ├── Type.kt
@@ -62,6 +57,7 @@ opoleyes-android/
 │       └── res/
 │           ├── values/
 │           │   ├── colors.xml
+│           │   ├── strings.xml
 │           │   └── themes.xml
 │           └── mipmap-anydpi-v26/
 │               ├── ic_launcher.xml

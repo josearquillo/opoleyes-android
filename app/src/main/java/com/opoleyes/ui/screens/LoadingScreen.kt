@@ -10,6 +10,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -17,12 +18,14 @@ import androidx.navigation.NavController
 import com.lottiefiles.dotlottie.core.compose.ui.DotLottieAnimation
 import com.lottiefiles.dotlottie.core.util.DotLottieSource
 import com.dotlottie.dlplayer.Mode
+import com.opoleyes.R
 import com.opoleyes.data.local.DataProvider
 import com.opoleyes.data.local.PreferencesManager
 import com.opoleyes.data.repository.MissionRepository
 import com.opoleyes.data.repository.ProgressRepository
 import com.opoleyes.data.repository.StatsRepository
 import com.opoleyes.ui.components.GameButton
+import com.opoleyes.ui.navigation.GameViewModel
 import com.opoleyes.ui.navigation.Routes
 import com.opoleyes.ui.theme.*
 import kotlinx.coroutines.Dispatchers
@@ -30,7 +33,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
 
 @Composable
-fun LoadingScreen(navController: NavController) {
+fun LoadingScreen(navController: NavController, gameViewModel: GameViewModel) {
     var error by remember { mutableStateOf<String?>(null) }
     var fadeOut by remember { mutableStateOf(false) }
 
@@ -46,7 +49,7 @@ fun LoadingScreen(navController: NavController) {
                 DataProvider.loadData(context)
             }
             if (tests.isEmpty()) {
-                error = "No se pudieron cargar los datos."
+                error = context.getString(R.string.data_load_error_detail)
                 return@LaunchedEffect
             }
             withContext(Dispatchers.Default) {
@@ -55,6 +58,8 @@ fun LoadingScreen(navController: NavController) {
                 ProgressRepository(context).getXPProgress()
                 StatsRepository(context).getStats()
                 DataProvider.getTestDataMap(context)
+                // Precompute HomeScreen data so it doesn't block the main thread on entry.
+                gameViewModel.preloadHomeData()
             }
 
             // Ensure minimum display time
@@ -90,16 +95,16 @@ fun LoadingScreen(navController: NavController) {
             if (error != null) {
                 Icon(
                     Icons.Default.ErrorOutline,
-                    contentDescription = "Error",
+                    contentDescription = stringResource(R.string.error),
                     tint = Danger,
                     modifier = Modifier.size(56.dp)
                 )
                 Spacer(Modifier.height(16.dp))
-                Text("No se pudieron cargar los datos", color = TextLight, fontSize = 18.sp, fontWeight = FontWeight.Bold)
+                Text(stringResource(R.string.data_load_error), color = TextLight, fontSize = 18.sp, fontWeight = FontWeight.Bold)
                 Spacer(Modifier.height(8.dp))
                 Text(error ?: "", color = TextMuted, fontSize = 14.sp)
                 Spacer(Modifier.height(24.dp))
-                GameButton("Reintentar", color1 = Primary, color2 = PurpleDark) {
+                GameButton(stringResource(R.string.retry), color1 = Primary, color2 = PurpleDark) {
                     error = null
                     navController.navigate(Routes.LOADING) { popUpTo(Routes.LOADING) { inclusive = true } }
                 }
@@ -119,7 +124,7 @@ fun LoadingScreen(navController: NavController) {
 
                 // Status text
                 Text(
-                    "Cargando aplicación...",
+                    stringResource(R.string.loading_app),
                     color = TextMuted,
                     fontSize = 16.sp,
                     fontWeight = FontWeight.Medium

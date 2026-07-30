@@ -23,13 +23,14 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.opoleyes.R
 import com.opoleyes.data.Constants
 import com.opoleyes.data.model.GameMode
-import com.opoleyes.data.repository.ProgressRepository
 import com.opoleyes.ui.components.GameButton
 import com.opoleyes.ui.components.LoadingOverlay
 import com.opoleyes.ui.navigation.GameViewModel
@@ -39,17 +40,15 @@ import com.opoleyes.ui.theme.*
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ModeSelectScreen(navController: NavController, gameViewModel: GameViewModel) {
-    val context = navController.context
-    val progressRepo = ProgressRepository(context)
-    val unlocks = remember { progressRepo.getUnlocks() }
+    val unlocks = remember { gameViewModel.getUnlocks() }
     val isLoading by gameViewModel.isLoading.collectAsState()
 
     val modes = listOf(
-        ModeInfo(GameMode.SURVIVAL, Icons.Default.Favorite, "Supervivencia", "3 vidas, sin tiempo. Los combos recuperan vida.", true, 0),
-        ModeInfo(GameMode.TIMETRIAL, Icons.Default.Timer, "Contrarreloj", "180s. +15s acierto, -10s fallo.", unlocks.timetrial, 1),
-        ModeInfo(GameMode.QUICK, Icons.Default.Bolt, "Repaso Express", "20 preguntas enfocadas en fallos previos.", unlocks.quick, 2),
-        ModeInfo(GameMode.EXAM, Icons.AutoMirrored.Filled.Assignment, "Modo Examen", "Simula el examen oficial. Sin vidas, sin power-ups, corrección al final.", unlocks.exam, 3),
-        ModeInfo(GameMode.CHALLENGE, Icons.Default.EmojiEvents, "Modo Reto", "120s, máxima dificultad, todas las leyes.", unlocks.challenge, 4),
+        ModeInfo(GameMode.SURVIVAL, Icons.Default.Favorite, stringResource(R.string.mode_survival), stringResource(R.string.mode_survival_desc), true, 0),
+        ModeInfo(GameMode.TIMETRIAL, Icons.Default.Timer, stringResource(R.string.mode_timetrial), stringResource(R.string.mode_timetrial_desc), unlocks.timetrial, 1),
+        ModeInfo(GameMode.QUICK, Icons.Default.Bolt, stringResource(R.string.mode_quick), stringResource(R.string.mode_quick_desc), unlocks.quick, 2),
+        ModeInfo(GameMode.EXAM, Icons.AutoMirrored.Filled.Assignment, stringResource(R.string.mode_exam), stringResource(R.string.mode_exam_desc), unlocks.exam, 3),
+        ModeInfo(GameMode.CHALLENGE, Icons.Default.EmojiEvents, stringResource(R.string.mode_challenge), stringResource(R.string.mode_challenge_desc), unlocks.challenge, 4),
     )
 
     var showExamDialog by remember { mutableStateOf(false) }
@@ -57,10 +56,10 @@ fun ModeSelectScreen(navController: NavController, gameViewModel: GameViewModel)
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Selecciona modo", color = TextLight, fontWeight = FontWeight.Bold) },
+                title = { Text(stringResource(R.string.select_mode), color = TextLight, fontWeight = FontWeight.Bold) },
                 navigationIcon = {
                     IconButton(onClick = { navController.popBackStack() }) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Volver", tint = TextLight)
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.back), tint = TextLight)
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
@@ -157,7 +156,7 @@ private fun ModeCard(mode: ModeInfo, enabled: Boolean = true, onClick: () -> Uni
             }
             if (locked) {
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    Icon(Icons.Default.Lock, contentDescription = "Locked", tint = TextDim)
+                    Icon(Icons.Default.Lock, contentDescription = stringResource(R.string.locked), tint = TextDim)
                     Text(Constants.getRankByIndex(mode.requiredRank).name, color = TextDim, fontSize = 10.sp)
                 }
             }
@@ -180,9 +179,9 @@ private fun ExamConfigDialog(
     onStart: (Int) -> Unit
 ) {
     val presets = listOf(
-        ExamPreset("Rápido", 25, Primary, PurpleDark),
-        ExamPreset("Estándar", 50, Danger, DangerDark),
-        ExamPreset("Completo", 100, Warning, WarningDark)
+        ExamPreset(stringResource(R.string.exam_preset_fast), 25, Primary, PurpleDark),
+        ExamPreset(stringResource(R.string.exam_preset_standard), 50, Danger, DangerDark),
+        ExamPreset(stringResource(R.string.exam_preset_full), 100, Warning, WarningDark)
     )
 
     AlertDialog(
@@ -193,12 +192,12 @@ private fun ExamConfigDialog(
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Icon(Icons.AutoMirrored.Filled.Assignment, contentDescription = null, tint = Accent, modifier = Modifier.size(24.dp))
                 Spacer(Modifier.width(8.dp))
-                Text("Configurar examen", color = TextLight, fontWeight = FontWeight.Bold)
+                Text(stringResource(R.string.configure_exam), color = TextLight, fontWeight = FontWeight.Bold)
             }
         },
         text = {
             Column {
-                Text("Número de preguntas", color = TextMuted, fontSize = 13.sp)
+                Text(stringResource(R.string.question_count), color = TextMuted, fontSize = 13.sp)
                 Spacer(Modifier.height(12.dp))
 
                 presets.forEach { preset ->
@@ -212,7 +211,7 @@ private fun ExamConfigDialog(
         },
         confirmButton = {},
         dismissButton = {
-            TextButton(onClick = onDismiss) { Text("Cancelar", color = TextMuted) }
+            TextButton(onClick = onDismiss) { Text(stringResource(R.string.cancel), color = TextMuted) }
         }
     )
 }
@@ -243,7 +242,7 @@ private fun ExamPresetCard(preset: ExamPreset, onClick: () -> Unit) {
                 fontWeight = FontWeight.Bold
             )
             Text(
-                "${preset.count} preguntas",
+                stringResource(R.string.questions_count, preset.count),
                 color = Color.White.copy(alpha = 0.8f),
                 fontSize = 12.sp
             )

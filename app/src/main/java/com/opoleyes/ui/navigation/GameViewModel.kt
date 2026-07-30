@@ -56,6 +56,70 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
         _homePreload = HomePreload(rank, xpProgress, missions, totalCorrect, totalWrong, maxCombo)
     }
 
+    // Preloaded data for ProfileScreen
+    data class ProfileData(
+        val rank: com.opoleyes.data.model.Rank,
+        val xpProgress: com.opoleyes.data.model.XPProgress,
+        val achievements: Map<String, Long>,
+        val gamesPlayed: Int,
+        val totalCorrect: Int,
+        val totalWrong: Int,
+        val globalProgress: Int,
+        val temaTests: List<com.opoleyes.data.model.Test>,
+        val dominatedLaws: Int,
+        val powerUps: List<String>,
+        val records: Map<String, Int>,
+        val unlockedModes: Map<String, Boolean>
+    )
+    private var _profileData: ProfileData? = null
+    val profileData: ProfileData? get() = _profileData
+
+    fun preloadProfileData() {
+        if (_profileData != null) return
+        val temaTests = com.opoleyes.data.local.DataProvider.getTemaTests(getApplication())
+        val records = linkedMapOf(
+            "survival" to progressRepo.getRecord("survival"),
+            "timetrial" to progressRepo.getRecord("timetrial"),
+            "quick" to progressRepo.getRecord("quick"),
+            "challenge" to progressRepo.getRecord("challenge")
+        )
+        val unlockedModes = linkedMapOf(
+            "survival" to progressRepo.isUnlocked("survival"),
+            "timetrial" to progressRepo.isUnlocked("timetrial"),
+            "quick" to progressRepo.isUnlocked("quick"),
+            "challenge" to progressRepo.isUnlocked("challenge")
+        )
+        _profileData = ProfileData(
+            rank = progressRepo.getRank(),
+            xpProgress = progressRepo.getXPProgress(),
+            achievements = progressRepo.getAchievements(),
+            gamesPlayed = progressRepo.getGamesPlayed(),
+            totalCorrect = statsRepo.getTotalCorrect(),
+            totalWrong = statsRepo.getTotalWrong(),
+            globalProgress = statsRepo.getGlobalProgress(),
+            temaTests = temaTests,
+            dominatedLaws = temaTests.count { statsRepo.getLeyProgress(it.id) >= 100 },
+            powerUps = prefs.getFreePowerUps(),
+            records = records,
+            unlockedModes = unlockedModes
+        )
+    }
+
+    fun getLeyProgress(testId: String): Int = statsRepo.getLeyProgress(testId)
+    fun getTemaTests(): List<com.opoleyes.data.model.Test> =
+        com.opoleyes.data.local.DataProvider.getTemaTests(getApplication())
+    fun getUnlocks(): com.opoleyes.data.repository.Unlocks = progressRepo.getUnlocks()
+
+    fun resetProgress() {
+        progressRepo.resetAll()
+        prefs.initPowerUpsIfNeeded()
+        _homePreload = null
+        _profileData = null
+    }
+
+    fun isDebugMode(): Boolean = prefs.isDebugMode()
+    fun setDebugMode(enabled: Boolean) = prefs.setDebugMode(enabled)
+
     private val _uiState = MutableStateFlow(GameUiState())
     val uiState: StateFlow<GameUiState> = _uiState.asStateFlow()
 
@@ -422,15 +486,34 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
     fun clearRankUp() { _rankUpOverlay.value = null }
     fun clearPopups() { _popups.value = emptyList() }
 
-    fun getProgressRepo() = progressRepo
-    fun getStatsRepo() = statsRepo
-    fun getGameRepo() = gameRepo
-    fun getMissionRepo() = missionRepo
-    fun getPrefs() = prefs
-
     fun exitGame() {
         engine.saveRemainingPowerUps()
     }
+
+    // --- Encapsulated engine access for UI ---
+    // The UI must never mutate engine state directly; it goes through these methods.
+    // `engine`/`examEngine` remain public only to allow tests to set up state.
+
+    /** @return true if the game is over after the tick (timer reached 0). */
+    fun tickTimer(): Boolean {
+        engine.timer = (engine.timer - 1f).coerceAtLeast(0f)
+        updateUiState()
+        return engine.timer <= 0
+    }
+
+    /** Adjusts the timer after the app was paused; @return true if game over. */
+    fun applyPausedElapsed(seconds: Float): Boolean {
+        engine.timer = (engine.timer - seconds).coerceAtLeast(0f)
+        updateUiState()
+        return engine.timer <= 0
+    }
+
+    fun isTimedMode(): Boolean =
+        engine.mode == GameMode.TIMETRIAL || engine.mode == GameMode.CHALLENGE
+
+    fun getMode(): GameMode = engine.mode
+    fun getCategory(): String = engine.category
+    fun getExamQuestions(): List<ExamEngine.ExamQuestion> = examEngine.getQuestions()
 }
 
 data class GameUiState(

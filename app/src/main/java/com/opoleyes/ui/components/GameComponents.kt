@@ -27,25 +27,32 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.role
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
 import com.lottiefiles.dotlottie.core.compose.ui.DotLottieAnimation
 import com.lottiefiles.dotlottie.core.util.DotLottieSource
 import com.dotlottie.dlplayer.Mode
+import com.opoleyes.R
 import com.opoleyes.ui.theme.*
 
 @Composable
 fun GameButton(
     text: String,
-    icon: String = "",
+    icon: ImageVector? = null,
     modifier: Modifier = Modifier,
     color1: Color = Primary,
     color2: Color = PurpleDark,
     enabled: Boolean = true,
     textFontSize: Int = 18,
-    iconFontSize: Int = 20,
+    iconSize: Int = 20,
     onClick: () -> Unit
 ) {
     val interactionSource = remember { MutableInteractionSource() }
@@ -60,19 +67,29 @@ fun GameButton(
         animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy),
         label = "buttonElevation"
     )
+    val shape = RoundedCornerShape(14.dp)
     Box(
         modifier = modifier
             .scale(scale)
-            .shadow(elevation.dp, RoundedCornerShape(14.dp), clip = false, ambientColor = color1.copy(alpha = 0.4f), spotColor = color1.copy(alpha = 0.6f))
-            .clip(RoundedCornerShape(14.dp))
+            .shadow(elevation.dp, shape, clip = false, ambientColor = color1.copy(alpha = 0.4f), spotColor = color1.copy(alpha = 0.6f))
+            .clip(shape)
             .background(Brush.verticalGradient(listOf(color1, color2)))
-            .clickable(interactionSource, LocalIndication.current, enabled = enabled) { onClick() }
+            .clickable(
+                interactionSource = interactionSource,
+                indication = LocalIndication.current,
+                enabled = enabled,
+                role = Role.Button,
+                onClick = onClick
+            )
+            .semantics { role = Role.Button }
             .padding(horizontal = 12.dp, vertical = 10.dp),
         contentAlignment = Alignment.Center
     ) {
         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.Center) {
-            if (icon.isNotEmpty()) Text(icon, fontSize = iconFontSize.sp)
-            if (icon.isNotEmpty()) Spacer(Modifier.width(8.dp))
+            if (icon != null) {
+                Icon(icon, contentDescription = null, tint = Color.White, modifier = Modifier.size(iconSize.dp))
+                Spacer(Modifier.width(8.dp))
+            }
             Text(text, color = Color.White, fontWeight = FontWeight.Bold, fontSize = textFontSize.sp)
         }
     }
@@ -86,12 +103,10 @@ fun OptionCard(
     isSelected: Boolean = false,
     isWrong: Boolean = false,
     isHintRemoved: Boolean = false,
-    isFiftyFiftyRemoved: Boolean = false,
     answered: Boolean = false,
     enabled: Boolean = true,
     onClick: () -> Unit = {}
 ) {
-    if (isFiftyFiftyRemoved) return
     val bgColor = when {
         answered && isCorrect -> Brush.verticalGradient(listOf(SuccessDark, Success))
         answered && isWrong -> Brush.verticalGradient(listOf(DangerDark, Danger))
@@ -106,13 +121,18 @@ fun OptionCard(
     }
     val borderColor = if (answered && isCorrect) Success else if (answered && isWrong) Danger else Color.Transparent
     val borderWidth = if (answered && (isCorrect || isWrong)) 2.dp else 0.dp
+    val shape = MaterialTheme.shapes.medium
 
     Box(
         modifier = modifier
-            .clip(RoundedCornerShape(12.dp))
+            .clip(shape)
             .background(bgColor)
-            .border(borderWidth, borderColor, RoundedCornerShape(12.dp))
-            .clickable(enabled = enabled && !answered && !isHintRemoved) { onClick() }
+            .border(borderWidth, borderColor, shape)
+            .clickable(
+                enabled = enabled && !answered && !isHintRemoved,
+                role = Role.Button,
+                onClick = onClick
+            )
             .padding(12.dp)
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
@@ -148,7 +168,7 @@ fun HudBar(
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             if (mode == com.opoleyes.data.model.GameMode.SURVIVAL || mode == com.opoleyes.data.model.GameMode.QUICK) {
-                repeat(lives) { Icon(Icons.Default.Favorite, contentDescription = null, tint = Danger, modifier = Modifier.size(18.dp)) }
+                repeat(lives) { Icon(Icons.Default.Favorite, contentDescription = "Vida", tint = Danger, modifier = Modifier.size(18.dp)) }
             }
         }
         Text(
@@ -161,7 +181,7 @@ fun HudBar(
             val timerColor = if (timer < 10) Danger else TextLight
             val timerText = "${timer.toInt()}s"
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Icon(Icons.Default.Timer, contentDescription = null, tint = timerColor, modifier = Modifier.size(16.dp))
+                Icon(Icons.Default.Timer, contentDescription = "Tiempo: $timerText", tint = timerColor, modifier = Modifier.size(16.dp))
                 Spacer(Modifier.width(2.dp))
                 Text(timerText, color = timerColor, fontWeight = FontWeight.Bold, fontSize = 18.sp)
             }
@@ -170,11 +190,11 @@ fun HudBar(
             val streakLeft = 5 - (streak % 5)
             val streakColor = if (streakLeft == 1) Warning else TextMuted
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Icon(Icons.Default.Bolt, contentDescription = null, tint = streakColor, modifier = Modifier.size(13.dp))
+                Icon(Icons.Default.Bolt, contentDescription = "Racha ${streak % 5} de 5", tint = streakColor, modifier = Modifier.size(13.dp))
                 Text("${streak % 5}/5", color = streakColor, fontWeight = FontWeight.Bold, fontSize = 13.sp)
             }
         }
-        Text("#$questionNum", color = TextDim, fontSize = 13.sp)
+        Text("Pregunta $questionNum", color = TextDim, fontSize = 13.sp)
     }
 }
 
@@ -346,29 +366,28 @@ fun StatCardWithIcon(
 
 @Composable
 fun LoadingOverlay() {
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(Color.Black.copy(alpha = 0.7f))
-            .clickable(
-                interactionSource = remember { MutableInteractionSource() },
-                indication = null,
-                onClick = {}
-            ),
-        contentAlignment = Alignment.Center
-    ) {
-        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            DotLottieAnimation(
-                source = DotLottieSource.Asset("law_and_justice.json"),
-                autoplay = true,
-                loop = true,
-                speed = 1.25f,
-                useFrameInterpolation = false,
-                playMode = Mode.FORWARD,
-                modifier = Modifier.size(120.dp)
-            )
-            Spacer(Modifier.height(8.dp))
-            Text("Cargando preguntas...", color = TextLight, fontSize = 14.sp)
+    // Uses Dialog so back-handling, focus and window insets are managed by the platform,
+    // and touches outside are blocked without a no-op clickable.
+    Dialog(onDismissRequest = {}) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(Color.Black.copy(alpha = 0.7f)),
+            contentAlignment = Alignment.Center
+        ) {
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                DotLottieAnimation(
+                    source = DotLottieSource.Asset("law_and_justice.json"),
+                    autoplay = true,
+                    loop = true,
+                    speed = 1.25f,
+                    useFrameInterpolation = false,
+                    playMode = Mode.FORWARD,
+                    modifier = Modifier.size(120.dp)
+                )
+                Spacer(Modifier.height(8.dp))
+                Text(stringResource(R.string.loading_questions), color = TextLight, fontSize = 14.sp)
+            }
         }
     }
 }

@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- App -->
+    <string name="app_name">OpoLeyes</string>
+
+    <!-- Common -->
+    <string name="back">Volver</string>
+    <string name="cancel">Cancelar</string>
+    <string name="continue_label">Continuar</string>
+    <string name="retry">Reintentar</string>
+    <string name="error">Error</string>
+    <string name="loading_questions">Cargando preguntas…</string>
+    <string name="loading_app">Cargando aplicación…</string>
+    <string name="data_load_error">No se pudieron cargar los datos</string>
+    <string name="data_load_error_detail">No se pudieron cargar los datos.</string>
+
+    <!-- Home -->
+    <string name="daily_missions">Misiones diarias</string>
+    <string name="missions_empty">Vuelve mañana para nuevas misiones</string>
+    <string name="play">JUGAR</string>
+    <string name="help">Ayuda</string>
+    <string name="stat_accuracy">Precisión</string>
+    <string name="stat_correct">Aciertos</string>
+    <string name="stat_best_combo">Mejor combo</string>
+
+    <!-- Mode select -->
+    <string name="select_mode">Selecciona modo</string>
+    <string name="mode_survival">Supervivencia</string>
+    <string name="mode_survival_desc">3 vidas, sin tiempo. Los combos recuperan vida.</string>
+    <string name="mode_timetrial">Contrarreloj</string>
+    <string name="mode_timetrial_desc">180s. +15s acierto, -10s fallo.</string>
+    <string name="mode_quick">Repaso Express</string>
+    <string name="mode_quick_desc">20 preguntas enfocadas en fallos previos.</string>
+    <string name="mode_exam">Modo Examen</string>
+    <string name="mode_exam_desc">Simula el examen oficial. Sin vidas, sin power-ups, corrección al final.</string>
+    <string name="mode_challenge">Modo Reto</string>
+    <string name="mode_challenge_desc">120s, máxima dificultad, todas las leyes.</string>
+    <string name="locked">Bloqueado</string>
+    <string name="configure_exam">Configurar examen</string>
+    <string name="question_count">Número de preguntas</string>
+    <string name="exam_preset_fast">Rápido</string>
+    <string name="exam_preset_standard">Estándar</string>
+    <string name="exam_preset_full">Completo</string>
+    <string name="questions_count">%1$d preguntas</string>
+
+    <!-- Tema select -->
+    <string name="select_law">Selecciona ley</string>
+    <string name="search_law">Buscar ley…</string>
+    <string name="all_laws">Todas las leyes</string>
+    <string name="dominated_suffix">%1$d%% dominado</string>
+
+    <!-- Game -->
+    <string name="back_to_menu">¿Volver al menú?</string>
+    <string name="lose_progress">Perderás tu progreso.</string>
+    <string name="exit">Salir</string>
+    <string name="shield">Escudo</string>
+    <string name="hint">Pista</string>
+    <string name="fifty_fifty">50/50</string>
+    <string name="double_points">x2 pts</string>
+    <string name="shield_activated">¡Escudo activado!</string>
+    <string name="double_score_activated">¡Doble puntuación activada!</string>
+
+    <!-- Game over -->
+    <string name="game_over">Fin de partida</string>
+    <string name="new_record">¡NUEVO RÉCORD!</string>
+    <string name="points">puntos</string>
+    <string name="score_label">Puntuación</string>
+    <string name="questions_label">Preguntas</string>
+    <string name="max_combo_label">Combo máx</string>
+    <string name="accuracy_label">Precisión</string>
+    <string name="play_again">Jugar</string>
+    <string name="menu">Menú</string>
+    <string name="tap_to_open">¡Toca para abrir!</string>
+    <string name="tap_to_continue">Toca para continuar</string>
+    <string name="next_xp_double">x2 XP en la próxima partida</string>
+
+    <!-- Exam -->
+    <string name="exit_exam">¿Salir del examen?</string>
+    <string name="lose_exam_progress">Perderás tu progreso del examen.</string>
+    <string name="finish_exam">¿Finalizar examen?</string>
+    <string name="finish">Finalizar</string>
+    <string name="previous">Anterior</string>
+    <string name="next">Siguiente</string>
+    <string name="question_of">Pregunta %1$d de %2$d</string>
+    <string name="answered_of">%1$d/%2$d</string>
+    <string name="unanswered_remaining">Te quedan %1$d pregunta%2$s sin responder.</string>
+    <string name="all_answered">Has respondido todas las preguntas.</string>
+
+    <!-- Exam result -->
+    <string name="exam_result">Resultado del Examen</string>
+    <string name="out_of_ten">/ 10</string>
+    <string name="grade_outstanding">Sobresaliente</string>
+    <string name="grade_notable">Notable</string>
+    <string name="grade_good">Bien</string>
+    <string name="grade_pass">Aprobado</string>
+    <string name="grade_fail">Suspenso</string>
+    <string name="correct_label">Aciertos</string>
+    <string name="wrong_label">Fallos</string>
+    <string name="unanswered_label">Sin responder</string>
+    <string name="per_law">Desglose por ley</string>
+    <string name="xp_earned">+%1$d XP ganados</string>
+    <string name="hide_review">Ocultar revisión</string>
+    <string name="review_answers">Revisar respuestas</string>
+    <string name="home_label">Inicio</string>
+    <string name="another_exam">Otro examen</string>
+    <string name="correct">Correcto</string>
+    <string name="incorrect">Incorrecto</string>
+    <string name="your_answer">Tu respuesta: %1$s</string>
+    <string name="correct_answer">Correcta: %1$s</string>
+
+    <!-- Profile -->
+    <string name="profile">Perfil</string>
+    <string name="records">Récords</string>
+    <string name="blocked_suffix">(bloqueado)</string>
+    <string name="available_helps">Ayudas disponibles</string>
+    <string name="achievements">Logros (%1$d/%2$d)</string>
+    <string name="statistics">Estadísticas</string>
+    <string name="games_played">Partidas jugadas</string>
+    <string name="total_correct">Aciertos totales</string>
+    <string name="total_wrong">Fallos totales</string>
+    <string name="global_progress">Progreso global</string>
+    <string name="dominated_laws">Leyes dominadas</string>
+    <string name="reset_progress">Reiniciar progreso</string>
+    <string name="reset_confirm">¿Estás seguro? Se borrará todo tu progreso, XP, logros y récords.</string>
+    <string name="reset">Reiniciar</string>
+
+    <!-- Help -->
+    <string name="debug_on">Modo debug activado</string>
+    <string name="debug_off">Modo debug desactivado</string>
+</resources>

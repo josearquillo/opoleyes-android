@@ -48,7 +48,7 @@ fun NavGraph() {
             fadeOut(tween(200)) + scaleOut(targetScale = 0.95f, animationSpec = tween(200))
         },
     ) {
-        composable(Routes.LOADING) { LoadingScreen(navController) }
+        composable(Routes.LOADING) { LoadingScreen(navController, gameViewModel) }
         composable(Routes.ERROR) { ErrorScreen(navController) }
         composable(Routes.HOME) { HomeScreen(navController, gameViewModel) }
         composable(Routes.MODE_SELECT) { ModeSelectScreen(navController, gameViewModel) }
@@ -57,7 +57,7 @@ fun NavGraph() {
         composable(Routes.GAME_OVER) { GameOverScreen(navController, gameViewModel) }
         composable(Routes.EXAM) { ExamScreen(navController, gameViewModel) }
         composable(Routes.EXAM_RESULT) { ExamResultScreen(navController, gameViewModel) }
-        composable(Routes.PROFILE) { ProfileScreen(navController) }
-        composable(Routes.HELP) { HelpScreen(navController) }
+        composable(Routes.PROFILE) { ProfileScreen(navController, gameViewModel) }
+        composable(Routes.HELP) { HelpScreen(navController, gameViewModel) }
     }
 }

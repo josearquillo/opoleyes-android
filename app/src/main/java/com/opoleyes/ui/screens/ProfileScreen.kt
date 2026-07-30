@@ -17,45 +17,43 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.opoleyes.R
 import com.opoleyes.data.Constants
-import com.opoleyes.data.local.DataProvider
-import com.opoleyes.data.local.PreferencesManager
-import com.opoleyes.data.repository.ProgressRepository
-import com.opoleyes.data.repository.StatsRepository
 import com.opoleyes.ui.components.GameButton
 import com.opoleyes.ui.components.ProgressBar
+import com.opoleyes.ui.navigation.GameViewModel
 import com.opoleyes.ui.navigation.Routes
 import com.opoleyes.ui.theme.*
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ProfileScreen(navController: NavController) {
-    val context = navController.context
-    val progressRepo = ProgressRepository(context)
-    val statsRepo = StatsRepository(context)
-
-    val rank = remember { progressRepo.getRank() }
-    val xpProgress = remember { progressRepo.getXPProgress() }
-    val achievements = remember { progressRepo.getAchievements() }
-    val gamesPlayed = remember { progressRepo.getGamesPlayed() }
-    val totalCorrect = remember { statsRepo.getTotalCorrect() }
-    val totalWrong = remember { statsRepo.getTotalWrong() }
-    val globalProgress = remember { statsRepo.getGlobalProgress() }
-    val temaTests = remember { DataProvider.getTemaTests(context) }
-    val dominatedLaws = remember { temaTests.count { statsRepo.getLeyProgress(it.id) >= 100 } }
-
-    val prefs = remember { PreferencesManager(context) }
-    val powerUps = remember { prefs.getFreePowerUps() }
-    val powerUpCounts = remember {
+fun ProfileScreen(navController: NavController, gameViewModel: GameViewModel) {
+    val data = remember { gameViewModel.preloadProfileData(); gameViewModel.profileData!! }
+    val rank = data.rank
+    val xpProgress = data.xpProgress
+    val achievements = data.achievements
+    val gamesPlayed = data.gamesPlayed
+    val totalCorrect = data.totalCorrect
+    val totalWrong = data.totalWrong
+    val globalProgress = data.globalProgress
+    val temaTests = data.temaTests
+    val dominatedLaws = data.dominatedLaws
+    val powerUps = data.powerUps
+    val hintLabel = stringResource(R.string.hint)
+    val shieldLabel = stringResource(R.string.shield)
+    val fiftyFiftyLabel = stringResource(R.string.fifty_fifty)
+    val doublePtsLabel = stringResource(R.string.double_points)
+    val powerUpCounts = remember(powerUps) {
         mapOf(
-            (Icons.Default.Lightbulb to "Pista") to powerUps.count { it == "hint" },
-            (Icons.Default.Shield to "Escudo") to powerUps.count { it == "shield" },
-            (Icons.Default.SwapHoriz to "50/50") to powerUps.count { it == "fiftyFifty" },
-            (Icons.Default.AutoAwesome to "x2 pts") to powerUps.count { it == "doubleScore" }
+            (Icons.Default.Lightbulb to hintLabel) to powerUps.count { it == "hint" },
+            (Icons.Default.Shield to shieldLabel) to powerUps.count { it == "shield" },
+            (Icons.Default.SwapHoriz to fiftyFiftyLabel) to powerUps.count { it == "fiftyFifty" },
+            (Icons.Default.AutoAwesome to doublePtsLabel) to powerUps.count { it == "doubleScore" }
         )
     }
 
@@ -65,27 +63,26 @@ fun ProfileScreen(navController: NavController) {
     if (showResetDialog) {
         AlertDialog(
             onDismissRequest = { showResetDialog = false },
-            title = { Text("Reiniciar progreso") },
-            text = { Text("¿Estás seguro? Se borrará todo tu progreso, XP, logros y récords.") },
+            title = { Text(stringResource(R.string.reset_progress)) },
+            text = { Text(stringResource(R.string.reset_confirm)) },
             confirmButton = {
                 TextButton(onClick = {
-                    progressRepo.resetAll()
-                    PreferencesManager(context).initPowerUpsIfNeeded()
+                    gameViewModel.resetProgress()
                     showResetDialog = false
                     navController.navigate(Routes.HOME) { popUpTo(0) }
-                }) { Text("Reiniciar", color = Danger) }
+                }) { Text(stringResource(R.string.reset), color = Danger) }
             },
-            dismissButton = { TextButton(onClick = { showResetDialog = false }) { Text("Cancelar") } }
+            dismissButton = { TextButton(onClick = { showResetDialog = false }) { Text(stringResource(R.string.cancel)) } }
         )
     }
 
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Perfil", color = TextLight, fontWeight = FontWeight.Bold) },
+                title = { Text(stringResource(R.string.profile), color = TextLight, fontWeight = FontWeight.Bold) },
                 navigationIcon = {
                     IconButton(onClick = { navController.popBackStack() }) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Volver", tint = TextLight)
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.back), tint = TextLight)
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
@@ -115,17 +112,22 @@ fun ProfileScreen(navController: NavController) {
         Spacer(Modifier.height(24.dp))
 
         // Records
-        Text("Récords", color = TextLight, fontSize = 18.sp, fontWeight = FontWeight.Bold)
+        Text(stringResource(R.string.records), color = TextLight, fontSize = 18.sp, fontWeight = FontWeight.Bold)
         Spacer(Modifier.height(12.dp))
-        val modes = listOf("survival" to "Supervivencia", "timetrial" to "Contrarreloj", "quick" to "Repaso Express", "challenge" to "Reto")
-        modes.forEach { (mode, label) ->
-            val record = progressRepo.getRecord(mode)
-            val unlocked = progressRepo.isUnlocked(mode)
+        val modeLabels = linkedMapOf(
+            "survival" to "Supervivencia",
+            "timetrial" to "Contrarreloj",
+            "quick" to "Repaso Express",
+            "challenge" to "Reto"
+        )
+        modeLabels.forEach { (mode, label) ->
+            val record = data.records[mode] ?: 0
+            val unlocked = data.unlockedModes[mode] ?: false
             Row(
                 modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                Text(if (unlocked) label else "$label (bloqueado)", color = if (unlocked) TextLight else TextDim, fontSize = 14.sp)
+                Text(if (unlocked) label else "$label ${stringResource(R.string.blocked_suffix)}", color = if (unlocked) TextLight else TextDim, fontSize = 14.sp)
                 Text(if (unlocked) "$record pts" else "—", color = if (unlocked) Warning else TextDim, fontWeight = FontWeight.Bold, fontSize = 14.sp)
             }
         }
@@ -133,7 +135,7 @@ fun ProfileScreen(navController: NavController) {
         Spacer(Modifier.height(24.dp))
 
         // Power-ups
-        Text("Ayudas disponibles", color = TextLight, fontSize = 18.sp, fontWeight = FontWeight.Bold)
+        Text(stringResource(R.string.available_helps), color = TextLight, fontSize = 18.sp, fontWeight = FontWeight.Bold)
         Spacer(Modifier.height(12.dp))
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -168,7 +170,7 @@ fun ProfileScreen(navController: NavController) {
         Spacer(Modifier.height(24.dp))
 
         // Achievements
-        Text("Logros (${achievements.size}/${Constants.ACHIEVEMENTS.size})", color = TextLight, fontSize = 18.sp, fontWeight = FontWeight.Bold)
+        Text(stringResource(R.string.achievements, achievements.size, Constants.ACHIEVEMENTS.size), color = TextLight, fontSize = 18.sp, fontWeight = FontWeight.Bold)
         Spacer(Modifier.height(12.dp))
         // Use a simple grid via Rows
         val chunked = Constants.ACHIEVEMENTS.chunked(4)
@@ -204,14 +206,14 @@ fun ProfileScreen(navController: NavController) {
         Spacer(Modifier.height(24.dp))
 
         // Stats
-        Text("Estadísticas", color = TextLight, fontSize = 18.sp, fontWeight = FontWeight.Bold)
+        Text(stringResource(R.string.statistics), color = TextLight, fontSize = 18.sp, fontWeight = FontWeight.Bold)
         Spacer(Modifier.height(12.dp))
         listOf(
-            "Partidas jugadas" to "$gamesPlayed",
-            "Aciertos totales" to "$totalCorrect",
-            "Fallos totales" to "$totalWrong",
-            "Progreso global" to "$globalProgress%",
-            "Leyes dominadas" to "$dominatedLaws/${temaTests.size}"
+            stringResource(R.string.games_played) to "$gamesPlayed",
+            stringResource(R.string.total_correct) to "$totalCorrect",
+            stringResource(R.string.total_wrong) to "$totalWrong",
+            stringResource(R.string.global_progress) to "$globalProgress%",
+            stringResource(R.string.dominated_laws) to "$dominatedLaws/${temaTests.size}"
         ).forEach { (label, value) ->
             Row(
                 modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
@@ -223,7 +225,7 @@ fun ProfileScreen(navController: NavController) {
         }
 
         Spacer(Modifier.height(24.dp))
-        GameButton("Reiniciar progreso", color1 = Danger, color2 = DangerDark, modifier = Modifier.fillMaxWidth()) {
+        GameButton(stringResource(R.string.reset_progress), color1 = Danger, color2 = DangerDark, modifier = Modifier.fillMaxWidth()) {
             showResetDialog = true
         }
         Spacer(Modifier.height(24.dp))

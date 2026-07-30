@@ -17,10 +17,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.opoleyes.R
 import com.opoleyes.domain.ExamEngine
 import com.opoleyes.ui.navigation.GameViewModel
 import com.opoleyes.ui.navigation.Routes
@@ -33,27 +35,31 @@ fun ExamResultScreen(navController: NavController, gameViewModel: GameViewModel)
     val xpGained by gameViewModel.xpGained.collectAsState()
 
     if (result == null) {
+        var navigated by remember { mutableStateOf(false) }
         LaunchedEffect(Unit) {
-            navController.navigate(Routes.HOME) { popUpTo(0) }
+            if (!navigated) {
+                navigated = true
+                navController.navigate(Routes.HOME) { popUpTo(0) }
+            }
         }
         return
     }
 
     val r = result!!
     var showReview by remember { mutableStateOf(false) }
-    val allQuestions = gameViewModel.examEngine.getQuestions()
+    val allQuestions = remember { gameViewModel.getExamQuestions() }
     val scrollState = rememberScrollState()
 
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Resultado del Examen", color = TextLight, fontWeight = FontWeight.Bold) },
+                title = { Text(stringResource(R.string.exam_result), color = TextLight, fontWeight = FontWeight.Bold) },
                 navigationIcon = {
                     IconButton(onClick = {
                         gameViewModel.clearExamResult()
                         navController.navigate(Routes.HOME) { popUpTo(0) }
                     }) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Volver", tint = TextLight)
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.back), tint = TextLight)
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
@@ -72,7 +78,7 @@ fun ExamResultScreen(navController: NavController, gameViewModel: GameViewModel)
                 .padding(paddingValues)
                 .padding(16.dp)
         ) {
-        Text("Resultado del Examen", color = TextLight, fontSize = 24.sp, fontWeight = FontWeight.Bold)
+        Text(stringResource(R.string.exam_result), color = TextLight, fontSize = 24.sp, fontWeight = FontWeight.Bold)
         Spacer(Modifier.height(24.dp))
 
         ScoreCard(r)
@@ -81,7 +87,7 @@ fun ExamResultScreen(navController: NavController, gameViewModel: GameViewModel)
         StatsRow(r)
         Spacer(Modifier.height(16.dp))
 
-        Text("Desglose por ley", color = TextLight, fontSize = 18.sp, fontWeight = FontWeight.Bold)
+        Text(stringResource(R.string.per_law), color = TextLight, fontSize = 18.sp, fontWeight = FontWeight.Bold)
         Spacer(Modifier.height(8.dp))
         r.perLaw.forEach { (law, lr) ->
             LawBreakdownRow(law, lr)
@@ -89,7 +95,7 @@ fun ExamResultScreen(navController: NavController, gameViewModel: GameViewModel)
         }
 
         Spacer(Modifier.height(16.dp))
-        Text("+${xpGained} XP ganados", color = AccentLight, fontSize = 14.sp, fontWeight = FontWeight.Bold)
+        Text(stringResource(R.string.xp_earned, xpGained), color = AccentLight, fontSize = 14.sp, fontWeight = FontWeight.Bold)
 
         Spacer(Modifier.height(24.dp))
 
@@ -99,7 +105,7 @@ fun ExamResultScreen(navController: NavController, gameViewModel: GameViewModel)
             colors = ButtonDefaults.buttonColors(containerColor = BgCard),
             border = androidx.compose.foundation.BorderStroke(1.dp, SurfaceVariant)
         ) {
-            Text(if (showReview) "Ocultar revisión" else "Revisar respuestas", color = TextLight)
+            Text(if (showReview) stringResource(R.string.hide_review) else stringResource(R.string.review_answers), color = TextLight)
         }
 
         AnimatedVisibility(showReview) {
@@ -127,7 +133,7 @@ fun ExamResultScreen(navController: NavController, gameViewModel: GameViewModel)
                 colors = ButtonDefaults.outlinedButtonColors(contentColor = TextLight),
                 border = androidx.compose.foundation.BorderStroke(1.dp, SurfaceVariant)
             ) {
-                Text("Inicio")
+                Text(stringResource(R.string.home_label))
             }
             Button(
                 onClick = {
@@ -137,7 +143,7 @@ fun ExamResultScreen(navController: NavController, gameViewModel: GameViewModel)
                 modifier = Modifier.weight(1f),
                 colors = ButtonDefaults.buttonColors(containerColor = Primary)
             ) {
-                Text("Otro examen")
+                Text(stringResource(R.string.another_exam))
             }
         }
         Spacer(Modifier.height(32.dp))
@@ -153,11 +159,11 @@ private fun ScoreCard(r: ExamEngine.ExamResult) {
         else -> Danger
     }
     val grade = when {
-        r.score >= 9 -> "Sobresaliente"
-        r.score >= 7 -> "Notable"
-        r.score >= 6 -> "Bien"
-        r.score >= 5 -> "Aprobado"
-        else -> "Suspenso"
+        r.score >= 9 -> stringResource(R.string.grade_outstanding)
+        r.score >= 7 -> stringResource(R.string.grade_notable)
+        r.score >= 6 -> stringResource(R.string.grade_good)
+        r.score >= 5 -> stringResource(R.string.grade_pass)
+        else -> stringResource(R.string.grade_fail)
     }
 
     Surface(
@@ -175,7 +181,7 @@ private fun ScoreCard(r: ExamEngine.ExamResult) {
                 fontSize = 64.sp,
                 fontWeight = FontWeight.Bold
             )
-            Text("/ 10", color = TextMuted, fontSize = 16.sp)
+            Text(stringResource(R.string.out_of_ten), color = TextMuted, fontSize = 16.sp)
             Spacer(Modifier.height(8.dp))
             Text(grade, color = scoreColor, fontSize = 20.sp, fontWeight = FontWeight.Bold)
         }
@@ -188,9 +194,9 @@ private fun StatsRow(r: ExamEngine.ExamResult) {
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceEvenly
     ) {
-        StatItem(Icons.Default.Check, r.correct.toString(), "Aciertos", Success)
-        StatItem(Icons.Default.Close, r.wrong.toString(), "Fallos", Danger)
-        StatItem("—", r.unanswered.toString(), "Sin responder", TextMuted)
+        StatItem(Icons.Default.Check, r.correct.toString(), stringResource(R.string.correct_label), Success)
+        StatItem(Icons.Default.Close, r.wrong.toString(), stringResource(R.string.wrong_label), Danger)
+        StatItem("—", r.unanswered.toString(), stringResource(R.string.unanswered_label), TextMuted)
     }
 }
 
@@ -259,7 +265,7 @@ private fun QuestionReviewCard(idx: Int, eq: ExamEngine.ExamQuestion) {
                 }
                 Spacer(Modifier.width(4.dp))
                 Text(
-                    if (isUnanswered) "Sin responder" else if (isCorrect) "Correcto" else "Incorrecto",
+                    if (isUnanswered) stringResource(R.string.unanswered_label) else if (isCorrect) stringResource(R.string.correct) else stringResource(R.string.incorrect),
                     color = if (isCorrect) Success else if (isUnanswered) TextMuted else Danger,
                     fontSize = 12.sp
                 )
@@ -268,10 +274,10 @@ private fun QuestionReviewCard(idx: Int, eq: ExamEngine.ExamQuestion) {
             Text(eq.question.enunciado, color = TextLight, fontSize = 13.sp)
             Spacer(Modifier.height(8.dp))
             if (!isUnanswered && !isCorrect) {
-                Text("Tu respuesta: ${eq.question.opciones[eq.userAnswer] ?: eq.userAnswer}",
+                Text(stringResource(R.string.your_answer, eq.question.opciones[eq.userAnswer] ?: eq.userAnswer ?: ""),
                     color = Danger, fontSize = 12.sp)
             }
-            Text("Correcta: ${eq.question.opciones[eq.question.correct] ?: eq.question.correct}",
+            Text(stringResource(R.string.correct_answer, eq.question.opciones[eq.question.correct] ?: eq.question.correct),
                 color = Success, fontSize = 12.sp)
         }
     }
