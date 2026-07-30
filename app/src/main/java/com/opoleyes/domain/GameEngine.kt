@@ -168,6 +168,7 @@ class GameEngine private constructor(
         answered = false; selectedOption = null; questionNum++
         fiftyFiftyActive = false; fiftyFiftyRemoved = emptyList()
         hintActive = false; hintRemoved = emptyList()
+        doubleScoreActive = false
         powerUpUsedThisQuestion = false
         return true
     }
@@ -202,7 +203,7 @@ class GameEngine private constructor(
                 if (comboOverchargeCharges <= 0) comboOverchargeActive = false
             }
 
-            var pts = 10 * combo
+            var pts = if (mode == GameMode.QUICK) 15 * combo else 10 * combo
             if (doubleScoreActive) { pts *= 2; doubleScoreActive = false }
             score += pts
             correctCount++
