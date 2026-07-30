@@ -20,7 +20,7 @@
 
 ## VISUAL
 
-### 4. Pantalla de carga inicial: eliminar icono de balanza animado
+### 4. Pantalla de carga inicial: eliminar icono de balanza animado ✅
 - Quitar el icono de la balanza que se mueve en la pantalla de carga/splash.
 - Dejar solo un spinner o texto de carga simple.
 
