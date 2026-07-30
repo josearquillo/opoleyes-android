@@ -28,7 +28,7 @@
 - Eliminar el indicador de fuego superior que muestra el número de respuestas correctas consecutivas.
 - Mantener únicamente la barra de combo inferior.
 
-### 6. Configurar Examen: quitar iconos de números de preguntas
+### 6. Configurar Examen: quitar iconos de números de preguntas ✅
 - En la pantalla de configuración de examen, quitar los iconos (rayo, corazón, copa) junto a las opciones de número de preguntas.
 - Dejar solo los números como texto.
 

@@ -180,9 +180,9 @@ private fun ExamConfigDialog(
     onStart: (Int) -> Unit
 ) {
     val presets = listOf(
-        ExamPreset("Rápido", 25, Icons.Default.Bolt, Primary, PurpleDark),
-        ExamPreset("Estándar", 50, Icons.Default.Favorite, Danger, Color(0xFF7f1d1d)),
-        ExamPreset("Completo", 100, Icons.Default.EmojiEvents, Warning, Color(0xFF78350f))
+        ExamPreset("Rápido", 25, Primary, PurpleDark),
+        ExamPreset("Estándar", 50, Danger, Color(0xFF7f1d1d)),
+        ExamPreset("Completo", 100, Warning, Color(0xFF78350f))
     )
 
     AlertDialog(
@@ -220,7 +220,6 @@ private fun ExamConfigDialog(
 private data class ExamPreset(
     val name: String,
     val count: Int,
-    val icon: androidx.compose.ui.graphics.vector.ImageVector,
     val color1: Color,
     val color2: Color
 )
@@ -236,13 +235,6 @@ private fun ExamPresetCard(preset: ExamPreset, onClick: () -> Unit) {
             .padding(horizontal = 14.dp, vertical = 14.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Icon(
-            preset.icon,
-            contentDescription = null,
-            tint = Color.White,
-            modifier = Modifier.size(24.dp)
-        )
-        Spacer(Modifier.width(12.dp))
         Column(modifier = Modifier.weight(1f)) {
             Text(
                 preset.name,
