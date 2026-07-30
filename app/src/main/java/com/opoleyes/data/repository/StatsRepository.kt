@@ -5,10 +5,10 @@ import com.opoleyes.data.local.DataProvider
 import com.opoleyes.data.local.PreferencesManager
 import com.opoleyes.data.model.QuestionStat
 
-class StatsRepository(private val context: Context) {
+open class StatsRepository(private val context: Context) : com.opoleyes.data.IStatsRepository {
     private val prefs = PreferencesManager(context)
 
-    fun getStats(): Map<String, QuestionStat> = prefs.getStats()
+    override fun getStats(): Map<String, QuestionStat> = prefs.getStats()
     fun saveStats(stats: Map<String, QuestionStat>) = prefs.saveStats(stats)
 
     fun getWeight(key: String): Int {
@@ -20,14 +20,14 @@ class StatsRepository(private val context: Context) {
         return maxOf(w, 5)
     }
 
-    fun updateStat(key: String, isCorrect: Boolean) {
+    override fun updateStat(key: String, isCorrect: Boolean) {
         val stats = getStats().toMutableMap()
         val s = stats.getOrPut(key) { QuestionStat() }
         stats[key] = if (isCorrect) s.copy(correct = s.correct + 1) else s.copy(wrong = s.wrong + 1)
         saveStats(stats)
     }
 
-    fun getLeyProgress(testId: String): Int {
+    override fun getLeyProgress(testId: String): Int {
         val testDataMap = DataProvider.getTestDataMap(context)
         val td = testDataMap[testId] ?: return 0
         if (td.questions.isEmpty()) return 0

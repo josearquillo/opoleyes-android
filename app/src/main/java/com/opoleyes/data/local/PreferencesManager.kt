@@ -6,7 +6,7 @@ import com.google.gson.reflect.TypeToken
 import com.opoleyes.data.model.MissionData
 import com.opoleyes.data.model.QuestionStat
 
-class PreferencesManager(private val context: Context) {
+open class PreferencesManager(private val context: Context) : com.opoleyes.data.IPreferencesManager {
     private val gson = Gson()
     private val prefs = context.getSharedPreferences("opoleyes_prefs", Context.MODE_PRIVATE)
 
@@ -35,9 +35,9 @@ class PreferencesManager(private val context: Context) {
         }
     }
 
-    fun getXP(): Int = prefs.getInt(XP, 0)
+    override fun getXP(): Int = prefs.getInt(XP, 0)
 
-    fun addXP(amount: Int): Int {
+    override fun addXP(amount: Int): Int {
         val multiplier = getMultiplier()
         val newXp = getXP() + amount * multiplier
         val editor = prefs.edit()
@@ -80,17 +80,17 @@ class PreferencesManager(private val context: Context) {
     fun getRecordAcc(mode: String): Int = prefs.getInt(recordAccKey(mode), 0)
     fun setRecordAcc(mode: String, value: Int) { prefs.edit().putInt(recordAccKey(mode), value).apply() }
 
-    fun getFreePowerUps(): List<String> {
+    override fun getFreePowerUps(): List<String> {
         val json = prefs.getString(FREE_POWERUPS_JSON, "[]")
         val type = object : TypeToken<List<String>>() {}.type
         return gson.fromJson(json, type) ?: emptyList()
     }
 
-    fun setFreePowerUps(list: List<String>) {
+    override fun setFreePowerUps(list: List<String>) {
         prefs.edit().putString(FREE_POWERUPS_JSON, gson.toJson(list)).apply()
     }
 
-    fun clearFreePowerUps() {
+    override fun clearFreePowerUps() {
         prefs.edit().remove(FREE_POWERUPS_JSON).apply()
     }
 
@@ -113,16 +113,16 @@ class PreferencesManager(private val context: Context) {
         prefs.edit().putString(DAILY_MISSIONS_JSON, gson.toJson(data)).apply()
     }
 
-    fun isLawMastered(testId: String): Boolean =
+    override fun isLawMastered(testId: String): Boolean =
         prefs.getString(lawMasteredKey(testId), null) != null
 
-    fun setLawMastered(testId: String) {
+    override fun setLawMastered(testId: String) {
         prefs.edit().putString(lawMasteredKey(testId), "1").apply()
     }
 
-    fun isDebugMode(): Boolean = prefs.getBoolean(DEBUG_MODE, false)
+    override fun isDebugMode(): Boolean = prefs.getBoolean(DEBUG_MODE, false)
 
-    fun setDebugMode(enabled: Boolean) {
+    override fun setDebugMode(enabled: Boolean) {
         if (enabled) {
             // Save current real power-ups before setting debug power-ups
             val current = getFreePowerUps()
@@ -147,7 +147,7 @@ class PreferencesManager(private val context: Context) {
         prefs.edit().putBoolean(DEBUG_MODE, enabled).apply()
     }
 
-    fun resetAll() {
+    override fun resetAll() {
         prefs.edit().clear().commit()
     }
 }

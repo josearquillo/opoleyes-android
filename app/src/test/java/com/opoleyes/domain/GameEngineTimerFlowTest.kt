@@ -1,7 +1,9 @@
 package com.opoleyes.domain
 
-import com.opoleyes.TestContextProvider
-import com.opoleyes.data.local.PreferencesManager
+import com.opoleyes.FakeGameRepository
+import com.opoleyes.FakePreferencesManager
+import com.opoleyes.FakeProgressRepository
+import com.opoleyes.FakeStatsRepository
 import com.opoleyes.data.model.GameMode
 import org.junit.After
 import org.junit.Assert.assertEquals
@@ -9,23 +11,18 @@ import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
-import org.junit.runner.RunWith
-import org.robolectric.RobolectricTestRunner
-import org.robolectric.annotation.Config
 
-@RunWith(RobolectricTestRunner::class)
-@Config(sdk = [34])
 class GameEngineTimerFlowTest {
 
     private lateinit var engine: GameEngine
-    private lateinit var prefs: PreferencesManager
+    private lateinit var prefs: FakePreferencesManager
 
     @Before
     fun setup() {
-        val context = TestContextProvider.getContext()
-        prefs = PreferencesManager(context)
-        prefs.resetAll()
-        engine = GameEngine(context)
+        prefs = FakePreferencesManager()
+        engine = GameEngine.createForTest(
+            FakeGameRepository(), FakeStatsRepository(), FakeProgressRepository(), prefs
+        )
     }
 
     @After

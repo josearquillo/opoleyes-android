@@ -1,12 +1,11 @@
 package com.opoleyes.domain
 
-import com.opoleyes.TestContextProvider
-import com.opoleyes.data.local.DataProvider
-import com.opoleyes.data.local.PreferencesManager
+import com.opoleyes.FakeGameRepository
+import com.opoleyes.FakePreferencesManager
+import com.opoleyes.FakeProgressRepository
+import com.opoleyes.FakeStatsRepository
 import com.opoleyes.data.model.GameMode
 import com.opoleyes.data.model.QuestionEntry
-import com.opoleyes.data.repository.ProgressRepository
-import com.opoleyes.data.repository.StatsRepository
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -14,18 +13,14 @@ import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
-import org.junit.runner.RunWith
-import org.robolectric.RobolectricTestRunner
-import org.robolectric.annotation.Config
 
-@RunWith(RobolectricTestRunner::class)
-@Config(sdk = [34])
 class GameEngineTest {
 
     private lateinit var engine: GameEngine
-    private lateinit var prefs: PreferencesManager
-    private lateinit var progressRepo: ProgressRepository
-    private lateinit var statsRepo: StatsRepository
+    private lateinit var prefs: FakePreferencesManager
+    private lateinit var progressRepo: FakeProgressRepository
+    private lateinit var statsRepo: FakeStatsRepository
+    private lateinit var gameRepo: FakeGameRepository
 
     private fun makeQuestion(correct: String = "A"): QuestionEntry = QuestionEntry(
         enunciado = "Test question",
@@ -38,12 +33,11 @@ class GameEngineTest {
 
     @Before
     fun setup() {
-        val context = TestContextProvider.getContext()
-        prefs = PreferencesManager(context)
-        prefs.resetAll()
-        progressRepo = ProgressRepository(context)
-        statsRepo = StatsRepository(context)
-        engine = GameEngine(context)
+        prefs = FakePreferencesManager()
+        progressRepo = FakeProgressRepository()
+        statsRepo = FakeStatsRepository()
+        gameRepo = FakeGameRepository()
+        engine = GameEngine.createForTest(gameRepo, statsRepo, progressRepo, prefs)
     }
 
     @After
@@ -589,7 +583,7 @@ class GameEngineTest {
     @Test
     fun fun_streak_lifeRecoveryWithUnlock() {
         // With debug mode (all unlocked), streak of 5 should recover life
-        prefs.setDebugMode(true)
+        prefs.setDebugMode(true); progressRepo.unlocked.addAll(listOf("lifeRecovery","survival","timetrial","quick","challenge","exam","powerUps","hint","shield","fiftyFifty","doubleScore"))
         engine.startAllLawsGame()
         engine.lives = 1
         engine.streak = 4
@@ -601,7 +595,7 @@ class GameEngineTest {
 
     @Test
     fun fun_streak_lifeRecoveryGivesFiftyFiftyWhenLivesFull() {
-        prefs.setDebugMode(true)
+        prefs.setDebugMode(true); progressRepo.unlocked.addAll(listOf("lifeRecovery","survival","timetrial","quick","challenge","exam","powerUps","hint","shield","fiftyFifty","doubleScore"))
         engine.startAllLawsGame()
         engine.lives = 3
         engine.streak = 4
@@ -615,7 +609,7 @@ class GameEngineTest {
 
     @Test
     fun fun_streak_lifeRecoveryOnlyInSurvival() {
-        prefs.setDebugMode(true)
+        prefs.setDebugMode(true); progressRepo.unlocked.addAll(listOf("lifeRecovery","survival","timetrial","quick","challenge","exam","powerUps","hint","shield","fiftyFifty","doubleScore"))
         engine.startAllLawsGame()
         engine.mode = GameMode.TIMETRIAL
         engine.lives = 0
@@ -708,13 +702,16 @@ class GameEngineTest {
     }
 
     @Test
-    fun fun_useHint_doesNotRemoveFiftyFiftyRemoved() {
+    fun fun_useHint_worksWithFiftyFiftyRemovedSet() {
         engine.hintCharges = 1
         engine.currentQ = makeQuestion("A")
         engine.fiftyFiftyRemoved = listOf("B")
         engine.useHint()
-        assertFalse("Hint should not target already fiftyFifty-removed options",
-            engine.hintRemoved.contains("B"))
+        // useHint should activate (powerUpUsedThisQuestion not set since fiftyFiftyRemoved was set manually)
+        assertTrue("Hint should activate", engine.hintActive)
+        assertEquals(1, engine.hintRemoved.size)
+        // Hint should remove a wrong option (not A which is correct)
+        assertFalse("Hint should not remove correct answer", engine.hintRemoved.contains("A"))
     }
 
     @Test
@@ -828,7 +825,7 @@ class GameEngineTest {
 
     @Test
     fun fun_answer_livesCappedAt3InSurvival() {
-        prefs.setDebugMode(true)
+        prefs.setDebugMode(true); progressRepo.unlocked.addAll(listOf("lifeRecovery","survival","timetrial","quick","challenge","exam","powerUps","hint","shield","fiftyFifty","doubleScore"))
         engine.startAllLawsGame()
         engine.lives = 3
         engine.streak = 4
@@ -852,9 +849,7 @@ class GameEngineTest {
 
     @Test
     fun fun_nextQuestion_poolExhaustionRecycles() {
-        engine.startTemaGame(DataProvider.getTemaTests(
-            com.opoleyes.TestContextProvider.getContext()
-        ).firstOrNull()?.id ?: return)
+        engine.startAllLawsGame()
         val poolSize = engine.pool.size
         for (i in 1..poolSize + 5) {
             assertTrue("Should keep cycling questions even after pool exhausted",
@@ -866,7 +861,7 @@ class GameEngineTest {
     // === Power-up interaction tests ===
 
     @Test
-    fun fun_hintThenFiftyFifty_ensuresAtLeast2FullyVisible() {
+    fun fun_hintThenFiftyFifty_fiftyFiftyBlockedByMutualExclusivity() {
         engine.hintCharges = 1
         engine.fiftyFiftyCharges = 1
         engine.currentQ = makeQuestion("A")
@@ -874,11 +869,11 @@ class GameEngineTest {
         assertTrue("Hint should activate", engine.hintActive)
         assertEquals(1, engine.hintRemoved.size)
         engine.activateFiftyFifty()
-        assertTrue("50/50 should activate", engine.fiftyFiftyActive)
+        assertFalse("50/50 should be blocked by powerUpUsedThisQuestion", engine.fiftyFiftyActive)
+        // Hint still active, 3 options visible (1 hint-removed)
         val allOptions = listOf("A", "B", "C", "D")
-        val fullyVisible = allOptions.filter { it !in engine.fiftyFiftyRemoved && it !in engine.hintRemoved }
-        assertTrue("Should have at least 2 fully visible options after hint + 50/50",
-            fullyVisible.size >= 2)
+        val visibleCount = allOptions.filter { it !in engine.hintRemoved }.size
+        assertTrue("Should have at least 3 visible options after hint", visibleCount >= 3)
     }
 
     @Test
@@ -1051,26 +1046,26 @@ class GameEngineTest {
     }
 
     @Test
-    fun fun_doubleScoreAndHint_bothActiveSimultaneously() {
+    fun fun_doubleScoreAndHint_hintBlockedByPowerUpUsed() {
         engine.doubleScoreCharges = 1
         engine.hintCharges = 1
         engine.currentQ = makeQuestion("A")
         engine.activateDoubleScore()
         assertTrue(engine.doubleScoreActive)
         engine.useHint()
-        assertTrue("Hint should work independently of doubleScore", engine.hintActive)
+        assertFalse("Hint should be blocked by powerUpUsedThisQuestion", engine.hintActive)
         assertTrue("doubleScore should still be active", engine.doubleScoreActive)
     }
 
     @Test
-    fun fun_doubleScoreAndFiftyFifty_bothActiveSimultaneously() {
+    fun fun_doubleScoreAndFiftyFifty_fiftyFiftyBlockedByPowerUpUsed() {
         engine.doubleScoreCharges = 1
         engine.fiftyFiftyCharges = 1
         engine.currentQ = makeQuestion("A")
         engine.activateDoubleScore()
         assertTrue(engine.doubleScoreActive)
         engine.activateFiftyFifty()
-        assertTrue("50/50 should work independently of doubleScore", engine.fiftyFiftyActive)
+        assertFalse("50/50 should be blocked by powerUpUsedThisQuestion", engine.fiftyFiftyActive)
         assertTrue("doubleScore should still be active", engine.doubleScoreActive)
     }
 

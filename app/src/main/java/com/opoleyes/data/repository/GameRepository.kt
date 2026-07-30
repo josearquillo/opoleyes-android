@@ -8,7 +8,7 @@ import com.opoleyes.data.model.GameMode
 import com.opoleyes.data.model.QuestionEntry
 import com.opoleyes.data.model.TestData
 
-class GameRepository(private val context: Context) {
+open class GameRepository(private val context: Context) : com.opoleyes.data.IGameRepository {
     private val statsRepo = StatsRepository(context)
     private val prefs = PreferencesManager(context)
 
@@ -28,12 +28,12 @@ class GameRepository(private val context: Context) {
         }
     }
 
-    fun startTemaGame(testId: String): List<QuestionEntry> {
+    override fun startTemaGame(testId: String): List<QuestionEntry> {
         val td = DataProvider.getTestDataMap(context)[testId] ?: return emptyList()
         return buildPoolFromTestData(td)
     }
 
-    fun startAllLawsGame(): List<QuestionEntry> {
+    override fun startAllLawsGame(): List<QuestionEntry> {
         val pool = mutableListOf<QuestionEntry>()
         for (d in DataProvider.loadData(context)) {
             if (d.test.tema == null) continue
@@ -42,7 +42,7 @@ class GameRepository(private val context: Context) {
         return pool
     }
 
-    fun startQuickGame(): List<QuestionEntry> {
+    override fun startQuickGame(): List<QuestionEntry> {
         val stats = statsRepo.getStats()
         val wrongPool = mutableListOf<QuestionEntry>()
         val unansweredPool = mutableListOf<QuestionEntry>()

@@ -7,13 +7,13 @@ import com.opoleyes.data.model.Achievement
 import com.opoleyes.data.model.Rank
 import com.opoleyes.data.model.XPProgress
 
-class ProgressRepository(private val context: Context) {
+open class ProgressRepository(private val context: Context) : com.opoleyes.data.IProgressRepository {
     private val prefs = PreferencesManager(context)
 
-    fun getXP(): Int = if (prefs.isDebugMode()) 100000 else prefs.getXP()
-    fun addXP(amount: Int): Int = prefs.addXP(amount)
+    override fun getXP(): Int = if (prefs.isDebugMode()) 100000 else prefs.getXP()
+    override fun addXP(amount: Int): Int = prefs.addXP(amount)
 
-    fun getRankIndex(): Int {
+    override fun getRankIndex(): Int {
         val xp = getXP()
         return getRankIndexForXP(xp)
     }
@@ -74,7 +74,7 @@ class ProgressRepository(private val context: Context) {
         )
     }
 
-    fun isUnlocked(feature: String): Boolean {
+    override fun isUnlocked(feature: String): Boolean {
         val u = getUnlocks()
         return when (feature) {
             "survival" -> u.survival

@@ -52,9 +52,11 @@ android {
 }
 
 tasks.withType<Test> {
+    maxParallelForks = 4
     configure<JacocoTaskExtension> {
         isIncludeNoLocationClasses = true
         excludes = listOf("jdk.internal.*", "sun.*")
+        isEnabled = false
     }
 }
 

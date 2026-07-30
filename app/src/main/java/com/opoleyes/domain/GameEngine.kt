@@ -2,6 +2,10 @@ package com.opoleyes.domain
 
 import android.content.Context
 import com.opoleyes.data.Constants
+import com.opoleyes.data.IGameRepository
+import com.opoleyes.data.IPreferencesManager
+import com.opoleyes.data.IProgressRepository
+import com.opoleyes.data.IStatsRepository
 import com.opoleyes.data.local.DataProvider
 import com.opoleyes.data.local.PreferencesManager
 import com.opoleyes.data.model.GameMode
@@ -10,11 +14,29 @@ import com.opoleyes.data.repository.GameRepository
 import com.opoleyes.data.repository.ProgressRepository
 import com.opoleyes.data.repository.StatsRepository
 
-class GameEngine(private val context: Context) {
-    private val gameRepo = GameRepository(context)
-    private val statsRepo = StatsRepository(context)
-    private val progressRepo = ProgressRepository(context)
-    private val prefs = PreferencesManager(context)
+class GameEngine private constructor(
+    private val context: Context?,
+    private val gameRepo: IGameRepository,
+    private val statsRepo: IStatsRepository,
+    private val progressRepo: IProgressRepository,
+    private val prefs: IPreferencesManager
+) {
+    constructor(context: Context) : this(
+        context,
+        GameRepository(context),
+        StatsRepository(context),
+        ProgressRepository(context),
+        PreferencesManager(context)
+    )
+
+    companion object {
+        fun createForTest(
+            gameRepo: IGameRepository,
+            statsRepo: IStatsRepository,
+            progressRepo: IProgressRepository,
+            prefs: IPreferencesManager
+        ) = GameEngine(null, gameRepo, statsRepo, progressRepo, prefs)
+    }
 
     var mode: GameMode = GameMode.SURVIVAL
     var category: String = ""
