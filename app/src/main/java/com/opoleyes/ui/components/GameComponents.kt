@@ -138,7 +138,7 @@ fun OptionCard(
 
     val showEffect = answered && isCorrect && userWasCorrect
     val pulseScale by animateFloatAsState(
-        targetValue = if (showEffect) 1.05f else 1f,
+        targetValue = if (showEffect) 1.08f else 1f,
         animationSpec = spring(
             dampingRatio = Spring.DampingRatioMediumBouncy,
             stiffness = Spring.StiffnessMedium
@@ -147,23 +147,34 @@ fun OptionCard(
     )
     val infiniteTransition = rememberInfiniteTransition(label = "correctGlow")
     val glowPulse by infiniteTransition.animateFloat(
-        initialValue = 0.3f,
-        targetValue = 0.7f,
+        initialValue = 0.4f,
+        targetValue = 1f,
         animationSpec = infiniteRepeatable(
-            animation = tween(800, easing = FastOutSlowInEasing),
+            animation = tween(700, easing = FastOutSlowInEasing),
             repeatMode = RepeatMode.Reverse
         ),
         label = "glowPulse"
     )
+    val flashAnim = remember { Animatable(0f) }
+    LaunchedEffect(showEffect) {
+        if (showEffect) {
+            flashAnim.snapTo(0.6f)
+            flashAnim.animateTo(0f, animationSpec = tween(600, easing = FastOutSlowInEasing))
+        }
+    }
 
     Box(
         modifier = modifier
             .scale(if (showEffect) pulseScale else 1f)
             .clip(shape)
             .background(bgColor)
+            .then(
+                if (flashAnim.value > 0f) Modifier.background(Warning.copy(alpha = flashAnim.value))
+                else Modifier
+            )
             .border(borderWidth, borderColor, shape)
             .then(
-                if (showEffect) Modifier.border(2.dp, Warning.copy(alpha = glowPulse), shape)
+                if (showEffect) Modifier.border(3.dp, Warning.copy(alpha = glowPulse), shape)
                 else Modifier
             )
             .clickable(
