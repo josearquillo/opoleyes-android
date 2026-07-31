@@ -193,7 +193,7 @@ class GameEngine private constructor(
             maxCombo = maxOf(maxCombo, combo)
 
             if (!comboOverchargeActive) {
-                comboBarFill = minOf(1f, comboBarFill + 0.1f)
+                comboBarFill = minOf(1f, comboBarFill + 0.2f)
                 if (comboBarFill >= 1f) {
                     comboOverchargeActive = true; comboOverchargeCharges = 3; comboBarFill = 0f
                 }

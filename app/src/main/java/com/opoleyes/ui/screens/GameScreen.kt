@@ -200,7 +200,7 @@ fun GameScreen(navController: NavController, gameViewModel: GameViewModel) {
                     Spacer(Modifier.height(6.dp))
                 }
 
-                HudBar(
+                AnimatedHudBar(
                     score = uiState.score,
                     combo = uiState.combo,
                     lives = uiState.lives,
@@ -216,7 +216,9 @@ fun GameScreen(navController: NavController, gameViewModel: GameViewModel) {
                     ComboBar(
                         fill = if (uiState.comboOverchargeActive) 1f else uiState.comboBarFill,
                         overchargeActive = uiState.comboOverchargeActive,
-                        overchargeCharges = uiState.comboOverchargeCharges
+                        overchargeCharges = uiState.comboOverchargeCharges,
+                        combo = uiState.combo,
+                        streak = uiState.streak
                     )
                 }
 

@@ -349,7 +349,6 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
 
         when (result) {
             GameEngine.AnswerResult.CORRECT -> {
-                addPopup("+${10 * engine.combo} pts", com.opoleyes.ui.theme.Success, 54, 0f, "⭐")
                 if (engine.combo >= 3) {
                     val comboColor = when {
                         engine.combo >= 20 -> com.opoleyes.ui.theme.Warning
@@ -357,9 +356,6 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
                         else -> com.opoleyes.ui.theme.Orange
                     }
                     addPopup("COMBO x${engine.combo}", comboColor, 40, 0.15f, "🔥")
-                }
-                if (engine.mode == GameMode.TIMETRIAL || engine.mode == GameMode.CHALLENGE) {
-                    addPopup("+15s", Primary, 44, 0.3f, "⏱️")
                 }
                 if (engine.streak > 0 && engine.streak % 5 == 0) {
                     val streakMsg = when {
@@ -380,11 +376,6 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
                 checkAchievements(AchievementContext(firstCorrect = true, maxCombo = engine.maxCombo, score = engine.score, gameMode = engine.mode.name.lowercase()))
             }
             GameEngine.AnswerResult.WRONG -> {
-                if (engine.mode == GameMode.SURVIVAL || engine.mode == GameMode.QUICK) {
-                    addPopup("-1 vida", com.opoleyes.ui.theme.Danger, 42, 0f, "💔")
-                } else {
-                    addPopup("-10s", com.opoleyes.ui.theme.Danger, 44, 0f, "⏱️")
-                }
                 checkAchievements(AchievementContext(maxCombo = engine.maxCombo, score = engine.score, gameMode = engine.mode.name.lowercase()))
             }
             GameEngine.AnswerResult.SHIELD_USED -> {
