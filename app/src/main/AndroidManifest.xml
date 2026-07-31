@@ -25,14 +25,14 @@
             android:exported="true"
             android:theme="@style/Theme.Opoleyes.Splash" />
 
-        <!-- Default launcher alias: Balance (Balanza) -->
+        <!-- Launcher alias: OL Variant 1 (Indigo) -->
         <activity-alias
-            android:name=".BalanceAlias"
+            android:name=".OlV1Alias"
             android:enabled="true"
             android:exported="true"
-            android:icon="@mipmap/ic_launcher"
+            android:icon="@mipmap/ic_launcher_ol_v1"
             android:label="OpoLeyes"
-            android:roundIcon="@mipmap/ic_launcher_round"
+            android:roundIcon="@mipmap/ic_launcher_ol_v1_round"
             android:targetActivity=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -40,14 +40,14 @@
             </intent-filter>
         </activity-alias>
 
-        <!-- Alternate launcher alias: Letters OL -->
+        <!-- Launcher alias: OL Variant 2 (Gold) -->
         <activity-alias
-            android:name=".OlAlias"
+            android:name=".OlV2Alias"
             android:enabled="false"
             android:exported="true"
-            android:icon="@mipmap/ic_launcher_ol"
+            android:icon="@mipmap/ic_launcher_ol_v2"
             android:label="OpoLeyes"
-            android:roundIcon="@mipmap/ic_launcher_ol_round"
+            android:roundIcon="@mipmap/ic_launcher_ol_v2_round"
             android:targetActivity=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -55,14 +55,14 @@
             </intent-filter>
         </activity-alias>
 
-        <!-- Alternate launcher alias: Gavel (Martillo de juez) -->
+        <!-- Launcher alias: OL Variant 3 (Teal) -->
         <activity-alias
-            android:name=".GavelAlias"
+            android:name=".OlV3Alias"
             android:enabled="false"
             android:exported="true"
-            android:icon="@mipmap/ic_launcher_gavel"
+            android:icon="@mipmap/ic_launcher_ol_v3"
             android:label="OpoLeyes"
-            android:roundIcon="@mipmap/ic_launcher_gavel_round"
+            android:roundIcon="@mipmap/ic_launcher_ol_v3_round"
             android:targetActivity=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

@@ -50,9 +50,9 @@ fun LogoPickerScreen(navController: NavController, isFirstLaunch: Boolean = fals
     val scope = rememberCoroutineScope()
 
     val logoOptions = listOf(
-        LogoOption("balance", R.string.logo_balance, R.drawable.ic_launcher_foreground, "BalanceAlias"),
-        LogoOption("ol", R.string.logo_ol, R.drawable.ic_logo_ol, "OlAlias"),
-        LogoOption("gavel", R.string.logo_gavel, R.drawable.ic_logo_gavel, "GavelAlias")
+        LogoOption("ol_v1", R.string.logo_ol_v1, R.drawable.ic_logo_ol_v1, "OlV1Alias"),
+        LogoOption("ol_v2", R.string.logo_ol_v2, R.drawable.ic_logo_ol_v2, "OlV2Alias"),
+        LogoOption("ol_v3", R.string.logo_ol_v3, R.drawable.ic_logo_ol_v3, "OlV3Alias")
     )
 
     // Staggered appearance

@@ -112,6 +112,7 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
 
     fun resetProgress() {
         progressRepo.resetAll()
+        statsRepo.invalidateCache()
         prefs.initPowerUpsIfNeeded()
         _homePreload = null
         _profileData = null

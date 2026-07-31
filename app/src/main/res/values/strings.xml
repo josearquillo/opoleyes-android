@@ -131,9 +131,9 @@
     <!-- Logo picker -->
     <string name="choose_logo">Elige tu logo</string>
     <string name="choose_logo_subtitle">Selecciona el icono que más te guste. Podrás cambiarlo cuando quieras.</string>
-    <string name="logo_balance">Balanza</string>
-    <string name="logo_ol">Letras OL</string>
-    <string name="logo_gavel">Martillo de juez</string>
+    <string name="logo_ol_v1">OL Índigo</string>
+    <string name="logo_ol_v2">OL Dorado</string>
+    <string name="logo_ol_v3">OL Turquesa</string>
     <string name="logo_selected">Seleccionado</string>
     <string name="logo_apply">Aplicar</string>
     <string name="logo_change_notice">El icono cambiará en unos segundos…</string>

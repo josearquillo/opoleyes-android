@@ -1,0 +1,62 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+
+    <!-- Letter O: outer ring (indigo) -->
+    <path
+        android:fillColor="#6366f1"
+        android:pathData="M42,38 m-22,0 a22,22 0 1,0 44,0 a22,22 0 1,0 -44,0" />
+    <!-- Letter O: inner cutout (creates ring) -->
+    <path
+        android:fillColor="#0f172a"
+        android:pathData="M42,38 m-15,0 a15,15 0 1,0 30,0 a15,15 0 1,0 -30,0" />
+    <!-- Letter O: top-left highlight -->
+    <path
+        android:fillColor="#818cf8"
+        android:fillAlpha="0.5"
+        android:pathData="M42,38 m-22,0 a22,22 0 0,1 22,-22 a22,22 0 0,1 6,1 a19,19 0 0,0 -15,37 a22,22 0 0,1 -13,-16 Z" />
+
+    <!-- Balance scales inside O (gold) -->
+    <!-- Vertical post -->
+    <path
+        android:fillColor="#fbbf24"
+        android:pathData="M41,24 L43,24 L43,42 L41,42 Z" />
+    <!-- Horizontal beam -->
+    <path
+        android:fillColor="#fbbf24"
+        android:pathData="M30,27 L54,27 L54,29 L30,29 Z" />
+    <!-- Left pan -->
+    <path
+        android:fillColor="#fbbf24"
+        android:pathData="M26,29 L34,29 Q34,35 30,35 Q26,35 26,29 Z" />
+    <!-- Right pan -->
+    <path
+        android:fillColor="#fbbf24"
+        android:pathData="M50,29 L58,29 Q58,35 54,35 Q50,35 50,29 Z" />
+    <!-- Base -->
+    <path
+        android:fillColor="#fbbf24"
+        android:pathData="M38,42 L46,42 L46,44 L38,44 Z" />
+
+    <!-- Letter L: vertical stroke (purple) - touches O -->
+    <path
+        android:fillColor="#a855f7"
+        android:pathData="M64,16 L76,16 L76,60 L64,60 Z" />
+    <!-- Letter L: horizontal stroke (indigo) -->
+    <path
+        android:fillColor="#6366f1"
+        android:pathData="M64,52 L88,52 L88,60 L64,60 Z" />
+    <!-- Letter L: vertical highlight -->
+    <path
+        android:fillColor="#c084fc"
+        android:fillAlpha="0.5"
+        android:pathData="M64,16 L67,16 L67,60 L64,60 Z" />
+    <!-- Letter L: horizontal highlight -->
+    <path
+        android:fillColor="#818cf8"
+        android:fillAlpha="0.5"
+        android:pathData="M64,52 L88,52 L88,54 L64,54 Z" />
+
+</vector>

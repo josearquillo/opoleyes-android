@@ -149,7 +149,7 @@ open class PreferencesManager(private val context: Context) : com.opoleyes.data.
         prefs.edit().putBoolean(DEBUG_MODE, enabled).apply()
     }
 
-    fun getLogoPref(): String = prefs.getString(LOGO_PREF, "balance") ?: "balance"
+    fun getLogoPref(): String = prefs.getString(LOGO_PREF, "ol_v1") ?: "ol_v1"
 
     fun setLogoPref(logo: String) {
         prefs.edit().putString(LOGO_PREF, logo).putBoolean(LOGO_CHOSEN, true).apply()
