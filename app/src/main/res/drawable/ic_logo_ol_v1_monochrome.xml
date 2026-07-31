@@ -8,12 +8,18 @@
     <path android:fillColor="#FFFFFF" android:pathData="M42,50 m-22,0 a22,22 0 1,0 44,0 a22,22 0 1,0 -44,0" />
     <!-- Letter O: inner cutout -->
     <path android:fillColor="#00000000" android:pathData="M42,50 m-15,0 a15,15 0 1,0 30,0 a15,15 0 1,0 -30,0" />
-    <!-- Balance inside O -->
-    <path android:fillColor="#FFFFFF" android:pathData="M41,36 L43,36 L43,54 L41,54 Z" />
-    <path android:fillColor="#FFFFFF" android:pathData="M30,39 L54,39 L54,41 L30,41 Z" />
-    <path android:fillColor="#FFFFFF" android:pathData="M26,41 L34,41 Q34,47 30,47 Q26,47 26,41 Z" />
-    <path android:fillColor="#FFFFFF" android:pathData="M50,41 L58,41 Q58,47 54,47 Q50,47 50,41 Z" />
-    <path android:fillColor="#FFFFFF" android:pathData="M38,54 L46,54 L46,56 L38,56 Z" />
+    <!-- Balance inside O (detailed) -->
+    <path android:fillColor="#FFFFFF" android:pathData="M41,40 L43,40 L43,58 L41,58 Z" />
+    <path android:fillColor="#FFFFFF" android:pathData="M42,39 m-1.5,0 a1.5,1.5 0 1,0 3,0 a1.5,1.5 0 1,0 -3,0" />
+    <path android:fillColor="#FFFFFF" android:pathData="M31,43 L53,43 L53,45 L31,45 Z" />
+    <path android:fillColor="#FFFFFF" android:pathData="M40,42 L44,42 L42,46 Z" />
+    <path android:fillColor="#FFFFFF" android:pathData="M32,45 L32.6,45 L32.6,49 L32,49 Z" />
+    <path android:fillColor="#FFFFFF" android:pathData="M35.4,45 L36,45 L36,49 L35.4,49 Z" />
+    <path android:fillColor="#FFFFFF" android:pathData="M30,49 L38,49 C38,52.5 36,54.5 34,54.5 C32,54.5 30,52.5 30,49 Z" />
+    <path android:fillColor="#FFFFFF" android:pathData="M48,45 L48.6,45 L48.6,49 L48,49 Z" />
+    <path android:fillColor="#FFFFFF" android:pathData="M51.4,45 L52,45 L52,49 L51.4,49 Z" />
+    <path android:fillColor="#FFFFFF" android:pathData="M46,49 L54,49 C54,52.5 52,54.5 50,54.5 C48,54.5 46,52.5 46,49 Z" />
+    <path android:fillColor="#FFFFFF" android:pathData="M38,58 L46,58 L44.5,61 L39.5,61 Z" />
     <!-- Letter L -->
     <path android:fillColor="#FFFFFF" android:pathData="M64,28 L76,28 L76,72 L64,72 Z" />
     <path android:fillColor="#FFFFFF" android:pathData="M64,64 L88,64 L88,72 L64,72 Z" />
