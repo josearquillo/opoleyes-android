@@ -70,8 +70,15 @@ fun LoadingScreen(navController: NavController, gameViewModel: GameViewModel) {
 
             fadeOut = true
             delay(400)
-            navController.navigate(Routes.HOME) {
-                popUpTo(Routes.LOADING) { inclusive = true }
+            val prefs = PreferencesManager(context)
+            if (!prefs.isLogoChosen()) {
+                navController.navigate(Routes.LOGO_PICKER) {
+                    popUpTo(Routes.LOADING) { inclusive = true }
+                }
+            } else {
+                navController.navigate(Routes.HOME) {
+                    popUpTo(Routes.LOADING) { inclusive = true }
+                }
             }
         } catch (e: Exception) {
             error = e.message ?: "Error desconocido"

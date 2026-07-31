@@ -1,0 +1,32 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+
+    <path android:fillColor="#0f172a" android:pathData="M0,0 L108,0 L108,108 L0,108 Z" />
+
+    <!-- Letter O: outer ring -->
+    <path android:fillColor="#6366f1" android:pathData="M38,30 m-14,0 a14,14 0 1,0 28,0 a14,14 0 1,0 -28,0" />
+    <!-- Letter O: inner cutout (creates ring effect) -->
+    <path android:fillColor="#0f172a" android:pathData="M38,30 m-8,0 a8,8 0 1,0 16,0 a8,8 0 1,0 -16,0" />
+    <!-- Letter O: top-left highlight -->
+    <path android:fillColor="#818cf8" android:fillAlpha="0.6" android:pathData="M38,30 m-14,0 a14,14 0 0,1 14,-14 a14,14 0 0,1 4,0.6 a12,12 0 0,0 -10,23.4 a14,14 0 0,1 -8,-10 Z" />
+
+    <!-- Letter L: vertical stroke -->
+    <path android:fillColor="#a855f7" android:pathData="M58,16 L66,16 L66,60 L58,60 Z" />
+    <!-- Letter L: horizontal stroke (foot) -->
+    <path android:fillColor="#6366f1" android:pathData="M58,52 L82,52 L82,60 L58,60 Z" />
+    <!-- Letter L: vertical highlight -->
+    <path android:fillColor="#c084fc" android:fillAlpha="0.5" android:pathData="M58,16 L60,16 L60,60 L58,60 Z" />
+    <!-- Letter L: horizontal highlight -->
+    <path android:fillColor="#818cf8" android:fillAlpha="0.5" android:pathData="M58,52 L82,52 L82,54 L58,54 Z" />
+
+    <!-- Accent dot on O -->
+    <path android:fillColor="#fbbf24" android:pathData="M38,30 m-3,0 a3,3 0 1,0 6,0 a3,3 0 1,0 -6,0" />
+
+    <!-- Base platform under both letters -->
+    <path android:fillColor="#fbbf24" android:fillAlpha="0.3" android:pathData="M28,68 L82,68 L82,70 L28,70 Z" />
+    <path android:fillColor="#fbbf24" android:fillAlpha="0.15" android:pathData="M32,70 L78,70 L78,72 L32,72 Z" />
+
+</vector>

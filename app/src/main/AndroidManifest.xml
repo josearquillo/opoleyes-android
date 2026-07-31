@@ -23,11 +23,51 @@
         <activity
             android:name=".MainActivity"
             android:exported="true"
-            android:theme="@style/Theme.Opoleyes.Splash">
+            android:theme="@style/Theme.Opoleyes.Splash" />
+
+        <!-- Default launcher alias: Balance (Balanza) -->
+        <activity-alias
+            android:name=".BalanceAlias"
+            android:enabled="true"
+            android:exported="true"
+            android:icon="@mipmap/ic_launcher"
+            android:label="OpoLeyes"
+            android:roundIcon="@mipmap/ic_launcher_round"
+            android:targetActivity=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-        </activity>
+        </activity-alias>
+
+        <!-- Alternate launcher alias: Letters OL -->
+        <activity-alias
+            android:name=".OlAlias"
+            android:enabled="false"
+            android:exported="true"
+            android:icon="@mipmap/ic_launcher_ol"
+            android:label="OpoLeyes"
+            android:roundIcon="@mipmap/ic_launcher_ol_round"
+            android:targetActivity=".MainActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity-alias>
+
+        <!-- Alternate launcher alias: Gavel (Martillo de juez) -->
+        <activity-alias
+            android:name=".GavelAlias"
+            android:enabled="false"
+            android:exported="true"
+            android:icon="@mipmap/ic_launcher_gavel"
+            android:label="OpoLeyes"
+            android:roundIcon="@mipmap/ic_launcher_gavel_round"
+            android:targetActivity=".MainActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity-alias>
     </application>
 </manifest>

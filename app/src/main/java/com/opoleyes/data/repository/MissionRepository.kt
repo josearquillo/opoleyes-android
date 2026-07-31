@@ -44,6 +44,9 @@ class MissionRepository(private val context: Context) {
         val stats = statsRepo.getStats()
         val temaTests = DataProvider.getTemaTests(context)
 
+        val rankIndex = progressRepo.getRankIndex()
+        val missionReward = 50 * (1 + rankIndex)
+
         val comboRecord = progressRepo.getMaxComboRecord()
         val comboTarget = maxOf(3, comboRecord + 2)
 
@@ -63,26 +66,26 @@ class MissionRepository(private val context: Context) {
         val candidates = mutableListOf<Mission>(
             Mission("quality", "🎯",
                 "Acierta ${maxOf(3, Math.ceil(comboRecord * 0.7).toInt())} preguntas seguidas en Supervivencia (todas las leyes)",
-                maxOf(3, Math.ceil(comboRecord * 0.7).toInt()), 0, false, 50, "streak"),
+                maxOf(3, Math.ceil(comboRecord * 0.7).toInt()), 0, false, missionReward, "streak"),
             Mission("progress", "📈",
                 if (lowestLaw != null) "Sube el progreso de \"${lowestLaw.title.ifEmpty { lowestLaw.name }}\" al ${minOf(100, lowestPct + 5)}% en Supervivencia"
-                else "Acerta al menos 5 preguntas en Supervivencia (cualquier ley)",
+                else "Acierta al menos 5 preguntas en Supervivencia (cualquier ley)",
                 if (lowestLaw != null) minOf(100, lowestPct + 5) else 5,
-                if (lowestLaw != null) lowestPct else 0, false, 50,
+                if (lowestLaw != null) lowestPct else 0, false, missionReward,
                 "progress_${lowestLaw?.id ?: "any"}", lowestLaw?.id),
         )
         if (unlocks.quick) {
             candidates.add(Mission("review", "🔄",
                 "Responde ${minOf(20, maxOf(5, wrongCount))} preguntas en Repaso Express",
-                minOf(20, maxOf(5, wrongCount)), 0, false, 50, "quick_review"))
+                minOf(20, maxOf(5, wrongCount)), 0, false, missionReward, "quick_review"))
         }
         candidates.add(Mission("variety", "🌍",
-            if (unplayedLaw != null) "Acerta al menos 5 preguntas en Supervivencia en \"${unplayedLaw.title.ifEmpty { unplayedLaw.name }}\""
-            else "Acerta al menos 5 preguntas en Supervivencia en cualquier ley",
-            5, 0, false, 50, "variety_${unplayedLaw?.id ?: "any"}", unplayedLaw?.id))
+            if (unplayedLaw != null) "Acierta al menos 5 preguntas en Supervivencia en \"${unplayedLaw.title.ifEmpty { unplayedLaw.name }}\""
+            else "Acierta al menos 5 preguntas en Supervivencia en cualquier ley",
+            5, 0, false, missionReward, "variety_${unplayedLaw?.id ?: "any"}", unplayedLaw?.id))
         candidates.add(Mission("combo", "🔥",
             "Llega a combo x$comboTarget en Supervivencia (todas las leyes)",
-            comboTarget, 0, false, 50, "combo"))
+            comboTarget, 0, false, missionReward, "combo"))
 
         val missionCount = progressRepo.getMissionCount()
         val pool = candidates.toMutableList()
@@ -106,8 +109,9 @@ class MissionRepository(private val context: Context) {
                 type == "streak" && m.key == "streak" -> m.current = maxOf(m.current, value)
                 type == "combo" && m.key == "combo" -> m.current = maxOf(m.current, value)
                 type == "quick_review" && m.key == "quick_review" -> m.current += value
-                type == "progress" && m.key.startsWith("progress_") -> m.current = maxOf(m.current, value)
-                type == "variety" && m.key.startsWith("variety_") -> m.current = maxOf(m.current, value)
+                type == "progress" && m.key.startsWith("progress_") && m.key != "progress_any" -> m.current = maxOf(m.current, value)
+                type == "progress_any" && m.key == "progress_any" -> m.current += value
+                type == "variety" && m.key.startsWith("variety_") -> m.current += value
             }
             if (m.current >= m.target && !m.completed) {
                 m.completed = true
@@ -116,7 +120,8 @@ class MissionRepository(private val context: Context) {
             }
         }
         if (anyCompleted && data.missions.all { it.completed }) {
-            progressRepo.addXP(200)
+            val rankIndex = progressRepo.getRankIndex()
+            progressRepo.addXP(200 * (1 + rankIndex))
         }
         saveDailyMissions(data)
     }
@@ -129,7 +134,7 @@ class MissionRepository(private val context: Context) {
         for (m in data.missions) {
             if (m.key.startsWith("progress_")) {
                 val lawId = m.key.removePrefix("progress_")
-                if (lawId == "any") updateProgress("progress", correctCount)
+                if (lawId == "any") updateProgress("progress_any", correctCount)
                 else updateProgress("progress", statsRepo.getLeyProgress(lawId))
             }
             if (m.key.startsWith("variety_")) {

@@ -21,6 +21,8 @@ open class PreferencesManager(private val context: Context) : com.opoleyes.data.
         const val DEBUG_MODE = "debug_mode"
         const val SAVED_POWERUPS_JSON = "saved_powerups_json"
         const val POWERUPS_INITIALIZED = "powerups_initialized"
+        const val LOGO_PREF = "logo_pref"
+        const val LOGO_CHOSEN = "logo_chosen"
         fun recordKey(mode: String) = "record_$mode"
         fun recordComboKey(mode: String) = "record_combo_$mode"
         fun recordAccKey(mode: String) = "record_acc_$mode"
@@ -146,6 +148,14 @@ open class PreferencesManager(private val context: Context) : com.opoleyes.data.
         }
         prefs.edit().putBoolean(DEBUG_MODE, enabled).apply()
     }
+
+    fun getLogoPref(): String = prefs.getString(LOGO_PREF, "balance") ?: "balance"
+
+    fun setLogoPref(logo: String) {
+        prefs.edit().putString(LOGO_PREF, logo).putBoolean(LOGO_CHOSEN, true).apply()
+    }
+
+    fun isLogoChosen(): Boolean = prefs.getBoolean(LOGO_CHOSEN, false)
 
     override fun resetAll() {
         prefs.edit().clear().commit()
