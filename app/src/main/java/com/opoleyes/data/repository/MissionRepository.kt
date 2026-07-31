@@ -63,14 +63,15 @@ class MissionRepository(private val context: Context) {
         for ((_, v) in stats) wrongCount += v.wrong
 
         val unlocks = progressRepo.getUnlocks()
+        val varietyTarget = 5 + rankIndex
         val candidates = mutableListOf<Mission>(
             Mission("quality", "🎯",
                 "Acierta ${maxOf(3, Math.ceil(comboRecord * 0.7).toInt())} preguntas seguidas en Supervivencia (todas las leyes)",
                 maxOf(3, Math.ceil(comboRecord * 0.7).toInt()), 0, false, missionReward, "streak"),
             Mission("progress", "📈",
                 if (lowestLaw != null) "Sube el progreso de \"${lowestLaw.title.ifEmpty { lowestLaw.name }}\" al ${minOf(100, lowestPct + 5)}% en Supervivencia"
-                else "Acierta al menos 5 preguntas en Supervivencia (cualquier ley)",
-                if (lowestLaw != null) minOf(100, lowestPct + 5) else 5,
+                else "Acierta al menos $varietyTarget preguntas en Supervivencia (cualquier ley)",
+                if (lowestLaw != null) minOf(100, lowestPct + 5) else varietyTarget,
                 if (lowestLaw != null) lowestPct else 0, false, missionReward,
                 "progress_${lowestLaw?.id ?: "any"}", lowestLaw?.id),
         )
@@ -80,12 +81,29 @@ class MissionRepository(private val context: Context) {
                 minOf(20, maxOf(5, wrongCount)), 0, false, missionReward, "quick_review"))
         }
         candidates.add(Mission("variety", "🌍",
-            if (unplayedLaw != null) "Acierta al menos 5 preguntas en Supervivencia en \"${unplayedLaw.title.ifEmpty { unplayedLaw.name }}\""
-            else "Acierta al menos 5 preguntas en Supervivencia en cualquier ley",
-            5, 0, false, missionReward, "variety_${unplayedLaw?.id ?: "any"}", unplayedLaw?.id))
+            if (unplayedLaw != null) "Acierta al menos $varietyTarget preguntas en Supervivencia en \"${unplayedLaw.title.ifEmpty { unplayedLaw.name }}\""
+            else "Acierta al menos $varietyTarget preguntas en Supervivencia en cualquier ley",
+            varietyTarget, 0, false, missionReward, "variety_${unplayedLaw?.id ?: "any"}", unplayedLaw?.id))
         candidates.add(Mission("combo", "🔥",
             "Llega a combo x$comboTarget en Supervivencia (todas las leyes)",
             comboTarget, 0, false, missionReward, "combo"))
+        if (unlocks.timetrial) {
+            val ttTarget = 300 + rankIndex * 100
+            candidates.add(Mission("timetrial", "⏱️",
+                "Alcanza $ttTarget puntos en Contrarreloj (todas las leyes)",
+                ttTarget, 0, false, missionReward, "timetrial_score"))
+        }
+        if (unlocks.exam) {
+            candidates.add(Mission("exam", "📝",
+                "Completa un examen con al menos un ${50 + rankIndex * 2}% de aciertos",
+                50 + rankIndex * 2, 0, false, missionReward, "exam_score"))
+        }
+        if (unlocks.challenge) {
+            val chTarget = 200 + rankIndex * 50
+            candidates.add(Mission("challenge", "🏆",
+                "Alcanza $chTarget puntos en Modo Reto",
+                chTarget, 0, false, missionReward, "challenge_score"))
+        }
 
         val missionCount = progressRepo.getMissionCount()
         val pool = candidates.toMutableList()
@@ -112,6 +130,9 @@ class MissionRepository(private val context: Context) {
                 type == "progress" && m.key.startsWith("progress_") && m.key != "progress_any" -> m.current = maxOf(m.current, value)
                 type == "progress_any" && m.key == "progress_any" -> m.current += value
                 type == "variety" && m.key.startsWith("variety_") -> m.current += value
+                type == "timetrial_score" && m.key == "timetrial_score" -> m.current = maxOf(m.current, value)
+                type == "challenge_score" && m.key == "challenge_score" -> m.current = maxOf(m.current, value)
+                type == "exam_score" && m.key == "exam_score" -> m.current = maxOf(m.current, value)
             }
             if (m.current >= m.target && !m.completed) {
                 m.completed = true
@@ -120,17 +141,19 @@ class MissionRepository(private val context: Context) {
             }
         }
         if (anyCompleted && data.missions.all { it.completed }) {
-            val rankIndex = progressRepo.getRankIndex()
-            progressRepo.addXP(200 * (1 + rankIndex))
+            val rankIndex2 = progressRepo.getRankIndex()
+            progressRepo.addXP(200 * (1 + rankIndex2))
         }
         saveDailyMissions(data)
     }
 
-    fun checkOnGameOver(mode: String, maxCombo: Int, totalAnswered: Int, gameCategory: String, correctCount: Int) {
+    fun checkOnGameOver(mode: String, maxCombo: Int, totalAnswered: Int, gameCategory: String, correctCount: Int, score: Int = 0) {
         val data = getDailyMissions() ?: return
         updateProgress("streak", maxCombo)
         updateProgress("combo", maxCombo)
         if (mode == "quick") updateProgress("quick_review", totalAnswered)
+        if (mode == "timetrial") updateProgress("timetrial_score", score)
+        if (mode == "challenge") updateProgress("challenge_score", score)
         for (m in data.missions) {
             if (m.key.startsWith("progress_")) {
                 val lawId = m.key.removePrefix("progress_")
@@ -142,5 +165,9 @@ class MissionRepository(private val context: Context) {
                 if (lawId == "any" || lawId == gameCategory) updateProgress("variety", correctCount)
             }
         }
+    }
+
+    fun checkExamResult(scorePct: Int) {
+        updateProgress("exam_score", scorePct)
     }
 }

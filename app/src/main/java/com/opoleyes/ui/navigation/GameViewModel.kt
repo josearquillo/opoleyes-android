@@ -330,6 +330,8 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
         val xp = result.correct * 10
         progressRepo.addXP(xp)
         _xpGained.value = xp
+        val scorePct = if (result.total > 0) (result.correct * 100 / result.total) else 0
+        missionRepo.checkExamResult(scorePct)
     }
 
     fun clearExamResult() {
@@ -472,7 +474,7 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
             fiftyFiftyUsed = engine.ctxFiftyFiftyUsed, lifeRecovered = engine.ctxLifeRecovered
         ))
 
-        missionRepo.checkOnGameOver(mode, engine.maxCombo, engine.totalAnswered, engine.category, engine.correctCount)
+        missionRepo.checkOnGameOver(mode, engine.maxCombo, engine.totalAnswered, engine.category, engine.correctCount, engine.score)
 
         val chest = chestSystem.generateChest(_newRecord.value, acc, engine.totalAnswered, engine.score)
         _chestReward.value = chest

@@ -65,8 +65,9 @@ fun HelpScreen(navController: NavController, gameViewModel: GameViewModel) {
         HelpSectionData("📋", "Misiones diarias", listOf(
             "Cada día recibes misiones nuevas y diferentes.",
             "Puedes tener entre 1 y 3 misiones según tu rango.",
-            "Cada misión completada te da 50 XP. Si completas todas, recibes 200 XP extra.",
-            "Las misiones de Supervivencia requieren acertar al menos 5 preguntas, no basta con solo jugar.",
+            "Las recompensas escalan con tu rango: más XP cuanto más alto seas.",
+            "Las misiones se adaptan a los modos que tienes desbloqueados: Supervivencia, Contrarreloj, Repaso Express, Examen y Reto.",
+            "Las misiones de aciertos en Supervivencia acumulan entre partidas, no necesitas hacerlo todo en una sola.",
             "¡Intenta completarlas todos los días seguidos para mantener tu racha!"
         )),
         HelpSectionData("ℹ️", "Información", listOf(
