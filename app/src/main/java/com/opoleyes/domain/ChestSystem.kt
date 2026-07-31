@@ -17,14 +17,14 @@ class ChestSystem(private val context: Context) {
             newRecord && accuracy >= 90 && totalAnswered >= 10 -> ChestType.GOLD
             newRecord && accuracy >= 70 -> ChestType.SILVER
             accuracy >= 80 && totalAnswered >= 10 -> ChestType.SILVER
-            else -> ChestType.WOOD
+            else -> ChestType.BRONZE
         }
         val hasPowerUps = progressRepo.isUnlocked("shield") || progressRepo.isUnlocked("fiftyFifty") ||
                 progressRepo.isUnlocked("doubleScore")
         val xpBonus = if (hasPowerUps) 1 else 2
 
         val (xpMin, xpMax) = when (type) {
-            ChestType.WOOD -> 50 to 150
+            ChestType.BRONZE -> 50 to 150
             ChestType.SILVER -> 150 to 350
             ChestType.GOLD -> 300 to 600
         }

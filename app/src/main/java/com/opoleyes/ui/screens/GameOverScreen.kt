@@ -27,6 +27,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
@@ -42,6 +43,9 @@ import com.opoleyes.data.model.ChestType
 import com.opoleyes.data.model.GameMode
 import com.opoleyes.data.model.RankUpOverlay
 import com.opoleyes.ui.components.*
+import com.lottiefiles.dotlottie.core.compose.ui.DotLottieAnimation
+import com.lottiefiles.dotlottie.core.util.DotLottieSource
+import com.dotlottie.dlplayer.Mode
 import com.opoleyes.ui.navigation.GameViewModel
 import com.opoleyes.ui.navigation.Routes
 import com.opoleyes.ui.theme.*
@@ -62,8 +66,26 @@ fun GameOverScreen(navController: NavController, gameViewModel: GameViewModel) {
 
     var displayScore by remember { mutableStateOf(0) }
     var chestOpened by remember { mutableStateOf(false) }
+    var chestVisible by remember { mutableStateOf(false) }
     var confettiTrigger by remember { mutableStateOf<Any?>(null) }
     var chestShake by remember { mutableStateOf(0) }
+
+    val chestBlocking = chestReward != null && !chestOpened
+
+    // Show chest popup after 2s delay
+    LaunchedEffect(chestReward) {
+        if (chestReward != null) {
+            chestVisible = false
+            chestOpened = false
+            delay(2000)
+            chestVisible = true
+            delay(800)
+            repeat(3) {
+                chestShake++
+                delay(300)
+            }
+        }
+    }
 
     // Score count-up animation
     LaunchedEffect(uiState.score) {
@@ -81,17 +103,6 @@ fun GameOverScreen(navController: NavController, gameViewModel: GameViewModel) {
         if (newRecord || newComboRecord || newAccRecord) {
             delay(200)
             confettiTrigger = Any()
-        }
-    }
-
-    // Chest shake animation before opening
-    LaunchedEffect(chestReward) {
-        if (chestReward != null && !chestOpened) {
-            delay(2500)
-            repeat(3) {
-                chestShake++
-                delay(300)
-            }
         }
     }
 
@@ -191,14 +202,15 @@ fun GameOverScreen(navController: NavController, gameViewModel: GameViewModel) {
 
             Spacer(Modifier.height(24.dp))
 
-            // Buttons
+            // Buttons (disabled while chest popup is showing)
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(10.dp)
             ) {
                 GameButton(
                     text = stringResource(R.string.play_again),
-                    modifier = Modifier.weight(1f).height(50.dp),
+                    enabled = !chestBlocking,
+                    modifier = Modifier.weight(1f).height(50.dp).alpha(if (chestBlocking) 0.4f else 1f),
                     color1 = Success,
                     color2 = SuccessDark
                 ) {
@@ -220,7 +232,8 @@ fun GameOverScreen(navController: NavController, gameViewModel: GameViewModel) {
                 }
                 GameButton(
                     text = stringResource(R.string.menu),
-                    modifier = Modifier.weight(1f).height(50.dp),
+                    enabled = !chestBlocking,
+                    modifier = Modifier.weight(1f).height(50.dp).alpha(if (chestBlocking) 0.4f else 1f),
                     color1 = Primary,
                     color2 = PurpleDark
                 ) {
@@ -239,19 +252,22 @@ fun GameOverScreen(navController: NavController, gameViewModel: GameViewModel) {
 
         // Chest overlay
         chestReward?.let { chest ->
-            ChestOverlay(
-                chest = chest,
-                opened = chestOpened,
-                shakeCount = chestShake,
-                onOpen = {
-                    chestOpened = true
-                    gameViewModel.openChest()
-                },
-                onDismiss = {
-                    gameViewModel.clearChest()
-                    chestOpened = false
-                }
-            )
+            if (chestVisible) {
+                ChestOverlay(
+                    chest = chest,
+                    opened = chestOpened,
+                    shakeCount = chestShake,
+                    onOpen = {
+                        chestOpened = true
+                        gameViewModel.openChest()
+                    },
+                    onDismiss = {
+                        gameViewModel.clearChest()
+                        chestOpened = false
+                        chestVisible = false
+                    }
+                )
+            }
         }
 
         // Rank-up overlay
@@ -265,14 +281,9 @@ fun GameOverScreen(navController: NavController, gameViewModel: GameViewModel) {
 
 @Composable
 fun ChestOverlay(chest: ChestReward, opened: Boolean, shakeCount: Int, onOpen: () -> Unit, onDismiss: () -> Unit) {
-    var visible by remember { mutableStateOf(false) }
-    LaunchedEffect(Unit) { delay(2500); visible = true }
-
-    if (!visible) return
-
-    val typeEmoji = when (chest.type) { ChestType.WOOD -> "📦"; ChestType.SILVER -> "🗃️"; ChestType.GOLD -> "🎁" }
     val typeLabel = chest.type.label
-    val typeColor = when (chest.type) { ChestType.WOOD -> TextMuted; ChestType.SILVER -> TextOption; ChestType.GOLD -> Warning }
+    val typeColor = when (chest.type) { ChestType.BRONZE -> Warning; ChestType.SILVER -> TextOption; ChestType.GOLD -> Accent }
+    val lottieAsset = when (chest.type) { ChestType.BRONZE -> "gift_bronze.json"; ChestType.SILVER -> "gift_silver.json"; ChestType.GOLD -> "gift_gold.json" }
 
     // Shake animation for chest
     val chestShakeAnim = remember { Animatable(0f) }
@@ -317,7 +328,15 @@ fun ChestOverlay(chest: ChestReward, opened: Boolean, shakeCount: Int, onOpen: (
         ) {
             if (!opened) {
                 Box(modifier = Modifier.offset { IntOffset(chestShakeAnim.value.toInt(), 0) }) {
-                    Text(typeEmoji, fontSize = 56.sp)
+                    DotLottieAnimation(
+                        source = DotLottieSource.Asset(lottieAsset),
+                        autoplay = true,
+                        loop = true,
+                        speed = 1f,
+                        useFrameInterpolation = false,
+                        playMode = Mode.FORWARD,
+                        modifier = Modifier.size(120.dp)
+                    )
                 }
                 Spacer(Modifier.height(16.dp))
                 Text(stringResource(R.string.tap_to_open), color = Warning, fontSize = 20.sp, fontWeight = FontWeight.Bold)
@@ -330,7 +349,15 @@ fun ChestOverlay(chest: ChestReward, opened: Boolean, shakeCount: Int, onOpen: (
                 )
                 Box(modifier = Modifier.scale(contentScale)) {
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        Text(typeEmoji, fontSize = 28.sp)
+                        DotLottieAnimation(
+                            source = DotLottieSource.Asset(lottieAsset),
+                            autoplay = true,
+                            loop = false,
+                            speed = 1f,
+                            useFrameInterpolation = false,
+                            playMode = Mode.FORWARD,
+                            modifier = Modifier.size(80.dp)
+                        )
                         Spacer(Modifier.height(8.dp))
                         Text(typeLabel, color = typeColor, fontSize = 16.sp, fontWeight = FontWeight.Bold)
                         Spacer(Modifier.height(16.dp))

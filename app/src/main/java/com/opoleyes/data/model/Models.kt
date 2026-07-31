@@ -53,9 +53,9 @@ enum class GameMode(val displayName: String, val icon: String) {
 }
 
 enum class ChestType(val icon: String, val label: String) {
-    WOOD("📦", "Cofre de Madera"),
-    SILVER("🗃️", "Cofre de Plata"),
-    GOLD("🎁", "Cofre de Oro")
+    BRONZE("🥉", "Bonus Bronce"),
+    SILVER("🥈", "Bonus Plata"),
+    GOLD("🥇", "Bonus Oro")
 }
 
 data class ChestReward(
