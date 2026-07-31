@@ -310,6 +310,7 @@ fun GameScreen(navController: NavController, gameViewModel: GameViewModel) {
                                                     isWrong = uiState.answered && uiState.selectedOption == letter && letter != q.correct,
                                                     isHintRemoved = uiState.hintActive && uiState.hintRemoved.contains(letter),
                                                     answered = uiState.answered,
+                                                    userWasCorrect = uiState.answered && uiState.selectedOption == q.correct,
                                                     enabled = !uiState.answered
                                                 ) {
                                                     gameViewModel.answer(letter)

@@ -7,95 +7,95 @@
     <!-- Letter O: outer ring (teal) -->
     <path
         android:fillColor="#14b8a6"
-        android:pathData="M42,50 m-22,0 a22,22 0 1,0 44,0 a22,22 0 1,0 -44,0" />
+        android:pathData="M42,54 m-22,0 a22,22 0 1,0 44,0 a22,22 0 1,0 -44,0" />
     <!-- Letter O: inner cutout -->
     <path
         android:fillColor="#0f172a"
-        android:pathData="M42,50 m-15,0 a15,15 0 1,0 30,0 a15,15 0 1,0 -30,0" />
+        android:pathData="M42,54 m-15,0 a15,15 0 1,0 30,0 a15,15 0 1,0 -30,0" />
     <!-- Letter O: top-left highlight -->
     <path
         android:fillColor="#5eead4"
         android:fillAlpha="0.5"
-        android:pathData="M42,50 m-22,0 a22,22 0 0,1 22,-22 a22,22 0 0,1 6,1 a19,19 0 0,0 -15,37 a22,22 0 0,1 -13,-16 Z" />
+        android:pathData="M42,54 m-22,0 a22,22 0 0,1 22,-22 a22,22 0 0,1 6,1 a19,19 0 0,0 -15,37 a22,22 0 0,1 -13,-16 Z" />
 
     <!-- Balance scales inside O (gold, detailed) -->
     <!-- Central vertical post with highlight -->
     <path
         android:fillColor="#fbbf24"
-        android:pathData="M41,40 L43,40 L43,58 L41,58 Z" />
+        android:pathData="M41,44 L43,44 L43,62 L41,62 Z" />
     <path
         android:fillColor="#fde68a"
-        android:pathData="M41,40 L41.5,40 L41.5,58 L41,58 Z" />
+        android:pathData="M41,44 L41.5,44 L41.5,62 L41,62 Z" />
     <!-- Top finial (small circle) -->
     <path
         android:fillColor="#fbbf24"
-        android:pathData="M42,39 m-1.5,0 a1.5,1.5 0 1,0 3,0 a1.5,1.5 0 1,0 -3,0" />
+        android:pathData="M42,43 m-1.5,0 a1.5,1.5 0 1,0 3,0 a1.5,1.5 0 1,0 -3,0" />
     <!-- Horizontal beam with taper -->
     <path
         android:fillColor="#fbbf24"
-        android:pathData="M31,43 L53,43 L53,45 L31,45 Z" />
+        android:pathData="M31,47 L53,47 L53,49 L31,49 Z" />
     <path
         android:fillColor="#fde68a"
-        android:pathData="M31,43 L53,43 L53,43.7 L31,43.7 Z" />
+        android:pathData="M31,47 L53,47 L53,47.7 L31,47.7 Z" />
     <!-- Beam center boss (diamond) -->
     <path
         android:fillColor="#f59e0b"
-        android:pathData="M40,42 L44,42 L42,46 Z" />
+        android:pathData="M40,46 L44,46 L42,50 Z" />
     <!-- Left chain -->
     <path
         android:fillColor="#fbbf24"
-        android:pathData="M32,45 L32.6,45 L32.6,49 L32,49 Z" />
+        android:pathData="M32,49 L32.6,49 L32.6,53 L32,53 Z" />
     <path
         android:fillColor="#fbbf24"
-        android:pathData="M35.4,45 L36,45 L36,49 L35.4,49 Z" />
+        android:pathData="M35.4,49 L36,49 L36,53 L35.4,53 Z" />
     <!-- Left pan (semicircular bowl) -->
     <path
         android:fillColor="#fbbf24"
-        android:pathData="M30,49 L38,49 C38,52.5 36,54.5 34,54.5 C32,54.5 30,52.5 30,49 Z" />
+        android:pathData="M30,53 L38,53 C38,56.5 36,58.5 34,58.5 C32,58.5 30,56.5 30,53 Z" />
     <path
         android:fillColor="#fde68a"
         android:fillAlpha="0.5"
-        android:pathData="M31,49.5 L37,49.5 C37,51.5 35.5,53 34,53 C32.5,53 31,51.5 31,49.5 Z" />
+        android:pathData="M31,53.5 L37,53.5 C37,55.5 35.5,57 34,57 C32.5,57 31,55.5 31,53.5 Z" />
     <!-- Right chain -->
     <path
         android:fillColor="#fbbf24"
-        android:pathData="M48,45 L48.6,45 L48.6,49 L48,49 Z" />
+        android:pathData="M48,49 L48.6,49 L48.6,53 L48,53 Z" />
     <path
         android:fillColor="#fbbf24"
-        android:pathData="M51.4,45 L52,45 L52,49 L51.4,49 Z" />
+        android:pathData="M51.4,49 L52,49 L52,53 L51.4,53 Z" />
     <!-- Right pan (semicircular bowl) -->
     <path
         android:fillColor="#fbbf24"
-        android:pathData="M46,49 L54,49 C54,52.5 52,54.5 50,54.5 C48,54.5 46,52.5 46,49 Z" />
+        android:pathData="M46,53 L54,53 C54,56.5 52,58.5 50,58.5 C48,58.5 46,56.5 46,53 Z" />
     <path
         android:fillColor="#fde68a"
         android:fillAlpha="0.5"
-        android:pathData="M47,49.5 L53,49.5 C53,51.5 51.5,53 50,53 C48.5,53 47,51.5 47,49.5 Z" />
+        android:pathData="M47,53.5 L53,53.5 C53,55.5 51.5,57 50,57 C48.5,57 47,55.5 47,53.5 Z" />
     <!-- Base (trapezoidal) -->
     <path
         android:fillColor="#fbbf24"
-        android:pathData="M38,58 L46,58 L44.5,61 L39.5,61 Z" />
+        android:pathData="M38,62 L46,62 L44.5,65 L39.5,65 Z" />
     <path
         android:fillColor="#f59e0b"
-        android:pathData="M39.5,61 L44.5,61 L44,62 L40,62 Z" />
+        android:pathData="M39.5,65 L44.5,65 L44,66 L40,66 Z" />
 
     <!-- Letter L: vertical stroke (cyan) - touches O -->
     <path
         android:fillColor="#06b6d4"
-        android:pathData="M64,28 L76,28 L76,72 L64,72 Z" />
+        android:pathData="M64,32 L76,32 L76,76 L64,76 Z" />
     <!-- Letter L: horizontal stroke (teal) -->
     <path
         android:fillColor="#14b8a6"
-        android:pathData="M64,64 L88,64 L88,72 L64,72 Z" />
+        android:pathData="M64,68 L88,68 L88,76 L64,76 Z" />
     <!-- Letter L: vertical highlight -->
     <path
         android:fillColor="#22d3ee"
         android:fillAlpha="0.5"
-        android:pathData="M64,28 L67,28 L67,72 L64,72 Z" />
+        android:pathData="M64,32 L67,32 L67,76 L64,76 Z" />
     <!-- Letter L: horizontal highlight -->
     <path
         android:fillColor="#5eead4"
         android:fillAlpha="0.5"
-        android:pathData="M64,64 L88,64 L88,66 L64,66 Z" />
+        android:pathData="M64,68 L88,68 L88,70 L64,70 Z" />
 
 </vector>

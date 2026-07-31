@@ -104,11 +104,13 @@ fun OptionCard(
     isWrong: Boolean = false,
     isHintRemoved: Boolean = false,
     answered: Boolean = false,
+    userWasCorrect: Boolean = false,
     enabled: Boolean = true,
     onClick: () -> Unit = {}
 ) {
     val bgColor = when {
-        answered && isCorrect -> Brush.verticalGradient(listOf(SuccessDark, Success))
+        answered && isCorrect && userWasCorrect -> Brush.verticalGradient(listOf(SuccessDark, Success))
+        answered && isCorrect && !userWasCorrect -> Brush.verticalGradient(listOf(BgCard, BgCardDark))
         answered && isWrong -> Brush.verticalGradient(listOf(DangerDark, Danger))
         !answered && isSelected -> Brush.verticalGradient(listOf(Primary, PurpleDark))
         !answered && isHintRemoved -> Brush.verticalGradient(listOf(HintRemoved, HintRemovedDark))
@@ -116,18 +118,54 @@ fun OptionCard(
     }
     val textColor = when {
         isHintRemoved && !answered -> TextDim
-        isSelected || (isCorrect && answered) -> Color.White
+        isSelected || (isCorrect && answered && userWasCorrect) -> Color.White
+        isCorrect && answered && !userWasCorrect -> SuccessLight
         else -> TextOption
     }
-    val borderColor = if (answered && isCorrect) Success else if (answered && isWrong) Danger else Color.Transparent
-    val borderWidth = if (answered && (isCorrect || isWrong)) 2.dp else 0.dp
+    val borderColor = when {
+        answered && isCorrect && userWasCorrect -> Success
+        answered && isCorrect && !userWasCorrect -> Success.copy(alpha = 0.4f)
+        answered && isWrong -> Danger
+        else -> Color.Transparent
+    }
+    val borderWidth = when {
+        answered && isCorrect && userWasCorrect -> 2.dp
+        answered && isCorrect && !userWasCorrect -> 1.5.dp
+        answered && isWrong -> 2.dp
+        else -> 0.dp
+    }
     val shape = MaterialTheme.shapes.medium
+
+    val showEffect = answered && isCorrect && userWasCorrect
+    val pulseScale by animateFloatAsState(
+        targetValue = if (showEffect) 1.05f else 1f,
+        animationSpec = spring(
+            dampingRatio = Spring.DampingRatioMediumBouncy,
+            stiffness = Spring.StiffnessMedium
+        ),
+        label = "correctPulse"
+    )
+    val infiniteTransition = rememberInfiniteTransition(label = "correctGlow")
+    val glowPulse by infiniteTransition.animateFloat(
+        initialValue = 0.3f,
+        targetValue = 0.7f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(800, easing = FastOutSlowInEasing),
+            repeatMode = RepeatMode.Reverse
+        ),
+        label = "glowPulse"
+    )
 
     Box(
         modifier = modifier
+            .scale(if (showEffect) pulseScale else 1f)
             .clip(shape)
             .background(bgColor)
             .border(borderWidth, borderColor, shape)
+            .then(
+                if (showEffect) Modifier.border(2.dp, Warning.copy(alpha = glowPulse), shape)
+                else Modifier
+            )
             .clickable(
                 enabled = enabled && !answered && !isHintRemoved,
                 role = Role.Button,
