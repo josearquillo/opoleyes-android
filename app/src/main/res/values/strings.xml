@@ -68,7 +68,7 @@
     <string name="questions_label">Preguntas</string>
     <string name="max_combo_label">Combo máx</string>
     <string name="accuracy_label">Precisión</string>
-    <string name="play_again">Jugar</string>
+    <string name="play_again">Reintentar</string>
     <string name="menu">Menú</string>
     <string name="tap_to_open">¡Toca para abrir!</string>
     <string name="tap_to_continue">Toca para continuar</string>
