@@ -4,6 +4,7 @@ import android.app.Application
 import androidx.test.core.app.ApplicationProvider
 import com.opoleyes.data.local.DataProvider
 import com.opoleyes.data.repository.GameRepository
+import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
 import org.junit.Before
@@ -103,19 +104,19 @@ class DataIntegrityTest {
 
     @Test
     fun fun_data_allAnswersExistInOptions() {
-        var errors = 0
         for (td in data) {
             val answerMap = td.answers.associate { it.id to it.correct }
             for (q in td.questions) {
                 val correct = answerMap[q.id]
                 assertNotNull("Question ${td.test.id}:${q.id} has no answer", correct)
-                if (correct != null && !q.opciones.containsKey(correct)) {
-                    println("WARNING: Question ${td.test.id}:${q.id} correct='$correct' not in options ${q.opciones.keys}")
-                    errors++
+                if (correct != null) {
+                    assertTrue(
+                        "Question ${td.test.id}:${q.id} correct='$correct' not in options ${q.opciones.keys}",
+                        q.opciones.containsKey(correct)
+                    )
                 }
             }
         }
-        assertTrue("Found $errors questions where correct answer is not in options (see warnings above)", errors >= 0)
     }
 
     @Test
@@ -181,44 +182,73 @@ class DataIntegrityTest {
 
     @Test
     fun fun_data_questionIdsAreUniquePerTest() {
-        var hasDuplicates = false
         for (td in data) {
             val ids = td.questions.map { it.id }
             val duplicates = ids.groupingBy { it }.eachCount().filter { it.value > 1 }
-            if (duplicates.isNotEmpty()) {
-                println("WARNING: Test ${td.test.id} has duplicate question ids: $duplicates")
-                hasDuplicates = true
-            }
+            assertTrue("Test ${td.test.id} has duplicate question ids: $duplicates", duplicates.isEmpty())
         }
-        assertTrue("Some tests have duplicate question ids (known data issue)", !hasDuplicates || hasDuplicates)
     }
 
     @Test
     fun fun_data_answerIdsAreUniquePerTest() {
-        var hasDuplicates = false
         for (td in data) {
             val ids = td.answers.map { it.id }
             val duplicates = ids.groupingBy { it }.eachCount().filter { it.value > 1 }
-            if (duplicates.isNotEmpty()) {
-                println("WARNING: Test ${td.test.id} has duplicate answer ids: $duplicates")
-                hasDuplicates = true
-            }
+            assertTrue("Test ${td.test.id} has duplicate answer ids: $duplicates", duplicates.isEmpty())
         }
-        assertTrue("Some tests have duplicate answer ids (known data issue)", !hasDuplicates || hasDuplicates)
     }
 
     @Test
-    fun fun_data_countQuestionsWithLessThan4Options() {
-        var count = 0
+    fun fun_data_allQuestionsHaveExactly4Options() {
         for (td in data) {
             for (q in td.questions) {
-                if (q.opciones.size < 4) {
-                    println("INFO: ${td.test.id} q${q.id} has ${q.opciones.size} options: ${q.opciones.keys}")
-                    count++
-                }
+                assertTrue(
+                    "Question ${td.test.id}:${q.id} has ${q.opciones.size} options, expected 4: ${q.opciones.keys}",
+                    q.opciones.size == 4
+                )
             }
         }
-        assertTrue("Should be able to count questions with <4 options", count >= 0)
+    }
+
+    @Test
+    fun fun_data_allQuestionsHaveExactlyABCDKeys() {
+        val expected = setOf("A", "B", "C", "D")
+        for (td in data) {
+            for (q in td.questions) {
+                assertEquals(
+                    "Question ${td.test.id}:${q.id} keys are ${q.opciones.keys}, expected A,B,C,D",
+                    expected,
+                    q.opciones.keys
+                )
+            }
+        }
+    }
+
+    @Test
+    fun fun_data_noDuplicateOptionTextWithinQuestion() {
+        for (td in data) {
+            for (q in td.questions) {
+                val texts = q.opciones.values.map { it.trim().lowercase() }
+                val duplicates = texts.groupingBy { it }.eachCount().filter { it.value > 1 }
+                assertTrue(
+                    "Question ${td.test.id}:${q.id} has duplicate option texts",
+                    duplicates.isEmpty()
+                )
+            }
+        }
+    }
+
+    @Test
+    fun fun_data_everyAnswerHasMatchingQuestion() {
+        for (td in data) {
+            val questionIds = td.questions.map { it.id }.toSet()
+            for (a in td.answers) {
+                assertTrue(
+                    "Answer ${td.test.id}:${a.id} has no matching question",
+                    a.id in questionIds
+                )
+            }
+        }
     }
 
     @Test
@@ -227,16 +257,11 @@ class DataIntegrityTest {
         val repo = GameRepository(ctx)
         val pool = repo.startAllLawsGame()
         assertTrue("Pool should not be empty", pool.isNotEmpty())
-        var errors = 0
         for (q in pool) {
-            if (!q.enunciado.isNotBlank()) errors++
-            if (q.opciones.size < 2) errors++
-            if (!q.opciones.containsKey(q.correct)) {
-                println("WARNING: Pool question correct='${q.correct}' not in options ${q.opciones.keys}")
-                errors++
-            }
+            assertTrue("Pool question has blank enunciado", q.enunciado.isNotBlank())
+            assertTrue("Pool question has ${q.opciones.size} options, expected 4", q.opciones.size == 4)
+            assertTrue("Pool question correct='${q.correct}' not in options ${q.opciones.keys}", q.opciones.containsKey(q.correct))
         }
-        assertTrue("Pool has $errors invalid questions (see warnings)", errors >= 0)
     }
 
     @Test
