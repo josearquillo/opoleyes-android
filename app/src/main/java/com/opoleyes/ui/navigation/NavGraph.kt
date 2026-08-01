@@ -23,7 +23,6 @@ object Routes {
     const val EXAM_RESULT = "examresult"
     const val PROFILE = "profile"
     const val HELP = "help"
-    const val LOGO_PICKER = "logopicker"
     const val SIMULACRO_INTRO = "simulacrointro"
 }
 
@@ -62,6 +61,5 @@ fun NavGraph() {
         composable(Routes.PROFILE) { ProfileScreen(navController, gameViewModel) }
         composable(Routes.HELP) { HelpScreen(navController, gameViewModel) }
         composable(Routes.SIMULACRO_INTRO) { SimulacroIntroScreen(navController, gameViewModel) }
-        composable(Routes.LOGO_PICKER) { LogoPickerScreen(navController) }
     }
 }

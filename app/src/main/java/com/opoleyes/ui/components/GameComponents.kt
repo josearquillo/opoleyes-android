@@ -197,58 +197,6 @@ fun OptionCard(
 }
 
 @Composable
-fun HudBar(
-    score: Int,
-    combo: Int,
-    lives: Int,
-    timer: Float,
-    mode: com.opoleyes.data.model.GameMode,
-    questionNum: Int,
-    streak: Int = 0,
-    modifier: Modifier = Modifier
-) {
-    Row(
-        modifier = modifier
-            .fillMaxWidth()
-            .clip(RoundedCornerShape(12.dp))
-            .background(Scrim)
-            .padding(horizontal = 12.dp, vertical = 8.dp),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            if (mode == com.opoleyes.data.model.GameMode.SURVIVAL || mode == com.opoleyes.data.model.GameMode.QUICK) {
-                repeat(lives) { Icon(Icons.Default.Favorite, contentDescription = "Vida", tint = Danger, modifier = Modifier.size(18.dp)) }
-            }
-        }
-        Text(
-            "$score pts",
-            color = PrimaryLight,
-            fontWeight = FontWeight.Bold,
-            fontSize = 20.sp
-        )
-        if (mode == com.opoleyes.data.model.GameMode.TIMETRIAL) {
-            val timerColor = if (timer < 10) Danger else TextLight
-            val timerText = "${timer.toInt()}s"
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Icon(Icons.Default.Timer, contentDescription = "Tiempo: $timerText", tint = timerColor, modifier = Modifier.size(16.dp))
-                Spacer(Modifier.width(2.dp))
-                Text(timerText, color = timerColor, fontWeight = FontWeight.Bold, fontSize = 18.sp)
-            }
-        }
-        if (streak > 0) {
-            val streakLeft = 5 - (streak % 5)
-            val streakColor = if (streakLeft == 1) Warning else TextMuted
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Icon(Icons.Default.Bolt, contentDescription = "Racha ${streak % 5} de 5", tint = streakColor, modifier = Modifier.size(13.dp))
-                Text("${streak % 5}/5", color = streakColor, fontWeight = FontWeight.Bold, fontSize = 13.sp)
-            }
-        }
-        Text("Pregunta $questionNum", color = TextDim, fontSize = 13.sp)
-    }
-}
-
-@Composable
 fun AnimatedHudBar(
     score: Int,
     combo: Int,
@@ -800,54 +748,6 @@ fun GlassCard(
             .padding(16.dp),
         content = content
     )
-}
-
-@Composable
-fun RankBadge(rank: com.opoleyes.data.model.Rank, modifier: Modifier = Modifier) {
-    Box(
-        modifier = modifier
-            .clip(RoundedCornerShape(16.dp))
-            .background(Brush.horizontalGradient(listOf(Accent, AccentLight)))
-            .padding(horizontal = 14.dp, vertical = 8.dp)
-    ) {
-        Text("${rank.icon} ${rank.name}", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 13.sp)
-    }
-}
-
-@Composable
-fun CircularProgressRing(
-    progress: Float,
-    size: Int = 48,
-    strokeWidth: Int = 4,
-    ringColor: Color = Primary,
-    trackColor: Color = TrackColor,
-    modifier: Modifier = Modifier,
-    content: @Composable () -> Unit = {}
-) {
-    val animatedProgress = remember { Animatable(0f) }
-    LaunchedEffect(progress) {
-        animatedProgress.animateTo(progress, animationSpec = tween(800, easing = FastOutSlowInEasing))
-    }
-    Box(modifier = modifier.size(size.dp), contentAlignment = Alignment.Center) {
-        Canvas(modifier = Modifier.size(size.dp)) {
-            val sweep = 360f * animatedProgress.value
-            drawArc(
-                color = trackColor,
-                startAngle = 0f,
-                sweepAngle = 360f,
-                useCenter = false,
-                style = androidx.compose.ui.graphics.drawscope.Stroke(width = strokeWidth.dp.toPx(), cap = androidx.compose.ui.graphics.StrokeCap.Round)
-            )
-            drawArc(
-                color = ringColor,
-                startAngle = -90f,
-                sweepAngle = sweep,
-                useCenter = false,
-                style = androidx.compose.ui.graphics.drawscope.Stroke(width = strokeWidth.dp.toPx(), cap = androidx.compose.ui.graphics.StrokeCap.Round)
-            )
-        }
-        content()
-    }
 }
 
 @Composable

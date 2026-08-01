@@ -31,8 +31,6 @@ open class PreferencesManager(private val context: Context) : com.opoleyes.data.
         const val SAVED_MAX_EXAM_QUESTIONS = "saved_max_exam_questions"
         const val SAVED_SIMULACRO_UNLOCKED = "saved_simulacro_unlocked"
         const val POWERUPS_INITIALIZED = "powerups_initialized"
-        const val LOGO_PREF = "logo_pref"
-        const val LOGO_CHOSEN = "logo_chosen"
         const val MAX_EXAM_QUESTIONS = "max_exam_questions"
         const val SIMULACRO_UNLOCKED = "simulacro_unlocked"
         const val SIMULACRO_HISTORY_JSON = "simulacro_history_json"
@@ -198,14 +196,6 @@ open class PreferencesManager(private val context: Context) : com.opoleyes.data.
             internalWrite = false
         }
     }
-
-    fun getLogoPref(): String = prefs.getString(LOGO_PREF, "ol_v1") ?: "ol_v1"
-
-    fun setLogoPref(logo: String) {
-        prefs.edit().putString(LOGO_PREF, logo).putBoolean(LOGO_CHOSEN, true).apply()
-    }
-
-    fun isLogoChosen(): Boolean = prefs.getBoolean(LOGO_CHOSEN, false)
 
     val EXAM_QUESTION_PRESETS = listOf(10, 20, 30, 40, 50)
 

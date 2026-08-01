@@ -260,10 +260,6 @@ fun ProfileScreen(navController: NavController, gameViewModel: GameViewModel) {
         }
 
         Spacer(Modifier.height(24.dp))
-        GameButton(stringResource(R.string.change_logo), color1 = Primary, color2 = PurpleDark, modifier = Modifier.fillMaxWidth()) {
-            navController.navigate(Routes.LOGO_PICKER)
-        }
-        Spacer(Modifier.height(12.dp))
         GameButton(stringResource(R.string.reset_progress), color1 = Danger, color2 = DangerDark, modifier = Modifier.fillMaxWidth()) {
             showResetDialog = true
         }

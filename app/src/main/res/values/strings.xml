@@ -7,7 +7,6 @@
     <string name="back">Volver</string>
     <string name="cancel">Cancelar</string>
     <string name="close">Cerrar</string>
-    <string name="continue_label">Continuar</string>
     <string name="retry">Reintentar</string>
     <string name="error">Error</string>
     <string name="loading_questions">Cargando preguntas…</string>
@@ -37,10 +36,6 @@
     <string name="mode_simulacro">Simulacro</string>
     <string name="mode_simulacro_desc">100 preguntas, 100 min. Réplica del examen oficial: pesos por ley, penalización +0.60/−0.15.</string>
     <string name="locked">Bloqueado</string>
-    <string name="configure_exam">Configurar mini examen</string>
-    <string name="question_count">Número de preguntas</string>
-    <string name="questions_count">%1$d preguntas</string>
-    <string name="exam_unlock_next">Aprueba el examen de %1$d preguntas para desbloquear %2$d</string>
 
     <!-- Tema select -->
     <string name="select_law">Selecciona ley</string>
@@ -56,8 +51,6 @@
     <string name="hint">Pista</string>
     <string name="fifty_fifty">50/50</string>
     <string name="double_points">x2 pts</string>
-    <string name="shield_activated">¡Escudo activado!</string>
-    <string name="double_score_activated">¡Doble puntuación activada!</string>
 
     <!-- Game over -->
     <string name="game_over">Fin de partida</string>
@@ -140,8 +133,6 @@
     <string name="reset">Reiniciar</string>
 
     <!-- Help -->
-    <string name="debug_on">Modo debug activado</string>
-    <string name="debug_off">Modo debug desactivado</string>
     <string name="debug_badge">DEBUG</string>
     <string name="help_section_objective_title">Objetivo</string>
     <string name="help_section_objective_l1">Responde preguntas de oposiciones de justicia.</string>
@@ -186,14 +177,4 @@
     <string name="help_section_info_l2">La legislación puede cambiar con el tiempo. Consulta siempre las leyes vigentes antes del examen.</string>
     <string name="help_section_info_l3">Esta aplicación no sustituye el estudio oficial ni garantiza la aprobación del examen.</string>
 
-    <!-- Logo picker -->
-    <string name="choose_logo">Elige tu logo</string>
-    <string name="choose_logo_subtitle">Selecciona el icono que más te guste. Podrás cambiarlo cuando quieras.</string>
-    <string name="logo_ol_v1">OL Índigo</string>
-    <string name="logo_ol_v2">OL Dorado</string>
-    <string name="logo_ol_v3">OL Turquesa</string>
-    <string name="logo_selected">Seleccionado</string>
-    <string name="logo_apply">Aplicar</string>
-    <string name="logo_change_notice">El icono cambiará en unos segundos…</string>
-    <string name="change_logo">Cambiar logo</string>
 </resources>

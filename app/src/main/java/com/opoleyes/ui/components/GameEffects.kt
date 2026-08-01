@@ -9,7 +9,6 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
@@ -188,39 +187,5 @@ fun ShakeBox(
     }
     Box(modifier = modifier.offset { IntOffset(shake.value.toInt(), 0) }) {
         content()
-    }
-}
-
-@Composable
-fun ShimmerBox(
-    modifier: Modifier = Modifier,
-    content: @Composable () -> Unit
-) {
-    val transition = rememberInfiniteTransition(label = "shimmer")
-    val translateAnim by transition.animateFloat(
-        initialValue = -2f,
-        targetValue = 2f,
-        animationSpec = infiniteRepeatable(
-            tween(1200, easing = LinearEasing),
-            RepeatMode.Restart
-        ),
-        label = "shimmerTranslate"
-    )
-    Box(modifier = modifier) {
-        content()
-        Canvas(modifier = Modifier.matchParentSize()) {
-            val width = size.width
-            val height = size.height
-            val brush = Brush.linearGradient(
-                colors = listOf(
-                    Color.White.copy(alpha = 0f),
-                    Color.White.copy(alpha = 0.15f),
-                    Color.White.copy(alpha = 0f)
-                ),
-                start = Offset(translateAnim * width, 0f),
-                end = Offset((translateAnim + 1f) * width, height)
-            )
-            drawRect(brush)
-        }
     }
 }

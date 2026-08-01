@@ -360,6 +360,8 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
                 progressRepo.unlockSimulacro()
             }
         }
+        _homePreload = null
+        _profileData = null
     }
 
     private fun finishSimulacro() {
@@ -380,6 +382,8 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
             )
         )
         missionRepo.checkSimulacroResult(result.passed)
+        _homePreload = null
+        _profileData = null
     }
 
     fun tickSimulacroTimer(): Boolean {
@@ -526,6 +530,9 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
         ))
 
         missionRepo.checkOnGameOver(mode, engine.maxCombo, engine.totalAnswered, engine.category, engine.correctCount, engine.score)
+
+        _homePreload = null
+        _profileData = null
 
         val chest = chestSystem.generateChest(_newRecord.value, acc, engine.totalAnswered, engine.score)
         _chestReward.value = chest
