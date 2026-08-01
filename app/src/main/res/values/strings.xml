@@ -153,12 +153,12 @@
     <string name="help_section_modes_l5">🏆 Simulacro: 100 preguntas, 100 minutos. Réplica del examen oficial con pesos por ley, penalización (+0.60/−0.15) y nota sobre 60. Se desbloquea aprobando un Mini Examen de 50 preguntas.</string>
     <string name="help_section_powerups_title">Ayudas (Power-ups)</string>
     <string name="help_section_powerups_l1">💡 Pista: Quita una respuesta incorrecta de la pantalla.</string>
-    <string name="help_section_powerups_l2">🛡️ Escudo: Actívalo manualmente pulsando su botón. Si fallas la siguiente respuesta, se consume y no te penaliza. Es mutuamente excluyente con otras ayudas.</string>
+    <string name="help_section_powerups_l2">🛡️ Escudo: Actívalo manualmente pulsando su botón. Si fallas, se consume y no te penaliza. Permanece activo hasta que falles. Es mutuamente excluyente con otras ayudas.</string>
     <string name="help_section_powerups_l3">🎯 50/50: Elimina dos respuestas incorrectas de golpe.</string>
     <string name="help_section_powerups_l4">✨ x2 pts: La próxima respuesta que aciertes vale el doble de puntos.</string>
     <string name="help_section_powerups_l5">❤️ Recuperación: Cada 5 aciertos seguidos recuperas 1 vida automáticamente (Solo Supervivencia). Si ya tienes 3 vidas, recibes una carga de 50/50 en su lugar.</string>
     <string name="help_section_powerups_l6">⏱️ En Contrarreloj, cada 5 aciertos seguidos te da +20 segundos extra.</string>
-    <string name="help_section_powerups_l7">📦 Las ayudas se consiguen al subir de rango y al abrir bonus. Se gastan al usarlas. Solo puedes usar una ayuda por pregunta.</string>
+    <string name="help_section_powerups_l7">📦 Las ayudas se consiguen al subir de rango (cargas gratis) y al abrir bonus. Se gastan al usarlas. Solo puedes usar una ayuda por pregunta.</string>
     <string name="help_section_combo_title">Combo</string>
     <string name="help_section_combo_l1">Cada vez que aciertes seguidas, tu combo sube.</string>
     <string name="help_section_combo_l2">Cuanto más alto sea el combo, más puntos ganas por respuesta (10 × combo).</string>
@@ -166,7 +166,7 @@
     <string name="help_section_combo_l4">Al llenarla, obtienes 3 cargas gratis que puedes canjear por vida extra o tiempo adicional.</string>
     <string name="help_section_ranks_title">Rangos</string>
     <string name="help_section_ranks_l1">Hay 7 rangos, desde Novato (0 XP) hasta Maestro (25.000 XP).</string>
-    <string name="help_section_ranks_l2">Cada rango desbloquea nuevos modos de juego, ayudas y más misiones diarias.</string>
+    <string name="help_section_ranks_l2">Cada rango desbloquea nuevos modos de juego, más misiones diarias y recibes cargas de ayudas gratis.</string>
     <string name="help_section_ranks_l3">Gana XP acertando preguntas y completando misiones diarias.</string>
     <string name="help_section_bonus_title">Bonus</string>
     <string name="help_section_bonus_l1">🥉 Bonus Bronce: Entre 50 y 150 XP. Lo recibes al terminar una partida normal.</string>
@@ -178,7 +178,7 @@
     <string name="help_section_missions_l3">Las recompensas escalan con tu rango: más XP cuanto más alto seas.</string>
     <string name="help_section_missions_l4">Las misiones se adaptan a los modos que tienes desbloqueados: Supervivencia, Contrarreloj, Repaso Express, Mini Examen y Simulacro.</string>
     <string name="help_section_missions_l5">Las misiones de aciertos en Supervivencia acumulan entre partidas, no necesitas hacerlo todo en una sola.</string>
-    <string name="help_section_missions_l6">¡Intenta completarlas todos los días seguidos para mantener tu racha!</string>
+    <string name="help_section_missions_l6">Cada misión completada te da XP al instante. ¡Completa todas para sacarle el máximo rendimiento!</string>
     <string name="help_section_info_title">Información</string>
     <string name="help_section_info_l1">Las preguntas están actualizadas a la legislación vigente de 2025.</string>
     <string name="help_section_info_l2">La legislación puede cambiar con el tiempo. Consulta siempre las leyes vigentes antes del examen.</string>

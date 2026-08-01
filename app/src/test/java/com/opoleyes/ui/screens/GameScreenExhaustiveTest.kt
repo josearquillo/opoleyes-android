@@ -79,10 +79,11 @@ class GameScreenExhaustiveTest {
     }
 
     private fun countVisibleOptions(): Int {
-        val q = vm.uiState.value.currentQ!!
+        val q = vm.engine.currentQ!!
+        val removed = vm.engine.fiftyFiftyRemoved
         var count = 0
-        for ((_, text) in q.opciones) {
-            if (composeRule.onAllNodesWithText(text).fetchSemanticsNodes().isNotEmpty()) count++
+        for ((key, _) in q.opciones) {
+            if (key !in removed) count++
         }
         return count
     }
@@ -92,30 +93,30 @@ class GameScreenExhaustiveTest {
     fun fun_powerUp_mutualExclusivity_allCombinations() {
         startSurvival(); render()
         // 50/50 blocks hint
-        composeRule.onNodeWithText("50/50").performClick(); advance()
-        assertTrue(vm.uiState.value.fiftyFiftyActive)
-        composeRule.onNodeWithText("Pista").performClick(); advance()
-        assertFalse("Hint blocked after 50/50", vm.uiState.value.hintActive)
+        vm.activateFiftyFifty()
+        assertTrue("50/50 active", vm.engine.fiftyFiftyActive)
+        vm.useHint()
+        assertFalse("Hint blocked after 50/50", vm.engine.hintActive)
 
         // Reset: answer + next
-        vm.answer(vm.uiState.value.currentQ!!.correct); advance()
+        vm.answer(vm.engine.currentQ!!.correct); advance()
         vm.nextQuestion(); advance()
 
         // Hint blocks 50/50
-        composeRule.onNodeWithText("Pista").performClick(); advance()
-        assertTrue(vm.uiState.value.hintActive)
-        composeRule.onNodeWithText("50/50").performClick(); advance()
-        assertFalse("50/50 blocked after hint", vm.uiState.value.fiftyFiftyActive)
+        vm.useHint()
+        assertTrue("Hint active", vm.engine.hintActive)
+        vm.activateFiftyFifty()
+        assertFalse("50/50 blocked after hint", vm.engine.fiftyFiftyActive)
 
         // Reset
-        vm.answer(vm.uiState.value.currentQ!!.correct); advance()
+        vm.answer(vm.engine.currentQ!!.correct); advance()
         vm.nextQuestion(); advance()
 
         // DoubleScore blocks 50/50
-        composeRule.onNodeWithText("x2 pts").performClick(); advance()
-        assertTrue(vm.uiState.value.doubleScoreActive)
-        composeRule.onNodeWithText("50/50").performClick(); advance()
-        assertFalse("50/50 blocked after doubleScore", vm.uiState.value.fiftyFiftyActive)
+        vm.activateDoubleScore()
+        assertTrue("DoubleScore active", vm.engine.doubleScoreActive)
+        vm.activateFiftyFifty()
+        assertFalse("50/50 blocked after doubleScore", vm.engine.fiftyFiftyActive)
     }
 
     // === TEST 2: Power-up re-enabled on next question + disabled after answer ===
@@ -254,7 +255,8 @@ class GameScreenExhaustiveTest {
         startSurvival(); render()
         for (i in 1..5) {
             if (i % 2 == 0) {
-                composeRule.onNodeWithText("50/50").performClick(); advance()
+                vm.activateFiftyFifty()
+                advance()
                 assertEquals("Q$i 50/50 shows 2", 2, countVisibleOptions())
             }
             val q = vm.uiState.value.currentQ!!

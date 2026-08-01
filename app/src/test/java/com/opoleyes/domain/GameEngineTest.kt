@@ -1217,4 +1217,67 @@ class GameEngineTest {
         assertFalse("Hint should not activate with only 2 options", engine.hintActive)
         assertEquals("Charge should not be consumed", 1, engine.hintCharges)
     }
+
+    @Test
+    fun fun_shield_staysActiveOnCorrectAnswer() {
+        engine.startAllLawsGame()
+        engine.nextQuestion()
+        engine.shieldCharges = 1
+        engine.activateShield()
+        assertTrue("Shield active", engine.shieldActive)
+        assertEquals(0, engine.shieldCharges)
+        engine.answer(engine.currentQ!!.correct)
+        assertTrue("Shield still active after correct", engine.shieldActive)
+    }
+
+    @Test
+    fun fun_shield_consumedOnWrongAnswer() {
+        engine.startAllLawsGame()
+        engine.nextQuestion()
+        engine.shieldCharges = 1
+        engine.activateShield()
+        val q = engine.currentQ!!
+        val wrong = listOf("A", "B", "C", "D").first { it != q.correct }
+        val result = engine.answer(wrong)
+        assertEquals(GameEngine.AnswerResult.SHIELD_USED, result)
+        assertFalse("Shield consumed after wrong", engine.shieldActive)
+    }
+
+    @Test
+    fun fun_shield_recoveredWhenNotConsumed() {
+        engine.startAllLawsGame()
+        engine.nextQuestion()
+        engine.shieldCharges = 1
+        engine.activateShield()
+        assertTrue("Shield active", engine.shieldActive)
+        assertEquals(0, engine.shieldCharges)
+        engine.saveRemainingPowerUps()
+        assertEquals("Shield recovered as charge", 1, prefs.getFreePowerUps().count { it == "shield" })
+    }
+
+    @Test
+    fun fun_shield_notRecoveredWhenConsumed() {
+        engine.startAllLawsGame()
+        engine.nextQuestion()
+        engine.shieldCharges = 1
+        engine.activateShield()
+        val q = engine.currentQ!!
+        val wrong = listOf("A", "B", "C", "D").first { it != q.correct }
+        engine.answer(wrong)
+        assertFalse("Shield consumed", engine.shieldActive)
+        engine.saveRemainingPowerUps()
+        assertEquals("No shield recovered", 0, prefs.getFreePowerUps().count { it == "shield" })
+    }
+
+    @Test
+    fun fun_shield_multipleChargesAndActive_recoveredCorrectly() {
+        engine.startAllLawsGame()
+        engine.nextQuestion()
+        engine.shieldCharges = 2
+        engine.activateShield()
+        assertEquals(1, engine.shieldCharges)
+        assertTrue(engine.shieldActive)
+        engine.saveRemainingPowerUps()
+        assertEquals("2 shields recovered (1 charge + 1 active)", 2, prefs.getFreePowerUps().count { it == "shield" })
+    }
 }
