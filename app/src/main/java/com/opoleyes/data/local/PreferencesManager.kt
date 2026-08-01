@@ -11,6 +11,13 @@ open class PreferencesManager(private val context: Context) : com.opoleyes.data.
     private val gson = Gson()
     private val prefs = context.getSharedPreferences("opoleyes_prefs", Context.MODE_PRIVATE)
 
+    // When debug mode is active, all persistent writes that represent real game
+    // progress are blocked so the debug session acts as a sandbox. The internalWrite
+    // flag is set only while setDebugMode is mutating state, so those writes are allowed.
+    @Volatile
+    private var internalWrite = false
+    private fun isWriteBlocked(): Boolean = isDebugMode() && !internalWrite
+
     companion object {
         const val XP = "xp"
         const val STATS_JSON = "stats_json"
@@ -46,6 +53,7 @@ open class PreferencesManager(private val context: Context) : com.opoleyes.data.
     override fun getXP(): Int = prefs.getInt(XP, 0)
 
     override fun addXP(amount: Int): Int {
+        if (isWriteBlocked()) return getXP()
         val multiplier = getMultiplier()
         val newXp = getXP() + amount * multiplier
         val editor = prefs.edit()
@@ -58,6 +66,7 @@ open class PreferencesManager(private val context: Context) : com.opoleyes.data.
     fun getMultiplier(): Int = prefs.getInt(XP_MULTIPLIER, 1)
 
     fun setMultiplier(value: Int) {
+        if (isWriteBlocked()) return
         prefs.edit().putInt(XP_MULTIPLIER, value).apply()
     }
 
@@ -68,25 +77,27 @@ open class PreferencesManager(private val context: Context) : com.opoleyes.data.
     }
 
     fun saveStats(stats: Map<String, QuestionStat>) {
+        if (isWriteBlocked()) return
         prefs.edit().putString(STATS_JSON, gson.toJson(stats)).apply()
     }
 
     fun getGamesPlayed(): Int = prefs.getInt(GAMES_PLAYED, 0)
 
     fun incrementGamesPlayed(): Int {
+        if (isWriteBlocked()) return getGamesPlayed()
         val v = getGamesPlayed() + 1
         prefs.edit().putInt(GAMES_PLAYED, v).apply()
         return v
     }
 
     fun getRecord(mode: String): Int = prefs.getInt(recordKey(mode), 0)
-    fun setRecord(mode: String, value: Int) { prefs.edit().putInt(recordKey(mode), value).apply() }
+    fun setRecord(mode: String, value: Int) { if (isWriteBlocked()) return; prefs.edit().putInt(recordKey(mode), value).apply() }
 
     fun getRecordCombo(mode: String): Int = prefs.getInt(recordComboKey(mode), 0)
-    fun setRecordCombo(mode: String, value: Int) { prefs.edit().putInt(recordComboKey(mode), value).apply() }
+    fun setRecordCombo(mode: String, value: Int) { if (isWriteBlocked()) return; prefs.edit().putInt(recordComboKey(mode), value).apply() }
 
     fun getRecordAcc(mode: String): Int = prefs.getInt(recordAccKey(mode), 0)
-    fun setRecordAcc(mode: String, value: Int) { prefs.edit().putInt(recordAccKey(mode), value).apply() }
+    fun setRecordAcc(mode: String, value: Int) { if (isWriteBlocked()) return; prefs.edit().putInt(recordAccKey(mode), value).apply() }
 
     override fun getFreePowerUps(): List<String> {
         val json = prefs.getString(FREE_POWERUPS_JSON, "[]")
@@ -95,10 +106,12 @@ open class PreferencesManager(private val context: Context) : com.opoleyes.data.
     }
 
     override fun setFreePowerUps(list: List<String>) {
+        if (isWriteBlocked()) return
         prefs.edit().putString(FREE_POWERUPS_JSON, gson.toJson(list)).apply()
     }
 
     override fun clearFreePowerUps() {
+        if (isWriteBlocked()) return
         prefs.edit().remove(FREE_POWERUPS_JSON).apply()
     }
 
@@ -109,6 +122,7 @@ open class PreferencesManager(private val context: Context) : com.opoleyes.data.
     }
 
     fun saveAchievements(achievements: Map<String, Long>) {
+        if (isWriteBlocked()) return
         prefs.edit().putString(ACHIEVEMENTS_JSON, gson.toJson(achievements)).apply()
     }
 
@@ -118,6 +132,7 @@ open class PreferencesManager(private val context: Context) : com.opoleyes.data.
     }
 
     fun saveDailyMissions(data: MissionData) {
+        if (isWriteBlocked()) return
         prefs.edit().putString(DAILY_MISSIONS_JSON, gson.toJson(data)).apply()
     }
 
@@ -125,46 +140,63 @@ open class PreferencesManager(private val context: Context) : com.opoleyes.data.
         prefs.getString(lawMasteredKey(testId), null) != null
 
     override fun setLawMastered(testId: String) {
+        if (isWriteBlocked()) return
         prefs.edit().putString(lawMasteredKey(testId), "1").apply()
     }
 
     override fun isDebugMode(): Boolean = prefs.getBoolean(DEBUG_MODE, false)
 
     override fun setDebugMode(enabled: Boolean) {
-        val editor = prefs.edit()
-        if (enabled) {
-            // Save current real state before setting debug state
-            val currentPowerUps = getFreePowerUps()
-            editor.putString(SAVED_POWERUPS_JSON, gson.toJson(currentPowerUps))
-            editor.putInt(SAVED_MAX_EXAM_QUESTIONS, getMaxExamQuestions())
-            editor.putBoolean(SAVED_SIMULACRO_UNLOCKED, isSimulacroUnlocked())
-            // Set debug state: infinite power-ups, max exam questions, simulacro unlocked
-            val debugPowerUps = mutableListOf<String>()
-            repeat(99) { debugPowerUps.add("shield") }
-            repeat(99) { debugPowerUps.add("fiftyFifty") }
-            repeat(99) { debugPowerUps.add("hint") }
-            repeat(99) { debugPowerUps.add("doubleScore") }
-            setFreePowerUps(debugPowerUps)
-            editor.putInt(MAX_EXAM_QUESTIONS, 50)
-            editor.putBoolean(SIMULACRO_UNLOCKED, true)
-        } else {
-            // Restore saved state
-            val savedPowerUpsJson = prefs.getString(SAVED_POWERUPS_JSON, null)
-            if (savedPowerUpsJson != null) {
-                val type = object : TypeToken<List<String>>() {}.type
-                val saved: List<String> = gson.fromJson(savedPowerUpsJson, type) ?: emptyList()
-                setFreePowerUps(saved)
+        // internalWrite allows the writes below to bypass the debug write-block,
+        // and ensures the whole transition is a single atomic SharedPreferences apply.
+        internalWrite = true
+        try {
+            val editor = prefs.edit()
+            if (enabled) {
+                // Save current real state before setting debug state
+                val currentPowerUps = getFreePowerUps()
+                editor.putString(SAVED_POWERUPS_JSON, gson.toJson(currentPowerUps))
+                editor.putInt(SAVED_MAX_EXAM_QUESTIONS, getMaxExamQuestions())
+                editor.putBoolean(SAVED_SIMULACRO_UNLOCKED, isSimulacroUnlocked())
+                // Set debug state: infinite power-ups, max exam questions, simulacro unlocked
+                val debugPowerUps = mutableListOf<String>()
+                repeat(99) { debugPowerUps.add("shield") }
+                repeat(99) { debugPowerUps.add("fiftyFifty") }
+                repeat(99) { debugPowerUps.add("hint") }
+                repeat(99) { debugPowerUps.add("doubleScore") }
+                editor.putString(FREE_POWERUPS_JSON, gson.toJson(debugPowerUps))
+                editor.putInt(MAX_EXAM_QUESTIONS, 50)
+                editor.putBoolean(SIMULACRO_UNLOCKED, true)
+            } else {
+                // Restore saved state, with safe fallbacks if the saved snapshot is missing
+                val savedPowerUpsJson = prefs.getString(SAVED_POWERUPS_JSON, null)
+                val restoredPowerUps: List<String> = if (savedPowerUpsJson != null) {
+                    val type = object : TypeToken<List<String>>() {}.type
+                    gson.fromJson(savedPowerUpsJson, type) ?: listOf("shield", "fiftyFifty", "hint", "doubleScore")
+                } else {
+                    // No snapshot: fall back to the default initial power-ups
+                    listOf("shield", "fiftyFifty", "hint", "doubleScore")
+                }
+                editor.putString(FREE_POWERUPS_JSON, gson.toJson(restoredPowerUps))
                 editor.remove(SAVED_POWERUPS_JSON)
-            }
-            val savedMaxExam = prefs.getInt(SAVED_MAX_EXAM_QUESTIONS, 10)
-            editor.putInt(MAX_EXAM_QUESTIONS, savedMaxExam)
-            editor.remove(SAVED_MAX_EXAM_QUESTIONS)
 
-            val savedSimulacro = prefs.getBoolean(SAVED_SIMULACRO_UNLOCKED, false)
-            editor.putBoolean(SIMULACRO_UNLOCKED, savedSimulacro)
-            editor.remove(SAVED_SIMULACRO_UNLOCKED)
+                val savedMaxExam = prefs.getInt(SAVED_MAX_EXAM_QUESTIONS, 10)
+                editor.putInt(MAX_EXAM_QUESTIONS, savedMaxExam)
+                editor.remove(SAVED_MAX_EXAM_QUESTIONS)
+
+                val savedSimulacro = prefs.getBoolean(SAVED_SIMULACRO_UNLOCKED, false)
+                editor.putBoolean(SIMULACRO_UNLOCKED, savedSimulacro)
+                editor.remove(SAVED_SIMULACRO_UNLOCKED)
+
+                // Force daily missions to regenerate so they match the real unlock state
+                editor.remove(DAILY_MISSIONS_JSON)
+            }
+            // Force daily missions to regenerate for the new unlock state (debug or normal)
+            if (enabled) editor.remove(DAILY_MISSIONS_JSON)
+            editor.putBoolean(DEBUG_MODE, enabled).apply()
+        } finally {
+            internalWrite = false
         }
-        editor.putBoolean(DEBUG_MODE, enabled).apply()
     }
 
     fun getLogoPref(): String = prefs.getString(LOGO_PREF, "ol_v1") ?: "ol_v1"
@@ -180,12 +212,14 @@ open class PreferencesManager(private val context: Context) : com.opoleyes.data.
     fun getMaxExamQuestions(): Int = prefs.getInt(MAX_EXAM_QUESTIONS, 10)
 
     fun setMaxExamQuestions(value: Int) {
+        if (isWriteBlocked()) return
         prefs.edit().putInt(MAX_EXAM_QUESTIONS, value).apply()
     }
 
     fun isSimulacroUnlocked(): Boolean = prefs.getBoolean(SIMULACRO_UNLOCKED, false)
 
     fun setSimulacroUnlocked() {
+        if (isWriteBlocked()) return
         prefs.edit().putBoolean(SIMULACRO_UNLOCKED, true).apply()
     }
 
@@ -196,12 +230,24 @@ open class PreferencesManager(private val context: Context) : com.opoleyes.data.
     }
 
     fun addSimulacroHistory(entry: SimulacroHistoryEntry) {
+        if (isWriteBlocked()) return
         val history = getSimulacroHistory().toMutableList()
         history.add(entry)
         prefs.edit().putString(SIMULACRO_HISTORY_JSON, gson.toJson(history)).apply()
     }
 
     override fun resetAll() {
+        // If debug mode is active, first disable it so the real saved state is
+        // restored before wiping everything. Otherwise clear() would silently
+        // discard the SAVED_* snapshot and leave the user with no real progress.
+        if (isDebugMode()) {
+            internalWrite = true
+            try {
+                prefs.edit().putBoolean(DEBUG_MODE, false).apply()
+            } finally {
+                internalWrite = false
+            }
+        }
         prefs.edit().clear().commit()
     }
 }

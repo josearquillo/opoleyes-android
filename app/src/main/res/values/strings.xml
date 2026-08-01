@@ -142,6 +142,7 @@
     <!-- Help -->
     <string name="debug_on">Modo debug activado</string>
     <string name="debug_off">Modo debug desactivado</string>
+    <string name="debug_badge">DEBUG</string>
 
     <!-- Logo picker -->
     <string name="choose_logo">Elige tu logo</string>
