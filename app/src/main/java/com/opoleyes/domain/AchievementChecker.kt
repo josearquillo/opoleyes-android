@@ -50,7 +50,6 @@ class AchievementChecker(private val context: Context) {
         if (gamesPlayed >= 50) unlock("addicted", unlocked)
         if (rankIdx >= 4) unlock("expert", unlocked)
         if (rankIdx >= 6) unlock("master", unlocked)
-        if (rankIdx >= 7) unlock("legend", unlocked)
         if (ctx.perfectGame) unlock("perfect_game", unlocked)
         if (ctx.sharpshooter) unlock("sharpshooter", unlocked)
         if (ctx.fiftyFiftyUsed) unlock("strategist", unlocked)

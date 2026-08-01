@@ -6,13 +6,12 @@ import com.opoleyes.data.model.Rank
 object Constants {
     val RANKS = listOf(
         Rank("Novato", "🌱", 0, 0),
-        Rank("Principiante", "🌿", 100, 1),
-        Rank("Aprendiz", "📚", 400, 2),
-        Rank("Avanzado", "🔥", 1200, 3),
-        Rank("Experto", "⚖️", 3000, 4),
-        Rank("Veterano", "🎯", 7000, 5),
-        Rank("Maestro", "👑", 15000, 6),
-        Rank("Leyenda", "🏆", 30000, 7),
+        Rank("Principiante", "🌿", 200, 1),
+        Rank("Aprendiz", "📚", 800, 2),
+        Rank("Avanzado", "🔥", 2500, 3),
+        Rank("Experto", "⚖️", 6000, 4),
+        Rank("Veterano", "🎯", 12000, 5),
+        Rank("Maestro", "👑", 25000, 6),
     )
 
     val ACHIEVEMENTS = listOf(
@@ -37,7 +36,6 @@ object Constants {
         Achievement("addicted", "🤖", "Adicto", "50 partidas jugadas"),
         Achievement("expert", "⚖️", "Experto", "Alcanzar rango Experto"),
         Achievement("master", "👑", "Maestro", "Alcanzar rango Maestro"),
-        Achievement("legend", "🏆", "Leyenda", "Alcanzar rango Leyenda"),
         Achievement("perfect_game", "🎯", "Diana perfecta", "100% acierto (mín. 10 preguntas)"),
         Achievement("sharpshooter", "📐", "Precisión quirúrgica", "90%+ acierto (mín. 10 preguntas)"),
         Achievement("strategist", "🎲", "Estratega", "Usar el 50/50 por primera vez"),
@@ -52,10 +50,11 @@ object Constants {
 
     val RANK_UNLOCKS = mapOf(
         1 to "⏱️ Contrarreloj",
-        2 to "⚡ Repaso Express + 2 misiones",
-        3 to "📋 3 misiones diarias",
-        4 to "🏆 Modo Reto",
-        5 to "📝 Modo Examen",
+        2 to "📋 2 misiones diarias",
+        3 to "⚡ Repaso Express",
+        4 to "📋 3 misiones diarias",
+        5 to "🏆 Modo Reto",
+        6 to "📝 Modo Examen",
     )
 
     val RANK_POWERUP_REWARDS = mapOf(
@@ -64,8 +63,7 @@ object Constants {
         3 to listOf("doubleScore"),
         4 to listOf("fiftyFifty", "hint"),
         5 to listOf("shield", "shield", "doubleScore"),
-        6 to listOf("fiftyFifty", "fiftyFifty", "hint", "doubleScore"),
-        7 to listOf("shield", "fiftyFifty", "hint", "doubleScore", "shield", "fiftyFifty"),
+        6 to listOf("fiftyFifty", "fiftyFifty", "hint", "doubleScore", "shield"),
     )
 
     fun getRankByIndex(index: Int): Rank = RANKS.getOrElse(index) { RANKS.last() }
