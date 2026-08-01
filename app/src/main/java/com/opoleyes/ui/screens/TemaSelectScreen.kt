@@ -78,10 +78,12 @@ fun TemaSelectScreen(navController: NavController, gameViewModel: GameViewModel)
 
             LazyColumn {
                 item {
-                    TemaCard(Icons.AutoMirrored.Filled.LibraryBooks, stringResource(R.string.all_laws), 0) {
+                    AllLawsCard {
                         gameViewModel.startAllLawsGameAsync { ok -> if (ok) navController.navigate(Routes.GAME) }
                     }
-                    Spacer(Modifier.height(8.dp))
+                    Spacer(Modifier.height(12.dp))
+                    HorizontalDivider(color = SurfaceVariant.copy(alpha = 0.4f), thickness = 1.dp)
+                    Spacer(Modifier.height(12.dp))
                 }
                 items(filteredTests, key = { it.id }) { test ->
                     val progress = remember(test.id) { gameViewModel.getLeyProgress(test.id) }
@@ -96,6 +98,35 @@ fun TemaSelectScreen(navController: NavController, gameViewModel: GameViewModel)
 
     if (isLoading) {
         LoadingOverlay()
+    }
+}
+
+@Composable
+private fun AllLawsCard(onClick: () -> Unit) {
+    val turquoise = Color(0xFF14b8a6)
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(12.dp))
+            .background(Brush.verticalGradient(listOf(BgCard, turquoise.copy(alpha = 0.08f))))
+            .border(1.dp, turquoise.copy(alpha = 0.25f), RoundedCornerShape(12.dp))
+            .clickable { onClick() }
+            .padding(16.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Icon(
+            Icons.AutoMirrored.Filled.LibraryBooks,
+            contentDescription = null,
+            tint = turquoise,
+            modifier = Modifier.size(24.dp)
+        )
+        Spacer(Modifier.width(12.dp))
+        Text(
+            stringResource(R.string.all_laws),
+            color = TextLight,
+            fontSize = 15.sp,
+            fontWeight = FontWeight.Medium
+        )
     }
 }
 

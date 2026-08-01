@@ -309,6 +309,7 @@ class GameEngine private constructor(
         if (powerUpsSaved) return
         powerUpsSaved = true
         val remaining = mutableListOf<String>()
+        if (shieldActive) remaining.add("shield")
         repeat(shieldCharges) { remaining.add("shield") }
         repeat(fiftyFiftyCharges) { remaining.add("fiftyFifty") }
         repeat(hintCharges) { remaining.add("hint") }

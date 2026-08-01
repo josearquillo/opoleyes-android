@@ -440,10 +440,10 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
                 if (engine.comboOverchargeActive && engine.comboOverchargeCharges == 3) {
                     addPopup("¡OVERCHARGE!", com.opoleyes.ui.theme.Warning, 48, 0f, "⚡")
                 }
-                checkAchievements(AchievementContext(firstCorrect = true, maxCombo = engine.maxCombo, score = engine.score, gameMode = engine.mode.name.lowercase()))
+                checkAchievementsPerQuestion(AchievementContext(firstCorrect = true, maxCombo = engine.maxCombo, fiftyFiftyUsed = engine.ctxFiftyFiftyUsed, lifeRecovered = engine.ctxLifeRecovered))
             }
             GameEngine.AnswerResult.WRONG -> {
-                checkAchievements(AchievementContext(maxCombo = engine.maxCombo, score = engine.score, gameMode = engine.mode.name.lowercase()))
+                checkAchievementsPerQuestion(AchievementContext(maxCombo = engine.maxCombo))
             }
             GameEngine.AnswerResult.SHIELD_USED -> {
                 addPopup("Escudo usado!", Primary, 44, 0f, "🛡️")
@@ -473,8 +473,13 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
         _popups.value = _popups.value + FloatingPopup(text, color, size, delay, icon)
     }
 
-    private fun checkAchievements(ctx: AchievementContext) {
-        val unlocked = achievementChecker.check(ctx)
+    private fun checkAchievementsPerQuestion(ctx: AchievementContext) {
+        val unlocked = achievementChecker.checkPerQuestion(ctx)
+        if (unlocked.isNotEmpty()) _toasts.value = _toasts.value + unlocked
+    }
+
+    private fun checkAchievementsGameOver(ctx: AchievementContext) {
+        val unlocked = achievementChecker.checkGameOver(ctx)
         if (unlocked.isNotEmpty()) _toasts.value = _toasts.value + unlocked
     }
 
@@ -508,7 +513,7 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
 
         val perfectGame = engine.totalAnswered >= 10 && acc == 100
         val sharpshooter = engine.totalAnswered >= 10 && acc >= 90
-        checkAchievements(AchievementContext(
+        checkAchievementsGameOver(AchievementContext(
             gameOver = true, maxCombo = engine.maxCombo, score = engine.score,
             gameMode = mode, newRecord = _newRecord.value,
             perfectGame = perfectGame, sharpshooter = sharpshooter,
@@ -531,9 +536,11 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
     private fun checkRankUp(rankBefore: Int) {
         val rankAfter = progressRepo.getRankIndex()
         if (rankAfter > rankBefore) {
+            val allRewards = mutableListOf<String>()
             for (r in (rankBefore + 1)..rankAfter) {
                 val rewards = com.opoleyes.data.Constants.RANK_POWERUP_REWARDS[r]
                 if (rewards != null) {
+                    allRewards.addAll(rewards)
                     val current = prefs.getFreePowerUps().toMutableList()
                     current.addAll(rewards)
                     prefs.setFreePowerUps(current)
@@ -541,7 +548,8 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
             }
             _rankUpOverlay.value = RankUpOverlay(
                 com.opoleyes.data.Constants.getRankByIndex(rankBefore),
-                com.opoleyes.data.Constants.getRankByIndex(rankAfter)
+                com.opoleyes.data.Constants.getRankByIndex(rankAfter),
+                allRewards
             )
         }
     }

@@ -120,8 +120,13 @@ open class PreferencesManager(private val context: Context) : com.opoleyes.data.
     }
 
     fun saveAchievements(achievements: Map<String, Long>) {
-        if (isWriteBlocked()) return
-        prefs.edit().putString(ACHIEVEMENTS_JSON, gson.toJson(achievements)).apply()
+        val wasInternal = internalWrite
+        internalWrite = true
+        try {
+            prefs.edit().putString(ACHIEVEMENTS_JSON, gson.toJson(achievements)).apply()
+        } finally {
+            internalWrite = wasInternal
+        }
     }
 
     fun getDailyMissions(): MissionData? {

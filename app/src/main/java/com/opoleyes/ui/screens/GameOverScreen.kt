@@ -449,6 +449,39 @@ fun RankUpOverlayView(overlay: RankUpOverlay, onDismiss: () -> Unit) {
                     }
                 }
 
+                if (overlay.powerUpRewards.isNotEmpty()) {
+                    Spacer(Modifier.height(16.dp))
+                    Text("Ayudas recibidas:", color = TextLight, fontSize = 14.sp, fontWeight = FontWeight.Bold)
+                    Spacer(Modifier.height(8.dp))
+                    val powerUpIcons = mapOf(
+                        "shield" to "🛡️ Escudo",
+                        "hint" to "💡 Pista",
+                        "fiftyFifty" to "🎯 50/50",
+                        "doubleScore" to "✨ x2 pts"
+                    )
+                    val counts = overlay.powerUpRewards.groupingBy { it }.eachCount()
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        counts.forEach { (id, count) ->
+                            Surface(
+                                shape = RoundedCornerShape(10.dp),
+                                color = TrackColorDim
+                            ) {
+                                Text(
+                                    "${powerUpIcons[id] ?: id} ${if (count > 1) "x$count" else ""}",
+                                    color = TextLight,
+                                    fontSize = 13.sp,
+                                    fontWeight = FontWeight.Medium,
+                                    modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp)
+                                )
+                            }
+                        }
+                    }
+                }
+
                 Spacer(Modifier.height(24.dp))
                 GameButton(stringResource(R.string.continue_label), color1 = Primary, color2 = PurpleDark) { onDismiss() }
             }
