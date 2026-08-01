@@ -111,8 +111,8 @@ dependencies {
     // Gson
     implementation("com.google.code.gson:gson:2.10.1")
 
-    // AdMob
-    implementation("com.google.android.gms:play-services-ads:23.0.0")
+    // AdMob — temporarily disabled for dev
+    // implementation("com.google.android.gms:play-services-ads:23.0.0")
 
     // SplashScreen
     implementation("androidx.core:core-splashscreen:1.0.1")

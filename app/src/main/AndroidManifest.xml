@@ -2,8 +2,10 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
+    <!-- Temporarily disabled for dev
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    -->
 
     <application
         android:name=".OpoleyesApp"
@@ -16,19 +18,21 @@
         android:screenOrientation="portrait"
         tools:targetApi="31">
 
+        <!-- Temporarily disabled for dev
         <meta-data
             android:name="com.google.android.gms.ads.APPLICATION_ID"
             android:value="ca-app-pub-3940256099942544~3347511713" />
+        -->
 
         <activity
             android:name=".MainActivity"
             android:exported="true"
             android:theme="@style/Theme.Opoleyes.Splash" />
 
-        <!-- Launcher alias: OL Variant 1 (Indigo) -->
+        <!-- Launcher alias: OL Variant 1 (Indigo) — disabled, turquesa is default -->
         <activity-alias
             android:name=".OlV1Alias"
-            android:enabled="true"
+            android:enabled="false"
             android:exported="true"
             android:icon="@mipmap/ic_launcher_ol_v1"
             android:label="OpoLeyes"
@@ -55,10 +59,10 @@
             </intent-filter>
         </activity-alias>
 
-        <!-- Launcher alias: OL Variant 3 (Teal) -->
+        <!-- Launcher alias: OL Variant 3 (Teal) — default launcher -->
         <activity-alias
             android:name=".OlV3Alias"
-            android:enabled="false"
+            android:enabled="true"
             android:exported="true"
             android:icon="@mipmap/ic_launcher_ol_v3"
             android:label="OpoLeyes"

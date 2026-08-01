@@ -60,10 +60,5 @@ fun NavGraph() {
         composable(Routes.EXAM_RESULT) { ExamResultScreen(navController, gameViewModel) }
         composable(Routes.PROFILE) { ProfileScreen(navController, gameViewModel) }
         composable(Routes.HELP) { HelpScreen(navController, gameViewModel) }
-        composable(Routes.LOGO_PICKER) {
-            val context = androidx.compose.ui.platform.LocalContext.current
-            val isFirstLaunch = !com.opoleyes.data.local.PreferencesManager(context).isLogoChosen()
-            LogoPickerScreen(navController, isFirstLaunch = isFirstLaunch)
-        }
     }
 }
