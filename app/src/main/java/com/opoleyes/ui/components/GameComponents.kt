@@ -807,7 +807,7 @@ fun RankBadge(rank: com.opoleyes.data.model.Rank, modifier: Modifier = Modifier)
     Box(
         modifier = modifier
             .clip(RoundedCornerShape(16.dp))
-            .background(Brush.horizontalGradient(listOf(Primary, Accent)))
+            .background(Brush.horizontalGradient(listOf(Accent, AccentLight)))
             .padding(horizontal = 14.dp, vertical = 8.dp)
     ) {
         Text("${rank.icon} ${rank.name}", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 13.sp)

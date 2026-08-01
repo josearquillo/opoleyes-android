@@ -5,6 +5,7 @@ import com.opoleyes.data.local.DataProvider
 import com.opoleyes.data.local.PreferencesManager
 import com.opoleyes.data.model.Mission
 import com.opoleyes.data.model.MissionData
+import com.opoleyes.data.model.MissionDifficulty
 import java.time.LocalDate
 
 class MissionRepository(private val context: Context) {
@@ -30,13 +31,11 @@ class MissionRepository(private val context: Context) {
         val today = getTodayStr()
         val existing = getDailyMissions()
         if (existing != null && existing.date == today) {
-            // Validate that cached mission testIds still exist
             val testDataMap = DataProvider.getTestDataMap(context)
             val allValid = existing.missions.all { m ->
                 m.testId == null || testDataMap.containsKey(m.testId)
             }
-            val expectedCount = progressRepo.getMissionCount()
-            if (allValid && existing.missions.size == expectedCount) return existing
+            if (allValid && existing.missions.size == 3) return existing
         }
 
         val seed = today.split("-").map { it.toLong() }.reduce { a, b -> a * 100 + b }
@@ -45,10 +44,15 @@ class MissionRepository(private val context: Context) {
         val temaTests = DataProvider.getTemaTests(context)
 
         val rankIndex = progressRepo.getRankIndex()
-        val missionReward = 50 * (1 + rankIndex)
+        val easyReward = 30 * (1 + rankIndex)
+        val mediumReward = 60 * (1 + rankIndex)
+        val hardReward = 100 * (1 + rankIndex)
 
         val comboRecord = progressRepo.getMaxComboRecord()
-        val comboTarget = maxOf(3, comboRecord + 2)
+        val comboTargetMedium = maxOf(3, comboRecord + 2)
+        val comboTargetHard = maxOf(5, comboRecord + 5)
+        val streakTargetMedium = maxOf(3, Math.ceil(comboRecord * 0.7).toInt())
+        val streakTargetHard = maxOf(5, Math.ceil(comboRecord * 0.9).toInt())
 
         var lowestLaw: com.opoleyes.data.model.Test? = null
         var lowestPct = 100
@@ -63,59 +67,92 @@ class MissionRepository(private val context: Context) {
         for ((_, v) in stats) wrongCount += v.wrong
 
         val unlocks = progressRepo.getUnlocks()
-        val varietyTarget = 5 + rankIndex
-        val candidates = mutableListOf<Mission>(
-            Mission("quality", "🎯",
-                "Acierta ${maxOf(3, Math.ceil(comboRecord * 0.7).toInt())} preguntas seguidas en Supervivencia (todas las leyes)",
-                maxOf(3, Math.ceil(comboRecord * 0.7).toInt()), 0, false, missionReward, "streak"),
+        val varietyTargetEasy = 3 + rankIndex
+        val varietyTargetMedium = 5 + rankIndex
+
+        // === EASY pool ===
+        val easyPool = mutableListOf<Mission>(
+            Mission("variety", "�",
+                if (unplayedLaw != null) "Acierta $varietyTargetEasy preguntas en Supervivencia en \"${unplayedLaw.title.ifEmpty { unplayedLaw.name }}\""
+                else "Acierta $varietyTargetEasy preguntas en Supervivencia en cualquier ley",
+                varietyTargetEasy, 0, false, easyReward,
+                "variety_${unplayedLaw?.id ?: "any"}", unplayedLaw?.id, MissionDifficulty.EASY),
             Mission("progress", "📈",
                 if (lowestLaw != null) "Sube el progreso de \"${lowestLaw.title.ifEmpty { lowestLaw.name }}\" al ${minOf(100, lowestPct + 5)}% en Supervivencia"
-                else "Acierta al menos $varietyTarget preguntas en Supervivencia (cualquier ley)",
-                if (lowestLaw != null) minOf(100, lowestPct + 5) else varietyTarget,
-                if (lowestLaw != null) lowestPct else 0, false, missionReward,
-                "progress_${lowestLaw?.id ?: "any"}", lowestLaw?.id),
+                else "Acierta al menos $varietyTargetEasy preguntas en Supervivencia (cualquier ley)",
+                if (lowestLaw != null) minOf(100, lowestPct + 5) else varietyTargetEasy,
+                if (lowestLaw != null) lowestPct else 0, false, easyReward,
+                "progress_${lowestLaw?.id ?: "any"}", lowestLaw?.id, MissionDifficulty.EASY),
         )
         if (unlocks.quick) {
-            candidates.add(Mission("review", "🔄",
-                "Responde ${minOf(20, maxOf(5, wrongCount))} preguntas en Repaso Express",
-                minOf(20, maxOf(5, wrongCount)), 0, false, missionReward, "quick_review"))
+            easyPool.add(Mission("review", "🔄",
+                "Responde ${minOf(15, maxOf(5, wrongCount / 2))} preguntas en Repaso Express",
+                minOf(15, maxOf(5, wrongCount / 2)), 0, false, easyReward, "quick_review",
+                null, MissionDifficulty.EASY))
         }
-        candidates.add(Mission("variety", "🌍",
-            if (unplayedLaw != null) "Acierta al menos $varietyTarget preguntas en Supervivencia en \"${unplayedLaw.title.ifEmpty { unplayedLaw.name }}\""
-            else "Acierta al menos $varietyTarget preguntas en Supervivencia en cualquier ley",
-            varietyTarget, 0, false, missionReward, "variety_${unplayedLaw?.id ?: "any"}", unplayedLaw?.id))
-        candidates.add(Mission("combo", "🔥",
-            "Llega a combo x$comboTarget en Supervivencia (todas las leyes)",
-            comboTarget, 0, false, missionReward, "combo"))
+
+        // === MEDIUM pool ===
+        val mediumPool = mutableListOf<Mission>(
+            Mission("quality", "�",
+                "Acierta $streakTargetMedium preguntas seguidas en Supervivencia (todas las leyes)",
+                streakTargetMedium, 0, false, mediumReward, "streak",
+                null, MissionDifficulty.MEDIUM),
+            Mission("combo", "🔥",
+                "Llega a combo x$comboTargetMedium en Supervivencia (todas las leyes)",
+                comboTargetMedium, 0, false, mediumReward, "combo",
+                null, MissionDifficulty.MEDIUM),
+            Mission("variety", "🌍",
+                "Acierta $varietyTargetMedium preguntas en Supervivencia en \"${(lowestLaw ?: temaTests.firstOrNull())?.title?.ifEmpty { (lowestLaw ?: temaTests.firstOrNull())?.name } ?: "cualquier ley"}\"",
+                varietyTargetMedium, 0, false, mediumReward,
+                "variety_${(lowestLaw ?: temaTests.firstOrNull())?.id ?: "any"}",
+                (lowestLaw ?: temaTests.firstOrNull())?.id, MissionDifficulty.MEDIUM),
+        )
         if (unlocks.timetrial) {
             val ttTarget = 300 + rankIndex * 100
-            candidates.add(Mission("timetrial", "⏱️",
+            mediumPool.add(Mission("timetrial", "⏱️",
                 "Alcanza $ttTarget puntos en Contrarreloj (todas las leyes)",
-                ttTarget, 0, false, missionReward, "timetrial_score"))
+                ttTarget, 0, false, mediumReward, "timetrial_score",
+                null, MissionDifficulty.MEDIUM))
         }
+
+        // === HARD pool ===
+        val hardPool = mutableListOf<Mission>(
+            Mission("quality", "🎯",
+                "Acierta $streakTargetHard preguntas seguidas en Supervivencia (todas las leyes)",
+                streakTargetHard, 0, false, hardReward, "streak",
+                null, MissionDifficulty.HARD),
+            Mission("combo", "🔥",
+                "Llega a combo x$comboTargetHard en Supervivencia (todas las leyes)",
+                comboTargetHard, 0, false, hardReward, "combo",
+                null, MissionDifficulty.HARD),
+        )
         if (unlocks.exam) {
-            candidates.add(Mission("exam", "📝",
-                "Completa un examen con al menos un ${50 + rankIndex * 2}% de aciertos",
-                50 + rankIndex * 2, 0, false, missionReward, "exam_score"))
+            hardPool.add(Mission("exam", "📝",
+                "Completa un examen con al menos un ${60 + rankIndex * 2}% de aciertos",
+                60 + rankIndex * 2, 0, false, hardReward, "exam_score",
+                null, MissionDifficulty.HARD))
         }
         if (unlocks.challenge) {
             val chTarget = 200 + rankIndex * 50
-            candidates.add(Mission("challenge", "🏆",
+            hardPool.add(Mission("challenge", "🏆",
                 "Alcanza $chTarget puntos en Modo Reto",
-                chTarget, 0, false, missionReward, "challenge_score"))
+                chTarget, 0, false, hardReward, "challenge_score",
+                null, MissionDifficulty.HARD))
         }
 
-        val missionCount = progressRepo.getMissionCount()
-        val pool = candidates.toMutableList()
         val selected = mutableListOf<Mission>()
-        while (selected.size < missionCount && pool.isNotEmpty()) {
-            val idx = (rng() * pool.size).toInt()
-            selected.add(pool.removeAt(idx))
-        }
+        selected.add(pickRandom(easyPool, rng))
+        selected.add(pickRandom(mediumPool, rng))
+        selected.add(pickRandom(hardPool, rng))
 
         val data = MissionData(today, selected)
         saveDailyMissions(data)
         return data
+    }
+
+    private fun pickRandom(pool: MutableList<Mission>, rng: () -> Double): Mission {
+        val idx = (rng() * pool.size).toInt()
+        return pool.removeAt(idx)
     }
 
     fun updateProgress(type: String, value: Int) {

@@ -132,7 +132,7 @@ private fun ModeCard(mode: ModeInfo, enabled: Boolean = true, onClick: () -> Uni
         GameMode.TIMETRIAL -> listOf(Primary, PurpleDark)
         GameMode.QUICK -> listOf(Warning, WarningDark)
         GameMode.EXAM -> listOf(Success, SuccessDark)
-        GameMode.CHALLENGE -> listOf(Accent, PurpleDark)
+        GameMode.CHALLENGE -> listOf(Accent, AccentLight)
     }
     Box(
         modifier = Modifier

@@ -6,6 +6,7 @@
     <!-- Common -->
     <string name="back">Volver</string>
     <string name="cancel">Cancelar</string>
+    <string name="close">Cerrar</string>
     <string name="continue_label">Continuar</string>
     <string name="retry">Reintentar</string>
     <string name="error">Error</string>

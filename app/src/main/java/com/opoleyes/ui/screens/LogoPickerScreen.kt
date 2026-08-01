@@ -251,7 +251,7 @@ private fun LogoCard(option: LogoOption, isSelected: Boolean, onClick: () -> Uni
                 modifier = Modifier
                     .size(24.dp)
                     .clip(androidx.compose.foundation.shape.CircleShape)
-                    .background(Brush.horizontalGradient(listOf(Primary, Accent))),
+                    .background(Brush.horizontalGradient(listOf(Primary, PurpleDark))),
                 contentAlignment = Alignment.Center
             ) {
                 Text("✓", color = Color.White, fontSize = 14.sp, fontWeight = FontWeight.Bold)

@@ -25,6 +25,7 @@ import androidx.navigation.NavController
 import com.opoleyes.R
 import com.opoleyes.data.model.GameMode
 import com.opoleyes.data.model.Mission
+import com.opoleyes.data.model.MissionDifficulty
 import com.opoleyes.ui.components.*
 import com.opoleyes.ui.navigation.GameViewModel
 import com.opoleyes.ui.navigation.Routes
@@ -124,7 +125,7 @@ fun HomeScreen(navController: NavController, gameViewModel: GameViewModel) {
                             modifier = Modifier
                                 .size(48.dp)
                                 .clip(androidx.compose.foundation.shape.CircleShape)
-                                .background(Brush.horizontalGradient(listOf(Primary, Accent)))
+                                .background(Brush.horizontalGradient(listOf(Primary, PurpleDark)))
                                 .border(2.dp, AccentLight.copy(alpha = 0.5f), androidx.compose.foundation.shape.CircleShape),
                             contentAlignment = Alignment.Center
                         ) {
@@ -147,7 +148,7 @@ fun HomeScreen(navController: NavController, gameViewModel: GameViewModel) {
                                         .fillMaxWidth(xpAnim.value)
                                         .height(12.dp)
                                         .clip(RoundedCornerShape(6.dp))
-                                        .background(Brush.horizontalGradient(listOf(Primary, Accent)))
+                                        .background(Brush.horizontalGradient(listOf(Accent, AccentLight)))
                                 )
                             }
                             Spacer(Modifier.height(4.dp))
@@ -184,12 +185,12 @@ fun HomeScreen(navController: NavController, gameViewModel: GameViewModel) {
                     StaggeredAppearance(visibleItems, 3 + idx) {
                         MissionCard(m) {
                             if (!m.completed) {
-                                gameViewModel.pendingMode = GameMode.SURVIVAL
                                 when (m.type) {
                                     "review" -> {
                                         gameViewModel.startQuickGameAsync { ok -> if (ok) navController.navigate(Routes.GAME) }
                                     }
                                     "progress", "variety" -> {
+                                        gameViewModel.pendingMode = GameMode.SURVIVAL
                                         if (m.testId != null) {
                                             gameViewModel.startTemaGameAsync(m.testId) { ok -> if (ok) navController.navigate(Routes.GAME) }
                                         } else {
@@ -197,7 +198,18 @@ fun HomeScreen(navController: NavController, gameViewModel: GameViewModel) {
                                         }
                                     }
                                     "quality", "combo" -> {
+                                        gameViewModel.pendingMode = GameMode.SURVIVAL
                                         gameViewModel.startAllLawsGameAsync { ok -> if (ok) navController.navigate(Routes.GAME) }
+                                    }
+                                    "timetrial" -> {
+                                        gameViewModel.pendingMode = GameMode.TIMETRIAL
+                                        navController.navigate(Routes.TEMA_SELECT)
+                                    }
+                                    "exam" -> {
+                                        navController.navigate(Routes.MODE_SELECT)
+                                    }
+                                    "challenge" -> {
+                                        gameViewModel.startChallengeGameAsync { ok -> if (ok) navController.navigate(Routes.GAME) }
                                     }
                                 }
                             }
@@ -280,15 +292,12 @@ fun StatMiniCard(label: String, value: String, icon: String, modifier: Modifier 
 
 @Composable
 fun MissionCard(mission: Mission, onClick: () -> Unit) {
-    val accentColor = if (mission.completed) Success else PrimaryLight
-    val borderColor = when (mission.type) {
-        "quality" -> Warning
-        "progress" -> Primary
-        "variety" -> Accent
-        "combo" -> Orange
-        "review" -> Primary
-        else -> PrimaryLight
+    val diffColor = when (mission.difficulty) {
+        MissionDifficulty.EASY -> Success
+        MissionDifficulty.MEDIUM -> Warning
+        MissionDifficulty.HARD -> Danger
     }
+    val accentColor = if (mission.completed) Success else diffColor
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -297,18 +306,18 @@ fun MissionCard(mission: Mission, onClick: () -> Unit) {
                 if (mission.completed) Brush.verticalGradient(listOf(SuccessDark, SuccessDark))
                 else Brush.verticalGradient(listOf(BgCard, BgCardDark))
             )
-            .border(width = 2.dp, color = if (mission.completed) Success else borderColor.copy(alpha = 0.4f), shape = RoundedCornerShape(12.dp))
+            .border(width = 2.dp, color = if (mission.completed) Success else diffColor.copy(alpha = 0.4f), shape = RoundedCornerShape(12.dp))
             .clickable { onClick() }
             .padding(12.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        // Left color bar
+        // Left color bar (difficulty indicator)
         Box(
             modifier = Modifier
                 .width(3.dp)
                 .height(36.dp)
                 .clip(RoundedCornerShape(2.dp))
-                .background(if (mission.completed) Success else borderColor)
+                .background(if (mission.completed) Success else diffColor)
         )
         Spacer(Modifier.width(10.dp))
         // Mission icon
@@ -334,6 +343,13 @@ fun MissionCard(mission: Mission, onClick: () -> Unit) {
                 color = accentColor,
                 fontWeight = FontWeight.Bold,
                 fontSize = 12.sp
+            )
+            Spacer(Modifier.height(2.dp))
+            Text(
+                "+${mission.reward} XP",
+                color = if (mission.completed) SuccessLight else diffColor.copy(alpha = 0.7f),
+                fontSize = 10.sp,
+                fontWeight = FontWeight.Bold
             )
         }
     }

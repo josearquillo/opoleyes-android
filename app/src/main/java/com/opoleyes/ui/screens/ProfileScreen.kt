@@ -58,6 +58,7 @@ fun ProfileScreen(navController: NavController, gameViewModel: GameViewModel) {
     }
 
     var showResetDialog by remember { mutableStateOf(false) }
+    var selectedAchievement by remember { mutableStateOf<com.opoleyes.data.model.Achievement?>(null) }
     val scrollState = rememberScrollState()
 
     if (showResetDialog) {
@@ -73,6 +74,39 @@ fun ProfileScreen(navController: NavController, gameViewModel: GameViewModel) {
                 }) { Text(stringResource(R.string.reset), color = Danger) }
             },
             dismissButton = { TextButton(onClick = { showResetDialog = false }) { Text(stringResource(R.string.cancel)) } }
+        )
+    }
+
+    selectedAchievement?.let { ach ->
+        val isUnlocked = achievements.containsKey(ach.id)
+        AlertDialog(
+            onDismissRequest = { selectedAchievement = null },
+            containerColor = BgCard,
+            titleContentColor = TextLight,
+            title = {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(ach.icon, fontSize = 28.sp)
+                    Spacer(Modifier.width(10.dp))
+                    Text(ach.name, color = TextLight, fontWeight = FontWeight.Bold, fontSize = 18.sp)
+                }
+            },
+            text = {
+                Column {
+                    Text(
+                        if (isUnlocked) "✅ Desbloqueado" else "🔒 No desbloqueado",
+                        color = if (isUnlocked) Success else TextDim,
+                        fontSize = 13.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                    Spacer(Modifier.height(10.dp))
+                    Text(ach.desc, color = TextMuted, fontSize = 14.sp)
+                }
+            },
+            confirmButton = {
+                TextButton(onClick = { selectedAchievement = null }) {
+                    Text(stringResource(R.string.close), color = PrimaryLight)
+                }
+            }
         )
     }
 
@@ -184,6 +218,7 @@ fun ProfileScreen(navController: NavController, gameViewModel: GameViewModel) {
                             .clip(RoundedCornerShape(12.dp))
                             .background(BgCard.copy(alpha = if (isUnlocked) 1f else 0.3f))
                             .alpha(if (isUnlocked) 1f else 0.3f)
+                            .clickable { selectedAchievement = ach }
                             .padding(6.dp),
                         horizontalAlignment = Alignment.CenterHorizontally,
                         verticalArrangement = Arrangement.Center

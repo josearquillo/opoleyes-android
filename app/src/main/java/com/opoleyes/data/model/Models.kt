@@ -79,6 +79,12 @@ data class Achievement(
     val desc: String
 )
 
+enum class MissionDifficulty(val label: String, val icon: String) {
+    EASY("Fácil", "🟢"),
+    MEDIUM("Media", "🟡"),
+    HARD("Difícil", "🔴")
+}
+
 data class Mission(
     val type: String,
     val icon: String,
@@ -88,7 +94,8 @@ data class Mission(
     var completed: Boolean,
     val reward: Int,
     val key: String,
-    val testId: String? = null
+    val testId: String? = null,
+    val difficulty: MissionDifficulty = MissionDifficulty.MEDIUM
 )
 
 data class MissionData(

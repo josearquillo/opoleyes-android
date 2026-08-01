@@ -194,7 +194,7 @@ fun GameScreen(navController: NavController, gameViewModel: GameViewModel) {
                                 .fillMaxWidth(progressFrac.coerceIn(0f, 1f))
                                 .height(4.dp)
                                 .clip(RoundedCornerShape(2.dp))
-                                .background(Brush.horizontalGradient(listOf(Primary, Accent)))
+                                .background(Brush.horizontalGradient(listOf(Primary, PrimaryLight)))
                         )
                     }
                     Spacer(Modifier.height(6.dp))
@@ -481,7 +481,7 @@ fun GameScreen(navController: NavController, gameViewModel: GameViewModel) {
                             }
                         }
                         LaunchedEffect(toasts) {
-                            delay(3000)
+                            delay(6000)
                             gameViewModel.clearToasts()
                         }
                     }
