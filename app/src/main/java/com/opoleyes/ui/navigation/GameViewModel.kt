@@ -346,6 +346,7 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
             finishSimulacro()
             return
         }
+        val rankBefore = progressRepo.getRankIndex()
         val result = examEngine.grade()
         _examResult.value = result
         progressRepo.incrementGamesPlayed()
@@ -360,11 +361,13 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
                 progressRepo.unlockSimulacro()
             }
         }
+        checkRankUp(rankBefore)
         _homePreload = null
         _profileData = null
     }
 
     private fun finishSimulacro() {
+        val rankBefore = progressRepo.getRankIndex()
         val result = examEngine.gradeSimulacro()
         _simulacroResult.value = result
         progressRepo.incrementGamesPlayed()
@@ -382,6 +385,7 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
             )
         )
         missionRepo.checkSimulacroResult(result.passed)
+        checkRankUp(rankBefore)
         _homePreload = null
         _profileData = null
     }
@@ -493,24 +497,6 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
         if (_newAccRecord.value) progressRepo.setRecordAcc(mode, acc)
 
         progressRepo.incrementGamesPlayed()
-        _xpGained.value = progressRepo.getXP() - engine.startXP
-
-        val rankBefore = engine.startRankIndex
-        val rankAfter = progressRepo.getRankIndex()
-        if (rankAfter > rankBefore) {
-            for (r in (rankBefore + 1)..rankAfter) {
-                val rewards = com.opoleyes.data.Constants.RANK_POWERUP_REWARDS[r]
-                if (rewards != null) {
-                    val current = prefs.getFreePowerUps().toMutableList()
-                    current.addAll(rewards)
-                    prefs.setFreePowerUps(current)
-                }
-            }
-            _rankUpOverlay.value = RankUpOverlay(
-                com.opoleyes.data.Constants.getRankByIndex(rankBefore),
-                com.opoleyes.data.Constants.getRankByIndex(rankAfter)
-            )
-        }
 
         _accuracy.value = acc
         _medal.value = when {
@@ -531,11 +517,33 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
 
         missionRepo.checkOnGameOver(mode, engine.maxCombo, engine.totalAnswered, engine.category, engine.correctCount, engine.score)
 
+        _xpGained.value = progressRepo.getXP() - engine.startXP
+
+        checkRankUp(engine.startRankIndex)
+
         _homePreload = null
         _profileData = null
 
         val chest = chestSystem.generateChest(_newRecord.value, acc, engine.totalAnswered, engine.score)
         _chestReward.value = chest
+    }
+
+    private fun checkRankUp(rankBefore: Int) {
+        val rankAfter = progressRepo.getRankIndex()
+        if (rankAfter > rankBefore) {
+            for (r in (rankBefore + 1)..rankAfter) {
+                val rewards = com.opoleyes.data.Constants.RANK_POWERUP_REWARDS[r]
+                if (rewards != null) {
+                    val current = prefs.getFreePowerUps().toMutableList()
+                    current.addAll(rewards)
+                    prefs.setFreePowerUps(current)
+                }
+            }
+            _rankUpOverlay.value = RankUpOverlay(
+                com.opoleyes.data.Constants.getRankByIndex(rankBefore),
+                com.opoleyes.data.Constants.getRankByIndex(rankAfter)
+            )
+        }
     }
 
     fun openChest() {

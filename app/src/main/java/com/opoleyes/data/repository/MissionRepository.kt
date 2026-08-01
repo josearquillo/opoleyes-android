@@ -175,7 +175,6 @@ class MissionRepository(private val context: Context) {
 
     fun updateProgress(type: String, value: Int) {
         val data = getDailyMissions() ?: return
-        var anyCompleted = false
         for (m in data.missions) {
             if (m.completed) continue
             when {
@@ -193,12 +192,7 @@ class MissionRepository(private val context: Context) {
             if (m.current >= m.target && !m.completed) {
                 m.completed = true
                 progressRepo.addXP(m.reward)
-                anyCompleted = true
             }
-        }
-        if (anyCompleted && data.missions.all { it.completed }) {
-            val rankIndex2 = progressRepo.getRankIndex()
-            progressRepo.addXP(200 * (1 + rankIndex2))
         }
         saveDailyMissions(data)
     }
