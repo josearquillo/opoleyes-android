@@ -112,7 +112,9 @@ fun ModeSelectScreen(navController: NavController, gameViewModel: GameViewModel)
     }
 
     if (showExamDialog) {
+        val maxQuestions = remember { gameViewModel.getMaxExamQuestions() }
         ExamConfigDialog(
+            maxQuestions = maxQuestions,
             onDismiss = { showExamDialog = false },
             onStart = { count ->
                 showExamDialog = false
@@ -175,14 +177,11 @@ private data class ModeInfo(
 
 @Composable
 private fun ExamConfigDialog(
+    maxQuestions: Int,
     onDismiss: () -> Unit,
     onStart: (Int) -> Unit
 ) {
-    val presets = listOf(
-        ExamPreset(stringResource(R.string.exam_preset_fast), 25, Primary, PurpleDark),
-        ExamPreset(stringResource(R.string.exam_preset_standard), 50, Danger, DangerDark),
-        ExamPreset(stringResource(R.string.exam_preset_full), 100, Warning, WarningDark)
-    )
+    val presets = listOf(10, 20, 30, 40, 50)
 
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -200,10 +199,13 @@ private fun ExamConfigDialog(
                 Text(stringResource(R.string.question_count), color = TextMuted, fontSize = 13.sp)
                 Spacer(Modifier.height(12.dp))
 
-                presets.forEach { preset ->
+                presets.forEach { count ->
+                    val unlocked = count <= maxQuestions
                     ExamPresetCard(
-                        preset = preset,
-                        onClick = { onStart(preset.count) }
+                        count = count,
+                        unlocked = unlocked,
+                        nextLocked = if (!unlocked) presets[presets.indexOf(count) - 1] else null,
+                        onClick = { if (unlocked) onStart(count) }
                     )
                     Spacer(Modifier.height(8.dp))
                 }
@@ -216,37 +218,37 @@ private fun ExamConfigDialog(
     )
 }
 
-private data class ExamPreset(
-    val name: String,
-    val count: Int,
-    val color1: Color,
-    val color2: Color
-)
-
 @Composable
-private fun ExamPresetCard(preset: ExamPreset, onClick: () -> Unit) {
+private fun ExamPresetCard(count: Int, unlocked: Boolean, nextLocked: Int?, onClick: () -> Unit) {
+    val containerColor = if (unlocked) Brush.horizontalGradient(listOf(Primary, PurpleDark)) else Brush.horizontalGradient(listOf(BgCardDark, BgCardDark))
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(12.dp))
-            .background(Brush.horizontalGradient(listOf(preset.color1, preset.color2)))
-            .clickable { onClick() }
+            .background(containerColor)
+            .clickable(enabled = unlocked) { onClick() }
             .padding(horizontal = 14.dp, vertical = 14.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Column(modifier = Modifier.weight(1f)) {
             Text(
-                preset.name,
-                color = Color.White,
+                stringResource(R.string.questions_count, count),
+                color = if (unlocked) Color.White else TextDim,
                 fontSize = 15.sp,
                 fontWeight = FontWeight.Bold
             )
-            Text(
-                stringResource(R.string.questions_count, preset.count),
-                color = Color.White.copy(alpha = 0.8f),
-                fontSize = 12.sp
-            )
+            if (!unlocked && nextLocked != null) {
+                Text(
+                    stringResource(R.string.exam_unlock_next, nextLocked, count),
+                    color = TextDim,
+                    fontSize = 11.sp
+                )
+            }
         }
-        Icon(Icons.AutoMirrored.Filled.ArrowForward, contentDescription = null, tint = Color.White.copy(alpha = 0.6f), modifier = Modifier.size(20.dp))
+        if (unlocked) {
+            Icon(Icons.AutoMirrored.Filled.ArrowForward, contentDescription = null, tint = Color.White.copy(alpha = 0.6f), modifier = Modifier.size(20.dp))
+        } else {
+            Icon(Icons.Default.Lock, contentDescription = null, tint = TextDim, modifier = Modifier.size(20.dp))
+        }
     }
 }

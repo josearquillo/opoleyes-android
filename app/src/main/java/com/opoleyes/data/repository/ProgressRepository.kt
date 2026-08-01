@@ -94,6 +94,17 @@ open class ProgressRepository(private val context: Context) : com.opoleyes.data.
 
     fun getMissionCount(): Int = getUnlocks().dailyMissions
 
+    fun getMaxExamQuestions(): Int = prefs.getMaxExamQuestions()
+
+    fun unlockNextExamQuestions() {
+        val current = prefs.getMaxExamQuestions()
+        val presets = prefs.EXAM_QUESTION_PRESETS
+        val idx = presets.indexOf(current)
+        if (idx >= 0 && idx < presets.size - 1) {
+            prefs.setMaxExamQuestions(presets[idx + 1])
+        }
+    }
+
     fun getAchievements(): Map<String, Long> = prefs.getAchievements()
 
     fun unlockAchievement(id: String): Achievement? {

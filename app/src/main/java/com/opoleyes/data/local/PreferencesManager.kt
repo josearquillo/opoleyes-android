@@ -23,6 +23,7 @@ open class PreferencesManager(private val context: Context) : com.opoleyes.data.
         const val POWERUPS_INITIALIZED = "powerups_initialized"
         const val LOGO_PREF = "logo_pref"
         const val LOGO_CHOSEN = "logo_chosen"
+        const val MAX_EXAM_QUESTIONS = "max_exam_questions"
         fun recordKey(mode: String) = "record_$mode"
         fun recordComboKey(mode: String) = "record_combo_$mode"
         fun recordAccKey(mode: String) = "record_acc_$mode"
@@ -156,6 +157,14 @@ open class PreferencesManager(private val context: Context) : com.opoleyes.data.
     }
 
     fun isLogoChosen(): Boolean = prefs.getBoolean(LOGO_CHOSEN, false)
+
+    val EXAM_QUESTION_PRESETS = listOf(10, 20, 30, 40, 50)
+
+    fun getMaxExamQuestions(): Int = prefs.getInt(MAX_EXAM_QUESTIONS, 10)
+
+    fun setMaxExamQuestions(value: Int) {
+        prefs.edit().putInt(MAX_EXAM_QUESTIONS, value).apply()
+    }
 
     override fun resetAll() {
         prefs.edit().clear().commit()

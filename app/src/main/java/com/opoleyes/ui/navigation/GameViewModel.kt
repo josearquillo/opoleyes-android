@@ -333,6 +333,9 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
         _xpGained.value = xp
         val scorePct = if (result.total > 0) (result.correct * 100 / result.total) else 0
         missionRepo.checkExamResult(scorePct)
+        if (result.score >= 5.0) {
+            progressRepo.unlockNextExamQuestions()
+        }
     }
 
     fun clearExamResult() {
@@ -508,6 +511,8 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
     fun getMode(): GameMode = engine.mode
     fun getCategory(): String = engine.category
     fun getExamQuestions(): List<ExamEngine.ExamQuestion> = examEngine.getQuestions()
+    fun getMaxExamQuestions(): Int = progressRepo.getMaxExamQuestions()
+    val examQuestionPresets = com.opoleyes.data.local.PreferencesManager(getApplication()).EXAM_QUESTION_PRESETS
 }
 
 data class GameUiState(
