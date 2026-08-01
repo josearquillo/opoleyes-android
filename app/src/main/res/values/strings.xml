@@ -35,7 +35,7 @@
     <string name="mode_exam">Mini Examen</string>
     <string name="mode_exam_desc">Simula un examen. Sin vidas, sin power-ups, corrección al final.</string>
     <string name="mode_simulacro">Simulacro</string>
-    <string name="mode_simulacro_desc">25 preguntas, 25 min. Pesos oficiales por ley. Penalización oficial.</string>
+    <string name="mode_simulacro_desc">100 preguntas, 100 min. Réplica del examen oficial: pesos por ley, penalización +0.60/−0.15.</string>
     <string name="locked">Bloqueado</string>
     <string name="configure_exam">Configurar mini examen</string>
     <string name="question_count">Número de preguntas</string>

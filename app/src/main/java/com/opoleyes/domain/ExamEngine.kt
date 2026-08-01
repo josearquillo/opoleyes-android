@@ -46,8 +46,8 @@ class ExamEngine(private val context: Context) {
     private var testLawMap: Map<String, String> = emptyMap()
 
     companion object {
-        const val SIMULACRO_QUESTIONS = 25
-        const val SIMULACRO_TIME_SECONDS = 25 * 60
+        const val SIMULACRO_QUESTIONS = 100
+        const val SIMULACRO_TIME_SECONDS = 100 * 60
         const val SIMULACRO_CORRECT_POINTS = 0.60f
         const val SIMULACRO_WRONG_PENALTY = 0.15f
         const val SIMULACRO_MAX_POINTS = SIMULACRO_QUESTIONS * SIMULACRO_CORRECT_POINTS
