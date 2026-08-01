@@ -74,13 +74,21 @@
         android:fillColor="#f59e0b"
         android:pathData="M39.5,65 L44.5,65 L44,66 L40,66 Z" />
 
-    <!-- Letter L: vertical stroke (dark turquoise) -->
+    <!-- Letter L: vertical stroke (darker gold for depth) -->
     <path
-        android:fillColor="#0d9488"
+        android:fillColor="#f59e0b"
         android:pathData="M64,32 L76,32 L76,76 L64,76 Z" />
-    <!-- Letter L: horizontal stroke (dark turquoise) -->
+    <!-- Letter L: vertical highlight (light gold, 3D edge catch) -->
     <path
-        android:fillColor="#0d9488"
+        android:fillColor="#fde68a"
+        android:pathData="M64,32 L65.5,32 L65.5,76 L64,76 Z" />
+    <!-- Letter L: horizontal stroke (main gold, matches balance) -->
+    <path
+        android:fillColor="#fbbf24"
         android:pathData="M64,68 L88,68 L88,76 L64,76 Z" />
+    <!-- Letter L: horizontal highlight (light gold top edge) -->
+    <path
+        android:fillColor="#fde68a"
+        android:pathData="M64,68 L88,68 L88,69.2 L64,69.2 Z" />
 
 </vector>
