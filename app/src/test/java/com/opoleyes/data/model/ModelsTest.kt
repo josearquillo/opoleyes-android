@@ -79,8 +79,8 @@ class ModelsTest {
         assertEquals("Supervivencia", GameMode.SURVIVAL.displayName)
         assertEquals("Contrarreloj", GameMode.TIMETRIAL.displayName)
         assertEquals("Repaso Express", GameMode.QUICK.displayName)
-        assertEquals("Modo Reto", GameMode.CHALLENGE.displayName)
         assertEquals("Modo Examen", GameMode.EXAM.displayName)
+        assertEquals("Simulacro", GameMode.SIMULACRO.displayName)
     }
 
     @JTest
@@ -88,8 +88,8 @@ class ModelsTest {
         assertTrue(GameMode.SURVIVAL.icon.isNotEmpty())
         assertTrue(GameMode.TIMETRIAL.icon.isNotEmpty())
         assertTrue(GameMode.QUICK.icon.isNotEmpty())
-        assertTrue(GameMode.CHALLENGE.icon.isNotEmpty())
         assertTrue(GameMode.EXAM.icon.isNotEmpty())
+        assertTrue(GameMode.SIMULACRO.icon.isNotEmpty())
     }
 
     @JTest
@@ -99,9 +99,9 @@ class ModelsTest {
 
     @JTest
     fun fun_chestType_labels() {
-        assertEquals("Cofre de Madera", ChestType.WOOD.label)
-        assertEquals("Cofre de Plata", ChestType.SILVER.label)
-        assertEquals("Cofre de Oro", ChestType.GOLD.label)
+        assertEquals("Bonus Bronce", ChestType.BRONZE.label)
+        assertEquals("Bonus Plata", ChestType.SILVER.label)
+        assertEquals("Bonus Oro", ChestType.GOLD.label)
     }
 
     @JTest

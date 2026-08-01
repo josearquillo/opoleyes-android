@@ -279,10 +279,10 @@ class GameEngineEdgeCaseTest {
     }
 
     @Test
-    fun fun_isGameOver_challengeMaxQuestions_returnsTrue() {
-        engine.mode = GameMode.CHALLENGE
-        engine.timer = 60f
-        engine.questionNum = 15
+    fun fun_isGameOver_quickMaxQuestions_returnsTrue() {
+        engine.mode = GameMode.QUICK
+        engine.lives = 3
+        engine.questionNum = 20
         assertTrue(engine.isGameOver())
     }
 

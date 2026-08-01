@@ -78,14 +78,6 @@ class GameEngineTest {
     }
 
     @Test
-    fun fun_initGameStats_challengeHasTimer() {
-        engine.mode = GameMode.CHALLENGE
-        engine.initGameStats()
-        assertEquals(0, engine.lives)
-        assertEquals(120f, engine.timer, 0.01f)
-    }
-
-    @Test
     fun fun_initGameStats_loadsPowerUpsFromInventory() {
         prefs.setFreePowerUps(listOf("shield", "fiftyFifty", "hint", "doubleScore"))
         engine.mode = GameMode.SURVIVAL
@@ -108,13 +100,6 @@ class GameEngineTest {
         val ok = engine.startAllLawsGame()
         assertTrue(ok)
         assertEquals(GameMode.SURVIVAL, engine.mode)
-    }
-
-    @Test
-    fun fun_startChallengeGame_returnsTrue() {
-        val ok = engine.startChallengeGame()
-        assertTrue(ok)
-        assertEquals(GameMode.CHALLENGE, engine.mode)
     }
 
     @Test
@@ -148,9 +133,9 @@ class GameEngineTest {
     }
 
     @Test
-    fun fun_nextQuestion_challengeLimits15() {
-        engine.startChallengeGame()
-        engine.questionNum = 15
+    fun fun_nextQuestion_quickLimits20() {
+        engine.startQuickGame()
+        engine.questionNum = 20
         assertFalse(engine.nextQuestion())
     }
 
@@ -262,13 +247,13 @@ class GameEngineTest {
         engine.startAllLawsGame()
         engine.nextQuestion()
         engine.answer(engine.currentQ!!.correct)
-        assertEquals(0.1f, engine.comboBarFill, 0.01f)
+        assertEquals(0.2f, engine.comboBarFill, 0.01f)
     }
 
     @Test
-    fun fun_answer_comboBarOverchargeAt10() {
+    fun fun_answer_comboBarOverchargeAt5() {
         engine.startAllLawsGame()
-        for (i in 1..10) {
+        for (i in 1..5) {
             engine.nextQuestion()
             engine.answer(engine.currentQ!!.correct)
         }
@@ -339,18 +324,18 @@ class GameEngineTest {
     }
 
     @Test
-    fun fun_isGameOver_challenge15Questions() {
-        engine.mode = GameMode.CHALLENGE
-        engine.questionNum = 15
-        engine.timer = 60f
+    fun fun_isGameOver_quick20Questions() {
+        engine.mode = GameMode.QUICK
+        engine.questionNum = 20
+        engine.lives = 3
         assertTrue(engine.isGameOver())
     }
 
     @Test
-    fun fun_isGameOver_challengeNoTime() {
-        engine.mode = GameMode.CHALLENGE
+    fun fun_isGameOver_quickNoLives() {
+        engine.mode = GameMode.QUICK
         engine.questionNum = 5
-        engine.timer = 0f
+        engine.lives = 0
         assertTrue(engine.isGameOver())
     }
 
@@ -824,18 +809,15 @@ class GameEngineTest {
     @Test
     fun fun_answer_doubleScoreConsumesOnNextCorrectOnly() {
         engine.startAllLawsGame()
-        engine.doubleScoreActive = true
+        engine.doubleScoreCharges = 1
         engine.nextQuestion()
-        // Wrong answer should NOT consume doubleScore
-        val q = engine.currentQ!!
-        val wrong = listOf("A", "B", "C", "D").filter { it != q.correct }.first()
-        engine.shieldCharges = 0
-        engine.answer(wrong)
-        assertTrue("doubleScore should still be active after wrong answer", engine.doubleScoreActive)
-        // Next correct answer should consume it
-        engine.nextQuestion()
+        engine.activateDoubleScore()
+        assertTrue("doubleScore should be active after activation", engine.doubleScoreActive)
+        // Correct answer should consume doubleScore and double points
+        val scoreBefore = engine.score
         engine.answer(engine.currentQ!!.correct)
         assertFalse("doubleScore should be consumed after correct answer", engine.doubleScoreActive)
+        assertTrue("Score should be doubled", engine.score > scoreBefore * 2)
     }
 
     @Test

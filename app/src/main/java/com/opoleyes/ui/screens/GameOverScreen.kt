@@ -111,8 +111,8 @@ fun GameOverScreen(navController: NavController, gameViewModel: GameViewModel) {
         GameMode.SURVIVAL -> stringResource(R.string.mode_survival)
         GameMode.TIMETRIAL -> stringResource(R.string.mode_timetrial)
         GameMode.QUICK -> stringResource(R.string.mode_quick)
-        GameMode.CHALLENGE -> stringResource(R.string.mode_challenge)
         GameMode.EXAM -> stringResource(R.string.mode_exam)
+        GameMode.SIMULACRO -> stringResource(R.string.mode_simulacro)
     }
 
     // Staggered appearance
@@ -218,7 +218,6 @@ fun GameOverScreen(navController: NavController, gameViewModel: GameViewModel) {
                     gameViewModel.clearRankUp()
                     when (uiState.mode) {
                         GameMode.QUICK -> gameViewModel.startQuickGame()
-                        GameMode.CHALLENGE -> gameViewModel.startChallengeGame()
                         else -> {
                             val category = gameViewModel.getCategory()
                             if (category.isNotEmpty())

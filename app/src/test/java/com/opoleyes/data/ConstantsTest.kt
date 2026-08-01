@@ -9,8 +9,8 @@ import org.junit.Test
 class ConstantsTest {
 
     @Test
-    fun ranks_has12Entries() {
-        assertEquals(12, Constants.RANKS.size)
+    fun ranks_has7Entries() {
+        assertEquals(7, Constants.RANKS.size)
     }
 
     @Test
@@ -28,9 +28,9 @@ class ConstantsTest {
     }
 
     @Test
-    fun ranks_lastIsLeyenda() {
-        assertEquals("Leyenda", Constants.RANKS.last().name)
-        assertEquals(100000, Constants.RANKS.last().xp)
+    fun ranks_lastIsMaestro() {
+        assertEquals("Maestro", Constants.RANKS.last().name)
+        assertEquals(25000, Constants.RANKS.last().xp)
     }
 
     @Test
@@ -77,12 +77,12 @@ class ConstantsTest {
         assertTrue(Constants.RANK_UNLOCKS.containsKey(2))
         assertTrue(Constants.RANK_UNLOCKS.containsKey(3))
         assertTrue(Constants.RANK_UNLOCKS.containsKey(4))
-        assertTrue(Constants.RANK_UNLOCKS.containsKey(8))
+        assertTrue(Constants.RANK_UNLOCKS.containsKey(5))
     }
 
     @Test
-    fun rankUnlocks_examAtRank3() {
-        assertEquals("📝 Modo Examen", Constants.RANK_UNLOCKS[3])
+    fun rankUnlocks_examAtRank5() {
+        assertEquals("📝 Mini Examen", Constants.RANK_UNLOCKS[5])
     }
 
     @Test
@@ -120,26 +120,26 @@ class ConstantsTest {
     @Test
     fun rankPowerupRewards_higherRanksGiveMore() {
         val rank1Rewards = Constants.RANK_POWERUP_REWARDS[1]?.size ?: 0
-        val rank8Rewards = Constants.RANK_POWERUP_REWARDS[8]?.size ?: 0
-        assertTrue("Higher ranks should give more power-ups", rank8Rewards >= rank1Rewards)
+        val rank6Rewards = Constants.RANK_POWERUP_REWARDS[6]?.size ?: 0
+        assertTrue("Higher ranks should give more power-ups", rank6Rewards >= rank1Rewards)
     }
 
     @Test
     fun getRankByIndex_returnsCorrectRank() {
         assertEquals("Novato", Constants.getRankByIndex(0).name)
-        assertEquals("Leyenda", Constants.getRankByIndex(11).name)
+        assertEquals("Maestro", Constants.getRankByIndex(6).name)
     }
 
     @Test
     fun getRankByIndex_outOfBoundsReturnsLast() {
         val rank = Constants.getRankByIndex(999)
-        assertEquals("Leyenda", rank.name)
+        assertEquals("Maestro", rank.name)
     }
 
     @Test
     fun getRankByIndex_negativeReturnsLast() {
         val rank = Constants.getRankByIndex(-1)
-        assertEquals("Leyenda", rank.name)
+        assertEquals("Maestro", rank.name)
     }
 
     @Test

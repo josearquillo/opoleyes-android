@@ -31,12 +31,6 @@ class GameEngineTimerFlowTest {
     }
 
     @Test
-    fun fun_timer_initialChallengeTimerIs120() {
-        engine.startChallengeGame()
-        assertEquals("Challenge timer should start at 120", 120f, engine.timer, 0.01f)
-    }
-
-    @Test
     fun fun_timer_initialTimetrialTimerIs180() {
         engine.startAllLawsGame(GameMode.TIMETRIAL)
         assertEquals("Timetrial timer should start at 180", 180f, engine.timer, 0.01f)
@@ -49,24 +43,24 @@ class GameEngineTimerFlowTest {
     }
 
     @Test
-    fun fun_timer_correctAnswerAddsTimeInChallenge() {
-        engine.startChallengeGame()
+    fun fun_timer_correctAnswerAddsTimeInTimetrial2() {
+        engine.startAllLawsGame(GameMode.TIMETRIAL)
         engine.nextQuestion()
         val timerBefore = engine.timer
         engine.answer(engine.currentQ!!.correct)
-        assertTrue("Timer should increase on correct answer in challenge", engine.timer > timerBefore)
+        assertTrue("Timer should increase on correct answer in timetrial", engine.timer > timerBefore)
     }
 
     @Test
-    fun fun_timer_wrongAnswerSubtractsTimeInChallenge() {
-        engine.startChallengeGame()
+    fun fun_timer_wrongAnswerSubtractsTimeInTimetrial2() {
+        engine.startAllLawsGame(GameMode.TIMETRIAL)
         engine.shieldCharges = 0
         engine.nextQuestion()
         val timerBefore = engine.timer
         val q = engine.currentQ!!
         val wrong = listOf("A", "B", "C", "D").filter { it != q.correct }.first()
         engine.answer(wrong)
-        assertTrue("Timer should decrease on wrong answer in challenge", engine.timer < timerBefore)
+        assertTrue("Timer should decrease on wrong answer in timetrial", engine.timer < timerBefore)
     }
 
     @Test
@@ -110,7 +104,7 @@ class GameEngineTimerFlowTest {
 
     @Test
     fun fun_timer_neverGoesNegative() {
-        engine.startChallengeGame()
+        engine.startAllLawsGame(GameMode.TIMETRIAL)
         engine.shieldCharges = 0
         engine.timer = 5f
         engine.nextQuestion()
@@ -121,14 +115,6 @@ class GameEngineTimerFlowTest {
     }
 
     @Test
-    fun fun_timer_gameOverWhenTimerReachesZero() {
-        engine.startChallengeGame()
-        engine.timer = 0f
-        engine.questionNum = 5
-        assertTrue("Should be game over when timer is 0 in challenge", engine.isGameOver())
-    }
-
-    @Test
     fun fun_timer_gameOverWhenTimerReachesZeroInTimetrial() {
         engine.startAllLawsGame(GameMode.TIMETRIAL)
         engine.timer = 0f
@@ -136,8 +122,8 @@ class GameEngineTimerFlowTest {
     }
 
     @Test
-    fun fun_timer_streakAddsBonusTimeInChallenge() {
-        engine.startChallengeGame()
+    fun fun_timer_streakAddsBonusTimeInTimetrial2() {
+        engine.startAllLawsGame(GameMode.TIMETRIAL)
         engine.streak = 4
         engine.nextQuestion()
         val timerBefore = engine.timer
@@ -157,7 +143,7 @@ class GameEngineTimerFlowTest {
 
     @Test
     fun fun_timer_answeredFlagSetOnAnswer() {
-        engine.startChallengeGame()
+        engine.startAllLawsGame(GameMode.TIMETRIAL)
         engine.nextQuestion()
         assertFalse("Should not be answered before answering", engine.answered)
         engine.answer(engine.currentQ!!.correct)
@@ -166,7 +152,7 @@ class GameEngineTimerFlowTest {
 
     @Test
     fun fun_timer_answeredFlagClearedOnNextQuestion() {
-        engine.startChallengeGame()
+        engine.startAllLawsGame(GameMode.TIMETRIAL)
         engine.nextQuestion()
         engine.answer(engine.currentQ!!.correct)
         assertTrue("Should be answered", engine.answered)
@@ -176,7 +162,7 @@ class GameEngineTimerFlowTest {
 
     @Test
     fun fun_timer_remainsPositiveAfterAnswerAndNextQuestion() {
-        engine.startChallengeGame()
+        engine.startAllLawsGame(GameMode.TIMETRIAL)
         engine.nextQuestion()
         engine.answer(engine.currentQ!!.correct)
         assertTrue("Timer should be positive after correct answer", engine.timer > 0f)

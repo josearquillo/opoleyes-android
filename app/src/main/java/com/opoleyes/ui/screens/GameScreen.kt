@@ -112,7 +112,7 @@ fun GameScreen(navController: NavController, gameViewModel: GameViewModel) {
 
     // Timer countdown
     LaunchedEffect(uiState.mode, uiState.timer, uiState.answered) {
-        if ((uiState.mode == GameMode.TIMETRIAL || uiState.mode == GameMode.CHALLENGE) && !uiState.answered && uiState.timer > 0) {
+        if (uiState.mode == GameMode.TIMETRIAL && !uiState.answered && uiState.timer > 0) {
             delay(1000)
             if (gameViewModel.tickTimer()) {
                 gameViewModel.onGameOver()
@@ -177,7 +177,6 @@ fun GameScreen(navController: NavController, gameViewModel: GameViewModel) {
                 // Progress bar for questions (only for modes with fixed total)
                 val totalQ = when (uiState.mode) {
                     GameMode.QUICK -> 20
-                    GameMode.CHALLENGE -> 15
                     else -> 0
                 }
                 if (totalQ > 0) {

@@ -62,7 +62,7 @@ class GameScreenExhaustiveTest {
     }
 
     private fun startChallenge() {
-        vm.startChallengeGame()
+        vm.startAllLawsGame(); vm.engine.mode = GameMode.TIMETRIAL; vm.engine.timer = 180f
         vm.engine.hintCharges = 5; vm.engine.fiftyFiftyCharges = 5; vm.engine.doubleScoreCharges = 5
         vm.updateUiState()
     }

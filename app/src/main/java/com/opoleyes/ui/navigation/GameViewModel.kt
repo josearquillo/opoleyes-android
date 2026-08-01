@@ -490,7 +490,7 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun isTimedMode(): Boolean =
-        engine.mode == GameMode.TIMETRIAL || engine.mode == GameMode.CHALLENGE
+        engine.mode == GameMode.TIMETRIAL
 
     fun getMode(): GameMode = engine.mode
     fun getCategory(): String = engine.category

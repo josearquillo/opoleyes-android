@@ -46,7 +46,6 @@ open class ProgressRepository(private val context: Context) : com.opoleyes.data.
                 survival = true,
                 timetrial = true,
                 quick = true,
-                challenge = false,
                 exam = true,
                 simulacro = true,
                 powerUps = true,
