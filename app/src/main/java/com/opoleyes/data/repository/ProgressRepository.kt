@@ -61,16 +61,16 @@ open class ProgressRepository(private val context: Context) : com.opoleyes.data.
         return Unlocks(
             survival = true,
             timetrial = r >= 1,
-            quick = r >= 2,
+            quick = r >= 3,
             challenge = r >= 4,
-            exam = r >= 3,
+            exam = r >= 5,
             powerUps = true,
             hint = true,
             shield = true,
             fiftyFifty = true,
-            lifeRecovery = r >= 4,
+            lifeRecovery = true,
             doubleScore = true,
-            dailyMissions = if (r >= 8) 3 else if (r >= 2) 2 else 1
+            dailyMissions = if (r >= 4) 3 else if (r >= 2) 2 else 1
         )
     }
 

@@ -7,16 +7,12 @@ object Constants {
     val RANKS = listOf(
         Rank("Novato", "🌱", 0, 0),
         Rank("Principiante", "🌿", 100, 1),
-        Rank("Aprendiz", "📚", 300, 2),
-        Rank("Avanzado", "🔥", 700, 3),
-        Rank("Experto", "⚖️", 1500, 4),
-        Rank("Veterano", "🎯", 3000, 5),
-        Rank("Maestro", "👑", 6000, 6),
-        Rank("Gran Maestro", "💎", 12000, 7),
-        Rank("Élite", "⚡", 25000, 8),
-        Rank("Campeón", "🏅", 50000, 9),
-        Rank("Inmortal", "🛡️", 80000, 10),
-        Rank("Leyenda", "🏆", 100000, 11),
+        Rank("Aprendiz", "📚", 400, 2),
+        Rank("Avanzado", "🔥", 1200, 3),
+        Rank("Experto", "⚖️", 3000, 4),
+        Rank("Veterano", "🎯", 7000, 5),
+        Rank("Maestro", "👑", 15000, 6),
+        Rank("Leyenda", "🏆", 30000, 7),
     )
 
     val ACHIEVEMENTS = listOf(
@@ -41,8 +37,6 @@ object Constants {
         Achievement("addicted", "🤖", "Adicto", "50 partidas jugadas"),
         Achievement("expert", "⚖️", "Experto", "Alcanzar rango Experto"),
         Achievement("master", "👑", "Maestro", "Alcanzar rango Maestro"),
-        Achievement("grandmaster", "💎", "Gran Maestro", "Alcanzar rango Gran Maestro"),
-        Achievement("elite", "⚡", "Élite", "Alcanzar rango Élite"),
         Achievement("legend", "🏆", "Leyenda", "Alcanzar rango Leyenda"),
         Achievement("perfect_game", "🎯", "Diana perfecta", "100% acierto (mín. 10 preguntas)"),
         Achievement("sharpshooter", "📐", "Precisión quirúrgica", "90%+ acierto (mín. 10 preguntas)"),
@@ -57,11 +51,11 @@ object Constants {
     const val QUICK_MODE_QUESTIONS = 20
 
     val RANK_UNLOCKS = mapOf(
-        1 to "⏱️ Contrarreloj + 🛡️ Escudo",
+        1 to "⏱️ Contrarreloj",
         2 to "⚡ Repaso Express + 2 misiones",
-        3 to "📝 Modo Examen",
-        4 to "🏆 Modo Reto + ❤️ Recuperación de vida",
-        8 to "📋 3 misiones diarias",
+        3 to "📋 3 misiones diarias",
+        4 to "🏆 Modo Reto",
+        5 to "📝 Modo Examen",
     )
 
     val RANK_POWERUP_REWARDS = mapOf(
@@ -70,12 +64,8 @@ object Constants {
         3 to listOf("doubleScore"),
         4 to listOf("fiftyFifty", "hint"),
         5 to listOf("shield", "shield", "doubleScore"),
-        6 to listOf("fiftyFifty", "fiftyFifty", "hint"),
-        7 to listOf("shield", "doubleScore", "fiftyFifty"),
-        8 to listOf("shield", "fiftyFifty", "hint", "doubleScore", "shield"),
-        9 to listOf("shield", "fiftyFifty", "hint", "doubleScore", "fiftyFifty"),
-        10 to listOf("shield", "fiftyFifty", "hint", "doubleScore", "shield", "fiftyFifty", "hint"),
-        11 to listOf("shield", "fiftyFifty", "hint", "doubleScore", "shield", "fiftyFifty", "hint", "doubleScore"),
+        6 to listOf("fiftyFifty", "fiftyFifty", "hint", "doubleScore"),
+        7 to listOf("shield", "fiftyFifty", "hint", "doubleScore", "shield", "fiftyFifty"),
     )
 
     fun getRankByIndex(index: Int): Rank = RANKS.getOrElse(index) { RANKS.last() }
