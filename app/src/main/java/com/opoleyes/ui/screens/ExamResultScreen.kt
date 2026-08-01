@@ -373,7 +373,7 @@ private fun LawBreakdownRow(law: String, lr: ExamEngine.LawResult) {
             progress = { if (lr.total > 0) lr.correct.toFloat() / lr.total else 0f },
             modifier = Modifier.fillMaxWidth().height(6.dp).clip(RoundedCornerShape(3.dp)),
             color = barColor,
-            trackColor = BgCardDark
+            trackColor = BgDark
         )
     }
 }

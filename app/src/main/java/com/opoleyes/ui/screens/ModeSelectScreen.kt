@@ -140,7 +140,7 @@ private fun ModeCard(mode: ModeInfo, enabled: Boolean = true, onClick: () -> Uni
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(16.dp))
-            .background(Brush.verticalGradient(if (locked) listOf(BgCard, BgCardDark) else colors))
+            .background(Brush.verticalGradient(if (locked) listOf(BgCard, BgDark) else colors))
             .clickable(enabled = !locked && enabled) { onClick() }
             .padding(20.dp)
     ) {
@@ -220,7 +220,7 @@ private fun ExamConfigDialog(
 
 @Composable
 private fun ExamPresetCard(count: Int, unlocked: Boolean, nextLocked: Int?, onClick: () -> Unit) {
-    val containerColor = if (unlocked) Brush.horizontalGradient(listOf(Primary, PurpleDark)) else Brush.horizontalGradient(listOf(BgCardDark, BgCardDark))
+    val containerColor = if (unlocked) Brush.horizontalGradient(listOf(Primary, PurpleDark)) else Brush.horizontalGradient(listOf(BgDark, BgDark))
     Row(
         modifier = Modifier
             .fillMaxWidth()

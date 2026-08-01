@@ -320,7 +320,7 @@ fun ChestOverlay(chest: ChestReward, opened: Boolean, shakeCount: Int, onOpen: (
                 .fillMaxWidth(0.85f)
                 .shadow((openGlow * 20).dp, RoundedCornerShape(16.dp), clip = false, ambientColor = typeColor.copy(alpha = openGlow * 0.6f), spotColor = typeColor.copy(alpha = openGlow * 0.8f))
                 .clip(RoundedCornerShape(16.dp))
-                .background(Brush.verticalGradient(listOf(BgCard, BgCardDark)))
+                .background(Brush.verticalGradient(listOf(BgCard, BgDark)))
                 .border(2.dp, typeColor, RoundedCornerShape(16.dp))
                 .padding(24.dp),
             horizontalAlignment = Alignment.CenterHorizontally
@@ -417,7 +417,7 @@ fun RankUpOverlayView(overlay: RankUpOverlay, onDismiss: () -> Unit) {
                     .fillMaxWidth(0.85f)
                     .shadow(16.dp, RoundedCornerShape(20.dp), clip = false, ambientColor = Warning.copy(alpha = 0.4f), spotColor = Warning.copy(alpha = 0.6f))
                     .clip(RoundedCornerShape(20.dp))
-                    .background(Brush.verticalGradient(listOf(BgCard, BgCardDark)))
+                    .background(Brush.verticalGradient(listOf(BgCard, BgDark)))
                     .border(2.dp, Warning, RoundedCornerShape(20.dp))
                     .padding(28.dp),
                 horizontalAlignment = Alignment.CenterHorizontally

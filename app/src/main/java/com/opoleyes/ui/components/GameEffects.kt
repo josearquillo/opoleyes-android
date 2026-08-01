@@ -13,6 +13,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
+import com.opoleyes.ui.theme.*
 import kotlin.math.cos
 import kotlin.math.sin
 import kotlin.random.Random
@@ -30,7 +31,7 @@ private data class Particle(
 @Composable
 fun ParticleBurst(
     trigger: Any?,
-    color: Color = Color(0xFF22c55e),
+    color: Color = Success,
     particleCount: Int = 20,
     modifier: Modifier = Modifier
 ) {
@@ -102,9 +103,9 @@ fun ConfettiBurst(
     var animTrigger by remember { mutableStateOf(0) }
 
     val colors = listOf(
-        Color(0xFF22c55e), Color(0xFF3b82f6), Color(0xFFf59e0b),
-        Color(0xFFef4444), Color(0xFFa855f7), Color(0xFF06b6d4),
-        Color(0xFFec4899), Color(0xFF84cc16)
+        Success, ConfettiBlue, ConfettiAmber,
+        Danger, ConfettiPurple, ConfettiCyan,
+        ConfettiPink, ConfettiLime
     )
 
     LaunchedEffect(trigger) {

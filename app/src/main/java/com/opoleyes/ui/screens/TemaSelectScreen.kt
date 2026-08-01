@@ -112,7 +112,7 @@ private fun TemaCard(icon: androidx.compose.ui.graphics.vector.ImageVector, titl
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(12.dp))
-            .background(Brush.verticalGradient(listOf(BgCard, BgCardDark)))
+            .background(Brush.verticalGradient(listOf(BgCard, BgDark)))
             .clickable { onClick() }
             .padding(16.dp),
         verticalAlignment = Alignment.CenterVertically

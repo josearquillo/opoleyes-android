@@ -128,7 +128,7 @@ fun HomeScreen(navController: NavController, gameViewModel: GameViewModel) {
                     modifier = Modifier
                         .fillMaxWidth()
                         .clip(RoundedCornerShape(16.dp))
-                        .background(Brush.verticalGradient(listOf(BgCard, BgCardDark)))
+                        .background(Brush.verticalGradient(listOf(BgCard, BgDark)))
                         .border(1.dp, Accent.copy(alpha = 0.3f), RoundedCornerShape(16.dp))
                         .clickable { navController.navigate(Routes.PROFILE) }
                         .padding(20.dp)
@@ -290,7 +290,7 @@ fun StatMiniCard(label: String, value: String, icon: String, modifier: Modifier 
     Column(
         modifier = modifier
             .clip(RoundedCornerShape(12.dp))
-            .background(Brush.verticalGradient(listOf(BgCard, BgCardDark)))
+            .background(Brush.verticalGradient(listOf(BgCard, BgDark)))
             .padding(vertical = 12.dp, horizontal = 8.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
@@ -315,7 +315,7 @@ fun MissionCard(mission: Mission, onClick: () -> Unit) {
             .clip(RoundedCornerShape(12.dp))
             .background(
                 if (mission.completed) Brush.verticalGradient(listOf(SuccessDark, SuccessDark))
-                else Brush.verticalGradient(listOf(BgCard, BgCardDark))
+                else Brush.verticalGradient(listOf(BgCard, BgDark))
             )
             .border(width = 2.dp, color = if (mission.completed) Success else diffColor.copy(alpha = 0.4f), shape = RoundedCornerShape(12.dp))
             .clickable { onClick() }

@@ -121,7 +121,7 @@ private fun InfoCard(icon: String, title: String, desc: String) {
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(14.dp))
-            .background(Brush.verticalGradient(listOf(BgCard, BgCardDark)))
+            .background(Brush.verticalGradient(listOf(BgCard, BgDark)))
             .padding(16.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {

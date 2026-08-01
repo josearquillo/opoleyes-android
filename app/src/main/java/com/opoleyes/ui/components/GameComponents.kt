@@ -111,11 +111,11 @@ fun OptionCard(
 ) {
     val bgColor = when {
         answered && isCorrect && userWasCorrect -> Brush.verticalGradient(listOf(SuccessDark, Success))
-        answered && isCorrect && !userWasCorrect -> Brush.verticalGradient(listOf(BgCard, BgCardDark))
+        answered && isCorrect && !userWasCorrect -> Brush.verticalGradient(listOf(BgCard, BgDark))
         answered && isWrong -> Brush.verticalGradient(listOf(DangerDark, Danger))
         !answered && isSelected -> Brush.verticalGradient(listOf(Primary, PurpleDark))
         !answered && isHintRemoved -> Brush.verticalGradient(listOf(HintRemoved, HintRemovedDark))
-        else -> Brush.verticalGradient(listOf(BgCard, BgCardDark))
+        else -> Brush.verticalGradient(listOf(BgCard, BgDark))
     }
     val textColor = when {
         isHintRemoved && !answered -> TextDim
@@ -779,7 +779,7 @@ fun StatCard(value: String, label: String, modifier: Modifier = Modifier) {
     Column(
         modifier = modifier
             .clip(RoundedCornerShape(12.dp))
-            .background(Brush.verticalGradient(listOf(BgCard, BgCardDark)))
+            .background(Brush.verticalGradient(listOf(BgCard, BgDark)))
             .padding(12.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
@@ -861,7 +861,7 @@ fun StatCardWithIcon(
     Column(
         modifier = modifier
             .clip(RoundedCornerShape(12.dp))
-            .background(Brush.verticalGradient(listOf(BgCard, BgCardDark)))
+            .background(Brush.verticalGradient(listOf(BgCard, BgDark)))
             .padding(12.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {

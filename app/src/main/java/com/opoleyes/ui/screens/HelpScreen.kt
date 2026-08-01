@@ -149,7 +149,7 @@ private fun HelpSection(data: HelpSectionData) {
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(14.dp))
-            .background(Brush.verticalGradient(listOf(BgCard, BgCardDark)))
+            .background(Brush.verticalGradient(listOf(BgCard, BgDark)))
             .padding(16.dp)
     ) {
         Text("${data.icon} ${data.title}", color = Accent, fontSize = 18.sp, fontWeight = FontWeight.Bold)

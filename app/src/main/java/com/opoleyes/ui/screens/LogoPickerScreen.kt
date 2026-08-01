@@ -203,7 +203,7 @@ private fun LogoCard(option: LogoOption, isSelected: Boolean, onClick: () -> Uni
             .fillMaxWidth()
             .scale(scaleAnim)
             .clip(RoundedCornerShape(16.dp))
-            .background(Brush.verticalGradient(listOf(BgCard, BgCardDark)))
+            .background(Brush.verticalGradient(listOf(BgCard, BgDark)))
             .border(borderWidth, borderColor, RoundedCornerShape(16.dp))
             .clickable { onClick() }
             .padding(16.dp),

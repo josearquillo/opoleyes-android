@@ -217,7 +217,7 @@ fun ExamScreen(navController: NavController, gameViewModel: GameViewModel) {
             displayLetters.forEach { letter ->
                 val optionText = question.opciones[letter] ?: return@forEach
                 val isSelected = userAnswer == letter
-                val optionColor = if (isSelected) Brush.verticalGradient(listOf(Primary, PurpleDark)) else Brush.verticalGradient(listOf(BgCard, BgCardDark))
+                val optionColor = if (isSelected) Brush.verticalGradient(listOf(Primary, PurpleDark)) else Brush.verticalGradient(listOf(BgCard, BgDark))
                 val borderColor = if (isSelected) PrimaryLight else Color.Transparent
 
                 Box(
