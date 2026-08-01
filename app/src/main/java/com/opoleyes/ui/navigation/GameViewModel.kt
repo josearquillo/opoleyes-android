@@ -118,7 +118,15 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun isDebugMode(): Boolean = prefs.isDebugMode()
-    fun setDebugMode(enabled: Boolean) = prefs.setDebugMode(enabled)
+    fun setDebugMode(enabled: Boolean) {
+        prefs.setDebugMode(enabled)
+        // Invalidate all caches so UI reflects the new state
+        _homePreload = null
+        _profileData = null
+        statsRepo.invalidateCache()
+        // Regenerate daily missions for the new unlock state
+        missionRepo.generateDailyMissions()
+    }
 
     private val _uiState = MutableStateFlow(GameUiState())
     val uiState: StateFlow<GameUiState> = _uiState.asStateFlow()

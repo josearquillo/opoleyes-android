@@ -34,8 +34,8 @@ fun HelpScreen(navController: NavController, gameViewModel: GameViewModel) {
             "❤️ Supervivencia: Tienes 3 vidas y sin límite de tiempo. Falla 3 veces y se acaba.",
             "⏱️ Contrarreloj: 3 minutos. Cada acierto suma 15 segundos, cada fallo resta 10.",
             "⚡ Repaso Express: 20 preguntas de las que has fallado antes, para repasar tus errores.",
-            "📝 Modo Examen: Simula el examen oficial. Sin vidas, sin power-ups, corrección al final.",
-            "🏆 Modo Reto: 2 minutos, máxima dificultad, preguntas de todas las leyes a la vez."
+            "📝 Mini Examen: Simula un examen. Sin vidas, sin power-ups, corrección al final.",
+            "🏆 Simulacro: 100 preguntas, 100 minutos. Réplica del examen oficial con pesos por ley y penalización."
         )),
         HelpSectionData("✨", "Ayudas (Power-ups)", listOf(
             "💡 Pista: Quita una respuesta incorrecta de la pantalla.",
@@ -43,7 +43,7 @@ fun HelpScreen(navController: NavController, gameViewModel: GameViewModel) {
             "🎯 50/50: Elimina dos respuestas incorrectas de golpe.",
             "✨ x2 pts: La próxima respuesta que aciertes vale el doble de puntos.",
             "❤️ Recuperación: Cada 5 aciertos seguidos recuperas 1 vida automáticamente (Solo Supervivencia). Si ya tienes 3 vidas, recibes una carga de 50/50 en su lugar.",
-            "⏱️ En Contrarreloj y Reto, cada 5 aciertos seguidos te da +20 segundos extra.",
+            "⏱️ En Contrarreloj, cada 5 aciertos seguidos te da +20 segundos extra.",
             "📦 Las ayudas se consiguen al subir de rango y al abrir bonus. Se gastan al usarlas. Solo puedes usar una ayuda por pregunta."
         )),
         HelpSectionData("🔥", "Combo", listOf(
@@ -66,7 +66,7 @@ fun HelpScreen(navController: NavController, gameViewModel: GameViewModel) {
             "Cada día recibes misiones nuevas y diferentes.",
             "Puedes tener entre 1 y 3 misiones según tu rango.",
             "Las recompensas escalan con tu rango: más XP cuanto más alto seas.",
-            "Las misiones se adaptan a los modos que tienes desbloqueados: Supervivencia, Contrarreloj, Repaso Express, Examen y Reto.",
+            "Las misiones se adaptan a los modos que tienes desbloqueados: Supervivencia, Contrarreloj, Repaso Express, Mini Examen y Simulacro.",
             "Las misiones de aciertos en Supervivencia acumulan entre partidas, no necesitas hacerlo todo en una sola.",
             "¡Intenta completarlas todos los días seguidos para mantener tu racha!"
         )),

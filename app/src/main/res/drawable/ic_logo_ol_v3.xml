@@ -4,7 +4,7 @@
     android:viewportWidth="108"
     android:viewportHeight="108">
 
-    <!-- Letter O: outer ring (teal) -->
+    <!-- Letter O: outer ring (turquoise) -->
     <path
         android:fillColor="#14b8a6"
         android:pathData="M42,54 m-22,0 a22,22 0 1,0 44,0 a22,22 0 1,0 -44,0" />
@@ -12,11 +12,6 @@
     <path
         android:fillColor="#0f172a"
         android:pathData="M42,54 m-15,0 a15,15 0 1,0 30,0 a15,15 0 1,0 -30,0" />
-    <!-- Letter O: top-left highlight -->
-    <path
-        android:fillColor="#5eead4"
-        android:fillAlpha="0.5"
-        android:pathData="M42,54 m-22,0 a22,22 0 0,1 22,-22 a22,22 0 0,1 6,1 a19,19 0 0,0 -15,37 a22,22 0 0,1 -13,-16 Z" />
 
     <!-- Balance scales inside O (gold, detailed) -->
     <!-- Central vertical post with highlight -->
@@ -79,23 +74,13 @@
         android:fillColor="#f59e0b"
         android:pathData="M39.5,65 L44.5,65 L44,66 L40,66 Z" />
 
-    <!-- Letter L: vertical stroke (cyan) - touches O -->
+    <!-- Letter L: vertical stroke (dark turquoise) -->
     <path
-        android:fillColor="#06b6d4"
+        android:fillColor="#0d9488"
         android:pathData="M64,32 L76,32 L76,76 L64,76 Z" />
-    <!-- Letter L: horizontal stroke (teal) -->
+    <!-- Letter L: horizontal stroke (dark turquoise) -->
     <path
-        android:fillColor="#14b8a6"
+        android:fillColor="#0d9488"
         android:pathData="M64,68 L88,68 L88,76 L64,76 Z" />
-    <!-- Letter L: vertical highlight -->
-    <path
-        android:fillColor="#22d3ee"
-        android:fillAlpha="0.5"
-        android:pathData="M64,32 L67,32 L67,76 L64,76 Z" />
-    <!-- Letter L: horizontal highlight -->
-    <path
-        android:fillColor="#5eead4"
-        android:fillAlpha="0.5"
-        android:pathData="M64,68 L88,68 L88,70 L64,70 Z" />
 
 </vector>

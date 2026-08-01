@@ -21,6 +21,8 @@ open class PreferencesManager(private val context: Context) : com.opoleyes.data.
         const val DAILY_MISSIONS_JSON = "daily_missions_json"
         const val DEBUG_MODE = "debug_mode"
         const val SAVED_POWERUPS_JSON = "saved_powerups_json"
+        const val SAVED_MAX_EXAM_QUESTIONS = "saved_max_exam_questions"
+        const val SAVED_SIMULACRO_UNLOCKED = "saved_simulacro_unlocked"
         const val POWERUPS_INITIALIZED = "powerups_initialized"
         const val LOGO_PREF = "logo_pref"
         const val LOGO_CHOSEN = "logo_chosen"
@@ -129,28 +131,40 @@ open class PreferencesManager(private val context: Context) : com.opoleyes.data.
     override fun isDebugMode(): Boolean = prefs.getBoolean(DEBUG_MODE, false)
 
     override fun setDebugMode(enabled: Boolean) {
+        val editor = prefs.edit()
         if (enabled) {
-            // Save current real power-ups before setting debug power-ups
-            val current = getFreePowerUps()
-            prefs.edit().putString(SAVED_POWERUPS_JSON, gson.toJson(current)).apply()
-            // Set a large number of each power-up for infinite testing
+            // Save current real state before setting debug state
+            val currentPowerUps = getFreePowerUps()
+            editor.putString(SAVED_POWERUPS_JSON, gson.toJson(currentPowerUps))
+            editor.putInt(SAVED_MAX_EXAM_QUESTIONS, getMaxExamQuestions())
+            editor.putBoolean(SAVED_SIMULACRO_UNLOCKED, isSimulacroUnlocked())
+            // Set debug state: infinite power-ups, max exam questions, simulacro unlocked
             val debugPowerUps = mutableListOf<String>()
             repeat(99) { debugPowerUps.add("shield") }
             repeat(99) { debugPowerUps.add("fiftyFifty") }
             repeat(99) { debugPowerUps.add("hint") }
             repeat(99) { debugPowerUps.add("doubleScore") }
             setFreePowerUps(debugPowerUps)
+            editor.putInt(MAX_EXAM_QUESTIONS, 50)
+            editor.putBoolean(SIMULACRO_UNLOCKED, true)
         } else {
-            // Restore saved power-ups
-            val savedJson = prefs.getString(SAVED_POWERUPS_JSON, null)
-            if (savedJson != null) {
+            // Restore saved state
+            val savedPowerUpsJson = prefs.getString(SAVED_POWERUPS_JSON, null)
+            if (savedPowerUpsJson != null) {
                 val type = object : TypeToken<List<String>>() {}.type
-                val saved: List<String> = gson.fromJson(savedJson, type) ?: emptyList()
+                val saved: List<String> = gson.fromJson(savedPowerUpsJson, type) ?: emptyList()
                 setFreePowerUps(saved)
-                prefs.edit().remove(SAVED_POWERUPS_JSON).apply()
+                editor.remove(SAVED_POWERUPS_JSON)
             }
+            val savedMaxExam = prefs.getInt(SAVED_MAX_EXAM_QUESTIONS, 10)
+            editor.putInt(MAX_EXAM_QUESTIONS, savedMaxExam)
+            editor.remove(SAVED_MAX_EXAM_QUESTIONS)
+
+            val savedSimulacro = prefs.getBoolean(SAVED_SIMULACRO_UNLOCKED, false)
+            editor.putBoolean(SIMULACRO_UNLOCKED, savedSimulacro)
+            editor.remove(SAVED_SIMULACRO_UNLOCKED)
         }
-        prefs.edit().putBoolean(DEBUG_MODE, enabled).apply()
+        editor.putBoolean(DEBUG_MODE, enabled).apply()
     }
 
     fun getLogoPref(): String = prefs.getString(LOGO_PREF, "ol_v1") ?: "ol_v1"

@@ -35,7 +35,8 @@ class MissionRepository(private val context: Context) {
             val allValid = existing.missions.all { m ->
                 m.testId == null || testDataMap.containsKey(m.testId)
             }
-            if (allValid && existing.missions.size == 3) return existing
+            val missionCount = progressRepo.getMissionCount()
+            if (allValid && existing.missions.size == missionCount) return existing
         }
 
         val seed = today.split("-").map { it.toLong() }.reduce { a, b -> a * 100 + b }
@@ -156,10 +157,11 @@ class MissionRepository(private val context: Context) {
             }
         }
 
+        val missionCount = progressRepo.getMissionCount()
         val selected = mutableListOf<Mission>()
         selected.add(pickRandom(easyPool, rng))
-        selected.add(pickRandom(mediumPool, rng))
-        selected.add(pickRandom(hardPool, rng))
+        if (missionCount >= 2) selected.add(pickRandom(mediumPool, rng))
+        if (missionCount >= 3) selected.add(pickRandom(hardPool, rng))
 
         val data = MissionData(today, selected)
         saveDailyMissions(data)

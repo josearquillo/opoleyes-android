@@ -95,7 +95,7 @@ open class ProgressRepository(private val context: Context) : com.opoleyes.data.
 
     fun getMissionCount(): Int = getUnlocks().dailyMissions
 
-    fun getMaxExamQuestions(): Int = prefs.getMaxExamQuestions()
+    fun getMaxExamQuestions(): Int = if (prefs.isDebugMode()) 50 else prefs.getMaxExamQuestions()
 
     fun unlockNextExamQuestions() {
         val current = prefs.getMaxExamQuestions()
@@ -106,7 +106,7 @@ open class ProgressRepository(private val context: Context) : com.opoleyes.data.
         }
     }
 
-    fun isSimulacroUnlocked(): Boolean = prefs.isSimulacroUnlocked()
+    fun isSimulacroUnlocked(): Boolean = if (prefs.isDebugMode()) true else prefs.isSimulacroUnlocked()
 
     fun unlockSimulacro() {
         if (!prefs.isSimulacroUnlocked()) {
