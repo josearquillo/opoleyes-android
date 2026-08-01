@@ -155,7 +155,7 @@ fun HomeScreen(navController: NavController, gameViewModel: GameViewModel) {
                                     .fillMaxWidth()
                                     .height(12.dp)
                                     .clip(RoundedCornerShape(6.dp))
-                                    .background(Color.White.copy(alpha = 0.08f))
+                                    .background(TrackColorDim)
                             ) {
                                 Box(
                                     modifier = Modifier
@@ -313,10 +313,7 @@ fun MissionCard(mission: Mission, onClick: () -> Unit) {
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(12.dp))
-            .background(
-                if (mission.completed) Brush.verticalGradient(listOf(SuccessDark, SuccessDark))
-                else Brush.verticalGradient(listOf(BgCard, BgDark))
-            )
+            .then(if (mission.completed) Modifier.background(SuccessDark) else Modifier.background(Brush.verticalGradient(listOf(BgCard, BgDark))))
             .border(width = 2.dp, color = if (mission.completed) Success else diffColor.copy(alpha = 0.4f), shape = RoundedCornerShape(12.dp))
             .clickable { onClick() }
             .padding(12.dp),

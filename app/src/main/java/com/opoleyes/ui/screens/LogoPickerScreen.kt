@@ -95,7 +95,7 @@ fun LogoPickerScreen(navController: NavController, isFirstLaunch: Boolean = fals
             }
 
             // Title
-            StaggeredAppearanceLogo(visibleItems, 0) {
+            StaggeredAppearance(visibleItems, 0) {
                 Text(
                     stringResource(R.string.choose_logo),
                     color = Accent,
@@ -107,7 +107,7 @@ fun LogoPickerScreen(navController: NavController, isFirstLaunch: Boolean = fals
 
             Spacer(Modifier.height(12.dp))
 
-            StaggeredAppearanceLogo(visibleItems, 1) {
+            StaggeredAppearance(visibleItems, 1) {
                 Text(
                     stringResource(R.string.choose_logo_subtitle),
                     color = TextMuted,
@@ -121,7 +121,7 @@ fun LogoPickerScreen(navController: NavController, isFirstLaunch: Boolean = fals
 
             // Logo cards
             logoOptions.forEachIndexed { index, option ->
-                StaggeredAppearanceLogo(visibleItems, index + 1) {
+                StaggeredAppearance(visibleItems, index + 1) {
                     LogoCard(
                         option = option,
                         isSelected = selectedLogo == option.id,
@@ -134,7 +134,7 @@ fun LogoPickerScreen(navController: NavController, isFirstLaunch: Boolean = fals
             Spacer(Modifier.weight(1f))
 
             // Apply button
-            StaggeredAppearanceLogo(visibleItems, 4) {
+            StaggeredAppearance(visibleItems, 4) {
                 if (applying) {
                     Text(
                         stringResource(R.string.logo_change_notice),
@@ -257,23 +257,5 @@ private fun LogoCard(option: LogoOption, isSelected: Boolean, onClick: () -> Uni
                 Text("✓", color = Color.White, fontSize = 14.sp, fontWeight = FontWeight.Bold)
             }
         }
-    }
-}
-
-@Composable
-private fun StaggeredAppearanceLogo(visibleCount: Int, index: Int, content: @Composable () -> Unit) {
-    val visible = visibleCount > index
-    val alpha by animateFloatAsState(
-        targetValue = if (visible) 1f else 0f,
-        animationSpec = tween(250),
-        label = "stagger$index"
-    )
-    val scale by animateFloatAsState(
-        targetValue = if (visible) 1f else 0.92f,
-        animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy, stiffness = Spring.StiffnessMediumLow),
-        label = "scale$index"
-    )
-    Box(modifier = Modifier.alpha(alpha).scale(scale)) {
-        content()
     }
 }

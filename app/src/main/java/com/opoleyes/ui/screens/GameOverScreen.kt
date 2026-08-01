@@ -281,7 +281,7 @@ fun GameOverScreen(navController: NavController, gameViewModel: GameViewModel) {
 @Composable
 fun ChestOverlay(chest: ChestReward, opened: Boolean, shakeCount: Int, onOpen: () -> Unit, onDismiss: () -> Unit) {
     val typeLabel = chest.type.label
-    val typeColor = when (chest.type) { ChestType.BRONZE -> Warning; ChestType.SILVER -> TextOption; ChestType.GOLD -> Accent }
+    val typeColor = when (chest.type) { ChestType.BRONZE -> Warning; ChestType.SILVER -> Silver; ChestType.GOLD -> Accent }
     val lottieAsset = when (chest.type) { ChestType.BRONZE -> "gift_bronze.json"; ChestType.SILVER -> "gift_silver.json"; ChestType.GOLD -> "gift_gold.json" }
 
     // Shake animation for chest
@@ -311,7 +311,7 @@ fun ChestOverlay(chest: ChestReward, opened: Boolean, shakeCount: Int, onOpen: (
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color.Black.copy(alpha = 0.55f))
+            .background(Scrim)
             .clickable { if (opened) onDismiss() else onOpen() },
         contentAlignment = Alignment.Center
     ) {
@@ -402,7 +402,7 @@ fun RankUpOverlayView(overlay: RankUpOverlay, onDismiss: () -> Unit) {
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color.Black.copy(alpha = 0.85f))
+            .background(ScrimHeavy)
             .clickable { onDismiss() },
         contentAlignment = Alignment.Center
     ) {
@@ -437,7 +437,7 @@ fun RankUpOverlayView(overlay: RankUpOverlay, onDismiss: () -> Unit) {
                     Spacer(Modifier.height(8.dp))
                     Surface(
                         shape = RoundedCornerShape(12.dp),
-                        color = Color.White.copy(alpha = 0.08f)
+                        color = TrackColorDim
                     ) {
                         Text(
                             unlockText,

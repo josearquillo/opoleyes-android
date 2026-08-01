@@ -1,6 +1,7 @@
 package com.opoleyes.ui.screens
 
 import androidx.compose.animation.core.*
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ErrorOutline
@@ -85,7 +86,7 @@ fun LoadingScreen(navController: NavController, gameViewModel: GameViewModel) {
     )
 
     Box(
-        modifier = Modifier.fillMaxSize().alpha(fadeAlpha),
+        modifier = Modifier.fillMaxSize().background(BgDark).alpha(fadeAlpha),
         contentAlignment = Alignment.Center
     ) {
         Column(

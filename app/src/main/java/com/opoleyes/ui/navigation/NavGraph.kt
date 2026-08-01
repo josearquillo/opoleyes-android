@@ -62,5 +62,6 @@ fun NavGraph() {
         composable(Routes.PROFILE) { ProfileScreen(navController, gameViewModel) }
         composable(Routes.HELP) { HelpScreen(navController, gameViewModel) }
         composable(Routes.SIMULACRO_INTRO) { SimulacroIntroScreen(navController, gameViewModel) }
+        composable(Routes.LOGO_PICKER) { LogoPickerScreen(navController) }
     }
 }

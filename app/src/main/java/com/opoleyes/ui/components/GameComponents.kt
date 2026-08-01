@@ -211,7 +211,7 @@ fun HudBar(
         modifier = modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(12.dp))
-            .background(Color.Black.copy(alpha = 0.5f))
+            .background(Scrim)
             .padding(horizontal = 12.dp, vertical = 8.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
@@ -354,7 +354,7 @@ fun AnimatedHudBar(
         modifier = modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(12.dp))
-            .background(Color.Black.copy(alpha = 0.5f))
+            .background(Scrim)
             .then(
                 if (animatedLifeFlash > 0f) Modifier.background(Danger.copy(alpha = animatedLifeFlash))
                 else Modifier
@@ -719,7 +719,7 @@ fun ComboBar(
                 .fillMaxWidth()
                 .height(8.dp)
                 .clip(RoundedCornerShape(4.dp))
-                .background(Color.White.copy(alpha = 0.1f))
+                .background(TrackColor)
         ) {
             val gradient = if (overchargeActive) {
                 Brush.horizontalGradient(listOf(Warning, WarningDark, Warning))
@@ -762,7 +762,7 @@ fun ProgressBar(
             .fillMaxWidth()
             .height(height.dp)
             .clip(RoundedCornerShape((height / 2).dp))
-            .background(Color.White.copy(alpha = 0.1f))
+            .background(TrackColor)
     ) {
         Box(
             modifier = Modifier
@@ -796,7 +796,7 @@ fun GlassCard(
     Column(
         modifier = modifier
             .clip(RoundedCornerShape(14.dp))
-            .background(Color.White.copy(alpha = 0.06f))
+            .background(GlassSurface)
             .padding(16.dp),
         content = content
     )
@@ -820,7 +820,7 @@ fun CircularProgressRing(
     size: Int = 48,
     strokeWidth: Int = 4,
     ringColor: Color = Primary,
-    trackColor: Color = Color.White.copy(alpha = 0.1f),
+    trackColor: Color = TrackColor,
     modifier: Modifier = Modifier,
     content: @Composable () -> Unit = {}
 ) {
@@ -880,7 +880,7 @@ fun LoadingOverlay() {
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .background(Color.Black.copy(alpha = 0.7f)),
+                .background(ScrimStrong),
             contentAlignment = Alignment.Center
         ) {
             Column(horizontalAlignment = Alignment.CenterHorizontally) {

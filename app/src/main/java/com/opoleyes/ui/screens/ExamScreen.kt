@@ -87,6 +87,7 @@ fun ExamScreen(navController: NavController, gameViewModel: GameViewModel) {
     if (showExitDialog) {
         AlertDialog(
             onDismissRequest = { showExitDialog = false },
+            containerColor = BgCard,
             title = { Text(stringResource(R.string.exit_exam)) },
             text = { Text(stringResource(R.string.lose_exam_progress)) },
             confirmButton = {
@@ -103,6 +104,7 @@ fun ExamScreen(navController: NavController, gameViewModel: GameViewModel) {
         val unansweredCount = totalQuestions - examAnswered
         AlertDialog(
             onDismissRequest = { showFinishDialog = false },
+            containerColor = BgCard,
             title = { Text(stringResource(R.string.finish_exam)) },
             text = {
                 if (unansweredCount > 0) {

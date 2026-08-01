@@ -220,12 +220,11 @@ private fun ExamConfigDialog(
 
 @Composable
 private fun ExamPresetCard(count: Int, unlocked: Boolean, nextLocked: Int?, onClick: () -> Unit) {
-    val containerColor = if (unlocked) Brush.horizontalGradient(listOf(Primary, PurpleDark)) else Brush.horizontalGradient(listOf(BgDark, BgDark))
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(12.dp))
-            .background(containerColor)
+            .then(if (unlocked) Modifier.background(Brush.horizontalGradient(listOf(Primary, PurpleDark))) else Modifier.background(BgDark))
             .clickable(enabled = unlocked) { onClick() }
             .padding(horizontal = 14.dp, vertical = 14.dp),
         verticalAlignment = Alignment.CenterVertically

@@ -31,6 +31,17 @@ val HintRemoved = Color(0xFF2a2a3e)
 val HintRemovedDark = Color(0xFF1f1f2e)
 val PurpleDark = Color(0xFF5b21b6)
 
+// Chest rarity colors.
+val Silver = Color(0xFFcbd5e1)
+
+// Surface overlays (replace hardcoded Color.White/Black alpha throughout the app).
+val TrackColor = Color.White.copy(alpha = 0.1f)       // progress bar tracks
+val TrackColorDim = Color.White.copy(alpha = 0.08f)   // XP bar track
+val GlassSurface = Color.White.copy(alpha = 0.06f)    // GlassCard / subtle surfaces
+val Scrim = Color.Black.copy(alpha = 0.55f)           // modal overlays (chest)
+val ScrimStrong = Color.Black.copy(alpha = 0.7f)      // HUD / loading overlay / popups
+val ScrimHeavy = Color.Black.copy(alpha = 0.85f)      // full-screen modal (rank-up)
+
 // Confetti / particle effect palette (used by GameEffects).
 val ConfettiBlue = Color(0xFF3b82f6)
 val ConfettiAmber = Color(0xFFf59e0b)

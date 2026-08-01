@@ -152,6 +152,7 @@ fun GameScreen(navController: NavController, gameViewModel: GameViewModel) {
     if (showExitDialog) {
         AlertDialog(
             onDismissRequest = { showExitDialog = false },
+            containerColor = BgCard,
             title = { Text(stringResource(R.string.back_to_menu)) },
             text = { Text(stringResource(R.string.lose_progress)) },
             confirmButton = {
@@ -186,7 +187,7 @@ fun GameScreen(navController: NavController, gameViewModel: GameViewModel) {
                             .fillMaxWidth()
                             .height(4.dp)
                             .clip(RoundedCornerShape(2.dp))
-                            .background(Color.White.copy(alpha = 0.1f))
+                            .background(TrackColor)
                     ) {
                         Box(
                             modifier = Modifier
@@ -363,7 +364,7 @@ fun GameScreen(navController: NavController, gameViewModel: GameViewModel) {
                         ) {
                             Surface(
                                 shape = RoundedCornerShape(16.dp),
-                                color = Color.Black.copy(alpha = 0.75f),
+                                color = ScrimStrong,
                                 shadowElevation = 8.dp,
                                 modifier = Modifier
                                     .padding(vertical = 4.dp)
@@ -372,7 +373,7 @@ fun GameScreen(navController: NavController, gameViewModel: GameViewModel) {
                                         Brush.horizontalGradient(
                                             listOf(
                                                 popup.color.copy(alpha = 0.3f),
-                                                Color.Black.copy(alpha = 0.75f),
+                                                ScrimStrong,
                                                 popup.color.copy(alpha = 0.3f)
                                             )
                                         )
@@ -426,7 +427,7 @@ fun GameScreen(navController: NavController, gameViewModel: GameViewModel) {
                         Surface(
                             modifier = Modifier.padding(top = 60.dp),
                             shape = RoundedCornerShape(16.dp),
-                            color = Color.Black.copy(alpha = 0.8f),
+                            color = ScrimStrong,
                             shadowElevation = 8.dp
                         ) {
                             Box(

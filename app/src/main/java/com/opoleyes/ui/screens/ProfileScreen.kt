@@ -64,6 +64,7 @@ fun ProfileScreen(navController: NavController, gameViewModel: GameViewModel) {
     if (showResetDialog) {
         AlertDialog(
             onDismissRequest = { showResetDialog = false },
+            containerColor = BgCard,
             title = { Text(stringResource(R.string.reset_progress)) },
             text = { Text(stringResource(R.string.reset_confirm)) },
             confirmButton = {
@@ -151,8 +152,7 @@ fun ProfileScreen(navController: NavController, gameViewModel: GameViewModel) {
         val modeLabels = linkedMapOf(
             "survival" to "Supervivencia",
             "timetrial" to "Contrarreloj",
-            "quick" to "Repaso Express",
-            "challenge" to "Reto"
+            "quick" to "Repaso Express"
         )
         modeLabels.forEach { (mode, label) ->
             val record = data.records[mode] ?: 0

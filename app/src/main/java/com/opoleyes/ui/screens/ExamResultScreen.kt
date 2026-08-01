@@ -1,7 +1,6 @@
 package com.opoleyes.ui.screens
 
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -81,7 +80,6 @@ fun ExamResultScreen(navController: NavController, gameViewModel: GameViewModel)
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .background(BgDark)
                 .verticalScroll(scrollState)
                 .padding(paddingValues)
                 .padding(16.dp)
