@@ -515,16 +515,16 @@ private fun HeartIcon(
         label = "popScale"
     )
 
-    // 24dp container - compact but enough room for effects
+    // 32dp container - enough room for heart and effects
     Box(
         contentAlignment = Alignment.Center,
-        modifier = Modifier.size(24.dp)
+        modifier = Modifier.size(32.dp)
     ) {
         // Red glow behind heart during tremble
         if (animatedGlow > 0f) {
             Box(
                 modifier = Modifier
-                    .size(20.dp)
+                    .size(26.dp)
                     .clip(CircleShape)
                     .background(Danger.copy(alpha = animatedGlow * 0.3f))
             )
@@ -532,7 +532,7 @@ private fun HeartIcon(
 
         // Shockwave ring 1
         if (shatterPhase >= 2 && animatedShockwaveAlpha > 0f) {
-            Canvas(modifier = Modifier.size(24.dp)) {
+            Canvas(modifier = Modifier.size(30.dp)) {
                 val cx = size.width / 2
                 val cy = size.height / 2
                 val maxRadius = size.minDimension / 2
@@ -548,7 +548,7 @@ private fun HeartIcon(
 
         // Shockwave ring 2
         if (shatterPhase >= 2 && animatedShockwave2Alpha > 0f) {
-            Canvas(modifier = Modifier.size(24.dp)) {
+            Canvas(modifier = Modifier.size(30.dp)) {
                 val cx = size.width / 2
                 val cy = size.height / 2
                 val maxRadius = size.minDimension / 2
@@ -564,7 +564,7 @@ private fun HeartIcon(
 
         // Fragments flying outward
         if (shatterPhase == 3) {
-            Canvas(modifier = Modifier.size(24.dp)) {
+            Canvas(modifier = Modifier.size(30.dp)) {
                 val cx = size.width / 2
                 val cy = size.height / 2
                 val p = animatedFragmentProgress
@@ -589,7 +589,7 @@ private fun HeartIcon(
         if (animatedFlash > 0f) {
             Box(
                 modifier = Modifier
-                    .size(22.dp)
+                    .size(28.dp)
                     .clip(CircleShape)
                     .background(Danger.copy(alpha = animatedFlash))
             )
@@ -609,7 +609,7 @@ private fun HeartIcon(
                 contentDescription = "Vida",
                 tint = Danger,
                 modifier = Modifier
-                    .size(18.dp)
+                    .size(24.dp)
                     .scale(animatedPopScale * heartPulse)
             )
         } else if (shatterPhase in 1..2 && animatedShatterAlpha > 0f) {
@@ -619,7 +619,7 @@ private fun HeartIcon(
                 contentDescription = "Vida perdida",
                 tint = Danger.copy(alpha = animatedShatterAlpha),
                 modifier = Modifier
-                    .size(18.dp)
+                    .size(24.dp)
                     .scale(animatedShatterScale)
                     .graphicsLayer {
                         rotationZ = animatedShatterRotation
