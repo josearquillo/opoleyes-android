@@ -53,8 +53,8 @@ object Constants {
         2 to "📋 2 misiones diarias",
         3 to "⚡ Repaso Express",
         4 to "📋 3 misiones diarias",
-        5 to "🏆 Modo Reto",
-        6 to "📝 Modo Examen",
+        5 to "📝 Mini Examen",
+        6 to "🎯 Simulacro",
     )
 
     val RANK_POWERUP_REWARDS = mapOf(

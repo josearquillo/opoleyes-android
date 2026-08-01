@@ -227,7 +227,7 @@ fun HudBar(
             fontWeight = FontWeight.Bold,
             fontSize = 20.sp
         )
-        if (mode == com.opoleyes.data.model.GameMode.TIMETRIAL || mode == com.opoleyes.data.model.GameMode.CHALLENGE) {
+        if (mode == com.opoleyes.data.model.GameMode.TIMETRIAL) {
             val timerColor = if (timer < 10) Danger else TextLight
             val timerText = "${timer.toInt()}s"
             Row(verticalAlignment = Alignment.CenterVertically) {
@@ -404,7 +404,7 @@ fun AnimatedHudBar(
         }
 
         // Timer with flash effect and critical pulsing
-        if (mode == com.opoleyes.data.model.GameMode.TIMETRIAL || mode == com.opoleyes.data.model.GameMode.CHALLENGE) {
+        if (mode == com.opoleyes.data.model.GameMode.TIMETRIAL) {
             val isCritical = timer < 10
             val isLow = timer in 10f..30f
             val timerColor = when {

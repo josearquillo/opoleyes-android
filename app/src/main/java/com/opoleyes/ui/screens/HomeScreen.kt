@@ -208,9 +208,6 @@ fun HomeScreen(navController: NavController, gameViewModel: GameViewModel) {
                                     "exam" -> {
                                         navController.navigate(Routes.MODE_SELECT)
                                     }
-                                    "challenge" -> {
-                                        gameViewModel.startChallengeGameAsync { ok -> if (ok) navController.navigate(Routes.GAME) }
-                                    }
                                 }
                             }
                         }

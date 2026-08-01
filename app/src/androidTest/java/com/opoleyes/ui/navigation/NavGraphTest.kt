@@ -80,22 +80,7 @@ class NavGraphTest {
         composeRule.waitForIdle()
         composeRule.mainClock.advanceTimeBy(1000)
         composeRule.waitForIdle()
-        composeRule.onNodeWithText("Modo Examen").assertIsDisplayed()
-    }
-
-    @Test
-    fun navGraph_modeSelectDisplaysChallengeMode() {
-        composeRule.setContent {
-            NavGraph()
-        }
-        composeRule.waitForIdle()
-        composeRule.mainClock.advanceTimeBy(2000)
-        composeRule.waitForIdle()
-        composeRule.onNodeWithText("JUGAR").performClick()
-        composeRule.waitForIdle()
-        composeRule.mainClock.advanceTimeBy(1000)
-        composeRule.waitForIdle()
-        composeRule.onNodeWithText("Modo Reto").assertIsDisplayed()
+        composeRule.onNodeWithText("Mini Examen").assertIsDisplayed()
     }
 
     @Test

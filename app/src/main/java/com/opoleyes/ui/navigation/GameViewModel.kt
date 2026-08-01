@@ -80,14 +80,12 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
         val records = linkedMapOf(
             "survival" to progressRepo.getRecord("survival"),
             "timetrial" to progressRepo.getRecord("timetrial"),
-            "quick" to progressRepo.getRecord("quick"),
-            "challenge" to progressRepo.getRecord("challenge")
+            "quick" to progressRepo.getRecord("quick")
         )
         val unlockedModes = linkedMapOf(
             "survival" to progressRepo.isUnlocked("survival"),
             "timetrial" to progressRepo.isUnlocked("timetrial"),
-            "quick" to progressRepo.isUnlocked("quick"),
-            "challenge" to progressRepo.isUnlocked("challenge")
+            "quick" to progressRepo.isUnlocked("quick")
         )
         _profileData = ProfileData(
             rank = progressRepo.getRank(),
@@ -233,14 +231,6 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
         return ok
     }
 
-    fun startChallengeGame(): Boolean {
-        _popups.value = emptyList()
-        _toasts.value = emptyList()
-        val ok = engine.startChallengeGame()
-        if (ok) { engine.nextQuestion(); updateUiState() }
-        return ok
-    }
-
     fun startQuickGameAsync(onDone: (Boolean) -> Unit) {
         _isLoading.value = true
         viewModelScope.launch {
@@ -263,15 +253,6 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
         _isLoading.value = true
         viewModelScope.launch {
             val ok = withContext(Dispatchers.Default) { startAllLawsGame() }
-            _isLoading.value = false
-            onDone(ok)
-        }
-    }
-
-    fun startChallengeGameAsync(onDone: (Boolean) -> Unit) {
-        _isLoading.value = true
-        viewModelScope.launch {
-            val ok = withContext(Dispatchers.Default) { startChallengeGame() }
             _isLoading.value = false
             onDone(ok)
         }
@@ -335,6 +316,9 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
         missionRepo.checkExamResult(scorePct)
         if (result.score >= 5.0) {
             progressRepo.unlockNextExamQuestions()
+            if (result.total >= 50 && !progressRepo.isSimulacroUnlocked()) {
+                progressRepo.unlockSimulacro()
+            }
         }
     }
 
@@ -363,12 +347,12 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
                 if (engine.streak > 0 && engine.streak % 5 == 0) {
                     val streakMsg = when {
                         engine.ctxLifeRecovered -> "¡Vida recuperada! (Racha x${engine.streak})"
-                        engine.mode == GameMode.TIMETRIAL || engine.mode == GameMode.CHALLENGE -> "+20s (Racha x${engine.streak})"
+                        engine.mode == GameMode.TIMETRIAL -> "+20s (Racha x${engine.streak})"
                         else -> "Racha x${engine.streak}"
                     }
                     val streakIcon = when {
                         engine.ctxLifeRecovered -> "❤️"
-                        engine.mode == GameMode.TIMETRIAL || engine.mode == GameMode.CHALLENGE -> "⏱️"
+                        engine.mode == GameMode.TIMETRIAL -> "⏱️"
                         else -> "⚡"
                     }
                     addPopup(streakMsg, com.opoleyes.ui.theme.Warning, 38, 0.45f, streakIcon)

@@ -24,6 +24,7 @@ open class PreferencesManager(private val context: Context) : com.opoleyes.data.
         const val LOGO_PREF = "logo_pref"
         const val LOGO_CHOSEN = "logo_chosen"
         const val MAX_EXAM_QUESTIONS = "max_exam_questions"
+        const val SIMULACRO_UNLOCKED = "simulacro_unlocked"
         fun recordKey(mode: String) = "record_$mode"
         fun recordComboKey(mode: String) = "record_combo_$mode"
         fun recordAccKey(mode: String) = "record_acc_$mode"
@@ -164,6 +165,12 @@ open class PreferencesManager(private val context: Context) : com.opoleyes.data.
 
     fun setMaxExamQuestions(value: Int) {
         prefs.edit().putInt(MAX_EXAM_QUESTIONS, value).apply()
+    }
+
+    fun isSimulacroUnlocked(): Boolean = prefs.getBoolean(SIMULACRO_UNLOCKED, false)
+
+    fun setSimulacroUnlocked() {
+        prefs.edit().putBoolean(SIMULACRO_UNLOCKED, true).apply()
     }
 
     override fun resetAll() {

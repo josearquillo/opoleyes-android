@@ -104,7 +104,6 @@ class GameEngine private constructor(
 
         when (mode) {
             GameMode.TIMETRIAL -> { timer = 180f; lives = 0 }
-            GameMode.CHALLENGE -> { lives = 0; timer = 120f }
             else -> { lives = 3; timer = 0f }
         }
     }
@@ -135,19 +134,10 @@ class GameEngine private constructor(
         return true
     }
 
-    fun startChallengeGame(): Boolean {
-        mode = GameMode.CHALLENGE; category = ""
-        pool = gameRepo.startAllLawsGame()
-        if (pool.isEmpty()) return false
-        initGameStats()
-        return true
-    }
-
     fun nextQuestion(): Boolean {
         if (mode == GameMode.SURVIVAL && lives <= 0) return false
         if (mode == GameMode.QUICK && (lives <= 0 || questionNum >= Constants.QUICK_MODE_QUESTIONS)) return false
         if (mode == GameMode.TIMETRIAL && timer <= 0) return false
-        if (mode == GameMode.CHALLENGE && (questionNum >= 15 || timer <= 0)) return false
 
         val available = pool.filter { !askedIds.contains("${it.testId}:${it.origId}") }
         val usePool = if (available.isNotEmpty()) available else {
@@ -222,14 +212,14 @@ class GameEngine private constructor(
                     } else {
                         fiftyFiftyCharges++
                     }
-                } else if (mode == GameMode.TIMETRIAL || mode == GameMode.CHALLENGE) {
+                } else if (mode == GameMode.TIMETRIAL) {
                     timer = minOf(300f, timer + 20f)
                 }
                 if (mode == GameMode.TIMETRIAL) fiftyFiftyCharges++
-                if (streak % 15 == 0 && mode != GameMode.CHALLENGE && mode != GameMode.QUICK) doubleScoreCharges++
+                if (streak % 15 == 0 && mode != GameMode.QUICK) doubleScoreCharges++
             }
 
-            if (mode == GameMode.TIMETRIAL || mode == GameMode.CHALLENGE) {
+            if (mode == GameMode.TIMETRIAL) {
                 timer = minOf(300f, timer + 15f)
             }
 
@@ -308,7 +298,6 @@ class GameEngine private constructor(
         if (mode == GameMode.SURVIVAL && lives <= 0) return true
         if (mode == GameMode.QUICK && (lives <= 0 || questionNum >= Constants.QUICK_MODE_QUESTIONS)) return true
         if (mode == GameMode.TIMETRIAL && timer <= 0) return true
-        if (mode == GameMode.CHALLENGE && (questionNum >= 15 || timer <= 0)) return true
         return false
     }
 

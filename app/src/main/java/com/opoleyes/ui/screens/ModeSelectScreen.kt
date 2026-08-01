@@ -46,9 +46,9 @@ fun ModeSelectScreen(navController: NavController, gameViewModel: GameViewModel)
     val modes = listOf(
         ModeInfo(GameMode.SURVIVAL, Icons.Default.Favorite, stringResource(R.string.mode_survival), stringResource(R.string.mode_survival_desc), true, 0),
         ModeInfo(GameMode.TIMETRIAL, Icons.Default.Timer, stringResource(R.string.mode_timetrial), stringResource(R.string.mode_timetrial_desc), unlocks.timetrial, 1),
-        ModeInfo(GameMode.QUICK, Icons.Default.Bolt, stringResource(R.string.mode_quick), stringResource(R.string.mode_quick_desc), unlocks.quick, 2),
-        ModeInfo(GameMode.EXAM, Icons.AutoMirrored.Filled.Assignment, stringResource(R.string.mode_exam), stringResource(R.string.mode_exam_desc), unlocks.exam, 3),
-        ModeInfo(GameMode.CHALLENGE, Icons.Default.EmojiEvents, stringResource(R.string.mode_challenge), stringResource(R.string.mode_challenge_desc), unlocks.challenge, 4),
+        ModeInfo(GameMode.QUICK, Icons.Default.Bolt, stringResource(R.string.mode_quick), stringResource(R.string.mode_quick_desc), unlocks.quick, 3),
+        ModeInfo(GameMode.EXAM, Icons.AutoMirrored.Filled.Assignment, stringResource(R.string.mode_exam), stringResource(R.string.mode_exam_desc), unlocks.exam, 5),
+        ModeInfo(GameMode.SIMULACRO, Icons.Default.EmojiEvents, stringResource(R.string.mode_simulacro), stringResource(R.string.mode_simulacro_desc), unlocks.simulacro, 6),
     )
 
     var showExamDialog by remember { mutableStateOf(false) }
@@ -89,11 +89,11 @@ fun ModeSelectScreen(navController: NavController, gameViewModel: GameViewModel)
                             GameMode.QUICK -> {
                                 gameViewModel.startQuickGameAsync { ok -> if (ok) navController.navigate(Routes.GAME) }
                             }
-                            GameMode.CHALLENGE -> {
-                                gameViewModel.startChallengeGameAsync { ok -> if (ok) navController.navigate(Routes.GAME) }
-                            }
                             GameMode.EXAM -> {
                                 showExamDialog = true
+                            }
+                            GameMode.SIMULACRO -> {
+                                // TODO: Start simulacro mode
                             }
                             else -> {
                                 gameViewModel.pendingMode = mode.mode
@@ -134,7 +134,7 @@ private fun ModeCard(mode: ModeInfo, enabled: Boolean = true, onClick: () -> Uni
         GameMode.TIMETRIAL -> listOf(Primary, PurpleDark)
         GameMode.QUICK -> listOf(Warning, WarningDark)
         GameMode.EXAM -> listOf(Success, SuccessDark)
-        GameMode.CHALLENGE -> listOf(Accent, AccentLight)
+        GameMode.SIMULACRO -> listOf(Accent, AccentLight)
     }
     Box(
         modifier = Modifier

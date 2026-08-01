@@ -132,13 +132,6 @@ class MissionRepository(private val context: Context) {
                 60 + rankIndex * 2, 0, false, hardReward, "exam_score",
                 null, MissionDifficulty.HARD))
         }
-        if (unlocks.challenge) {
-            val chTarget = 200 + rankIndex * 50
-            hardPool.add(Mission("challenge", "🏆",
-                "Alcanza $chTarget puntos en Modo Reto",
-                chTarget, 0, false, hardReward, "challenge_score",
-                null, MissionDifficulty.HARD))
-        }
 
         val selected = mutableListOf<Mission>()
         selected.add(pickRandom(easyPool, rng))
@@ -168,7 +161,6 @@ class MissionRepository(private val context: Context) {
                 type == "progress_any" && m.key == "progress_any" -> m.current += value
                 type == "variety" && m.key.startsWith("variety_") -> m.current += value
                 type == "timetrial_score" && m.key == "timetrial_score" -> m.current = maxOf(m.current, value)
-                type == "challenge_score" && m.key == "challenge_score" -> m.current = maxOf(m.current, value)
                 type == "exam_score" && m.key == "exam_score" -> m.current = maxOf(m.current, value)
             }
             if (m.current >= m.target && !m.completed) {
@@ -190,7 +182,6 @@ class MissionRepository(private val context: Context) {
         updateProgress("combo", maxCombo)
         if (mode == "quick") updateProgress("quick_review", totalAnswered)
         if (mode == "timetrial") updateProgress("timetrial_score", score)
-        if (mode == "challenge") updateProgress("challenge_score", score)
         for (m in data.missions) {
             if (m.key.startsWith("progress_")) {
                 val lawId = m.key.removePrefix("progress_")

@@ -46,8 +46,9 @@ open class ProgressRepository(private val context: Context) : com.opoleyes.data.
                 survival = true,
                 timetrial = true,
                 quick = true,
-                challenge = true,
+                challenge = false,
                 exam = true,
+                simulacro = true,
                 powerUps = true,
                 hint = true,
                 shield = true,
@@ -62,8 +63,8 @@ open class ProgressRepository(private val context: Context) : com.opoleyes.data.
             survival = true,
             timetrial = r >= 1,
             quick = r >= 3,
-            challenge = r >= 5,
-            exam = r >= 6,
+            exam = r >= 5,
+            simulacro = isSimulacroUnlocked(),
             powerUps = true,
             hint = true,
             shield = true,
@@ -80,8 +81,8 @@ open class ProgressRepository(private val context: Context) : com.opoleyes.data.
             "survival" -> u.survival
             "timetrial" -> u.timetrial
             "quick" -> u.quick
-            "challenge" -> u.challenge
             "exam" -> u.exam
+            "simulacro" -> u.simulacro
             "powerUps" -> u.powerUps
             "hint" -> u.hint
             "shield" -> u.shield
@@ -102,6 +103,14 @@ open class ProgressRepository(private val context: Context) : com.opoleyes.data.
         val idx = presets.indexOf(current)
         if (idx >= 0 && idx < presets.size - 1) {
             prefs.setMaxExamQuestions(presets[idx + 1])
+        }
+    }
+
+    fun isSimulacroUnlocked(): Boolean = prefs.isSimulacroUnlocked()
+
+    fun unlockSimulacro() {
+        if (!prefs.isSimulacroUnlocked()) {
+            prefs.setSimulacroUnlocked()
         }
     }
 
@@ -126,7 +135,7 @@ open class ProgressRepository(private val context: Context) : com.opoleyes.data.
     fun setRecordAcc(mode: String, value: Int) = prefs.setRecordAcc(mode, value)
 
     fun getMaxComboRecord(): Int {
-        val modes = listOf("survival", "timetrial", "quick", "challenge")
+        val modes = listOf("survival", "timetrial", "quick")
         return modes.maxOf { getRecordCombo(it) }
     }
 
@@ -137,8 +146,8 @@ data class Unlocks(
     val survival: Boolean,
     val timetrial: Boolean,
     val quick: Boolean,
-    val challenge: Boolean,
     val exam: Boolean,
+    val simulacro: Boolean,
     val powerUps: Boolean,
     val hint: Boolean,
     val shield: Boolean,

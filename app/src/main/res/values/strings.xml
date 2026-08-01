@@ -34,8 +34,8 @@
     <string name="mode_quick_desc">20 preguntas enfocadas en fallos previos.</string>
     <string name="mode_exam">Mini Examen</string>
     <string name="mode_exam_desc">Simula un examen. Sin vidas, sin power-ups, corrección al final.</string>
-    <string name="mode_challenge">Modo Reto</string>
-    <string name="mode_challenge_desc">120s, máxima dificultad, todas las leyes.</string>
+    <string name="mode_simulacro">Simulacro</string>
+    <string name="mode_simulacro_desc">Desbloquea este modo aprobando un Mini Examen de 50 preguntas.</string>
     <string name="locked">Bloqueado</string>
     <string name="configure_exam">Configurar mini examen</string>
     <string name="question_count">Número de preguntas</string>
