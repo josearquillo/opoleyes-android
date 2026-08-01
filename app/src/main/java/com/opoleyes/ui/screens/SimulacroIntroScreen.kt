@@ -47,6 +47,7 @@ fun SimulacroIntroScreen(navController: NavController, gameViewModel: GameViewMo
         Column(
             modifier = Modifier
                 .fillMaxSize()
+                .verticalScroll(rememberScrollState())
                 .padding(paddingValues)
                 .padding(24.dp),
             horizontalAlignment = Alignment.CenterHorizontally
@@ -90,7 +91,7 @@ fun SimulacroIntroScreen(navController: NavController, gameViewModel: GameViewMo
                 desc = stringResource(R.string.simulacro_info_scoring_desc)
             )
 
-            Spacer(Modifier.weight(1f))
+            Spacer(Modifier.height(24.dp))
 
             if (isLoading) {
                 CircularProgressIndicator(color = Accent, modifier = Modifier.size(32.dp))
