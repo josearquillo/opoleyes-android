@@ -35,7 +35,7 @@
     <string name="mode_exam">Mini Examen</string>
     <string name="mode_exam_desc">Simula un examen. Sin vidas, sin power-ups, corrección al final.</string>
     <string name="mode_simulacro">Simulacro</string>
-    <string name="mode_simulacro_desc">Desbloquea este modo aprobando un Mini Examen de 50 preguntas.</string>
+    <string name="mode_simulacro_desc">25 preguntas, 25 min. Pesos oficiales por ley. Penalización oficial.</string>
     <string name="locked">Bloqueado</string>
     <string name="configure_exam">Configurar mini examen</string>
     <string name="question_count">Número de preguntas</string>
@@ -102,6 +102,10 @@
     <string name="review_answers">Revisar respuestas</string>
     <string name="home_label">Inicio</string>
     <string name="another_exam">Otro mini examen</string>
+    <string name="another_simulacro">Otro simulacro</string>
+    <string name="simulacro_result">Resultado del Simulacro</string>
+    <string name="out_of_fifteen">/ %1$d</string>
+    <string name="passing_score">Nota de corte: %1$d puntos</string>
     <string name="correct">Correcto</string>
     <string name="incorrect">Incorrecto</string>
     <string name="your_answer">Tu respuesta: %1$s</string>

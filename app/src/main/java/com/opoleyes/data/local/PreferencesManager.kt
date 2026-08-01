@@ -5,6 +5,7 @@ import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import com.opoleyes.data.model.MissionData
 import com.opoleyes.data.model.QuestionStat
+import com.opoleyes.data.model.SimulacroHistoryEntry
 
 open class PreferencesManager(private val context: Context) : com.opoleyes.data.IPreferencesManager {
     private val gson = Gson()
@@ -25,6 +26,7 @@ open class PreferencesManager(private val context: Context) : com.opoleyes.data.
         const val LOGO_CHOSEN = "logo_chosen"
         const val MAX_EXAM_QUESTIONS = "max_exam_questions"
         const val SIMULACRO_UNLOCKED = "simulacro_unlocked"
+        const val SIMULACRO_HISTORY_JSON = "simulacro_history_json"
         fun recordKey(mode: String) = "record_$mode"
         fun recordComboKey(mode: String) = "record_combo_$mode"
         fun recordAccKey(mode: String) = "record_acc_$mode"
@@ -171,6 +173,18 @@ open class PreferencesManager(private val context: Context) : com.opoleyes.data.
 
     fun setSimulacroUnlocked() {
         prefs.edit().putBoolean(SIMULACRO_UNLOCKED, true).apply()
+    }
+
+    fun getSimulacroHistory(): List<SimulacroHistoryEntry> {
+        val json = prefs.getString(SIMULACRO_HISTORY_JSON, "[]")
+        val type = object : TypeToken<List<SimulacroHistoryEntry>>() {}.type
+        return gson.fromJson(json, type) ?: emptyList()
+    }
+
+    fun addSimulacroHistory(entry: SimulacroHistoryEntry) {
+        val history = getSimulacroHistory().toMutableList()
+        history.add(entry)
+        prefs.edit().putString(SIMULACRO_HISTORY_JSON, gson.toJson(history)).apply()
     }
 
     override fun resetAll() {

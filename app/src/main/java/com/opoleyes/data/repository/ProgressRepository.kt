@@ -5,6 +5,7 @@ import com.opoleyes.data.Constants
 import com.opoleyes.data.local.PreferencesManager
 import com.opoleyes.data.model.Achievement
 import com.opoleyes.data.model.Rank
+import com.opoleyes.data.model.SimulacroHistoryEntry
 import com.opoleyes.data.model.XPProgress
 
 open class ProgressRepository(private val context: Context) : com.opoleyes.data.IProgressRepository {
@@ -111,6 +112,12 @@ open class ProgressRepository(private val context: Context) : com.opoleyes.data.
         if (!prefs.isSimulacroUnlocked()) {
             prefs.setSimulacroUnlocked()
         }
+    }
+
+    fun getSimulacroHistory(): List<SimulacroHistoryEntry> = prefs.getSimulacroHistory()
+
+    fun addSimulacroHistory(entry: SimulacroHistoryEntry) {
+        prefs.addSimulacroHistory(entry)
     }
 
     fun getAchievements(): Map<String, Long> = prefs.getAchievements()

@@ -127,3 +127,12 @@ data class RankUpOverlay(
     val oldRank: Rank,
     val newRank: Rank
 )
+
+data class SimulacroHistoryEntry(
+    val date: String,
+    val points: Float,
+    val correct: Int,
+    val wrong: Int,
+    val unanswered: Int,
+    val passed: Boolean
+)

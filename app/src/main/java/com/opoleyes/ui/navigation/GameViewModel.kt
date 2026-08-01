@@ -20,6 +20,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.time.LocalDate
 
 class GameViewModel(application: Application) : AndroidViewModel(application) {
     private val progressRepo = ProgressRepository(application)
@@ -170,6 +171,15 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
     private val _examResult = MutableStateFlow<ExamEngine.ExamResult?>(null)
     val examResult: StateFlow<ExamEngine.ExamResult?> = _examResult.asStateFlow()
 
+    private val _isSimulacroMode = MutableStateFlow(false)
+    val isSimulacroMode: StateFlow<Boolean> = _isSimulacroMode.asStateFlow()
+
+    private val _simulacroResult = MutableStateFlow<ExamEngine.SimulacroResult?>(null)
+    val simulacroResult: StateFlow<ExamEngine.SimulacroResult?> = _simulacroResult.asStateFlow()
+
+    private val _simulacroTimer = MutableStateFlow(0)
+    val simulacroTimer: StateFlow<Int> = _simulacroTimer.asStateFlow()
+
     private val _accuracy = MutableStateFlow(0)
     val accuracy: StateFlow<Int> = _accuracy.asStateFlow()
 
@@ -261,12 +271,30 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
     fun startExamAsync(questionCount: Int, onDone: (Boolean) -> Unit) {
         _isLoading.value = true
         _examResult.value = null
+        _isSimulacroMode.value = false
         viewModelScope.launch {
             withContext(Dispatchers.Default) { examEngine.loadExam(questionCount) }
             _examQuestionNum.value = 0
             _examAnswered.value = 0
             _examTotalQuestions.value = examEngine.getQuestionCount()
             _examCurrentQuestion.value = examEngine.getCurrentQuestion()
+            _isLoading.value = false
+            onDone(true)
+        }
+    }
+
+    fun startSimulacroAsync(onDone: (Boolean) -> Unit) {
+        _isLoading.value = true
+        _examResult.value = null
+        _simulacroResult.value = null
+        _isSimulacroMode.value = true
+        viewModelScope.launch {
+            withContext(Dispatchers.Default) { examEngine.loadSimulacro() }
+            _examQuestionNum.value = 0
+            _examAnswered.value = 0
+            _examTotalQuestions.value = examEngine.getQuestionCount()
+            _examCurrentQuestion.value = examEngine.getCurrentQuestion()
+            _simulacroTimer.value = ExamEngine.SIMULACRO_TIME_SECONDS
             _isLoading.value = false
             onDone(true)
         }
@@ -306,6 +334,10 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun finishExam() {
+        if (_isSimulacroMode.value) {
+            finishSimulacro()
+            return
+        }
         val result = examEngine.grade()
         _examResult.value = result
         progressRepo.incrementGamesPlayed()
@@ -322,8 +354,40 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
+    private fun finishSimulacro() {
+        val result = examEngine.gradeSimulacro()
+        _simulacroResult.value = result
+        progressRepo.incrementGamesPlayed()
+        val xp = (result.points * 10).toInt().coerceAtLeast(0)
+        progressRepo.addXP(xp)
+        _xpGained.value = xp
+        progressRepo.addSimulacroHistory(
+            SimulacroHistoryEntry(
+                date = LocalDate.now().toString(),
+                points = result.points,
+                correct = result.correct,
+                wrong = result.wrong,
+                unanswered = result.unanswered,
+                passed = result.passed
+            )
+        )
+        missionRepo.checkSimulacroResult(result.passed)
+    }
+
+    fun tickSimulacroTimer(): Boolean {
+        val current = _simulacroTimer.value
+        if (current <= 0) return true
+        _simulacroTimer.value = current - 1
+        return _simulacroTimer.value <= 0
+    }
+
+    fun getSimulacroTimer(): Int = _simulacroTimer.value
+
     fun clearExamResult() {
         _examResult.value = null
+        _simulacroResult.value = null
+        _isSimulacroMode.value = false
+        _simulacroTimer.value = 0
         _examQuestionNum.value = 0
         _examAnswered.value = 0
         _examCurrentQuestion.value = null
@@ -496,6 +560,7 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
     fun getCategory(): String = engine.category
     fun getExamQuestions(): List<ExamEngine.ExamQuestion> = examEngine.getQuestions()
     fun getMaxExamQuestions(): Int = progressRepo.getMaxExamQuestions()
+    fun getSimulacroHistory(): List<SimulacroHistoryEntry> = progressRepo.getSimulacroHistory()
     val examQuestionPresets = com.opoleyes.data.local.PreferencesManager(getApplication()).EXAM_QUESTION_PRESETS
 }
 

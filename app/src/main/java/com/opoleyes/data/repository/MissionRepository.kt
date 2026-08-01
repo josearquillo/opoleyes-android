@@ -126,11 +126,34 @@ class MissionRepository(private val context: Context) {
                 comboTargetHard, 0, false, hardReward, "combo",
                 null, MissionDifficulty.HARD),
         )
-        if (unlocks.exam) {
-            hardPool.add(Mission("exam", "📝",
-                "Completa un examen con al menos un ${60 + rankIndex * 2}% de aciertos",
-                60 + rankIndex * 2, 0, false, hardReward, "exam_score",
-                null, MissionDifficulty.HARD))
+
+        // Dynamic mission 3 based on highest unlocked mode
+        when {
+            unlocks.simulacro -> {
+                hardPool.add(Mission("simulacro", "🎯",
+                    "Completa el Simulacro del día",
+                    1, 0, false, hardReward, "simulacro_complete",
+                    null, MissionDifficulty.HARD))
+            }
+            unlocks.exam -> {
+                val maxExamQ = progressRepo.getMaxExamQuestions()
+                hardPool.add(Mission("exam", "📝",
+                    "Completa un Mini Examen de $maxExamQ preguntas con al menos un ${60 + rankIndex * 2}% de aciertos",
+                    60 + rankIndex * 2, 0, false, hardReward, "exam_score",
+                    null, MissionDifficulty.HARD))
+            }
+            unlocks.quick -> {
+                hardPool.add(Mission("review", "🔄",
+                    "Completa un Repaso Express",
+                    20, 0, false, hardReward, "quick_complete",
+                    null, MissionDifficulty.HARD))
+            }
+            else -> {
+                hardPool.add(Mission("quality", "🎯",
+                    "Acierta $streakTargetHard preguntas seguidas en Supervivencia (todas las leyes)",
+                    streakTargetHard, 0, false, hardReward, "streak",
+                    null, MissionDifficulty.HARD))
+            }
         }
 
         val selected = mutableListOf<Mission>()
@@ -162,6 +185,8 @@ class MissionRepository(private val context: Context) {
                 type == "variety" && m.key.startsWith("variety_") -> m.current += value
                 type == "timetrial_score" && m.key == "timetrial_score" -> m.current = maxOf(m.current, value)
                 type == "exam_score" && m.key == "exam_score" -> m.current = maxOf(m.current, value)
+                type == "simulacro_complete" && m.key == "simulacro_complete" -> m.current = maxOf(m.current, value)
+                type == "quick_complete" && m.key == "quick_complete" -> m.current = maxOf(m.current, value)
             }
             if (m.current >= m.target && !m.completed) {
                 m.completed = true
@@ -180,7 +205,10 @@ class MissionRepository(private val context: Context) {
         val data = getDailyMissions() ?: return
         updateProgress("streak", maxCombo)
         updateProgress("combo", maxCombo)
-        if (mode == "quick") updateProgress("quick_review", totalAnswered)
+        if (mode == "quick") {
+            updateProgress("quick_review", totalAnswered)
+            updateProgress("quick_complete", 1)
+        }
         if (mode == "timetrial") updateProgress("timetrial_score", score)
         for (m in data.missions) {
             if (m.key.startsWith("progress_")) {
@@ -197,5 +225,9 @@ class MissionRepository(private val context: Context) {
 
     fun checkExamResult(scorePct: Int) {
         updateProgress("exam_score", scorePct)
+    }
+
+    fun checkSimulacroResult(passed: Boolean) {
+        if (passed) updateProgress("simulacro_complete", 1)
     }
 }

@@ -37,6 +37,8 @@ fun ExamScreen(navController: NavController, gameViewModel: GameViewModel) {
     val examQuestionNum by gameViewModel.examQuestionNum.collectAsState()
     val examAnswered by gameViewModel.examAnswered.collectAsState()
     val isLoading by gameViewModel.isLoading.collectAsState()
+    val isSimulacro by gameViewModel.isSimulacroMode.collectAsState()
+    val simulacroTimer by gameViewModel.simulacroTimer.collectAsState()
 
     val currentQ by gameViewModel.examCurrentQuestion.collectAsState()
     val totalQuestions by gameViewModel.examTotalQuestions.collectAsState()
@@ -67,6 +69,20 @@ fun ExamScreen(navController: NavController, gameViewModel: GameViewModel) {
     var showExitDialog by remember { mutableStateOf(false) }
     var showFinishDialog by remember { mutableStateOf(false) }
     BackHandler { showExitDialog = true }
+
+    // Simulacro timer countdown
+    if (isSimulacro) {
+        LaunchedEffect(simulacroTimer) {
+            if (simulacroTimer > 0) {
+                kotlinx.coroutines.delay(1000L)
+                val expired = gameViewModel.tickSimulacroTimer()
+                if (expired) {
+                    gameViewModel.finishExam()
+                    navController.navigate(Routes.EXAM_RESULT)
+                }
+            }
+        }
+    }
 
     if (showExitDialog) {
         AlertDialog(
@@ -110,19 +126,37 @@ fun ExamScreen(navController: NavController, gameViewModel: GameViewModel) {
         Scaffold(
             topBar = {
                 TopAppBar(
-                    title = { Text(stringResource(R.string.mode_exam), color = TextLight, fontWeight = FontWeight.Bold) },
+                    title = {
+                        Text(
+                            if (isSimulacro) stringResource(R.string.mode_simulacro) else stringResource(R.string.mode_exam),
+                            color = TextLight, fontWeight = FontWeight.Bold
+                        )
+                    },
                     navigationIcon = {
                         IconButton(onClick = { showExitDialog = true }) {
                             Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.exit), tint = TextLight)
                         }
                     },
                     actions = {
-                        Text(
-                            stringResource(R.string.answered_of, examAnswered, totalQuestions),
-                            color = TextMuted,
-                            fontSize = 14.sp,
-                            modifier = Modifier.padding(end = 16.dp)
-                        )
+                        if (isSimulacro) {
+                            val mins = simulacroTimer / 60
+                            val secs = simulacroTimer % 60
+                            val timerColor = if (simulacroTimer <= 60) Danger else TextLight
+                            Text(
+                                String.format("%02d:%02d", mins, secs),
+                                color = timerColor,
+                                fontSize = 16.sp,
+                                fontWeight = FontWeight.Bold,
+                                modifier = Modifier.padding(end = 16.dp)
+                            )
+                        } else {
+                            Text(
+                                stringResource(R.string.answered_of, examAnswered, totalQuestions),
+                                color = TextMuted,
+                                fontSize = 14.sp,
+                                modifier = Modifier.padding(end = 16.dp)
+                            )
+                        }
                     },
                     colors = TopAppBarDefaults.topAppBarColors(
                         containerColor = BgDark,

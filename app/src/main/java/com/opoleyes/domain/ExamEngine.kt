@@ -29,9 +29,30 @@ class ExamEngine(private val context: Context) {
         val unanswered: Int
     )
 
+    data class SimulacroResult(
+        val total: Int,
+        val correct: Int,
+        val wrong: Int,
+        val unanswered: Int,
+        val points: Float,
+        val maxPoints: Float,
+        val passingScore: Float,
+        val passed: Boolean,
+        val perLaw: Map<String, LawResult>
+    )
+
     private var questions: List<ExamQuestion> = emptyList()
     private var currentIndex: Int = 0
     private var testLawMap: Map<String, String> = emptyMap()
+
+    companion object {
+        const val SIMULACRO_QUESTIONS = 25
+        const val SIMULACRO_TIME_SECONDS = 25 * 60
+        const val SIMULACRO_CORRECT_POINTS = 0.60f
+        const val SIMULACRO_WRONG_PENALTY = 0.15f
+        const val SIMULACRO_MAX_POINTS = SIMULACRO_QUESTIONS * SIMULACRO_CORRECT_POINTS
+        const val SIMULACRO_PASSING_SCORE = SIMULACRO_MAX_POINTS / 2f
+    }
 
     fun getQuestionCount(): Int = questions.size
     fun getCurrentIndex(): Int = currentIndex
@@ -165,6 +186,50 @@ class ExamEngine(private val context: Context) {
         val score = if (total > 0) correct.toFloat() / total * 10f else 0f
 
         return ExamResult(total, correct, wrong, unanswered, score, perLaw)
+    }
+
+    fun loadSimulacro() {
+        loadExam(SIMULACRO_QUESTIONS)
+    }
+
+    fun gradeSimulacro(): SimulacroResult {
+        var correct = 0
+        var wrong = 0
+        var unanswered = 0
+        val perLaw = mutableMapOf<String, LawResult>()
+
+        for (eq in questions) {
+            val law = testLawMap[eq.question.testId] ?: "Otros"
+            val lawResult = perLaw.getOrPut(law) { LawResult(0, 0, 0, 0) }
+            perLaw[law] = lawResult.copy(
+                total = lawResult.total + 1,
+                correct = lawResult.correct + (if (eq.userAnswer == eq.question.correct) 1 else 0),
+                wrong = lawResult.wrong + (if (eq.userAnswer != null && eq.userAnswer != eq.question.correct) 1 else 0),
+                unanswered = lawResult.unanswered + (if (eq.userAnswer == null) 1 else 0)
+            )
+
+            when {
+                eq.userAnswer == null -> unanswered++
+                eq.userAnswer == eq.question.correct -> correct++
+                else -> wrong++
+            }
+        }
+
+        val total = questions.size
+        val points = correct * SIMULACRO_CORRECT_POINTS - wrong * SIMULACRO_WRONG_PENALTY
+        val passed = points >= SIMULACRO_PASSING_SCORE
+
+        return SimulacroResult(
+            total = total,
+            correct = correct,
+            wrong = wrong,
+            unanswered = unanswered,
+            points = points,
+            maxPoints = SIMULACRO_MAX_POINTS,
+            passingScore = SIMULACRO_PASSING_SCORE,
+            passed = passed,
+            perLaw = perLaw
+        )
     }
 
     private fun mapTestToLaw(testName: String): String {

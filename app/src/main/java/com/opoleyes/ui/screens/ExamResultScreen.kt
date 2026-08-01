@@ -32,9 +32,11 @@ import com.opoleyes.ui.theme.*
 @Composable
 fun ExamResultScreen(navController: NavController, gameViewModel: GameViewModel) {
     val result by gameViewModel.examResult.collectAsState()
+    val simulacroResult by gameViewModel.simulacroResult.collectAsState()
+    val isSimulacro by gameViewModel.isSimulacroMode.collectAsState()
     val xpGained by gameViewModel.xpGained.collectAsState()
 
-    if (result == null) {
+    if (result == null && simulacroResult == null) {
         var navigated by remember { mutableStateOf(false) }
         LaunchedEffect(Unit) {
             if (!navigated) {
@@ -45,7 +47,8 @@ fun ExamResultScreen(navController: NavController, gameViewModel: GameViewModel)
         return
     }
 
-    val r = result!!
+    val r = result
+    val sr = simulacroResult
     var showReview by remember { mutableStateOf(false) }
     val allQuestions = remember { gameViewModel.getExamQuestions() }
     val scrollState = rememberScrollState()
@@ -53,7 +56,12 @@ fun ExamResultScreen(navController: NavController, gameViewModel: GameViewModel)
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(stringResource(R.string.exam_result), color = TextLight, fontWeight = FontWeight.Bold) },
+                title = {
+                    Text(
+                        if (isSimulacro) stringResource(R.string.simulacro_result) else stringResource(R.string.exam_result),
+                        color = TextLight, fontWeight = FontWeight.Bold
+                    )
+                },
                 navigationIcon = {
                     IconButton(onClick = {
                         gameViewModel.clearExamResult()
@@ -78,75 +86,206 @@ fun ExamResultScreen(navController: NavController, gameViewModel: GameViewModel)
                 .padding(paddingValues)
                 .padding(16.dp)
         ) {
-        Text(stringResource(R.string.exam_result), color = TextLight, fontSize = 24.sp, fontWeight = FontWeight.Bold)
-        Spacer(Modifier.height(24.dp))
-
-        ScoreCard(r)
-        Spacer(Modifier.height(16.dp))
-
-        StatsRow(r)
-        Spacer(Modifier.height(16.dp))
-
-        Text(stringResource(R.string.per_law), color = TextLight, fontSize = 18.sp, fontWeight = FontWeight.Bold)
-        Spacer(Modifier.height(8.dp))
-        r.perLaw.forEach { (law, lr) ->
-            LawBreakdownRow(law, lr)
-            Spacer(Modifier.height(6.dp))
-        }
-
-        Spacer(Modifier.height(16.dp))
-        Text(stringResource(R.string.xp_earned, xpGained), color = AccentLight, fontSize = 14.sp, fontWeight = FontWeight.Bold)
-
-        Spacer(Modifier.height(24.dp))
-
-        Button(
-            onClick = { showReview = !showReview },
-            modifier = Modifier.fillMaxWidth(),
-            colors = ButtonDefaults.buttonColors(containerColor = BgCard),
-            border = androidx.compose.foundation.BorderStroke(1.dp, SurfaceVariant)
-        ) {
-            Text(if (showReview) stringResource(R.string.hide_review) else stringResource(R.string.review_answers), color = TextLight)
-        }
-
-        AnimatedVisibility(showReview) {
-            Column {
-                Spacer(Modifier.height(16.dp))
-                allQuestions.forEachIndexed { idx, eq ->
-                    QuestionReviewCard(idx + 1, eq)
-                    Spacer(Modifier.height(8.dp))
-                }
-            }
-        }
-
-        Spacer(Modifier.height(24.dp))
-
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(12.dp)
-        ) {
-            OutlinedButton(
-                onClick = {
+        if (isSimulacro && sr != null) {
+            SimulacroResultContent(sr, xpGained, allQuestions, showReview) { showReview = !showReview }
+            SimulacroActions(
+                onHome = {
                     gameViewModel.clearExamResult()
                     navController.navigate(Routes.HOME) { popUpTo(0) }
                 },
-                modifier = Modifier.weight(1f),
-                colors = ButtonDefaults.outlinedButtonColors(contentColor = TextLight),
-                border = androidx.compose.foundation.BorderStroke(1.dp, SurfaceVariant)
-            ) {
-                Text(stringResource(R.string.home_label))
-            }
-            Button(
-                onClick = {
+                onAnother = {
                     gameViewModel.clearExamResult()
                     navController.navigate(Routes.MODE_SELECT) { popUpTo(Routes.HOME) }
-                },
-                modifier = Modifier.weight(1f),
-                colors = ButtonDefaults.buttonColors(containerColor = Primary)
+                }
+            )
+        } else if (r != null) {
+            Text(stringResource(R.string.exam_result), color = TextLight, fontSize = 24.sp, fontWeight = FontWeight.Bold)
+            Spacer(Modifier.height(24.dp))
+
+            ScoreCard(r)
+            Spacer(Modifier.height(16.dp))
+
+            StatsRow(r)
+            Spacer(Modifier.height(16.dp))
+
+            Text(stringResource(R.string.per_law), color = TextLight, fontSize = 18.sp, fontWeight = FontWeight.Bold)
+            Spacer(Modifier.height(8.dp))
+            r.perLaw.forEach { (law, lr) ->
+                LawBreakdownRow(law, lr)
+                Spacer(Modifier.height(6.dp))
+            }
+
+            Spacer(Modifier.height(16.dp))
+            Text(stringResource(R.string.xp_earned, xpGained), color = AccentLight, fontSize = 14.sp, fontWeight = FontWeight.Bold)
+
+            Spacer(Modifier.height(24.dp))
+
+            Button(
+                onClick = { showReview = !showReview },
+                modifier = Modifier.fillMaxWidth(),
+                colors = ButtonDefaults.buttonColors(containerColor = BgCard),
+                border = androidx.compose.foundation.BorderStroke(1.dp, SurfaceVariant)
             ) {
-                Text(stringResource(R.string.another_exam))
+                Text(if (showReview) stringResource(R.string.hide_review) else stringResource(R.string.review_answers), color = TextLight)
+            }
+
+            AnimatedVisibility(showReview) {
+                Column {
+                    Spacer(Modifier.height(16.dp))
+                    allQuestions.forEachIndexed { idx, eq ->
+                        QuestionReviewCard(idx + 1, eq)
+                        Spacer(Modifier.height(8.dp))
+                    }
+                }
+            }
+
+            Spacer(Modifier.height(24.dp))
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                OutlinedButton(
+                    onClick = {
+                        gameViewModel.clearExamResult()
+                        navController.navigate(Routes.HOME) { popUpTo(0) }
+                    },
+                    modifier = Modifier.weight(1f),
+                    colors = ButtonDefaults.outlinedButtonColors(contentColor = TextLight),
+                    border = androidx.compose.foundation.BorderStroke(1.dp, SurfaceVariant)
+                ) {
+                    Text(stringResource(R.string.home_label))
+                }
+                Button(
+                    onClick = {
+                        gameViewModel.clearExamResult()
+                        navController.navigate(Routes.MODE_SELECT) { popUpTo(Routes.HOME) }
+                    },
+                    modifier = Modifier.weight(1f),
+                    colors = ButtonDefaults.buttonColors(containerColor = Primary)
+                ) {
+                    Text(stringResource(R.string.another_exam))
+                }
             }
         }
         Spacer(Modifier.height(32.dp))
+        }
+    }
+}
+
+@Composable
+private fun SimulacroResultContent(
+    sr: ExamEngine.SimulacroResult,
+    xpGained: Int,
+    allQuestions: List<ExamEngine.ExamQuestion>,
+    showReview: Boolean,
+    onToggleReview: () -> Unit
+) {
+    val scoreColor = if (sr.passed) Success else Danger
+    val gradeText = if (sr.passed) stringResource(R.string.grade_pass) else stringResource(R.string.grade_fail)
+
+    Text(stringResource(R.string.simulacro_result), color = TextLight, fontSize = 24.sp, fontWeight = FontWeight.Bold)
+    Spacer(Modifier.height(24.dp))
+
+    Surface(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(16.dp),
+        color = BgCard
+    ) {
+        Column(
+            modifier = Modifier.padding(24.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Text(
+                String.format("%.2f", sr.points),
+                color = scoreColor,
+                fontSize = 64.sp,
+                fontWeight = FontWeight.Bold
+            )
+            Text(
+                stringResource(R.string.out_of_fifteen, sr.maxPoints.toInt()),
+                color = TextMuted, fontSize = 16.sp
+            )
+            Spacer(Modifier.height(8.dp))
+            Text(gradeText, color = scoreColor, fontSize = 20.sp, fontWeight = FontWeight.Bold)
+            Spacer(Modifier.height(4.dp))
+            Text(
+                stringResource(R.string.passing_score, sr.passingScore.toInt()),
+                color = TextMuted, fontSize = 12.sp
+            )
+        }
+    }
+
+    Spacer(Modifier.height(16.dp))
+
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceEvenly
+    ) {
+        StatItem(Icons.Default.Check, sr.correct.toString(), stringResource(R.string.correct_label), Success)
+        StatItem(Icons.Default.Close, sr.wrong.toString(), stringResource(R.string.wrong_label), Danger)
+        StatItem("—", sr.unanswered.toString(), stringResource(R.string.unanswered_label), TextMuted)
+    }
+
+    Spacer(Modifier.height(16.dp))
+
+    Text(stringResource(R.string.per_law), color = TextLight, fontSize = 18.sp, fontWeight = FontWeight.Bold)
+    Spacer(Modifier.height(8.dp))
+    sr.perLaw.forEach { (law, lr) ->
+        LawBreakdownRow(law, lr)
+        Spacer(Modifier.height(6.dp))
+    }
+
+    Spacer(Modifier.height(16.dp))
+    Text(stringResource(R.string.xp_earned, xpGained), color = AccentLight, fontSize = 14.sp, fontWeight = FontWeight.Bold)
+
+    Spacer(Modifier.height(24.dp))
+
+    Button(
+        onClick = onToggleReview,
+        modifier = Modifier.fillMaxWidth(),
+        colors = ButtonDefaults.buttonColors(containerColor = BgCard),
+        border = androidx.compose.foundation.BorderStroke(1.dp, SurfaceVariant)
+    ) {
+        Text(
+            if (showReview) stringResource(R.string.hide_review) else stringResource(R.string.review_answers),
+            color = TextLight
+        )
+    }
+
+    AnimatedVisibility(showReview) {
+        Column {
+            Spacer(Modifier.height(16.dp))
+            allQuestions.forEachIndexed { idx, eq ->
+                QuestionReviewCard(idx + 1, eq)
+                Spacer(Modifier.height(8.dp))
+            }
+        }
+    }
+
+    Spacer(Modifier.height(24.dp))
+}
+
+@Composable
+private fun SimulacroActions(onHome: () -> Unit, onAnother: () -> Unit) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(12.dp)
+    ) {
+        OutlinedButton(
+            onClick = onHome,
+            modifier = Modifier.weight(1f),
+            colors = ButtonDefaults.outlinedButtonColors(contentColor = TextLight),
+            border = androidx.compose.foundation.BorderStroke(1.dp, SurfaceVariant)
+        ) {
+            Text(stringResource(R.string.home_label))
+        }
+        Button(
+            onClick = onAnother,
+            modifier = Modifier.weight(1f),
+            colors = ButtonDefaults.buttonColors(containerColor = Accent)
+        ) {
+            Text(stringResource(R.string.another_simulacro))
         }
     }
 }

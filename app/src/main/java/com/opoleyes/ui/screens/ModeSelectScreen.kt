@@ -93,7 +93,9 @@ fun ModeSelectScreen(navController: NavController, gameViewModel: GameViewModel)
                                 showExamDialog = true
                             }
                             GameMode.SIMULACRO -> {
-                                // TODO: Start simulacro mode
+                                gameViewModel.startSimulacroAsync { ok ->
+                                    if (ok) navController.navigate(Routes.EXAM)
+                                }
                             }
                             else -> {
                                 gameViewModel.pendingMode = mode.mode
