@@ -32,10 +32,10 @@ fun HelpScreen(navController: NavController, gameViewModel: GameViewModel) {
         )),
         HelpSectionData("🎮", "Modos de juego", listOf(
             "❤️ Supervivencia: Tienes 3 vidas y sin límite de tiempo. Falla 3 veces y se acaba.",
-            "⏱️ Contrarreloj: 3 minutos. Cada acierto suma 15 segundos, cada fallo resta 10.",
-            "⚡ Repaso Express: 20 preguntas de las que has fallado antes, para repasar tus errores.",
-            "📝 Mini Examen: Simula un examen. Sin vidas, sin power-ups, corrección al final.",
-            "🏆 Simulacro: 100 preguntas, 100 minutos. Réplica del examen oficial con pesos por ley y penalización."
+            "⏱️ Contrarreloj: 3 minutos. Cada acierto suma 15 segundos, cada fallo resta 10. Se desbloquea al rango 1.",
+            "⚡ Repaso Express: 20 preguntas de las que has fallado antes, para repasar tus errores. Se desbloquea al rango 3.",
+            "📝 Mini Examen: Simula un examen de 10 a 50 preguntas. Sin vidas, sin power-ups, corrección al final. Se desbloquea al rango 5.",
+            "🏆 Simulacro: 100 preguntas, 100 minutos. Réplica del examen oficial con pesos por ley, penalización (+0.60/−0.15) y nota sobre 60. Se desbloquea aprobando un Mini Examen de 50 preguntas."
         )),
         HelpSectionData("✨", "Ayudas (Power-ups)", listOf(
             "💡 Pista: Quita una respuesta incorrecta de la pantalla.",
@@ -53,8 +53,8 @@ fun HelpScreen(navController: NavController, gameViewModel: GameViewModel) {
             "Al llenarla, obtienes 3 cargas gratis que puedes canjear por vida extra o tiempo adicional."
         )),
         HelpSectionData("🌱", "Rangos", listOf(
-            "Hay 12 rangos, desde Novato (0 XP) hasta Leyenda (100.000 XP).",
-            "Cada rango desbloquea nuevos modos de juego y ayudas.",
+            "Hay 7 rangos, desde Novato (0 XP) hasta Maestro (25.000 XP).",
+            "Cada rango desbloquea nuevos modos de juego, ayudas y más misiones diarias.",
             "Gana XP acertando preguntas y completando misiones diarias."
         )),
         HelpSectionData("🎁", "Bonus", listOf(
