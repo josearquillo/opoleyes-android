@@ -52,6 +52,7 @@ fun ModeSelectScreen(navController: NavController, gameViewModel: GameViewModel)
     )
 
     var showExamDialog by remember { mutableStateOf(false) }
+    var showQuickDialog by remember { mutableStateOf(false) }
 
     Scaffold(
         topBar = {
@@ -87,7 +88,7 @@ fun ModeSelectScreen(navController: NavController, gameViewModel: GameViewModel)
                     ModeCard(mode, enabled = !isLoading) {
                         when (mode.mode) {
                             GameMode.QUICK -> {
-                                gameViewModel.startQuickGameAsync { ok -> if (ok) navController.navigate(Routes.GAME) }
+                                showQuickDialog = true
                             }
                             GameMode.EXAM -> {
                                 showExamDialog = true
@@ -121,6 +122,17 @@ fun ModeSelectScreen(navController: NavController, gameViewModel: GameViewModel)
                 gameViewModel.startExamAsync(count) { ok ->
                     if (ok) navController.navigate(Routes.EXAM)
                 }
+            }
+        )
+    }
+
+    if (showQuickDialog) {
+        QuickRewardDialog(
+            gameViewModel = gameViewModel,
+            onDismiss = { showQuickDialog = false },
+            onStart = {
+                showQuickDialog = false
+                gameViewModel.startQuickGameAsync { ok -> if (ok) navController.navigate(Routes.GAME) }
             }
         )
     }
@@ -250,4 +262,62 @@ private fun ExamPresetCard(count: Int, unlocked: Boolean, nextLocked: Int?, onCl
             Icon(Icons.Default.Lock, contentDescription = null, tint = TextDim, modifier = Modifier.size(20.dp))
         }
     }
+}
+
+@Composable
+private fun QuickRewardDialog(
+    gameViewModel: GameViewModel,
+    onDismiss: () -> Unit,
+    onStart: () -> Unit
+) {
+    val rewardPowerUp = gameViewModel.getQuickRewardPowerUp()
+    val (emoji, label, color) = when (rewardPowerUp) {
+        "shield" -> Triple("🛡️", stringResource(R.string.shield), Primary)
+        "hint" -> Triple("💡", stringResource(R.string.hint), WarningDark)
+        "fiftyFifty" -> Triple("✂️", stringResource(R.string.fifty_fifty), Primary)
+        "doubleScore" -> Triple("✨", stringResource(R.string.double_points), Warning)
+        else -> Triple("🎁", "Power-up", Accent)
+    }
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        containerColor = BgCard,
+        titleContentColor = TextLight,
+        title = {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Icon(Icons.Default.Bolt, contentDescription = null, tint = Warning, modifier = Modifier.size(24.dp))
+                Spacer(Modifier.width(8.dp))
+                Text(stringResource(R.string.quick_reward_title), color = TextLight, fontWeight = FontWeight.Bold)
+            }
+        },
+        text = {
+            Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.fillMaxWidth()) {
+                Text(stringResource(R.string.quick_reward_desc), color = TextMuted, fontSize = 14.sp, textAlign = androidx.compose.ui.text.style.TextAlign.Center)
+                Spacer(Modifier.height(20.dp))
+                Box(
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(16.dp))
+                        .background(Brush.verticalGradient(listOf(color, color.copy(alpha = 0.7f))))
+                        .padding(horizontal = 24.dp, vertical = 16.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Text(emoji, fontSize = 32.sp)
+                        Spacer(Modifier.width(12.dp))
+                        Text(label, color = Color.White, fontSize = 18.sp, fontWeight = FontWeight.Bold)
+                    }
+                }
+            }
+        },
+        confirmButton = {
+            TextButton(onClick = onStart) {
+                Text(stringResource(R.string.quick_reward_start), color = Accent, fontWeight = FontWeight.Bold)
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text(stringResource(R.string.quick_reward_cancel), color = TextMuted)
+            }
+        }
+    )
 }

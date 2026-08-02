@@ -46,7 +46,7 @@ object Constants {
         Achievement("all_laws", "👑", "Jurisconsulto", "Dominar todas las leyes al 100%"),
     )
 
-    const val QUICK_MODE_QUESTIONS = 20
+    const val QUICK_MODE_QUESTIONS = 10
 
     val RANK_UNLOCKS = mapOf(
         1 to "⏱️ Contrarreloj",

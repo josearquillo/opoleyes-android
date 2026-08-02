@@ -67,8 +67,8 @@ class ConstantsTest {
     }
 
     @Test
-    fun quickModeQuestions_is20() {
-        assertEquals(20, Constants.QUICK_MODE_QUESTIONS)
+    fun quickModeQuestions_is10() {
+        assertEquals(10, Constants.QUICK_MODE_QUESTIONS)
     }
 
     @Test

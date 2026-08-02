@@ -926,10 +926,10 @@ class GameEngineTest {
     }
 
     @Test
-    fun fun_isGameOver_quickModeWithLivesAndUnder20() {
+    fun fun_isGameOver_quickModeWithLivesAndUnderLimit() {
         engine.mode = GameMode.QUICK
         engine.lives = 3
-        engine.questionNum = 10
+        engine.questionNum = 9
         assertFalse(engine.isGameOver())
     }
 

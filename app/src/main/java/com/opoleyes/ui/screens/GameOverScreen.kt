@@ -63,6 +63,8 @@ fun GameOverScreen(navController: NavController, gameViewModel: GameViewModel) {
     val accuracy by gameViewModel.accuracy.collectAsState()
     val chestReward by gameViewModel.chestReward.collectAsState()
     val rankUpOverlay by gameViewModel.rankUpOverlay.collectAsState()
+    val quickRewardEarned by gameViewModel.quickRewardEarned.collectAsState()
+    val quickRewardPowerUp by gameViewModel.quickRewardPowerUp.collectAsState()
 
     var displayScore by remember { mutableStateOf(0) }
     var chestOpened by remember { mutableStateOf(false) }
@@ -202,7 +204,34 @@ fun GameOverScreen(navController: NavController, gameViewModel: GameViewModel) {
 
             Spacer(Modifier.height(24.dp))
 
-            // Buttons (disabled while chest popup is showing)
+            // Quick reward earned banner
+            if (quickRewardEarned && uiState.mode == GameMode.QUICK) {
+                val (emoji, label) = when (quickRewardPowerUp) {
+                    "shield" -> "🛡️" to stringResource(R.string.shield)
+                    "hint" -> "💡" to stringResource(R.string.hint)
+                    "fiftyFifty" -> "✂️" to stringResource(R.string.fifty_fifty)
+                    "doubleScore" -> "✨" to stringResource(R.string.double_points)
+                    else -> "🎁" to "Power-up"
+                }
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clip(RoundedCornerShape(16.dp))
+                        .background(Brush.verticalGradient(listOf(Success, SuccessDark)))
+                        .padding(16.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Text(emoji, fontSize = 28.sp)
+                        Spacer(Modifier.width(12.dp))
+                        Column {
+                            Text(stringResource(R.string.quick_reward_earned), color = Color.White, fontSize = 16.sp, fontWeight = FontWeight.Bold)
+                            Text("+1 $label", color = Color.White.copy(alpha = 0.8f), fontSize = 13.sp)
+                        }
+                    }
+                }
+                Spacer(Modifier.height(24.dp))
+            }
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(10.dp)
@@ -216,6 +245,7 @@ fun GameOverScreen(navController: NavController, gameViewModel: GameViewModel) {
                 ) {
                     gameViewModel.clearChest()
                     gameViewModel.clearRankUp()
+                    gameViewModel.clearQuickReward()
                     when (uiState.mode) {
                         GameMode.QUICK -> gameViewModel.startQuickGame()
                         else -> {
@@ -236,6 +266,7 @@ fun GameOverScreen(navController: NavController, gameViewModel: GameViewModel) {
                     color1 = Primary,
                     color2 = PurpleDark
                 ) {
+                    gameViewModel.clearQuickReward()
                     navController.navigate(Routes.HOME) { popUpTo(Routes.HOME) { inclusive = true } }
                 }
             }

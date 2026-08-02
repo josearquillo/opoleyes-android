@@ -24,6 +24,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.navigation.NavController
 import com.opoleyes.R
+import com.opoleyes.data.Constants
 import com.opoleyes.data.model.GameMode
 import com.opoleyes.ui.components.*
 import com.opoleyes.ui.navigation.GameViewModel
@@ -177,7 +178,7 @@ fun GameScreen(navController: NavController, gameViewModel: GameViewModel) {
 
                 // Progress bar for questions (only for modes with fixed total)
                 val totalQ = when (uiState.mode) {
-                    GameMode.QUICK -> 20
+                    GameMode.QUICK -> Constants.QUICK_MODE_QUESTIONS
                     else -> 0
                 }
                 if (totalQ > 0) {

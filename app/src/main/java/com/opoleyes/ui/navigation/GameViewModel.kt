@@ -4,6 +4,7 @@ import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.opoleyes.data.model.*
+import com.opoleyes.data.Constants
 import com.opoleyes.data.repository.GameRepository
 import com.opoleyes.data.repository.MissionRepository
 import com.opoleyes.data.repository.ProgressRepository
@@ -143,6 +144,12 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
     private val _isLoading = MutableStateFlow(false)
     val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
 
+    private val _quickRewardPowerUp = MutableStateFlow<String?>(null)
+    val quickRewardPowerUp: StateFlow<String?> = _quickRewardPowerUp.asStateFlow()
+
+    private val _quickRewardEarned = MutableStateFlow(false)
+    val quickRewardEarned: StateFlow<Boolean> = _quickRewardEarned.asStateFlow()
+
     private val _chestReward = MutableStateFlow<ChestReward?>(null)
     val chestReward: StateFlow<ChestReward?> = _chestReward.asStateFlow()
 
@@ -226,9 +233,25 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
     fun startQuickGame(): Boolean {
         _popups.value = emptyList()
         _toasts.value = emptyList()
+        _quickRewardEarned.value = false
         val ok = engine.startQuickGame()
-        if (ok) { engine.nextQuestion(); updateUiState() }
+        if (ok) {
+            _quickRewardPowerUp.value = generateQuickReward()
+            engine.nextQuestion(); updateUiState()
+        }
         return ok
+    }
+
+    private fun generateQuickReward(): String {
+        val options = listOf("shield", "hint", "fiftyFifty", "doubleScore")
+        return options.random()
+    }
+
+    fun getQuickRewardPowerUp(): String? = _quickRewardPowerUp.value
+
+    fun clearQuickReward() {
+        _quickRewardPowerUp.value = null
+        _quickRewardEarned.value = false
     }
 
     var pendingMode: GameMode = GameMode.SURVIVAL
@@ -528,6 +551,15 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
 
         _homePreload = null
         _profileData = null
+
+        if (engine.mode == GameMode.QUICK && engine.totalAnswered >= Constants.QUICK_MODE_QUESTIONS && engine.correctCount == engine.totalAnswered) {
+            _quickRewardPowerUp.value?.let { reward ->
+                val current = prefs.getFreePowerUps().toMutableList()
+                current.add(reward)
+                prefs.setFreePowerUps(current)
+                _quickRewardEarned.value = true
+            }
+        }
 
         val chest = chestSystem.generateChest(_newRecord.value, acc, engine.totalAnswered, engine.score)
         _chestReward.value = chest
