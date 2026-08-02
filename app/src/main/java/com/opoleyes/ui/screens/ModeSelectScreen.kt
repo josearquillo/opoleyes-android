@@ -172,6 +172,9 @@ private fun ModeCard(mode: ModeInfo, enabled: Boolean = true, onClick: () -> Uni
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     Icon(Icons.Default.Lock, contentDescription = stringResource(R.string.locked), tint = TextDim)
                     Text(Constants.getRankByIndex(mode.requiredRank).name, color = TextDim, fontSize = 10.sp)
+                    if (mode.mode == GameMode.SIMULACRO) {
+                        Text("+ aprobar 50", color = TextDim, fontSize = 9.sp)
+                    }
                 }
             }
         }

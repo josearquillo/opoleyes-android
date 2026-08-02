@@ -157,7 +157,7 @@
     <string name="help_section_modes_l2">⏱️ Contrarreloj: 3 minutos. Cada acierto suma 15 segundos, cada fallo resta 10. Se desbloquea al rango 1.</string>
     <string name="help_section_modes_l3">⚡ Repaso Express: 5 preguntas de las que has fallado antes, con 3 vidas. Sin power-ups. Si aciertas las 5, recibes un power-up gratis (mejor cuánto más difíciles sean tus fallos). Se desbloquea al rango 3.</string>
     <string name="help_section_modes_l4">📝 Mini Examen: Simula un examen de 10 a 50 preguntas. Sin vidas, sin power-ups, corrección al final. Se desbloquea al rango 5.</string>
-    <string name="help_section_modes_l5">🏆 Simulacro: 100 preguntas, 100 minutos. Réplica del examen oficial con pesos por ley, penalización (+0.60/−0.15) y nota sobre 60. Se desbloquea aprobando un Mini Examen de 50 preguntas.</string>
+    <string name="help_section_modes_l5">🏆 Simulacro: 100 preguntas, 100 minutos. Réplica del examen oficial con pesos por ley, penalización (+0.60/−0.15) y nota sobre 60. Se desbloquea al alcanzar el rango Veterano y aprobar un Mini Examen de 50 preguntas.</string>
     <string name="help_section_powerups_title">Ayudas (Power-ups)</string>
     <string name="help_section_powerups_l1">💡 Pista: Quita una respuesta incorrecta de la pantalla.</string>
     <string name="help_section_powerups_l2">🛡️ Escudo: Actívalo manualmente pulsando su botón. Si fallas, se consume y no te penaliza. Permanece activo hasta que falles. Es mutuamente excluyente con otras ayudas.</string>
