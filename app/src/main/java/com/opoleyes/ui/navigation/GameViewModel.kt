@@ -243,8 +243,13 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     private fun generateQuickReward(): String {
-        val options = listOf("shield", "hint", "fiftyFifty", "doubleScore")
-        return options.random()
+        val avgWeight = if (engine.pool.isNotEmpty()) engine.pool.map { it.weight }.average() else 50.0
+        return when {
+            avgWeight >= 70 -> "doubleScore"
+            avgWeight >= 50 -> "fiftyFifty"
+            avgWeight >= 30 -> "shield"
+            else -> "hint"
+        }
     }
 
     fun getQuickRewardPowerUp(): String? = _quickRewardPowerUp.value

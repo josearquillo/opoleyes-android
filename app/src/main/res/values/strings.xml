@@ -155,7 +155,7 @@
     <string name="help_section_modes_title">Modos de juego</string>
     <string name="help_section_modes_l1">❤️ Supervivencia: Tienes 3 vidas y sin límite de tiempo. Falla 3 veces y se acaba.</string>
     <string name="help_section_modes_l2">⏱️ Contrarreloj: 3 minutos. Cada acierto suma 15 segundos, cada fallo resta 10. Se desbloquea al rango 1.</string>
-    <string name="help_section_modes_l3">⚡ Repaso Express: 10 preguntas de las que has fallado antes, con 3 vidas. Sin power-ups. Si aciertas las 10, recibes un power-up gratis. Se desbloquea al rango 3.</string>
+    <string name="help_section_modes_l3">⚡ Repaso Express: 10 preguntas de las que has fallado antes, con 3 vidas. Sin power-ups. Si aciertas las 10, recibes un power-up gratis (mejor cuánto más dificiles sean tus fallos). Se desbloquea al rango 3.</string>
     <string name="help_section_modes_l4">📝 Mini Examen: Simula un examen de 10 a 50 preguntas. Sin vidas, sin power-ups, corrección al final. Se desbloquea al rango 5.</string>
     <string name="help_section_modes_l5">🏆 Simulacro: 100 preguntas, 100 minutos. Réplica del examen oficial con pesos por ley, penalización (+0.60/−0.15) y nota sobre 60. Se desbloquea aprobando un Mini Examen de 50 preguntas.</string>
     <string name="help_section_powerups_title">Ayudas (Power-ups)</string>
