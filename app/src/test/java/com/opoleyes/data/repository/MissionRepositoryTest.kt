@@ -124,4 +124,24 @@ class MissionRepositoryTest {
         assertEquals(first.date, second.date)
         assertEquals(first.missions.size, second.missions.size)
     }
+
+    // === Regression tests for bugs fixed ===
+
+    @Test
+    fun quickCompleteMission_targetIs1_achievableInOneGame() {
+        // Bug: target was 20, but updateProgress uses maxOf(current, value) with value=1,
+        // so current could never exceed 1, making the mission impossible.
+        saveMissions(makeMission(key = "quick_complete", target = 1, reward = 100, current = 0))
+        missionRepo.checkOnGameOver("quick", maxCombo = 0, totalAnswered = 5, gameCategory = "", correctCount = 5, score = 0)
+        val data = missionRepo.getDailyMissions()!!
+        assertTrue("quick_complete mission should be achievable in one game", data.missions[0].completed)
+    }
+
+    @Test
+    fun quickCompleteMission_doesNotCompleteInOtherModes() {
+        saveMissions(makeMission(key = "quick_complete", target = 1, reward = 100, current = 0))
+        missionRepo.checkOnGameOver("survival", maxCombo = 10, totalAnswered = 20, gameCategory = "", correctCount = 20, score = 500)
+        val data = missionRepo.getDailyMissions()!!
+        assertFalse("quick_complete should not complete in survival mode", data.missions[0].completed)
+    }
 }

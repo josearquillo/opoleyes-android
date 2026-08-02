@@ -1,0 +1,41 @@
+# detekt configuration
+# Focused on catching real bugs, not style issues.
+# Complexity rules are relaxed to avoid failing on pre-existing code.
+
+complexity:
+  active: false  # Pre-existing complex methods; enable when ready to refactor
+
+empty-blocks:
+  active: true
+  EmptyFunctionBlock:
+    active: false
+  EmptyClassBlock:
+    active: true
+  EmptyElseBlock:
+    active: false  # Pre-existing
+
+exceptions:
+  active: true
+  SwallowedException:
+    active: false
+  TooGenericExceptionCaught:
+    active: false
+
+naming:
+  active: false  # Pre-existing naming conventions
+
+potential-bugs:
+  active: true
+  EqualsAlwaysReturnsTrueOrFalse:
+    active: true
+  IteratorNotThrowingNoSuchElementException:
+    active: true
+  UnreachableCode:
+    active: true
+  UnsafeCallOnNullableType:
+    active: true
+  ImplicitDefaultLocale:
+    active: false  # Pre-existing
+
+style:
+  active: false  # Pre-existing style issues; enable when ready to clean up

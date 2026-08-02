@@ -1280,4 +1280,48 @@ class GameEngineTest {
         engine.saveRemainingPowerUps()
         assertEquals("2 shields recovered (1 charge + 1 active)", 2, prefs.getFreePowerUps().count { it == "shield" })
     }
+
+    // === Regression tests for bugs fixed ===
+
+    @Test
+    fun fun_streak5_inQuick_doesNotAwardFiftyFifty() {
+        // Help text: "Repaso Express: Sin power-ups"
+        engine.mode = GameMode.QUICK
+        engine.lives = 3
+        engine.streak = 4
+        engine.fiftyFiftyCharges = 0
+        engine.answered = false
+        engine.currentQ = makeQuestion("A")
+        engine.answer("A")
+        assertEquals(5, engine.streak)
+        assertEquals("No fiftyFifty charges should be awarded in QUICK mode", 0, engine.fiftyFiftyCharges)
+    }
+
+    @Test
+    fun fun_streak5_inTimetrial_doesNotAwardFiftyFifty() {
+        // Help text only mentions "+20 segundos extra" for TIMETRIAL streaks, not 50/50
+        engine.mode = GameMode.TIMETRIAL
+        engine.timer = 100f
+        engine.streak = 4
+        engine.fiftyFiftyCharges = 0
+        engine.answered = false
+        engine.currentQ = makeQuestion("A")
+        engine.answer("A")
+        assertEquals(5, engine.streak)
+        assertEquals("No fiftyFifty charges should be awarded in TIMETRIAL streak", 0, engine.fiftyFiftyCharges)
+    }
+
+    @Test
+    fun fun_streak15_inSurvival_awardsDoubleScore() {
+        // Help text: "Al llenarla [combo bar], obtienes 3 cargas gratis" + streak%15 gives doubleScore
+        engine.mode = GameMode.SURVIVAL
+        engine.lives = 3
+        engine.streak = 14
+        engine.doubleScoreCharges = 0
+        engine.answered = false
+        engine.currentQ = makeQuestion("A")
+        engine.answer("A")
+        assertEquals(15, engine.streak)
+        assertTrue("doubleScore should be awarded at streak 15 in SURVIVAL", engine.doubleScoreCharges > 0)
+    }
 }

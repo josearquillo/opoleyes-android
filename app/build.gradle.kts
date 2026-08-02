@@ -3,6 +3,7 @@ plugins {
     id("org.jetbrains.kotlin.android")
     id("com.google.devtools.ksp")
     id("jacoco")
+    id("io.gitlab.arturbosch.detekt")
 }
 
 jacoco {
@@ -144,4 +145,19 @@ dependencies {
     androidTestImplementation("androidx.test:rules:1.5.0")
     androidTestImplementation("androidx.compose.ui:ui-test-junit4")
     debugImplementation("androidx.compose.ui:ui-test-manifest")
+}
+
+detekt {
+    buildUponDefaultConfig = true
+    allRules = false
+    config.setFrom("$rootDir/config/detekt.yml")
+    parallel = true
+}
+
+tasks.withType<io.gitlab.arturbosch.detekt.Detekt>().configureEach {
+    reports {
+        html.required.set(true)
+        xml.required.set(false)
+        txt.required.set(false)
+    }
 }
