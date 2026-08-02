@@ -171,9 +171,11 @@ private fun ModeCard(mode: ModeInfo, enabled: Boolean = true, onClick: () -> Uni
             if (locked) {
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     Icon(Icons.Default.Lock, contentDescription = stringResource(R.string.locked), tint = TextDim)
-                    Text(Constants.getRankByIndex(mode.requiredRank).name, color = TextDim, fontSize = 10.sp)
                     if (mode.mode == GameMode.SIMULACRO) {
+                        Text("Veterano", color = TextDim, fontSize = 10.sp)
                         Text("+ aprobar 50", color = TextDim, fontSize = 9.sp)
+                    } else {
+                        Text(Constants.getRankByIndex(mode.requiredRank).name, color = TextDim, fontSize = 10.sp)
                     }
                 }
             }
