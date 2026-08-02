@@ -162,7 +162,7 @@ class GameEngine private constructor(
         fiftyFiftyActive = false; fiftyFiftyRemoved = emptyList()
         hintActive = false; hintRemoved = emptyList()
         doubleScoreActive = false
-        shieldActive = false
+        // Shield persists across questions until the user fails (per help text)
         powerUpUsedThisQuestion = false
         return true
     }
@@ -215,8 +215,6 @@ class GameEngine private constructor(
                 } else if (mode == GameMode.TIMETRIAL) {
                     timer = minOf(300f, timer + 20f)
                 }
-                if (mode == GameMode.TIMETRIAL) fiftyFiftyCharges++
-                if (mode == GameMode.QUICK) fiftyFiftyCharges++
                 if (streak % 15 == 0 && mode != GameMode.QUICK) doubleScoreCharges++
             }
 

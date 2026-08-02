@@ -305,6 +305,7 @@ fun ChestOverlay(chest: ChestReward, opened: Boolean, shakeCount: Int, onOpen: (
     LaunchedEffect(shakeCount) {
         if (shakeCount > 0 && !opened) {
             chestShakeAnim.snapTo(0f)
+            @Suppress("DEPRECATION")
             chestShakeAnim.animateTo(1f, animationSpec = keyframes {
                 durationMillis = 300
                 0f at 0 with LinearEasing

@@ -172,6 +172,7 @@ fun ShakeBox(
     LaunchedEffect(shakeTrigger) {
         if (shakeTrigger != null) {
             shake.snapTo(0f)
+            @Suppress("DEPRECATION")
             shake.animateTo(1f, animationSpec = keyframes {
                 durationMillis = 400
                 0f at 0 with LinearEasing

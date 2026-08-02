@@ -638,7 +638,7 @@ class GameEngineTest {
     }
 
     @Test
-    fun fun_shield_resetsOnNextQuestion() {
+    fun fun_shield_persistsAcrossQuestionsUntilFail() {
         engine.startAllLawsGame()
         engine.nextQuestion()
         engine.shieldCharges = 1
@@ -646,7 +646,7 @@ class GameEngineTest {
         assertTrue(engine.shieldActive)
         engine.answer(engine.currentQ!!.correct)
         engine.nextQuestion()
-        assertFalse("shieldActive should be reset on next question", engine.shieldActive)
+        assertTrue("shieldActive should persist after correct answer", engine.shieldActive)
     }
 
     @Test

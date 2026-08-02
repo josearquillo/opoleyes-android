@@ -40,6 +40,8 @@
     <string name="question_count">Número de preguntas</string>
     <string name="questions_count">%1$d preguntas</string>
     <string name="exam_unlock_next">Aprueba el examen de %1$d preguntas para desbloquear %2$d</string>
+    <string name="simulacro_unlock_rank">Veterano</string>
+    <string name="simulacro_unlock_exam">+ aprobar 50</string>
 
     <!-- Tema select -->
     <string name="select_law">Selecciona ley</string>
@@ -169,7 +171,7 @@
     <string name="help_section_combo_title">Combo</string>
     <string name="help_section_combo_l1">Cada vez que aciertes seguidas, tu combo sube.</string>
     <string name="help_section_combo_l2">Cuanto más alto sea el combo, más puntos ganas por respuesta (10 × combo).</string>
-    <string name="help_section_combo_l3">La barra de combo inferior se llena cada 10 aciertos consecutivos.</string>
+    <string name="help_section_combo_l3">La barra de combo inferior se llena cada 5 aciertos consecutivos.</string>
     <string name="help_section_combo_l4">Al llenarla, obtienes 3 cargas gratis que puedes canjear por vida extra o tiempo adicional.</string>
     <string name="help_section_ranks_title">Rangos</string>
     <string name="help_section_ranks_l1">Hay 7 rangos, desde Novato (0 XP) hasta Maestro (25.000 XP).</string>

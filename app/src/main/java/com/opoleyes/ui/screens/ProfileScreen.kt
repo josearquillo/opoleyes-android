@@ -153,9 +153,9 @@ fun ProfileScreen(navController: NavController, gameViewModel: GameViewModel) {
         Text(stringResource(R.string.records), color = TextLight, fontSize = 18.sp, fontWeight = FontWeight.Bold)
         Spacer(Modifier.height(12.dp))
         val modeLabels = linkedMapOf(
-            "survival" to "Supervivencia",
-            "timetrial" to "Contrarreloj",
-            "quick" to "Repaso Express"
+            "survival" to stringResource(R.string.mode_survival),
+            "timetrial" to stringResource(R.string.mode_timetrial),
+            "quick" to stringResource(R.string.mode_quick)
         )
         modeLabels.forEach { (mode, label) ->
             val record = data.records[mode] ?: 0

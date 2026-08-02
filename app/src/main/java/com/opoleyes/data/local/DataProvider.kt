@@ -7,6 +7,7 @@ import com.opoleyes.data.model.TestData
 
 object DataProvider {
     private val gson = Gson()
+    @Volatile
     private var cachedData: List<TestData>? = null
 
     fun loadData(context: Context): List<TestData> {

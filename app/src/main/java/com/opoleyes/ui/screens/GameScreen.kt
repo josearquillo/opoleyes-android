@@ -55,7 +55,6 @@ fun GameScreen(navController: NavController, gameViewModel: GameViewModel) {
 
     var showExitDialog by remember { mutableStateOf(false) }
     var autoAdvanceTriggered by remember { mutableStateOf(false) }
-    var questionKey by remember { mutableStateOf(0) }
     var particleTrigger by remember { mutableStateOf<Any?>(null) }
     var shakeTrigger by remember { mutableStateOf<Any?>(null) }
 
@@ -67,7 +66,6 @@ fun GameScreen(navController: NavController, gameViewModel: GameViewModel) {
         questionVisible = false
         delay(50)
         questionVisible = true
-        questionKey++
     }
 
     // Particle/shake on answer
@@ -111,9 +109,9 @@ fun GameScreen(navController: NavController, gameViewModel: GameViewModel) {
         onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
     }
 
-    // Timer countdown
-    LaunchedEffect(uiState.mode, uiState.timer, uiState.answered) {
-        if (uiState.mode == GameMode.TIMETRIAL && !uiState.answered && uiState.timer > 0) {
+    // Timer countdown (pauses while exit dialog is open)
+    LaunchedEffect(uiState.mode, uiState.timer, uiState.answered, showExitDialog) {
+        if (uiState.mode == GameMode.TIMETRIAL && !uiState.answered && uiState.timer > 0 && !showExitDialog) {
             delay(1000)
             if (gameViewModel.tickTimer()) {
                 gameViewModel.onGameOver()

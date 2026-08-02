@@ -146,7 +146,7 @@ class MissionRepository(private val context: Context) {
             unlocks.quick -> {
                 hardPool.add(Mission("review", "🔄",
                     "Completa un Repaso Express",
-                    20, 0, false, hardReward, "quick_complete",
+                    1, 0, false, hardReward, "quick_complete",
                     null, MissionDifficulty.HARD))
             }
             else -> {

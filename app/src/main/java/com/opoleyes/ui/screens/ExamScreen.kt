@@ -70,15 +70,17 @@ fun ExamScreen(navController: NavController, gameViewModel: GameViewModel) {
     var showFinishDialog by remember { mutableStateOf(false) }
     BackHandler { showExitDialog = true }
 
-    // Simulacro timer countdown
+    // Simulacro timer countdown (pauses while dialogs are open)
     if (isSimulacro) {
-        LaunchedEffect(simulacroTimer) {
-            if (simulacroTimer > 0) {
+        LaunchedEffect(simulacroTimer, showExitDialog, showFinishDialog) {
+            if (simulacroTimer > 0 && !showExitDialog && !showFinishDialog) {
                 kotlinx.coroutines.delay(1000L)
                 val expired = gameViewModel.tickSimulacroTimer()
                 if (expired) {
                     gameViewModel.finishExam()
-                    navController.navigate(Routes.EXAM_RESULT)
+                    navController.navigate(Routes.EXAM_RESULT) {
+                        popUpTo(Routes.EXAM) { inclusive = true }
+                    }
                 }
             }
         }
@@ -118,7 +120,9 @@ fun ExamScreen(navController: NavController, gameViewModel: GameViewModel) {
                 TextButton(onClick = {
                     showFinishDialog = false
                     gameViewModel.finishExam()
-                    navController.navigate(Routes.EXAM_RESULT)
+                    navController.navigate(Routes.EXAM_RESULT) {
+                        popUpTo(Routes.EXAM) { inclusive = true }
+                    }
                 }) { Text(stringResource(R.string.finish), color = Success) }
             },
             dismissButton = { TextButton(onClick = { showFinishDialog = false }) { Text(stringResource(R.string.cancel)) } }

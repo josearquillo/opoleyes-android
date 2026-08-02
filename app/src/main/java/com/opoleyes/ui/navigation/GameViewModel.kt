@@ -373,6 +373,9 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun finishExam() {
+        // Guard against double submission (e.g. user presses back from result screen
+        // and finishes the exam again)
+        if (_examResult.value != null || _simulacroResult.value != null) return
         if (_isSimulacroMode.value) {
             finishSimulacro()
             return
