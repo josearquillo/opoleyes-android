@@ -199,24 +199,28 @@ class MissionRepository(private val context: Context) {
 
     fun checkOnGameOver(mode: String, maxCombo: Int, totalAnswered: Int, gameCategory: String, correctCount: Int, score: Int = 0) {
         val data = getDailyMissions() ?: return
-        updateProgress("streak", maxCombo)
-        updateProgress("combo", maxCombo)
+        // streak, combo, variety and progress missions say "en Supervivencia" in their text,
+        // so only update them when the game mode is actually survival.
+        if (mode == "survival") {
+            updateProgress("streak", maxCombo)
+            updateProgress("combo", maxCombo)
+            for (m in data.missions) {
+                if (m.key.startsWith("progress_")) {
+                    val lawId = m.key.removePrefix("progress_")
+                    if (lawId == "any") updateProgress("progress_any", correctCount)
+                    else updateProgress("progress", statsRepo.getLeyProgress(lawId))
+                }
+                if (m.key.startsWith("variety_")) {
+                    val lawId = m.key.removePrefix("variety_")
+                    if (lawId == "any" || lawId == gameCategory) updateProgress("variety", correctCount)
+                }
+            }
+        }
         if (mode == "quick") {
             updateProgress("quick_review", totalAnswered)
             updateProgress("quick_complete", 1)
         }
         if (mode == "timetrial") updateProgress("timetrial_score", score)
-        for (m in data.missions) {
-            if (m.key.startsWith("progress_")) {
-                val lawId = m.key.removePrefix("progress_")
-                if (lawId == "any") updateProgress("progress_any", correctCount)
-                else updateProgress("progress", statsRepo.getLeyProgress(lawId))
-            }
-            if (m.key.startsWith("variety_")) {
-                val lawId = m.key.removePrefix("variety_")
-                if (lawId == "any" || lawId == gameCategory) updateProgress("variety", correctCount)
-            }
-        }
     }
 
     fun checkExamResult(scorePct: Int) {

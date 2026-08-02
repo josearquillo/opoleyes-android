@@ -220,7 +220,7 @@ fun HomeScreen(navController: NavController, gameViewModel: GameViewModel) {
                                     }
                                     "timetrial" -> {
                                         gameViewModel.pendingMode = GameMode.TIMETRIAL
-                                        navController.navigate(Routes.TEMA_SELECT)
+                                        gameViewModel.startAllLawsGameAsync { ok -> if (ok) navController.navigate(Routes.GAME) }
                                     }
                                     "exam" -> {
                                         navController.navigate(Routes.MODE_SELECT)
@@ -342,7 +342,7 @@ fun MissionCard(mission: Mission, onClick: () -> Unit) {
             )
             Spacer(Modifier.height(6.dp))
             ProgressBar(
-                progress = (mission.current.toFloat() / mission.target).coerceIn(0f, 1f),
+                progress = if (mission.target > 0) (mission.current.toFloat() / mission.target).coerceIn(0f, 1f) else 1f,
                 color = accentColor,
                 height = 4
             )

@@ -498,6 +498,13 @@ fun PowerUpButton(text: String, icon: String, charges: Int, color: Color, enable
         animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy),
         label = "pressScale"
     )
+    // Reset pressed state after the press animation so the button doesn't stay shrunk
+    LaunchedEffect(pressed) {
+        if (pressed) {
+            delay(150)
+            pressed = false
+        }
+    }
     val infiniteTransition = rememberInfiniteTransition(label = "pulse")
     val pulseAlpha by infiniteTransition.animateFloat(
         initialValue = 0.3f,

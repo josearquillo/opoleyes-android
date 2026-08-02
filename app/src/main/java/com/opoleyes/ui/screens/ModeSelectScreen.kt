@@ -88,7 +88,11 @@ fun ModeSelectScreen(navController: NavController, gameViewModel: GameViewModel)
                     ModeCard(mode, enabled = !isLoading) {
                         when (mode.mode) {
                             GameMode.QUICK -> {
-                                showQuickDialog = true
+                                // Start the game first so the reward is generated and available
+                                // for the dialog to display. The dialog's "Start" button just navigates.
+                                gameViewModel.startQuickGameAsync { ok ->
+                                    if (ok) showQuickDialog = true
+                                }
                             }
                             GameMode.EXAM -> {
                                 showExamDialog = true
@@ -129,10 +133,13 @@ fun ModeSelectScreen(navController: NavController, gameViewModel: GameViewModel)
     if (showQuickDialog) {
         QuickRewardDialog(
             gameViewModel = gameViewModel,
-            onDismiss = { showQuickDialog = false },
+            onDismiss = {
+                showQuickDialog = false
+                gameViewModel.clearQuickReward()
+            },
             onStart = {
                 showQuickDialog = false
-                gameViewModel.startQuickGameAsync { ok -> if (ok) navController.navigate(Routes.GAME) }
+                navController.navigate(Routes.GAME)
             }
         )
     }

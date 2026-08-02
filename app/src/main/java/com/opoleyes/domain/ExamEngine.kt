@@ -107,17 +107,53 @@ class ExamEngine(private val context: Context) {
 
         val selected = mutableListOf<QuestionEntry>()
         val totalWeight = lawWeights.values.sum()
-        for ((law, weight) in lawWeights) {
+
+        // Largest remainder method: floor each law's quota, then distribute
+        // leftover slots to the laws with the largest fractional parts.
+        // This guarantees the sum never exceeds questionCount (the old rounding
+        // could overshoot and then randomly truncate questions via take()).
+        val rawQuotas = lawWeights.mapValues { (_, weight) ->
+            questionCount.toDouble() * weight / totalWeight
+        }
+        val counts = mutableMapOf<String, Int>()
+        var assigned = 0
+        for ((law, raw) in rawQuotas) {
             val pool = poolsByLaw[law] ?: continue
-            val count = (questionCount * weight + totalWeight / 2) / totalWeight
+            val floor = minOf(raw.toInt(), pool.size)
+            counts[law] = floor
+            assigned += floor
+        }
+
+        var remaining = questionCount - assigned
+        val sortedByRemainder = rawQuotas.entries
+            .filter { poolsByLaw[it.key] != null }
+            .sortedByDescending { it.value - it.value.toInt() }
+        while (remaining > 0) {
+            var gaveAny = false
+            for (entry in sortedByRemainder) {
+                if (remaining <= 0) break
+                val law = entry.key
+                val pool = poolsByLaw[law]!!
+                val cur = counts[law] ?: 0
+                if (cur < pool.size) {
+                    counts[law] = cur + 1
+                    remaining--
+                    gaveAny = true
+                }
+            }
+            if (!gaveAny) break // all pools exhausted
+        }
+
+        for ((law, count) in counts) {
+            val pool = poolsByLaw[law] ?: continue
             if (count > 0) selected.addAll(pool.take(count))
         }
 
-        // Fill remaining slots from all pools
+        // Fill any remaining slots from all pools (e.g. if some laws had tiny pools)
         while (selected.size < questionCount) {
-            val remaining = poolsByLaw.values.flatten().filter { it !in selected }
-            if (remaining.isEmpty()) break
-            selected.add(remaining.random())
+            val remainingPool = poolsByLaw.values.flatten().filter { it !in selected }
+            if (remainingPool.isEmpty()) break
+            selected.add(remainingPool.random())
         }
 
         selected.shuffle()

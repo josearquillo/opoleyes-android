@@ -22,7 +22,8 @@ class ChestSystem(private val context: Context) {
         }
         val hasPowerUps = progressRepo.isUnlocked("shield") || progressRepo.isUnlocked("fiftyFifty") ||
                 progressRepo.isUnlocked("doubleScore")
-        val xpBonus = if (hasPowerUps) 1 else 2
+        // Reward players who have unlocked power-ups with a bonus XP multiplier
+        val xpBonus = if (hasPowerUps) 2 else 1
 
         val (xpMin, xpMax) = when (type) {
             ChestType.BRONZE -> 50 to 150

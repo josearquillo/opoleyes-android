@@ -150,6 +150,9 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
     private val _quickRewardEarned = MutableStateFlow(false)
     val quickRewardEarned: StateFlow<Boolean> = _quickRewardEarned.asStateFlow()
 
+    private val _quickRewardMissed = MutableStateFlow(false)
+    val quickRewardMissed: StateFlow<Boolean> = _quickRewardMissed.asStateFlow()
+
     private val _chestReward = MutableStateFlow<ChestReward?>(null)
     val chestReward: StateFlow<ChestReward?> = _chestReward.asStateFlow()
 
@@ -258,6 +261,7 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
     fun clearQuickReward() {
         _quickRewardPowerUp.value = null
         _quickRewardEarned.value = false
+        _quickRewardMissed.value = false
     }
 
     var pendingMode: GameMode = GameMode.SURVIVAL
@@ -567,12 +571,16 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
         _homePreload = null
         _profileData = null
 
-        if (engine.mode == GameMode.QUICK && engine.totalAnswered >= Constants.QUICK_MODE_QUESTIONS && engine.correctCount == engine.totalAnswered) {
-            _quickRewardPowerUp.value?.let { reward ->
-                val current = prefs.getFreePowerUps().toMutableList()
-                current.add(reward)
-                prefs.setFreePowerUps(current)
-                _quickRewardEarned.value = true
+        if (engine.mode == GameMode.QUICK && engine.totalAnswered >= Constants.QUICK_MODE_QUESTIONS) {
+            if (engine.correctCount == engine.totalAnswered) {
+                _quickRewardPowerUp.value?.let { reward ->
+                    val current = prefs.getFreePowerUps().toMutableList()
+                    current.add(reward)
+                    prefs.setFreePowerUps(current)
+                    _quickRewardEarned.value = true
+                }
+            } else {
+                _quickRewardMissed.value = true
             }
         }
 

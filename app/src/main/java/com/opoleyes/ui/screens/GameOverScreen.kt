@@ -64,6 +64,7 @@ fun GameOverScreen(navController: NavController, gameViewModel: GameViewModel) {
     val chestReward by gameViewModel.chestReward.collectAsState()
     val rankUpOverlay by gameViewModel.rankUpOverlay.collectAsState()
     val quickRewardEarned by gameViewModel.quickRewardEarned.collectAsState()
+    val quickRewardMissed by gameViewModel.quickRewardMissed.collectAsState()
     val quickRewardPowerUp by gameViewModel.quickRewardPowerUp.collectAsState()
 
     var displayScore by remember { mutableStateOf(0) }
@@ -219,6 +220,25 @@ fun GameOverScreen(navController: NavController, gameViewModel: GameViewModel) {
                 }
                 Spacer(Modifier.height(24.dp))
             }
+
+            // Quick reward missed banner
+            if (quickRewardMissed && uiState.mode == GameMode.QUICK) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clip(RoundedCornerShape(16.dp))
+                        .background(Brush.verticalGradient(listOf(Danger, DangerDark)))
+                        .padding(16.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Text("😅", fontSize = 28.sp)
+                        Spacer(Modifier.width(12.dp))
+                        Text(stringResource(R.string.quick_reward_missed), color = Color.White, fontSize = 16.sp, fontWeight = FontWeight.Bold)
+                    }
+                }
+                Spacer(Modifier.height(24.dp))
+            }
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(10.dp)
@@ -234,16 +254,25 @@ fun GameOverScreen(navController: NavController, gameViewModel: GameViewModel) {
                     gameViewModel.clearRankUp()
                     gameViewModel.clearQuickReward()
                     when (uiState.mode) {
-                        GameMode.QUICK -> gameViewModel.startQuickGame()
+                        GameMode.QUICK -> {
+                            gameViewModel.startQuickGame()
+                            navController.navigate(Routes.GAME) { popUpTo(Routes.GAME) { inclusive = true } }
+                        }
+                        GameMode.EXAM -> {
+                            navController.navigate(Routes.MODE_SELECT) { popUpTo(Routes.HOME) }
+                        }
+                        GameMode.SIMULACRO -> {
+                            navController.navigate(Routes.SIMULACRO_INTRO) { popUpTo(Routes.HOME) }
+                        }
                         else -> {
                             val category = gameViewModel.getCategory()
                             if (category.isNotEmpty())
                                 gameViewModel.startTemaGame(category)
                             else
                                 gameViewModel.startAllLawsGame()
+                            navController.navigate(Routes.GAME) { popUpTo(Routes.GAME) { inclusive = true } }
                         }
                     }
-                    navController.navigate(Routes.GAME) { popUpTo(Routes.GAME) { inclusive = true } }
                 }
                 GameButton(
                     text = stringResource(R.string.menu),

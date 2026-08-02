@@ -32,5 +32,7 @@ interface IPreferencesManager {
     fun setDebugMode(enabled: Boolean)
     fun isLawMastered(testId: String): Boolean
     fun setLawMastered(testId: String)
+    fun getMultiplier(): Int
+    fun setMultiplier(value: Int)
     fun resetAll()
 }

@@ -53,18 +53,14 @@ open class PreferencesManager(private val context: Context) : com.opoleyes.data.
 
     override fun addXP(amount: Int): Int {
         if (isWriteBlocked()) return getXP()
-        val multiplier = getMultiplier()
-        val newXp = getXP() + amount * multiplier
-        val editor = prefs.edit()
-        editor.putInt(XP, newXp)
-        if (multiplier > 1) editor.putInt(XP_MULTIPLIER, 1)
-        editor.apply()
+        val newXp = getXP() + amount
+        prefs.edit().putInt(XP, newXp).apply()
         return newXp
     }
 
-    fun getMultiplier(): Int = prefs.getInt(XP_MULTIPLIER, 1)
+    override fun getMultiplier(): Int = prefs.getInt(XP_MULTIPLIER, 1)
 
-    fun setMultiplier(value: Int) {
+    override fun setMultiplier(value: Int) {
         if (isWriteBlocked()) return
         prefs.edit().putInt(XP_MULTIPLIER, value).apply()
     }

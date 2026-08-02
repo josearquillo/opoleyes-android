@@ -60,6 +60,7 @@ class GameEngine private constructor(
     var startRankIndex: Int = 0
     var startXP: Int = 0
     var powerUpsSaved: Boolean = false
+    var xpMultiplier: Int = 1
 
     var fiftyFiftyCharges: Int = 0
     var fiftyFiftyActive: Boolean = false
@@ -88,6 +89,10 @@ class GameEngine private constructor(
         powerUpsSaved = false
         startRankIndex = progressRepo.getRankIndex()
         startXP = progressRepo.getXP()
+        // Read and consume the pending XP multiplier from a gold chest so it
+        // applies to ALL XP earned during this game, not just the first answer.
+        xpMultiplier = prefs.getMultiplier()
+        if (xpMultiplier > 1) prefs.setMultiplier(1)
 
         val freePowerUps = prefs.getFreePowerUps()
         for (pu in freePowerUps) {
@@ -201,7 +206,7 @@ class GameEngine private constructor(
             if (doubleScoreActive) { pts *= 2; doubleScoreActive = false }
             score += pts
             correctCount++
-            progressRepo.addXP(pts)
+            progressRepo.addXP(pts * xpMultiplier)
 
             streak++
             if (streak > 0 && streak % 5 == 0) {
@@ -226,7 +231,7 @@ class GameEngine private constructor(
                 val newPct = statsRepo.getLeyProgress(q.testId)
                 if (newPct >= 100 && !prefs.isLawMastered(q.testId)) {
                     prefs.setLawMastered(q.testId)
-                    progressRepo.addXP(200)
+                    progressRepo.addXP(200 * xpMultiplier)
                 }
             }
 
