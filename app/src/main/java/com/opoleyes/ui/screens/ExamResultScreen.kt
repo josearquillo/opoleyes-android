@@ -90,10 +90,6 @@ fun ExamResultScreen(navController: NavController, gameViewModel: GameViewModel)
                 onHome = {
                     gameViewModel.clearExamResult()
                     navController.navigate(Routes.HOME) { popUpTo(0) }
-                },
-                onAnother = {
-                    gameViewModel.clearExamResult()
-                    navController.navigate(Routes.MODE_SELECT) { popUpTo(Routes.HOME) }
                 }
             )
         } else if (r != null) {
@@ -145,21 +141,21 @@ fun ExamResultScreen(navController: NavController, gameViewModel: GameViewModel)
                         gameViewModel.clearExamResult()
                         navController.navigate(Routes.HOME) { popUpTo(0) }
                     },
-                    modifier = Modifier.weight(1f),
+                    modifier = Modifier.weight(1f).height(56.dp),
                     colors = ButtonDefaults.outlinedButtonColors(contentColor = TextLight),
                     border = androidx.compose.foundation.BorderStroke(1.dp, SurfaceVariant)
                 ) {
-                    Text(stringResource(R.string.home_label))
+                    Text(stringResource(R.string.home_label), fontSize = 16.sp)
                 }
                 Button(
                     onClick = {
                         gameViewModel.clearExamResult()
-                        navController.navigate(Routes.MODE_SELECT) { popUpTo(Routes.HOME) }
+                        navController.navigate(Routes.HOME) { popUpTo(0) }
                     },
-                    modifier = Modifier.weight(1f),
+                    modifier = Modifier.weight(1f).height(56.dp),
                     colors = ButtonDefaults.buttonColors(containerColor = Primary)
                 ) {
-                    Text(stringResource(R.string.another_exam))
+                    Text(stringResource(R.string.retry_label), fontSize = 16.sp)
                 }
             }
         }
@@ -259,25 +255,25 @@ private fun SimulacroResultContent(
 }
 
 @Composable
-private fun SimulacroActions(onHome: () -> Unit, onAnother: () -> Unit) {
+private fun SimulacroActions(onHome: () -> Unit) {
     Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.spacedBy(12.dp)
     ) {
         OutlinedButton(
             onClick = onHome,
-            modifier = Modifier.weight(1f),
+            modifier = Modifier.weight(1f).height(56.dp),
             colors = ButtonDefaults.outlinedButtonColors(contentColor = TextLight),
             border = androidx.compose.foundation.BorderStroke(1.dp, SurfaceVariant)
         ) {
-            Text(stringResource(R.string.home_label))
+            Text(stringResource(R.string.home_label), fontSize = 16.sp)
         }
         Button(
-            onClick = onAnother,
-            modifier = Modifier.weight(1f),
+            onClick = onHome,
+            modifier = Modifier.weight(1f).height(56.dp),
             colors = ButtonDefaults.buttonColors(containerColor = Accent)
         ) {
-            Text(stringResource(R.string.another_simulacro))
+            Text(stringResource(R.string.retry_label), fontSize = 16.sp)
         }
     }
 }

@@ -110,6 +110,7 @@
     <string name="home_label">Inicio</string>
     <string name="another_exam">Otro mini examen</string>
     <string name="another_simulacro">Otro simulacro</string>
+    <string name="retry_label">Reintentar</string>
     <string name="simulacro_result">Resultado del Simulacro</string>
     <string name="out_of_fifteen">/ %1$d</string>
     <string name="passing_score">Nota de corte: %1$d puntos</string>

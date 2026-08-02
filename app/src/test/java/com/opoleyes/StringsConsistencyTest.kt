@@ -56,4 +56,18 @@ class StringsConsistencyTest {
         assertEquals("Contrarreloj", timetrial)
         assertEquals("Repaso Express", quick)
     }
+
+    @Test
+    fun examResultButtons_useExpectedStrings() {
+        // ExamResultScreen shows "Inicio" + "Reintentar" in both mini-exam and simulacro modes.
+        // "Reintentar" replaced the long "Otro mini examen" / "Otro simulacro" labels that
+        // overflowed to two lines.
+        val home = ctx.getString(com.opoleyes.R.string.home_label)
+        val retry = ctx.getString(com.opoleyes.R.string.retry_label)
+        assertEquals("Inicio", home)
+        assertEquals("Reintentar", retry)
+        // "Reintentar" is short enough to fit on one line in a button
+        assertTrue("Reintentar should be a single short word",
+            retry.split(" ").size == 1 && retry.length <= 12)
+    }
 }

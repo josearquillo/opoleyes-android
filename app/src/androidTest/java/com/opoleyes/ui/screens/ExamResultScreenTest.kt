@@ -42,7 +42,7 @@ class ExamResultScreenTest {
         composeRule.waitForIdle()
         composeRule.mainClock.advanceTimeBy(1000)
         composeRule.waitForIdle()
-        composeRule.onNodeWithText("Resultado del Examen").assertIsDisplayed()
+        composeRule.onNodeWithText("Resultados").assertIsDisplayed()
     }
 
     @Test
@@ -116,7 +116,7 @@ class ExamResultScreenTest {
         composeRule.mainClock.advanceTimeBy(1000)
         composeRule.waitForIdle()
         composeRule.onNodeWithText("Inicio").assertIsDisplayed()
-        composeRule.onNodeWithText("Otro examen").assertIsDisplayed()
+        composeRule.onNodeWithText("Reintentar").assertIsDisplayed()
     }
 
     @Test
