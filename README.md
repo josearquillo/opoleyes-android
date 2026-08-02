@@ -124,7 +124,7 @@ opoleyes-android/
 
 ## Features
 
-- **5 game modes**: Supervivencia, Contrarreloj, Repaso Express (10 preguntas, power-up gratis si 10/10), Mini Examen, Simulacro
+- **5 game modes**: Supervivencia, Contrarreloj, Repaso Express (5 preguntas, power-up gratis si 5/5), Mini Examen, Simulacro
 - **7 ranks** with XP progression and mode/power-up unlocks
 - **Daily missions** (1-3 depending on rank) with XP rewards
 - **Power-ups**: Pista, Escudo, 50/50, x2 pts — received on rank-up and from chests

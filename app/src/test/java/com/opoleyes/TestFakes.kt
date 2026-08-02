@@ -38,7 +38,7 @@ class FakeGameRepository(
 ) : IGameRepository {
     override fun startTemaGame(testId: String) = pool
     override fun startAllLawsGame() = pool
-    override fun startQuickGame() = pool.take(10)
+    override fun startQuickGame() = pool.take(5)
 }
 
 class FakeStatsRepository : IStatsRepository {

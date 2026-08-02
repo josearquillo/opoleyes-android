@@ -118,9 +118,9 @@ class GameEngineTest {
     }
 
     @Test
-    fun fun_nextQuestion_quickModeLimits20() {
+    fun fun_nextQuestion_quickModeLimits5() {
         engine.startQuickGame()
-        engine.questionNum = 20
+        engine.questionNum = 5
         assertFalse(engine.nextQuestion())
     }
 
@@ -133,9 +133,9 @@ class GameEngineTest {
     }
 
     @Test
-    fun fun_nextQuestion_quickLimits20() {
+    fun fun_nextQuestion_quickLimits5() {
         engine.startQuickGame()
-        engine.questionNum = 20
+        engine.questionNum = 5
         assertFalse(engine.nextQuestion())
     }
 
@@ -301,9 +301,9 @@ class GameEngineTest {
     }
 
     @Test
-    fun fun_isGameOver_quickMode20Questions() {
+    fun fun_isGameOver_quickMode5Questions() {
         engine.mode = GameMode.QUICK
-        engine.questionNum = 20
+        engine.questionNum = 5
         engine.lives = 3
         assertTrue(engine.isGameOver())
     }
@@ -324,9 +324,9 @@ class GameEngineTest {
     }
 
     @Test
-    fun fun_isGameOver_quick20Questions() {
+    fun fun_isGameOver_quick5Questions() {
         engine.mode = GameMode.QUICK
-        engine.questionNum = 20
+        engine.questionNum = 5
         engine.lives = 3
         assertTrue(engine.isGameOver())
     }
@@ -929,7 +929,7 @@ class GameEngineTest {
     fun fun_isGameOver_quickModeWithLivesAndUnderLimit() {
         engine.mode = GameMode.QUICK
         engine.lives = 3
-        engine.questionNum = 9
+        engine.questionNum = 4
         assertFalse(engine.isGameOver())
     }
 
