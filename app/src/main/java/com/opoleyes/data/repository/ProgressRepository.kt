@@ -12,7 +12,10 @@ open class ProgressRepository(private val context: Context) : com.opoleyes.data.
     private val prefs = PreferencesManager(context)
 
     override fun getXP(): Int = if (prefs.isDebugMode()) 100000 else prefs.getXP()
-    override fun addXP(amount: Int): Int = prefs.addXP(amount)
+    override fun addXP(amount: Int): Int {
+        if (prefs.isDebugMode()) return 100000
+        return prefs.addXP(amount)
+    }
 
     override fun getRankIndex(): Int {
         val xp = getXP()
@@ -99,7 +102,7 @@ open class ProgressRepository(private val context: Context) : com.opoleyes.data.
 
     fun unlockNextExamQuestions() {
         val current = prefs.getMaxExamQuestions()
-        val presets = prefs.EXAM_QUESTION_PRESETS
+        val presets = PreferencesManager.EXAM_QUESTION_PRESETS
         val idx = presets.indexOf(current)
         if (idx >= 0 && idx < presets.size - 1) {
             prefs.setMaxExamQuestions(presets[idx + 1])

@@ -109,7 +109,7 @@ class ExamEngine(private val context: Context) {
         val totalWeight = lawWeights.values.sum()
         for ((law, weight) in lawWeights) {
             val pool = poolsByLaw[law] ?: continue
-            val count = questionCount * weight / totalWeight
+            val count = (questionCount * weight + totalWeight / 2) / totalWeight
             if (count > 0) selected.addAll(pool.take(count))
         }
 
@@ -140,6 +140,7 @@ class ExamEngine(private val context: Context) {
     }
 
     fun navigateTo(index: Int) {
+        if (questions.isEmpty()) return
         currentIndex = index.coerceIn(0, questions.size - 1)
     }
 

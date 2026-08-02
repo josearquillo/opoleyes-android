@@ -474,7 +474,7 @@ fun GameScreen(navController: NavController, gameViewModel: GameViewModel) {
                                     Text(ach.icon, fontSize = 24.sp)
                                     Spacer(Modifier.width(12.dp))
                                     Column {
-                                        Text("¡Logro desbloqueado!", color = Accent, fontWeight = FontWeight.Bold, fontSize = 10.sp)
+                                        Text(stringResource(R.string.achievement_unlocked), color = Accent, fontWeight = FontWeight.Bold, fontSize = 10.sp)
                                         Text(ach.name, color = Warning, fontWeight = FontWeight.Bold, fontSize = 14.sp)
                                         Text(ach.desc, color = TextMuted, fontSize = 12.sp)
                                     }

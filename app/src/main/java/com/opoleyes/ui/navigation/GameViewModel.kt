@@ -234,6 +234,7 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
         _popups.value = emptyList()
         _toasts.value = emptyList()
         _quickRewardEarned.value = false
+        gameOverProcessed = false
         val ok = engine.startQuickGame()
         if (ok) {
             _quickRewardPowerUp.value = generateQuickReward()
@@ -264,6 +265,7 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
     fun startTemaGame(testId: String): Boolean {
         _popups.value = emptyList()
         _toasts.value = emptyList()
+        gameOverProcessed = false
         val ok = engine.startTemaGame(testId, pendingMode)
         if (ok) { engine.nextQuestion(); updateUiState() }
         return ok
@@ -272,6 +274,7 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
     fun startAllLawsGame(): Boolean {
         _popups.value = emptyList()
         _toasts.value = emptyList()
+        gameOverProcessed = false
         val ok = engine.startAllLawsGame(pendingMode)
         if (ok) { engine.nextQuestion(); updateUiState() }
         return ok
@@ -513,7 +516,11 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
 
     fun clearToasts() { _toasts.value = emptyList() }
 
+    private var gameOverProcessed = false
+
     fun onGameOver() {
+        if (gameOverProcessed) return
+        gameOverProcessed = true
         engine.saveRemainingPowerUps()
         val mode = engine.mode.name.lowercase()
         val record = progressRepo.getRecord(mode)
@@ -629,7 +636,7 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
     fun getExamQuestions(): List<ExamEngine.ExamQuestion> = examEngine.getQuestions()
     fun getMaxExamQuestions(): Int = progressRepo.getMaxExamQuestions()
     fun getSimulacroHistory(): List<SimulacroHistoryEntry> = progressRepo.getSimulacroHistory()
-    val examQuestionPresets = com.opoleyes.data.local.PreferencesManager(getApplication()).EXAM_QUESTION_PRESETS
+    val examQuestionPresets = com.opoleyes.data.local.PreferencesManager.EXAM_QUESTION_PRESETS
 }
 
 data class GameUiState(

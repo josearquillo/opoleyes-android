@@ -34,6 +34,7 @@ open class PreferencesManager(private val context: Context) : com.opoleyes.data.
         const val MAX_EXAM_QUESTIONS = "max_exam_questions"
         const val SIMULACRO_UNLOCKED = "simulacro_unlocked"
         const val SIMULACRO_HISTORY_JSON = "simulacro_history_json"
+        val EXAM_QUESTION_PRESETS = listOf(10, 20, 30, 40, 50)
         fun recordKey(mode: String) = "record_$mode"
         fun recordComboKey(mode: String) = "record_combo_$mode"
         fun recordAccKey(mode: String) = "record_acc_$mode"
@@ -202,8 +203,6 @@ open class PreferencesManager(private val context: Context) : com.opoleyes.data.
         }
     }
 
-    val EXAM_QUESTION_PRESETS = listOf(10, 20, 30, 40, 50)
-
     fun getMaxExamQuestions(): Int = prefs.getInt(MAX_EXAM_QUESTIONS, 10)
 
     fun setMaxExamQuestions(value: Int) {
@@ -243,7 +242,7 @@ open class PreferencesManager(private val context: Context) : com.opoleyes.data.
                 internalWrite = false
             }
         }
-        prefs.edit().clear().commit()
+        prefs.edit().clear().apply()
     }
 }
 

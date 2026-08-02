@@ -93,6 +93,7 @@ fun ExamScreen(navController: NavController, gameViewModel: GameViewModel) {
             confirmButton = {
                 TextButton(onClick = {
                     showExitDialog = false
+                    gameViewModel.clearExamResult()
                     navController.navigate(Routes.HOME) { popUpTo(Routes.HOME) { inclusive = true } }
                 }) { Text(stringResource(R.string.exit)) }
             },
@@ -131,7 +132,8 @@ fun ExamScreen(navController: NavController, gameViewModel: GameViewModel) {
                     title = {
                         Text(
                             if (isSimulacro) stringResource(R.string.mode_simulacro) else stringResource(R.string.mode_exam),
-                            color = TextLight, fontWeight = FontWeight.Bold
+                            color = TextLight, fontWeight = FontWeight.Bold,
+                            maxLines = 1, overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
                         )
                     },
                     navigationIcon = {

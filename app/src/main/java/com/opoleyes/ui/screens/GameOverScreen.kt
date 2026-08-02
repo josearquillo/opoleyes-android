@@ -129,26 +129,13 @@ fun GameOverScreen(navController: NavController, gameViewModel: GameViewModel) {
     val scrollState = rememberScrollState()
 
     Box(modifier = Modifier.fillMaxSize().background(BgDark)) {
-        Scaffold(
-            topBar = {
-                TopAppBar(
-                    title = { Text(stringResource(R.string.game_over), color = TextLight, fontWeight = FontWeight.Bold) },
-                    colors = TopAppBarDefaults.topAppBarColors(
-                        containerColor = BgDark,
-                        titleContentColor = TextLight
-                    )
-                )
-            },
-            containerColor = BgDark
-        ) { paddingValues ->
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .verticalScroll(scrollState)
-                    .padding(paddingValues)
-                    .padding(16.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .verticalScroll(scrollState)
+                .padding(16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
             Spacer(Modifier.height(20.dp))
 
             // Icon with scale-in animation
@@ -256,7 +243,6 @@ fun GameOverScreen(navController: NavController, gameViewModel: GameViewModel) {
                                 gameViewModel.startAllLawsGame()
                         }
                     }
-                    gameViewModel.nextQuestion()
                     navController.navigate(Routes.GAME) { popUpTo(Routes.GAME) { inclusive = true } }
                 }
                 GameButton(
@@ -272,7 +258,6 @@ fun GameOverScreen(navController: NavController, gameViewModel: GameViewModel) {
             }
             Spacer(Modifier.height(40.dp))
             }
-        }
 
         // Confetti overlay
         ConfettiBurst(
@@ -457,14 +442,14 @@ fun RankUpOverlayView(overlay: RankUpOverlay, onDismiss: () -> Unit) {
                 Spacer(Modifier.height(12.dp))
                 Text(overlay.newRank.icon, fontSize = 64.sp)
                 Spacer(Modifier.height(12.dp))
-                Text("¡Has subido a ${overlay.newRank.name}!", color = Warning, fontSize = 22.sp, fontWeight = FontWeight.Bold)
+                Text(stringResource(R.string.rank_up_message, overlay.newRank.name), color = Warning, fontSize = 22.sp, fontWeight = FontWeight.Bold)
                 Spacer(Modifier.height(8.dp))
                 Text("${overlay.oldRank.icon} ${overlay.oldRank.name} → ${overlay.newRank.icon} ${overlay.newRank.name}", color = AccentLight, fontSize = 15.sp)
 
                 val unlockText = com.opoleyes.data.Constants.RANK_UNLOCKS[overlay.newRank.index]
                 if (unlockText != null) {
                     Spacer(Modifier.height(20.dp))
-                    Text("Has desbloqueado:", color = TextLight, fontSize = 14.sp, fontWeight = FontWeight.Bold)
+                    Text(stringResource(R.string.unlocked_label), color = TextLight, fontSize = 14.sp, fontWeight = FontWeight.Bold)
                     Spacer(Modifier.height(8.dp))
                     Surface(
                         shape = RoundedCornerShape(12.dp),
@@ -482,7 +467,7 @@ fun RankUpOverlayView(overlay: RankUpOverlay, onDismiss: () -> Unit) {
 
                 if (overlay.powerUpRewards.isNotEmpty()) {
                     Spacer(Modifier.height(16.dp))
-                    Text("Ayudas recibidas:", color = TextLight, fontSize = 14.sp, fontWeight = FontWeight.Bold)
+                    Text(stringResource(R.string.powerups_received), color = TextLight, fontSize = 14.sp, fontWeight = FontWeight.Bold)
                     Spacer(Modifier.height(8.dp))
                     val powerUpIcons = mapOf(
                         "shield" to "🛡️ Escudo",

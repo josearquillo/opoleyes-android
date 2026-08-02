@@ -57,7 +57,7 @@ fun ExamResultScreen(navController: NavController, gameViewModel: GameViewModel)
             TopAppBar(
                 title = {
                     Text(
-                        if (isSimulacro) stringResource(R.string.simulacro_result) else stringResource(R.string.exam_result),
+                        stringResource(R.string.resultados),
                         color = TextLight, fontWeight = FontWeight.Bold
                     )
                 },
@@ -97,9 +97,6 @@ fun ExamResultScreen(navController: NavController, gameViewModel: GameViewModel)
                 }
             )
         } else if (r != null) {
-            Text(stringResource(R.string.exam_result), color = TextLight, fontSize = 24.sp, fontWeight = FontWeight.Bold)
-            Spacer(Modifier.height(24.dp))
-
             ScoreCard(r)
             Spacer(Modifier.height(16.dp))
 
@@ -181,9 +178,6 @@ private fun SimulacroResultContent(
 ) {
     val scoreColor = if (sr.passed) Success else Danger
     val gradeText = if (sr.passed) stringResource(R.string.grade_pass) else stringResource(R.string.grade_fail)
-
-    Text(stringResource(R.string.simulacro_result), color = TextLight, fontSize = 24.sp, fontWeight = FontWeight.Bold)
-    Spacer(Modifier.height(24.dp))
 
     Surface(
         modifier = Modifier.fillMaxWidth(),
@@ -393,7 +387,7 @@ private fun QuestionReviewCard(idx: Int, eq: ExamEngine.ExamQuestion) {
     ) {
         Column(modifier = Modifier.padding(12.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Text("P$idx", color = TextMuted, fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                Text(stringResource(R.string.question_prefix, idx), color = TextMuted, fontSize = 12.sp, fontWeight = FontWeight.Bold)
                 Spacer(Modifier.width(8.dp))
                 if (isCorrect) {
                     Icon(Icons.Default.Check, contentDescription = null, tint = Success, modifier = Modifier.size(16.dp))

@@ -73,7 +73,7 @@ class MissionRepository(private val context: Context) {
 
         // === EASY pool ===
         val easyPool = mutableListOf<Mission>(
-            Mission("variety", "�",
+            Mission("variety", "🌍",
                 if (unplayedLaw != null) "Acierta $varietyTargetEasy preguntas en Supervivencia en \"${unplayedLaw.title.ifEmpty { unplayedLaw.name }}\""
                 else "Acierta $varietyTargetEasy preguntas en Supervivencia en cualquier ley",
                 varietyTargetEasy, 0, false, easyReward,
@@ -94,7 +94,7 @@ class MissionRepository(private val context: Context) {
 
         // === MEDIUM pool ===
         val mediumPool = mutableListOf<Mission>(
-            Mission("quality", "�",
+            Mission("quality", "🎯",
                 "Acierta $streakTargetMedium preguntas seguidas en Supervivencia (todas las leyes)",
                 streakTargetMedium, 0, false, mediumReward, "streak",
                 null, MissionDifficulty.MEDIUM),

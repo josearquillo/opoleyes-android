@@ -216,6 +216,7 @@ class GameEngine private constructor(
                     timer = minOf(300f, timer + 20f)
                 }
                 if (mode == GameMode.TIMETRIAL) fiftyFiftyCharges++
+                if (mode == GameMode.QUICK) fiftyFiftyCharges++
                 if (streak % 15 == 0 && mode != GameMode.QUICK) doubleScoreCharges++
             }
 

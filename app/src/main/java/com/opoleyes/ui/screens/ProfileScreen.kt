@@ -33,7 +33,10 @@ import com.opoleyes.ui.theme.*
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProfileScreen(navController: NavController, gameViewModel: GameViewModel) {
-    val data = remember { gameViewModel.preloadProfileData(); gameViewModel.profileData!! }
+    val data = remember {
+        gameViewModel.preloadProfileData()
+        gameViewModel.profileData
+    } ?: return
     val rank = data.rank
     val xpProgress = data.xpProgress
     val achievements = data.achievements
@@ -94,7 +97,7 @@ fun ProfileScreen(navController: NavController, gameViewModel: GameViewModel) {
             text = {
                 Column {
                     Text(
-                        if (isUnlocked) "✅ Desbloqueado" else "🔒 No desbloqueado",
+                        if (isUnlocked) stringResource(R.string.achievement_unlocked_status) else stringResource(R.string.achievement_locked_status),
                         color = if (isUnlocked) Success else TextDim,
                         fontSize = 13.sp,
                         fontWeight = FontWeight.Bold

@@ -40,7 +40,10 @@ fun HomeScreen(navController: NavController, gameViewModel: GameViewModel) {
 
     // Data is precomputed off the main thread during the loading screen.
     // Fallback: compute synchronously (idempotent) if not yet available.
-    val preload = gameViewModel.homePreload ?: remember { gameViewModel.preloadHomeData(); gameViewModel.homePreload!! }
+    val preload = gameViewModel.homePreload ?: remember {
+        gameViewModel.preloadHomeData()
+        gameViewModel.homePreload
+    } ?: return
     val rank = preload.rank
     val xpProgress = preload.xpProgress
     val missions = preload.missions

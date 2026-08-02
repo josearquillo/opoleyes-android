@@ -191,4 +191,14 @@
     <string name="help_section_info_l2">La legislación puede cambiar con el tiempo. Consulta siempre las leyes vigentes antes del examen.</string>
     <string name="help_section_info_l3">Esta aplicación no sustituye el estudio oficial ni garantiza la aprobación del examen.</string>
 
+    <!-- Misc UI strings -->
+    <string name="rank_up_message">¡Has subido a %1$s!</string>
+    <string name="unlocked_label">Has desbloqueado:</string>
+    <string name="powerups_received">Ayudas recibidas:</string>
+    <string name="achievement_unlocked">¡Logro desbloqueado!</string>
+    <string name="achievement_unlocked_status">✅ Desbloqueado</string>
+    <string name="achievement_locked_status">🔒 No desbloqueado</string>
+    <string name="question_prefix">P%1$d</string>
+    <string name="resultados">Resultados</string>
+
 </resources>
