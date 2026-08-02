@@ -12,12 +12,13 @@ class ChestSystem(private val context: Context) {
     private val gameRepo = GameRepository(context)
 
     fun generateChest(newRecord: Boolean, accuracy: Int, totalAnswered: Int, score: Int): ChestReward? {
-        if (totalAnswered < 5 || score < 100) return null
+        if (totalAnswered < 3) return null
         val type = when {
             newRecord && accuracy >= 90 && totalAnswered >= 10 -> ChestType.GOLD
             newRecord && accuracy >= 70 -> ChestType.SILVER
-            accuracy >= 80 && totalAnswered >= 10 -> ChestType.SILVER
-            else -> ChestType.BRONZE
+            accuracy >= 80 && totalAnswered >= 5 -> ChestType.SILVER
+            accuracy >= 60 -> ChestType.BRONZE
+            else -> return null
         }
         val hasPowerUps = progressRepo.isUnlocked("shield") || progressRepo.isUnlocked("fiftyFifty") ||
                 progressRepo.isUnlocked("doubleScore")
@@ -34,6 +35,7 @@ class ChestSystem(private val context: Context) {
         val powerUps = mutableListOf<String>()
         if (hasPowerUps) {
             when (type) {
+                ChestType.BRONZE -> if ((0..1).random() == 1) powerUps.add(pickRandomPowerUp())
                 ChestType.SILVER -> powerUps.add(pickRandomPowerUp())
                 ChestType.GOLD -> {
                     powerUps.add(pickRandomPowerUp())

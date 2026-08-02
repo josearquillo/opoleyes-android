@@ -165,7 +165,7 @@
     <string name="help_section_powerups_l4">✨ x2 pts: La próxima respuesta que aciertes vale el doble de puntos.</string>
     <string name="help_section_powerups_l5">❤️ Recuperación: Cada 5 aciertos seguidos recuperas 1 vida automáticamente (Solo Supervivencia). Si ya tienes 3 vidas, recibes una carga de 50/50 en su lugar.</string>
     <string name="help_section_powerups_l6">⏱️ En Contrarreloj, cada 5 aciertos seguidos te da +20 segundos extra.</string>
-    <string name="help_section_powerups_l7">📦 Las ayudas se consiguen al subir de rango (cargas gratis) y al abrir bonus. Se gastan al usarlas. Solo puedes usar una ayuda por pregunta.</string>
+    <string name="help_section_powerups_l7">📦 Las ayudas se consiguen al subir de rango (cargas gratis), al abrir bonus y al hacer 5/5 en Repaso Express. Se gastan al usarlas. Solo puedes usar una ayuda por pregunta.</string>
     <string name="help_section_combo_title">Combo</string>
     <string name="help_section_combo_l1">Cada vez que aciertes seguidas, tu combo sube.</string>
     <string name="help_section_combo_l2">Cuanto más alto sea el combo, más puntos ganas por respuesta (10 × combo).</string>
@@ -176,9 +176,9 @@
     <string name="help_section_ranks_l2">Cada rango desbloquea nuevos modos de juego, más misiones diarias y recibes cargas de ayudas gratis.</string>
     <string name="help_section_ranks_l3">Gana XP acertando preguntas y completando misiones diarias.</string>
     <string name="help_section_bonus_title">Bonus</string>
-    <string name="help_section_bonus_l1">🥉 Bonus Bronce: Entre 50 y 150 XP. Lo recibes al terminar una partida normal.</string>
-    <string name="help_section_bonus_l2">🥈 Bonus Plata: Entre 150 y 350 XP y una ayuda extra. Lo recibes si bates tu récord de puntuación.</string>
-    <string name="help_section_bonus_l3">🥇 Bonus Oro: Entre 300 y 600 XP, dos ayudas extra y doble XP. Lo recibes si bates tu récord con un 90% de aciertos respondiendo al menos 5 preguntas.</string>
+    <string name="help_section_bonus_l1">🥉 Bonus Bronce: 50–150 XP y 50% de probabilidad de una ayuda. Lo recibes con 60%+ de aciertos (mín. 3 preguntas).</string>
+    <string name="help_section_bonus_l2">🥈 Bonus Plata: 150–350 XP y una ayuda extra. Lo recibes con 80%+ de aciertos (mín. 5 preguntas) o batiendo récord con 70%+.</string>
+    <string name="help_section_bonus_l3">🥇 Bonus Oro: 300–600 XP, dos ayudas extra y doble XP en la próxima partida. Lo recibes batiendo récord con 90%+ de aciertos (mín. 10 preguntas).</string>
     <string name="help_section_missions_title">Misiones diarias</string>
     <string name="help_section_missions_l1">Cada día recibes misiones nuevas y diferentes.</string>
     <string name="help_section_missions_l2">Puedes tener entre 1 y 3 misiones según tu rango.</string>
