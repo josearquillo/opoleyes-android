@@ -5,7 +5,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ErrorOutline
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
@@ -17,6 +16,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.lottiefiles.dotlottie.core.compose.ui.DotLottieAnimation
+import com.lottiefiles.dotlottie.core.util.DotLottieSource
+import com.dotlottie.dlplayer.Mode
 import com.opoleyes.R
 import com.opoleyes.data.local.DataProvider
 import com.opoleyes.data.local.PreferencesManager
@@ -108,8 +110,16 @@ fun LoadingScreen(navController: NavController, gameViewModel: GameViewModel) {
                     navController.navigate(Routes.LOADING) { popUpTo(Routes.LOADING) { inclusive = true } }
                 }
             } else {
-                // Simple spinner (balanza animation removed per TODO #4)
-                CircularProgressIndicator(color = Accent, modifier = Modifier.size(56.dp))
+                // Balanza animation
+                DotLottieAnimation(
+                    source = DotLottieSource.Asset("law_and_justice.json"),
+                    autoplay = true,
+                    loop = true,
+                    speed = 1.25f,
+                    useFrameInterpolation = false,
+                    playMode = Mode.FORWARD,
+                    modifier = Modifier.size(200.dp)
+                )
 
                 Spacer(Modifier.height(48.dp))
 
