@@ -47,6 +47,17 @@ import com.opoleyes.data.model.XpBreakdown
 import com.opoleyes.data.model.XpLine
 import com.opoleyes.ui.theme.*
 import kotlinx.coroutines.delay
+import kotlin.math.cos
+import kotlin.math.sin
+import kotlin.random.Random
+
+private data class HeartParticle(
+    val angle: Float,
+    val speed: Float,
+    val sizeDp: Float,
+    val color: Color,
+    val gravity: Float
+)
 
 @Composable
 fun GameButton(
@@ -386,7 +397,7 @@ private fun HeartIcon(
     burstTrigger: Int,
     popTrigger: Int
 ) {
-    // Shatter phase: 0=idle, 1=tremble, 2=expand+flash, 3=fragments, 4=done
+    // Shatter phase: 0=idle, 1=tremble, 2=grow, 3=particles, 4=done
     var shatterPhase by remember { mutableStateOf(0) }
     var shatterScale by remember { mutableStateOf(1f) }
     var shatterAlpha by remember { mutableStateOf(1f) }
@@ -399,28 +410,29 @@ private fun HeartIcon(
     var shockwave2Alpha by remember { mutableStateOf(0f) }
     var fragmentProgress by remember { mutableStateOf(0f) }
     var glowAlpha by remember { mutableStateOf(0f) }
+    var particles by remember { mutableStateOf<List<HeartParticle>>(emptyList()) }
 
     // Pop-in animation when a heart is gained
     var popScale by remember { mutableStateOf(1f) }
 
     LaunchedEffect(burstTrigger) {
         if (burstTrigger > 0) {
-            // Phase 1: Tremble with red glow (0-400ms)
+            // Phase 1: Tremble with red glow (0-300ms)
             shatterPhase = 1
             shatterAlpha = 1f
             shatterScale = 1f
             shatterRotation = 0f
             glowAlpha = 1f
-            repeat(8) {
-                trembleOffset = if (it % 2 == 0) 6f else -6f
+            repeat(6) {
+                trembleOffset = if (it % 2 == 0) 5f else -5f
                 kotlinx.coroutines.delay(50)
             }
             trembleOffset = 0f
             glowAlpha = 0f
 
-            // Phase 2: Expansion + double shockwave + flash (400-700ms)
+            // Phase 2: Gradual growth to 2x + shockwave + flash (300-700ms)
             shatterPhase = 2
-            shatterScale = 1.8f
+            shatterScale = 2f
             flashAlpha = 1f
             shockwaveScale = 0.2f
             shockwaveAlpha = 1f
@@ -433,18 +445,30 @@ private fun HeartIcon(
             shockwave2Scale = 0.8f
             shockwave2Alpha = 0f
             shatterAlpha = 0f
-            shatterRotation = 30f
-            kotlinx.coroutines.delay(300)
+            shatterRotation = 20f
+            kotlinx.coroutines.delay(350)
 
-            // Phase 3: Fragments flying out (700-1200ms)
+            // Phase 3: Particle explosion (700-1300ms)
             shatterPhase = 3
+            // Generate ~20 particles with random angles, speeds, sizes and colors
+            val colors = listOf(Danger, DangerDark, Danger.copy(alpha = 0.8f), Danger.copy(alpha = 0.6f))
+            particles = List(20) {
+                HeartParticle(
+                    angle = Random.nextFloat() * 360f,
+                    speed = Random.nextFloat() * 0.5f + 0.5f,
+                    sizeDp = Random.nextFloat() * 3f + 1.5f,
+                    color = colors.random(),
+                    gravity = Random.nextFloat() * 0.4f + 0.15f
+                )
+            }
             fragmentProgress = 0f
             kotlinx.coroutines.delay(50)
             fragmentProgress = 1f
-            kotlinx.coroutines.delay(450)
+            kotlinx.coroutines.delay(550)
 
             // Done
             shatterPhase = 0
+            particles = emptyList()
         }
     }
 
@@ -460,7 +484,7 @@ private fun HeartIcon(
 
     val animatedShatterScale by animateFloatAsState(
         targetValue = shatterScale,
-        animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy, stiffness = Spring.StiffnessMedium),
+        animationSpec = tween(350, easing = FastOutSlowInEasing),
         label = "shatterScale"
     )
     val animatedShatterAlpha by animateFloatAsState(
@@ -505,7 +529,7 @@ private fun HeartIcon(
     )
     val animatedFragmentProgress by animateFloatAsState(
         targetValue = fragmentProgress,
-        animationSpec = tween(450, easing = FastOutSlowInEasing),
+        animationSpec = tween(550, easing = FastOutSlowInEasing),
         label = "fragmentProgress"
     )
     val animatedGlow by animateFloatAsState(
@@ -566,23 +590,24 @@ private fun HeartIcon(
             }
         }
 
-        // Fragments flying outward
-        if (shatterPhase == 3) {
-            Canvas(modifier = Modifier.size(30.dp)) {
+        // Particle explosion — 20 particles flying outward with gravity + fade
+        if (shatterPhase == 3 && particles.isNotEmpty()) {
+            Canvas(modifier = Modifier.size(60.dp)) {
                 val cx = size.width / 2
                 val cy = size.height / 2
                 val p = animatedFragmentProgress
-                val fragmentSize = (1f - p) * 2.5.dp.toPx()
-                val maxDist = size.minDimension * 0.4f
-                val directions = listOf(0f, 45f, 90f, 135f, 180f, 225f, 270f, 315f)
-                directions.forEach { angle ->
-                    val rad = Math.toRadians(angle.toDouble()).toFloat()
-                    val dist = p * maxDist
-                    val fx = cx + Math.cos(rad.toDouble()).toFloat() * dist
-                    val fy = cy + Math.sin(rad.toDouble()).toFloat() * dist
+                val maxDist = size.minDimension * 0.45f
+                particles.forEach { particle ->
+                    val rad = Math.toRadians(particle.angle.toDouble()).toFloat()
+                    val dist = p * particle.speed * maxDist
+                    val fx = cx + cos(rad) * dist
+                    // gravity pulls particles downward as they fly out
+                    val fy = cy + sin(rad) * dist + particle.gravity * p * p * size.height * 0.5f
+                    val alpha = (1f - p).coerceIn(0f, 1f)
+                    val radius = particle.sizeDp.dp.toPx() * (1f - p * 0.4f)
                     drawCircle(
-                        color = Danger.copy(alpha = (1f - p) * 0.9f),
-                        radius = fragmentSize,
+                        color = particle.color.copy(alpha = alpha),
+                        radius = radius,
                         center = androidx.compose.ui.geometry.Offset(fx, fy)
                     )
                 }
