@@ -450,37 +450,59 @@ fun GameScreen(navController: NavController, gameViewModel: GameViewModel) {
                 }
             }
 
-            // Achievement toasts
+            // Achievement toasts — shown at the top, overlaying the HUD area
+            // (less important during gameplay than the answers at the bottom).
             if (toasts.isNotEmpty()) {
                 Box(
                     modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.BottomCenter
+                    contentAlignment = Alignment.TopCenter
                 ) {
                     Column(
-                        modifier = Modifier.padding(bottom = 16.dp, start = 16.dp, end = 16.dp)
+                        modifier = Modifier.padding(top = 8.dp, start = 16.dp, end = 16.dp)
                     ) {
                         toasts.takeLast(3).forEach { ach ->
-                            Surface(
-                                modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
-                                shape = RoundedCornerShape(12.dp),
-                                color = BgCard
+                            var visible by remember { mutableStateOf(false) }
+                            LaunchedEffect(ach) {
+                                delay(50)
+                                visible = true
+                            }
+                            AnimatedVisibility(
+                                visible = visible,
+                                enter = slideInVertically(
+                                    animationSpec = spring(
+                                        dampingRatio = Spring.DampingRatioMediumBouncy,
+                                        stiffness = Spring.StiffnessLow
+                                    ),
+                                    initialOffsetY = { -it / 2 }
+                                ) + fadeIn(tween(200)),
+                                exit = fadeOut(tween(400)) + slideOutVertically(
+                                    animationSpec = tween(400, easing = FastOutSlowInEasing),
+                                    targetOffsetY = { -it / 3 }
+                                )
                             ) {
-                                Row(
-                                    modifier = Modifier.padding(12.dp),
-                                    verticalAlignment = Alignment.CenterVertically
+                                Surface(
+                                    modifier = Modifier.fillMaxWidth().padding(vertical = 3.dp),
+                                    shape = RoundedCornerShape(12.dp),
+                                    color = BgCard,
+                                    shadowElevation = 8.dp
                                 ) {
-                                    Text(ach.icon, fontSize = 24.sp)
-                                    Spacer(Modifier.width(12.dp))
-                                    Column {
-                                        Text(stringResource(R.string.achievement_unlocked), color = Accent, fontWeight = FontWeight.Bold, fontSize = 10.sp)
-                                        Text(ach.name, color = Warning, fontWeight = FontWeight.Bold, fontSize = 14.sp)
-                                        Text(ach.desc, color = TextMuted, fontSize = 12.sp)
+                                    Row(
+                                        modifier = Modifier.padding(10.dp),
+                                        verticalAlignment = Alignment.CenterVertically
+                                    ) {
+                                        Text(ach.icon, fontSize = 22.sp)
+                                        Spacer(Modifier.width(10.dp))
+                                        Column {
+                                            Text(stringResource(R.string.achievement_unlocked), color = Accent, fontWeight = FontWeight.Bold, fontSize = 10.sp)
+                                            Text(ach.name, color = Warning, fontWeight = FontWeight.Bold, fontSize = 13.sp)
+                                            Text(ach.desc, color = TextMuted, fontSize = 11.sp, maxLines = 1, overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis)
+                                        }
                                     }
                                 }
                             }
                         }
                         LaunchedEffect(toasts) {
-                            delay(6000)
+                            delay(4000)
                             gameViewModel.clearToasts()
                         }
                     }
