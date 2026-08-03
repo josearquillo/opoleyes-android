@@ -137,3 +137,16 @@ data class SimulacroHistoryEntry(
     val unanswered: Int,
     val passed: Boolean
 )
+
+data class XpLine(
+    val icon: String,
+    val label: String,
+    val value: Int,
+    val color: Color
+)
+
+data class XpBreakdown(
+    val lines: List<XpLine>,
+    val total: Int,
+    val multiplierApplied: Boolean = false
+)

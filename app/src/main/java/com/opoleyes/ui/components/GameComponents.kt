@@ -1,5 +1,6 @@
 package com.opoleyes.ui.components
 
+import androidx.compose.animation.*
 import androidx.compose.animation.core.*
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.Canvas
@@ -42,7 +43,10 @@ import com.lottiefiles.dotlottie.core.compose.ui.DotLottieAnimation
 import com.lottiefiles.dotlottie.core.util.DotLottieSource
 import com.dotlottie.dlplayer.Mode
 import com.opoleyes.R
+import com.opoleyes.data.model.XpBreakdown
+import com.opoleyes.data.model.XpLine
 import com.opoleyes.ui.theme.*
+import kotlinx.coroutines.delay
 
 @Composable
 fun GameButton(
@@ -795,6 +799,199 @@ fun LoadingOverlay() {
                 )
                 Spacer(Modifier.height(8.dp))
                 Text(stringResource(R.string.loading_questions), color = TextLight, fontSize = 14.sp)
+            }
+        }
+    }
+}
+
+@Composable
+fun XpSummaryOverlay(
+    breakdown: XpBreakdown,
+    onDismiss: () -> Unit
+) {
+    var revealedLines by remember { mutableStateOf(0) }
+    var displayTotal by remember { mutableStateOf(0) }
+    var particleTrigger by remember { mutableStateOf<Any?>(null) }
+    var finished by remember { mutableStateOf(false) }
+
+    // Secuencia de revelado: una línea cada 700ms con count-up del total.
+    // Se cancela automáticamente al salir del Composition (al pulsar Saltar/fuera).
+    LaunchedEffect(breakdown) {
+        revealedLines = 0
+        displayTotal = 0
+        finished = false
+        breakdown.lines.forEachIndexed { idx, line ->
+            delay(700)
+            revealedLines = idx + 1
+            particleTrigger = Any()
+            val start = displayTotal
+            val end = start + line.value
+            if (end > start) {
+                val steps = 30
+                for (i in 1..steps) {
+                    val t = i.toFloat() / steps
+                    val eased = 1 - (1 - t) * (1 - t) * (1 - t)
+                    displayTotal = (start + (end - start) * eased).toInt()
+                    delay(15)
+                }
+            }
+            displayTotal = end
+        }
+        delay(400)
+        finished = true
+    }
+
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(ScrimStrong)
+            .clickable { onDismiss() },
+        contentAlignment = Alignment.Center
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth(0.88f)
+                .clip(RoundedCornerShape(20.dp))
+                .background(Brush.verticalGradient(listOf(BgCard, BgDark)))
+                .border(2.dp, Accent.copy(alpha = 0.5f), RoundedCornerShape(20.dp))
+                .shadow(16.dp, RoundedCornerShape(20.dp))
+                .clickable(enabled = false) {}
+                .padding(24.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            // Fila superior: título + botón Saltar
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text("✨ XP GANADA", color = AccentLight, fontSize = 18.sp, fontWeight = FontWeight.Bold)
+                if (!finished) {
+                    Text(
+                        "Saltar ⏭",
+                        color = TextMuted,
+                        fontSize = 13.sp,
+                        modifier = Modifier
+                            .clip(RoundedCornerShape(8.dp))
+                            .clickable { onDismiss() }
+                            .padding(horizontal = 8.dp, vertical = 4.dp)
+                    )
+                }
+            }
+            Spacer(Modifier.height(4.dp))
+
+            // Total grande con count-up + glow pulsante
+            val glowPulse by rememberInfiniteTransition(label = "glow").animateFloat(
+                initialValue = 0.6f,
+                targetValue = 1f,
+                animationSpec = infiniteRepeatable(tween(800), RepeatMode.Reverse),
+                label = "pulse"
+            )
+            Text(
+                "+$displayTotal",
+                color = AccentLight.copy(alpha = glowPulse),
+                fontSize = 56.sp,
+                fontWeight = FontWeight.Bold
+            )
+            Text("XP", color = TextMuted, fontSize = 14.sp)
+            Spacer(Modifier.height(16.dp))
+            HorizontalDivider(color = BgDark, thickness = 1.dp)
+            Spacer(Modifier.height(12.dp))
+
+            // Lista de líneas (van apareciendo una a una)
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                breakdown.lines.forEachIndexed { idx, line ->
+                    AnimatedVisibility(
+                        visible = idx < revealedLines,
+                        enter = slideInVertically(
+                            animationSpec = spring(
+                                dampingRatio = Spring.DampingRatioMediumBouncy,
+                                stiffness = Spring.StiffnessLow
+                            ),
+                            initialOffsetY = { it / 2 }
+                        ) + fadeIn(tween(200)),
+                        exit = fadeOut(tween(200))
+                    ) {
+                        XpSummaryRow(line)
+                    }
+                }
+            }
+
+            // Total final + botón Continuar (solo al terminar)
+            AnimatedVisibility(
+                visible = finished,
+                enter = fadeIn(tween(300)) + expandVertically()
+            ) {
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    Spacer(Modifier.height(16.dp))
+                    HorizontalDivider(color = BgDark, thickness = 1.dp)
+                    Spacer(Modifier.height(12.dp))
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Text("TOTAL", color = TextLight, fontSize = 16.sp, fontWeight = FontWeight.Bold)
+                        Text("+${breakdown.total} XP", color = AccentLight, fontSize = 20.sp, fontWeight = FontWeight.Bold)
+                    }
+                    Spacer(Modifier.height(20.dp))
+                    GameButton(
+                        text = "Continuar",
+                        modifier = Modifier.fillMaxWidth().height(48.dp),
+                        color1 = Accent,
+                        color2 = WarningDark,
+                        onClick = onDismiss
+                    )
+                }
+            }
+        }
+    }
+
+    // Particle burst detrás del panel (al revelar cada línea)
+    ParticleBurst(
+        trigger = particleTrigger,
+        color = AccentLight,
+        particleCount = 18,
+        modifier = Modifier.fillMaxSize()
+    )
+}
+
+@Composable
+private fun XpSummaryRow(line: XpLine) {
+    Surface(
+        shape = RoundedCornerShape(14.dp),
+        color = ScrimStrong,
+        shadowElevation = 4.dp,
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(14.dp))
+            .background(
+                Brush.horizontalGradient(
+                    listOf(
+                        line.color.copy(alpha = 0.25f),
+                        ScrimStrong,
+                        line.color.copy(alpha = 0.25f)
+                    )
+                )
+            )
+    ) {
+        Row(
+            modifier = Modifier.padding(horizontal = 14.dp, vertical = 10.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(line.icon, fontSize = 18.sp)
+            Spacer(Modifier.width(10.dp))
+            Text(
+                line.label,
+                color = TextLight,
+                fontSize = 14.sp,
+                modifier = Modifier.weight(1f),
+                maxLines = 1,
+                overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
+            )
+            if (line.value > 0) {
+                Text("+${line.value}", color = line.color, fontSize = 16.sp, fontWeight = FontWeight.Bold)
+            } else {
+                Text("aplicado", color = line.color.copy(alpha = 0.7f), fontSize = 13.sp)
             }
         }
     }

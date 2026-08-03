@@ -15,6 +15,10 @@ import com.opoleyes.domain.ChestSystem
 import com.opoleyes.domain.ExamEngine
 import com.opoleyes.domain.GameEngine
 import com.opoleyes.ui.theme.Primary
+import com.opoleyes.ui.theme.AccentLight
+import com.opoleyes.ui.theme.Success
+import com.opoleyes.ui.theme.PrimaryLight
+import com.opoleyes.ui.theme.Warning
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -171,6 +175,9 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
     private val _xpGained = MutableStateFlow(0)
     val xpGained: StateFlow<Int> = _xpGained.asStateFlow()
 
+    private val _xpBreakdown = MutableStateFlow<XpBreakdown?>(null)
+    val xpBreakdown: StateFlow<XpBreakdown?> = _xpBreakdown.asStateFlow()
+
     private val _medal = MutableStateFlow("")
     val medal: StateFlow<String> = _medal.asStateFlow()
 
@@ -238,6 +245,8 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
         _toasts.value = emptyList()
         _quickRewardEarned.value = false
         gameOverProcessed = false
+        _xpBreakdown.value = null
+        missionRepo.clearSessionCompletedMissions()
         val ok = engine.startQuickGame()
         if (ok) {
             _quickRewardPowerUp.value = generateQuickReward()
@@ -270,6 +279,8 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
         _popups.value = emptyList()
         _toasts.value = emptyList()
         gameOverProcessed = false
+        _xpBreakdown.value = null
+        missionRepo.clearSessionCompletedMissions()
         val ok = engine.startTemaGame(testId, pendingMode)
         if (ok) { engine.nextQuestion(); updateUiState() }
         return ok
@@ -279,6 +290,8 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
         _popups.value = emptyList()
         _toasts.value = emptyList()
         gameOverProcessed = false
+        _xpBreakdown.value = null
+        missionRepo.clearSessionCompletedMissions()
         val ok = engine.startAllLawsGame(pendingMode)
         if (ok) { engine.nextQuestion(); updateUiState() }
         return ok
@@ -315,6 +328,8 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
         _isLoading.value = true
         _examResult.value = null
         _isSimulacroMode.value = false
+        _xpBreakdown.value = null
+        missionRepo.clearSessionCompletedMissions()
         viewModelScope.launch {
             withContext(Dispatchers.Default) { examEngine.loadExam(questionCount) }
             _examQuestionNum.value = 0
@@ -331,6 +346,8 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
         _examResult.value = null
         _simulacroResult.value = null
         _isSimulacroMode.value = true
+        _xpBreakdown.value = null
+        missionRepo.clearSessionCompletedMissions()
         viewModelScope.launch {
             withContext(Dispatchers.Default) { examEngine.loadSimulacro() }
             _examQuestionNum.value = 0
@@ -400,6 +417,7 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
             }
         }
         checkRankUp(rankBefore)
+        _xpBreakdown.value = buildExamXpBreakdown(result.correct, result.total)
         _homePreload = null
         _profileData = null
     }
@@ -424,6 +442,7 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
         )
         missionRepo.checkSimulacroResult(result.passed)
         checkRankUp(rankBefore)
+        _xpBreakdown.value = buildSimulacroXpBreakdown(result.points, result.correct)
         _homePreload = null
         _profileData = null
     }
@@ -565,6 +584,7 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
         missionRepo.checkOnGameOver(mode, engine.maxCombo, engine.totalAnswered, engine.category, engine.correctCount, engine.score)
 
         _xpGained.value = progressRepo.getXP() - engine.startXP
+        _xpBreakdown.value = buildGameXpBreakdown()
 
         checkRankUp(engine.startRankIndex)
 
@@ -586,6 +606,91 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
 
         val chest = chestSystem.generateChest(_newRecord.value, acc, engine.totalAnswered, engine.score)
         _chestReward.value = chest
+    }
+
+    private fun buildGameXpBreakdown(): XpBreakdown {
+        val lines = mutableListOf<XpLine>()
+        val multiplierApplied = engine.xpMultiplier > 1
+
+        if (engine.xpFromCorrect > 0) {
+            lines.add(XpLine(
+                icon = "✓",
+                label = "Aciertos (${engine.correctCount})",
+                value = engine.xpFromCorrect,
+                color = AccentLight
+            ))
+        }
+        if (engine.xpFromLawMastery > 0) {
+            val label = if (engine.lawsMasteredThisGame > 1)
+                "Leyes dominadas (${engine.lawsMasteredThisGame})"
+            else "Ley dominada"
+            lines.add(XpLine(
+                icon = "📚",
+                label = label,
+                value = engine.xpFromLawMastery,
+                color = Success
+            ))
+        }
+        missionRepo.getSessionCompletedMissions().forEach { m ->
+            lines.add(XpLine(
+                icon = m.icon,
+                label = "Misión: ${m.text.take(28)}${if (m.text.length > 28) "…" else ""}",
+                value = m.reward,
+                color = PrimaryLight
+            ))
+        }
+        if (multiplierApplied) {
+            lines.add(XpLine(
+                icon = "×${engine.xpMultiplier}",
+                label = "Multiplicador",
+                value = 0,
+                color = Warning
+            ))
+        }
+        return XpBreakdown(lines = lines, total = _xpGained.value, multiplierApplied = multiplierApplied)
+    }
+
+    private fun buildExamXpBreakdown(correct: Int, total: Int): XpBreakdown {
+        val lines = mutableListOf<XpLine>()
+        if (correct > 0) {
+            lines.add(XpLine(
+                icon = "✓",
+                label = "Aciertos ($correct/$total)",
+                value = correct * 10,
+                color = AccentLight
+            ))
+        }
+        missionRepo.getSessionCompletedMissions().forEach { m ->
+            lines.add(XpLine(
+                icon = m.icon,
+                label = "Misión: ${m.text.take(28)}${if (m.text.length > 28) "…" else ""}",
+                value = m.reward,
+                color = PrimaryLight
+            ))
+        }
+        return XpBreakdown(lines = lines, total = _xpGained.value, multiplierApplied = false)
+    }
+
+    private fun buildSimulacroXpBreakdown(points: Float, correct: Int): XpBreakdown {
+        val lines = mutableListOf<XpLine>()
+        val xp = (points * 10).toInt().coerceAtLeast(0)
+        if (xp > 0) {
+            lines.add(XpLine(
+                icon = "🎯",
+                label = "Puntuación ($correct aciertos)",
+                value = xp,
+                color = AccentLight
+            ))
+        }
+        missionRepo.getSessionCompletedMissions().forEach { m ->
+            lines.add(XpLine(
+                icon = m.icon,
+                label = "Misión: ${m.text.take(28)}${if (m.text.length > 28) "…" else ""}",
+                value = m.reward,
+                color = PrimaryLight
+            ))
+        }
+        return XpBreakdown(lines = lines, total = _xpGained.value, multiplierApplied = false)
     }
 
     private fun checkRankUp(rankBefore: Int) {

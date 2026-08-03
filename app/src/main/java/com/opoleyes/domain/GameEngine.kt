@@ -61,6 +61,10 @@ class GameEngine private constructor(
     var startXP: Int = 0
     var powerUpsSaved: Boolean = false
     var xpMultiplier: Int = 1
+    // XP breakdown accumulators (reset in initGameStats)
+    var xpFromCorrect: Int = 0
+    var xpFromLawMastery: Int = 0
+    var lawsMasteredThisGame: Int = 0
 
     var fiftyFiftyCharges: Int = 0
     var fiftyFiftyActive: Boolean = false
@@ -89,6 +93,9 @@ class GameEngine private constructor(
         powerUpsSaved = false
         startRankIndex = progressRepo.getRankIndex()
         startXP = progressRepo.getXP()
+        xpFromCorrect = 0
+        xpFromLawMastery = 0
+        lawsMasteredThisGame = 0
         // Read and consume the pending XP multiplier from a gold chest so it
         // applies to ALL XP earned during this game, not just the first answer.
         xpMultiplier = prefs.getMultiplier()
@@ -207,6 +214,7 @@ class GameEngine private constructor(
             score += pts
             correctCount++
             progressRepo.addXP(pts * xpMultiplier)
+            xpFromCorrect += pts * xpMultiplier
 
             streak++
             if (streak > 0 && streak % 5 == 0) {
@@ -232,6 +240,8 @@ class GameEngine private constructor(
                 if (newPct >= 100 && !prefs.isLawMastered(q.testId)) {
                     prefs.setLawMastered(q.testId)
                     progressRepo.addXP(200 * xpMultiplier)
+                    xpFromLawMastery += 200 * xpMultiplier
+                    lawsMasteredThisGame++
                 }
             }
 

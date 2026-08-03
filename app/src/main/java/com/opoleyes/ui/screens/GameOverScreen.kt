@@ -66,21 +66,25 @@ fun GameOverScreen(navController: NavController, gameViewModel: GameViewModel) {
     val quickRewardEarned by gameViewModel.quickRewardEarned.collectAsState()
     val quickRewardMissed by gameViewModel.quickRewardMissed.collectAsState()
     val quickRewardPowerUp by gameViewModel.quickRewardPowerUp.collectAsState()
+    val xpBreakdown by gameViewModel.xpBreakdown.collectAsState()
 
     var displayScore by remember { mutableStateOf(0) }
     var chestOpened by remember { mutableStateOf(false) }
     var chestVisible by remember { mutableStateOf(false) }
     var confettiTrigger by remember { mutableStateOf<Any?>(null) }
     var chestShake by remember { mutableStateOf(0) }
+    var xpSummaryDismissed by remember { mutableStateOf(false) }
 
     val chestBlocking = chestReward != null && !chestOpened
 
-    // Show chest popup after 2s delay
-    LaunchedEffect(chestReward) {
-        if (chestReward != null) {
+    // Show chest popup after the XP summary overlay is dismissed (or immediately
+    // if there is no XP breakdown). Waits for the user to skip/continue the
+    // breakdown so the chest doesn't overlap the XP animation.
+    LaunchedEffect(chestReward, xpSummaryDismissed) {
+        if (chestReward != null && xpSummaryDismissed) {
             chestVisible = false
             chestOpened = false
-            delay(2000)
+            delay(500)
             chestVisible = true
             delay(800)
             repeat(3) {
@@ -88,6 +92,12 @@ fun GameOverScreen(navController: NavController, gameViewModel: GameViewModel) {
                 delay(300)
             }
         }
+    }
+
+    // If there is no XP breakdown, mark the summary as dismissed so the chest
+    // can appear immediately.
+    LaunchedEffect(xpBreakdown) {
+        if (xpBreakdown == null) xpSummaryDismissed = true
     }
 
     // Score count-up animation
@@ -293,6 +303,16 @@ fun GameOverScreen(navController: NavController, gameViewModel: GameViewModel) {
             trigger = confettiTrigger,
             modifier = Modifier.fillMaxSize()
         )
+
+        // XP summary overlay (shown first; chest waits until it's dismissed)
+        xpBreakdown?.let { breakdown ->
+            if (!xpSummaryDismissed) {
+                XpSummaryOverlay(
+                    breakdown = breakdown,
+                    onDismiss = { xpSummaryDismissed = true }
+                )
+            }
+        }
 
         // Chest overlay
         chestReward?.let { chest ->

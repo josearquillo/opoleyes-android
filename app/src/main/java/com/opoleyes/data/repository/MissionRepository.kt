@@ -13,6 +13,13 @@ class MissionRepository(private val context: Context) {
     private val statsRepo = StatsRepository(context)
     private val progressRepo = ProgressRepository(context)
 
+    // Missions completed during the current game session (cleared by clearSessionCompletedMissions).
+    // Used by the ViewModel to build the XP breakdown shown on GameOver.
+    private val sessionCompletedMissions = mutableListOf<Mission>()
+
+    fun clearSessionCompletedMissions() { sessionCompletedMissions.clear() }
+    fun getSessionCompletedMissions(): List<Mission> = sessionCompletedMissions.toList()
+
     private fun seededRandom(seed: Long): () -> Double {
         var s = seed
         return {
@@ -192,6 +199,7 @@ class MissionRepository(private val context: Context) {
             if (m.current >= m.target && !m.completed) {
                 m.completed = true
                 progressRepo.addXP(m.reward)
+                sessionCompletedMissions.add(m)
             }
         }
         saveDailyMissions(data)
