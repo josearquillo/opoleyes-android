@@ -61,13 +61,14 @@ object Constants {
 
     // Power-up gifts granted once when reaching the rank.
     val RANK_POWERUP_REWARDS = mapOf(
-        1 to listOf("shield", "doubleScore"),
-        2 to listOf("fiftyFifty", "hint"),
+        0 to listOf("fiftyFifty", "hint"),
+        1 to listOf("fiftyFifty", "hint"),
+        2 to listOf("shield", "doubleScore"),
     )
 
     // Mechanics per rank.
     val MAX_OPTIONS_BY_RANK = mapOf(
-        0 to 2, 1 to 3, 2 to 4, 3 to 4, 4 to 4,
+        0 to 4, 1 to 4, 2 to 4, 3 to 4, 4 to 4,
         5 to 4, 6 to 4, 7 to 4, 8 to 4
     )
 
@@ -82,8 +83,8 @@ object Constants {
     )
 
     val AVAILABLE_POWERUPS_BY_RANK = mapOf(
-        0 to listOf<String>(),
-        1 to listOf("shield", "doubleScore"),
+        0 to listOf("fiftyFifty", "hint"),
+        1 to listOf("fiftyFifty", "hint"),
         2 to listOf("shield", "doubleScore", "fiftyFifty", "hint"),
         3 to listOf("shield", "doubleScore", "fiftyFifty", "hint"),
         4 to listOf("shield", "doubleScore", "fiftyFifty", "hint"),

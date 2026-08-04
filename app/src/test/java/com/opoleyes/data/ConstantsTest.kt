@@ -119,11 +119,11 @@ class ConstantsTest {
     }
 
     @Test
-    fun rankPowerupRewards_onlyAtRanks1And2() {
-        // Per plan section 1.2: power-up gifts are granted once at rank 1
-        // (shield, doubleScore) and rank 2 (fiftyFifty, hint). Higher ranks
-        // unlock mechanics (modes, missions) but no extra power-up gifts.
-        assertEquals(setOf(1, 2), Constants.RANK_POWERUP_REWARDS.keys)
+    fun rankPowerupRewards_onlyAtRanks0Through2() {
+        // Power-up gifts are granted at ranks 0, 1 (fiftyFifty, hint) and
+        // rank 2 (shield, doubleScore). Higher ranks unlock mechanics
+        // (modes, missions) but no extra power-up gifts.
+        assertEquals(setOf(0, 1, 2), Constants.RANK_POWERUP_REWARDS.keys)
     }
 
     @Test

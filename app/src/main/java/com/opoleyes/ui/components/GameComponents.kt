@@ -115,6 +115,7 @@ fun GameButton(
 fun OptionCard(
     text: String,
     modifier: Modifier = Modifier,
+    letter: String = "",
     isCorrect: Boolean = false,
     isSelected: Boolean = false,
     isWrong: Boolean = false,
@@ -201,6 +202,15 @@ fun OptionCard(
             .padding(12.dp)
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
+            if (letter.isNotEmpty()) {
+                Text(
+                    text = "$letter)",
+                    color = textColor,
+                    fontSize = 15.sp,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.padding(end = 8.dp)
+                )
+            }
             Text(
                 text = text,
                 color = textColor,

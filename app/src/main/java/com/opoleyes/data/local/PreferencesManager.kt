@@ -45,10 +45,10 @@ open class PreferencesManager(private val context: Context) : com.opoleyes.data.
 
     fun initPowerUpsIfNeeded() {
         if (!prefs.getBoolean(POWERUPS_INITIALIZED, false)) {
-            // New users start with no power-ups. Power-ups are granted once when
-            // they reach Principiante (rank 1) and Aprendiz (rank 2) via
-            // RANK_POWERUP_REWARDS, so a Novato keeps the onboarding promise of
-            // "no power-ups" (see 3_IMPLEMENTATION_PLAN.md section 1.1).
+            // New users start with no stored power-ups. Free charges of
+            // Pista and 50/50 are given per-game in GameEngine.initGameStats()
+            // for ranks 0-1. Stored power-ups come from rank-up rewards and
+            // chests.
             setFreePowerUps(emptyList())
             prefs.edit().putBoolean(POWERUPS_INITIALIZED, true).apply()
         }

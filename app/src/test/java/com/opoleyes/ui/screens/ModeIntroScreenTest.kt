@@ -68,7 +68,7 @@ class ModeIntroScreenTest {
     }
 
     private fun assertTextPresent(text: String) {
-        val nodes = composeRule.onAllNodesWithText(text).fetchSemanticsNodes()
+        val nodes = composeRule.onAllNodesWithText(text, substring = true).fetchSemanticsNodes()
         assertTrue("Should find text '$text', got ${nodes.size} nodes", nodes.isNotEmpty())
     }
 
@@ -77,10 +77,10 @@ class ModeIntroScreenTest {
         startSurvivalAndRender()
         // Rank 0 (Novato): subtitle is "Rango: Novato"
         assertTextPresent("Rango: Novato")
-        assertTextPresent("Corazones")
-        assertTextPresent("Opciones por pregunta")
-        assertTextPresent("Dificultad de las preguntas")
-        assertTextPresent("Power-ups")
+        assertTextPresent("corazones")
+        assertTextPresent("4 opciones por pregunta")
+        assertTextPresent("Dificultad progresa")
+        assertTextPresent("Pista y 50/50")
     }
 
     @Test
@@ -175,10 +175,10 @@ class ModeIntroScreenTest {
     @Test
     fun modeIntro_rank0_showsNovatoContent() {
         startSurvivalAndRender()
-        // Rank 0 (Novato): 5 hearts, 2 options
+        // Rank 0 (Novato): 5 hearts, 4 options
         assertTextPresent("Rango: Novato")
-        assertTextPresent("Corazones")
-        assertTextPresent("Opciones por pregunta")
+        assertTextPresent("corazones")
+        assertTextPresent("4 opciones por pregunta")
     }
 
     @Test
@@ -198,7 +198,7 @@ class ModeIntroScreenTest {
         advance()
 
         assertTextPresent("Rango: Aprendiz")
-        assertTextPresent("Corazones")
+        assertTextPresent("corazones")
     }
 
     @Test
@@ -216,9 +216,9 @@ class ModeIntroScreenTest {
         advance()
 
         assertTextPresent("Responde rápido y con precisión")
-        assertTextPresent("Tiempo limitado")
-        assertTextPresent("Acierto")
-        assertTextPresent("Fallo")
+        assertTextPresent("180 segundos")
+        assertTextPresent("Acierto: +15s")
+        assertTextPresent("Fallo: -10s")
     }
 
     @Test
@@ -235,7 +235,7 @@ class ModeIntroScreenTest {
         advance()
 
         assertTextPresent("Repasa tus errores rápidamente")
-        assertTextPresent("5 preguntas")
-        assertTextPresent("Recompensa 5/5")
+        assertTextPresent("5 preguntas de tus fallos")
+        assertTextPresent("5/5 aciertos")
     }
 }

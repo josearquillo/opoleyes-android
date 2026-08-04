@@ -133,6 +133,13 @@ class GameEngine private constructor(
             prefs.clearFreePowerUps()
         }
 
+        // Give free power-up charges to beginners (ranks 0-1) so they can
+        // learn the mechanics without needing to earn them first.
+        if (rankIndex <= 1) {
+            if ("fiftyFifty" in availablePowerUps) fiftyFiftyCharges++
+            if ("hint" in availablePowerUps) hintCharges++
+        }
+
         when (mode) {
             GameMode.TIMETRIAL -> { timer = 180f; lives = 0 }
             else -> { lives = maxLives; timer = 0f }
@@ -302,7 +309,7 @@ class GameEngine private constructor(
     }
 
     fun activateFiftyFifty() {
-        if ("fiftyFifty" !in availablePowerUps || maxOptions < 4) return
+        if ("fiftyFifty" !in availablePowerUps) return
         if (fiftyFiftyCharges <= 0 || fiftyFiftyActive || answered || powerUpUsedThisQuestion) return
         val q = currentQ ?: return
         val allOptions = listOf("A", "B", "C", "D").filter { q.opciones[it] != null }
@@ -335,7 +342,7 @@ class GameEngine private constructor(
     }
 
     fun useHint() {
-        if ("hint" !in availablePowerUps || maxOptions < 4) return
+        if ("hint" !in availablePowerUps) return
         if (hintCharges <= 0 || hintActive || answered || powerUpUsedThisQuestion) return
         val q = currentQ ?: return
         val allOptions = listOf("A", "B", "C", "D").filter { q.opciones[it] != null }

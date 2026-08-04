@@ -255,8 +255,6 @@ fun GameScreen(navController: NavController, gameViewModel: GameViewModel) {
 
                                 // Power-up buttons (always visible to prevent layout shift on answer)
                                 val availablePowerUps = gameViewModel.engine.availablePowerUps
-                                // 50/50 and Hint require at least 4 options to be meaningful (plan 3.5).
-                                val supportsOptionPowerUps = gameViewModel.engine.maxOptions >= 4
                                 FlowRow(
                                     modifier = Modifier.fillMaxWidth(),
                                     horizontalArrangement = Arrangement.Center,
@@ -265,10 +263,10 @@ fun GameScreen(navController: NavController, gameViewModel: GameViewModel) {
                                     if ("shield" in availablePowerUps && uiState.shieldCharges > 0 && uiState.mode != GameMode.QUICK) {
                                         PowerUpButton(stringResource(R.string.shield), "🛡️", uiState.shieldCharges, PrimaryLight, enabled = !uiState.answered && !uiState.shieldActive && !uiState.powerUpUsedThisQuestion) { gameViewModel.activateShield() }
                                     }
-                                    if ("hint" in availablePowerUps && supportsOptionPowerUps && uiState.hintCharges > 0 && uiState.mode != GameMode.QUICK) {
+                                    if ("hint" in availablePowerUps && uiState.hintCharges > 0 && uiState.mode != GameMode.QUICK) {
                                         PowerUpButton(stringResource(R.string.hint), "💡", uiState.hintCharges, WarningDark, enabled = !uiState.answered && !uiState.hintActive && !uiState.powerUpUsedThisQuestion) { gameViewModel.useHint() }
                                     }
-                                    if ("fiftyFifty" in availablePowerUps && supportsOptionPowerUps && uiState.fiftyFiftyCharges > 0 && uiState.mode != GameMode.QUICK) {
+                                    if ("fiftyFifty" in availablePowerUps && uiState.fiftyFiftyCharges > 0 && uiState.mode != GameMode.QUICK) {
                                         PowerUpButton(stringResource(R.string.fifty_fifty), "✂️", uiState.fiftyFiftyCharges, Primary, enabled = !uiState.answered && !uiState.fiftyFiftyActive && !uiState.powerUpUsedThisQuestion) { gameViewModel.activateFiftyFifty() }
                                     }
                                     if ("doubleScore" in availablePowerUps && uiState.doubleScoreCharges > 0 && uiState.mode != GameMode.QUICK) {
@@ -277,13 +275,11 @@ fun GameScreen(navController: NavController, gameViewModel: GameViewModel) {
                                 }
                                 Spacer(Modifier.height(12.dp))
 
-                                // Options (shuffled display order). Limit to maxOptions based on rank.
-                                // Always include the correct answer and fill with random wrong options.
+                                // Options in original A-B-C-D order (never shuffled
+                                // to preserve referential answers like "Todas las
+                                // anteriores"). Always show all 4 options.
                                 val allLetters = listOf("A", "B", "C", "D")
-                                val maxOptions = gameViewModel.engine.maxOptions
-                                val correctLetter = q.correct
-                                val wrongLetters = remember(q) { allLetters.filter { it != correctLetter && q.opciones[it] != null }.shuffled() }
-                                val presentLetters = remember(q, maxOptions) { (listOf(correctLetter) + wrongLetters.take(maxOptions - 1)).shuffled() }
+                                val presentLetters = remember(q) { allLetters.filter { q.opciones[it] != null } }
                                 val removedByFiftyFifty = uiState.fiftyFiftyActive && uiState.fiftyFiftyRemoved.isNotEmpty()
                                 presentLetters.forEachIndexed { index, letter ->
                                     key(letter) {
@@ -309,6 +305,7 @@ fun GameScreen(navController: NavController, gameViewModel: GameViewModel) {
                                         ) {
                                             Column {
                                                 OptionCard(
+                                                    letter = letter,
                                                     text = text,
                                                     modifier = Modifier.fillMaxWidth(),
                                                     isCorrect = letter == q.correct,

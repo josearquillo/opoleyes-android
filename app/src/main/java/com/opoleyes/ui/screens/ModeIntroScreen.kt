@@ -183,7 +183,6 @@ private fun buildIntroContent(mode: GameMode, rankIndex: Int): IntroContent {
 }
 
 private fun buildSurvivalIntro(rankIndex: Int): IntroContent {
-    val maxOptions = Constants.MAX_OPTIONS_BY_RANK[rankIndex] ?: 4
     val maxLives = Constants.MAX_LIVES_BY_RANK[rankIndex] ?: 3
     val maxDiff = Constants.MAX_DIFFICULTY_BY_RANK[rankIndex] ?: 5
     val powerUps = Constants.AVAILABLE_POWERUPS_BY_RANK[rankIndex]
@@ -200,17 +199,17 @@ private fun buildSurvivalIntro(rankIndex: Int): IntroContent {
 
     val items = mutableListOf<IntroItem>()
     items.add(IntroItem("❤️", "$maxLives corazones · Cada fallo resta 1 · Combos recuperan vida"))
-    items.add(IntroItem("🔤", "$maxOptions opciones por pregunta"))
+    items.add(IntroItem("🔤", "4 opciones por pregunta (A, B, C, D)"))
     items.add(IntroItem("📊", "Dificultad progresa de 1 a $maxDiff"))
     if (powerUps.isEmpty())
         items.add(IntroItem("🚫", "Sin power-ups"))
     else
-        items.add(IntroItem("🛡️", "Power-ups: ${powerUps.size} disponibles"))
+        items.add(IntroItem("�", "Pista y 50/50 disponibles desde el inicio"))
     items.add(IntroItem("🔥", "Cada 5 aciertos seguidos: vida extra"))
 
     val footer = when (rankIndex) {
-        0 -> "¡Sin presión! 5 corazones y solo 2 opciones. Aprende lo básico."
-        1 -> "3 opciones y power-ups básicos para ayudarte."
+        0 -> "¡Sin presión! 5 corazones. Tienes Pista y 50/50 gratis para aprender."
+        1 -> "Sigue aprendiendo con Pista y 50/50. ¡Tú puedes!"
         2 -> "4 opciones, 3 corazones y todos los power-ups. ¡A por todas!"
         else -> "Modo Supervivencia completo. ¡Buena suerte!"
     }
