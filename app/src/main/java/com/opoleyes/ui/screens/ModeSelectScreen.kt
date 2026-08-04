@@ -124,7 +124,13 @@ fun ModeSelectScreen(navController: NavController, gameViewModel: GameViewModel)
             onStart = { count ->
                 showExamDialog = false
                 gameViewModel.startExamAsync(count) { ok ->
-                    if (ok) navController.navigate(Routes.EXAM)
+                    if (ok) {
+                        if (gameViewModel.shouldShowModeIntro(GameMode.EXAM)) {
+                            navController.navigate(Routes.MODE_INTRO)
+                        } else {
+                            navController.navigate(Routes.EXAM)
+                        }
+                    }
                 }
             }
         )
@@ -139,7 +145,11 @@ fun ModeSelectScreen(navController: NavController, gameViewModel: GameViewModel)
             },
             onStart = {
                 showQuickDialog = false
-                navController.navigate(Routes.GAME)
+                if (gameViewModel.shouldShowModeIntro(GameMode.QUICK)) {
+                    navController.navigate(Routes.MODE_INTRO)
+                } else {
+                    navController.navigate(Routes.GAME)
+                }
             }
         )
     }

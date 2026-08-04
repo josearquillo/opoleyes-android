@@ -40,6 +40,7 @@ open class PreferencesManager(private val context: Context) : com.opoleyes.data.
         fun recordComboKey(mode: String) = "record_combo_$mode"
         fun recordAccKey(mode: String) = "record_acc_$mode"
         fun lawMasteredKey(testId: String) = "law_mastered_$testId"
+        fun introShownKey(key: String) = "intro_shown_$key"
     }
 
     fun initPowerUpsIfNeeded() {
@@ -235,6 +236,13 @@ open class PreferencesManager(private val context: Context) : com.opoleyes.data.
     fun setLastKnownRankIndex(index: Int) {
         if (isWriteBlocked()) return
         prefs.edit().putInt(LAST_KNOWN_RANK_INDEX, index).apply()
+    }
+
+    fun isIntroShown(key: String): Boolean = prefs.getBoolean(introShownKey(key), false)
+
+    fun setIntroShown(key: String) {
+        if (isWriteBlocked()) return
+        prefs.edit().putBoolean(introShownKey(key), true).apply()
     }
 
     override fun resetAll() {

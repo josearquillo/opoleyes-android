@@ -204,23 +204,63 @@ fun HomeScreen(navController: NavController, gameViewModel: GameViewModel) {
                             if (!m.completed) {
                                 when (m.type) {
                                     "review" -> {
-                                        gameViewModel.startQuickGameAsync { ok -> if (ok) navController.navigate(Routes.GAME) }
+                                        gameViewModel.startQuickGameAsync { ok ->
+                                            if (ok) {
+                                                if (gameViewModel.shouldShowModeIntro(GameMode.QUICK)) {
+                                                    navController.navigate(Routes.MODE_INTRO)
+                                                } else {
+                                                    navController.navigate(Routes.GAME)
+                                                }
+                                            }
+                                        }
                                     }
                                     "progress", "variety" -> {
                                         gameViewModel.pendingMode = GameMode.SURVIVAL
                                         if (m.testId != null) {
-                                            gameViewModel.startTemaGameAsync(m.testId) { ok -> if (ok) navController.navigate(Routes.GAME) }
+                                            gameViewModel.startTemaGameAsync(m.testId) { ok ->
+                                                if (ok) {
+                                                    if (gameViewModel.shouldShowModeIntro(GameMode.SURVIVAL)) {
+                                                        navController.navigate(Routes.MODE_INTRO)
+                                                    } else {
+                                                        navController.navigate(Routes.GAME)
+                                                    }
+                                                }
+                                            }
                                         } else {
-                                            gameViewModel.startAllLawsGameAsync { ok -> if (ok) navController.navigate(Routes.GAME) }
+                                            gameViewModel.startAllLawsGameAsync { ok ->
+                                                if (ok) {
+                                                    if (gameViewModel.shouldShowModeIntro(GameMode.SURVIVAL)) {
+                                                        navController.navigate(Routes.MODE_INTRO)
+                                                    } else {
+                                                        navController.navigate(Routes.GAME)
+                                                    }
+                                                }
+                                            }
                                         }
                                     }
                                     "quality", "combo" -> {
                                         gameViewModel.pendingMode = GameMode.SURVIVAL
-                                        gameViewModel.startAllLawsGameAsync { ok -> if (ok) navController.navigate(Routes.GAME) }
+                                        gameViewModel.startAllLawsGameAsync { ok ->
+                                            if (ok) {
+                                                if (gameViewModel.shouldShowModeIntro(GameMode.SURVIVAL)) {
+                                                    navController.navigate(Routes.MODE_INTRO)
+                                                } else {
+                                                    navController.navigate(Routes.GAME)
+                                                }
+                                            }
+                                        }
                                     }
                                     "timetrial" -> {
                                         gameViewModel.pendingMode = GameMode.TIMETRIAL
-                                        gameViewModel.startAllLawsGameAsync { ok -> if (ok) navController.navigate(Routes.GAME) }
+                                        gameViewModel.startAllLawsGameAsync { ok ->
+                                            if (ok) {
+                                                if (gameViewModel.shouldShowModeIntro(GameMode.TIMETRIAL)) {
+                                                    navController.navigate(Routes.MODE_INTRO)
+                                                } else {
+                                                    navController.navigate(Routes.GAME)
+                                                }
+                                            }
+                                        }
                                     }
                                     "exam" -> {
                                         navController.navigate(Routes.MODE_SELECT)

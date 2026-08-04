@@ -79,7 +79,15 @@ fun TemaSelectScreen(navController: NavController, gameViewModel: GameViewModel)
             LazyColumn {
                 item {
                     AllLawsCard {
-                        gameViewModel.startAllLawsGameAsync { ok -> if (ok) navController.navigate(Routes.GAME) }
+                        gameViewModel.startAllLawsGameAsync { ok ->
+                            if (ok) {
+                                if (gameViewModel.shouldShowModeIntro(gameViewModel.engine.mode)) {
+                                    navController.navigate(Routes.MODE_INTRO)
+                                } else {
+                                    navController.navigate(Routes.GAME)
+                                }
+                            }
+                        }
                     }
                     Spacer(Modifier.height(12.dp))
                     HorizontalDivider(color = SurfaceVariant.copy(alpha = 0.4f), thickness = 1.dp)
@@ -88,7 +96,15 @@ fun TemaSelectScreen(navController: NavController, gameViewModel: GameViewModel)
                 items(filteredTests, key = { it.id }) { test ->
                     val progress = remember(test.id) { gameViewModel.getLeyProgress(test.id) }
                     TemaCard(Icons.Default.Book, test.title.ifEmpty { test.name }, progress) {
-                        gameViewModel.startTemaGameAsync(test.id) { ok -> if (ok) navController.navigate(Routes.GAME) }
+                        gameViewModel.startTemaGameAsync(test.id) { ok ->
+                            if (ok) {
+                                if (gameViewModel.shouldShowModeIntro(gameViewModel.engine.mode)) {
+                                    navController.navigate(Routes.MODE_INTRO)
+                                } else {
+                                    navController.navigate(Routes.GAME)
+                                }
+                            }
+                        }
                     }
                     Spacer(Modifier.height(6.dp))
                 }

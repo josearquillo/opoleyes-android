@@ -24,6 +24,7 @@ object Routes {
     const val PROFILE = "profile"
     const val HELP = "help"
     const val SIMULACRO_INTRO = "simulacrointro"
+    const val MODE_INTRO = "modeintro"
 }
 
 @Composable
@@ -61,5 +62,6 @@ fun NavGraph() {
         composable(Routes.PROFILE) { ProfileScreen(navController, gameViewModel) }
         composable(Routes.HELP) { HelpScreen(navController, gameViewModel) }
         composable(Routes.SIMULACRO_INTRO) { SimulacroIntroScreen(navController, gameViewModel) }
+        composable(Routes.MODE_INTRO) { ModeIntroScreen(navController, gameViewModel) }
     }
 }

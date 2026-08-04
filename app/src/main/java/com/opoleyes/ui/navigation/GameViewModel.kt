@@ -134,6 +134,33 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
         missionRepo.generateDailyMissions()
     }
 
+    // === Mode intro / onboarding ===
+    // Survival gets a per-rank intro at ranks 0, 1, 2 (mechanics change).
+    // Other modes get a single intro the first time they are played.
+    // Simulacro has its own dedicated intro screen and is excluded here.
+    fun getIntroKey(mode: GameMode, rankIndex: Int): String = when (mode) {
+        GameMode.SURVIVAL -> "intro_survival_rank_${minOf(rankIndex, 2)}"
+        GameMode.TIMETRIAL -> "intro_timetrial"
+        GameMode.QUICK -> "intro_quick"
+        GameMode.EXAM -> "intro_exam"
+        GameMode.SIMULACRO -> "intro_simulacro"
+    }
+
+    fun shouldShowModeIntro(mode: GameMode): Boolean {
+        if (mode == GameMode.SIMULACRO) return false
+        val rankIndex = progressRepo.getRankIndex()
+        return !prefs.isIntroShown(getIntroKey(mode, rankIndex))
+    }
+
+    fun dismissModeIntro(mode: GameMode, dontShowAgain: Boolean) {
+        if (!dontShowAgain) return
+        val rankIndex = progressRepo.getRankIndex()
+        prefs.setIntroShown(getIntroKey(mode, rankIndex))
+    }
+
+    fun getEngineMode(): GameMode = engine.mode
+    fun getEngineRankIndex(): Int = engine.rankIndex
+
     private val _uiState = MutableStateFlow(GameUiState())
     val uiState: StateFlow<GameUiState> = _uiState.asStateFlow()
 
