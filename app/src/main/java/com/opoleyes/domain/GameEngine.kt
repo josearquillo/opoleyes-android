@@ -176,9 +176,11 @@ class GameEngine private constructor(
             askedIds.clear()
             available = pool.filter { it.difficulty <= cap }
         }
+        // Hard fallback: never serve questions above the rank's max difficulty,
+        // even if the pool is exhausted at the current session cap.
         val usePool = if (available.isNotEmpty()) available else {
             askedIds.clear()
-            pool
+            pool.filter { it.difficulty <= maxDifficulty }.ifEmpty { pool }
         }
 
         currentQ = if (rankIndex <= 1) {
@@ -220,11 +222,6 @@ class GameEngine private constructor(
         val isCorrect = letter == q.correct
         val key = "${q.testId}:${q.origId}"
 
-        // Increase session difficulty cap every 5 answered questions.
-        if (totalAnswered % 5 == 0 && sessionDifficultyCap < maxDifficulty) {
-            sessionDifficultyCap++
-        }
-
         if (isCorrect) {
             statsRepo.updateStat(key, true)
             combo++
@@ -249,6 +246,10 @@ class GameEngine private constructor(
             if (doubleScoreActive) { pts *= 2; doubleScoreActive = false }
             score += pts
             correctCount++
+            // Increase session difficulty cap every 5 correct answers (per plan 2.2).
+            if (correctCount % 5 == 0 && sessionDifficultyCap < maxDifficulty) {
+                sessionDifficultyCap++
+            }
             progressRepo.addXP(pts * xpMultiplier)
             xpFromCorrect += pts * xpMultiplier
 

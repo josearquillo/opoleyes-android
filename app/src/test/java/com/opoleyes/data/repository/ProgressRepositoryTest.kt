@@ -49,7 +49,7 @@ class ProgressRepositoryTest {
     @Test
     fun rankIndex_clampsAtMax() {
         repo.addXP(100000)
-        assertEquals(6, repo.getRankIndex())
+        assertEquals(8, repo.getRankIndex())
     }
 
     @Test

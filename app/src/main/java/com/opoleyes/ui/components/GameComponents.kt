@@ -279,7 +279,6 @@ fun AnimatedHudBar(
         animationSpec = tween(400, easing = FastOutSlowInEasing),
         label = "lifeFlash"
     )
-    val maxLives = maxLives
     val showLives = mode == com.opoleyes.data.model.GameMode.SURVIVAL || mode == com.opoleyes.data.model.GameMode.QUICK
 
     // --- Timer animation: flash only on big jumps (>3s), not natural decrement ---

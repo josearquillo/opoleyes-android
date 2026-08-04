@@ -96,7 +96,8 @@ class ExamEngine(private val context: Context) {
                     correct = correct,
                     weight = weight,
                     testId = q.test_id,
-                    origId = q.orig_id.toString()
+                    origId = q.orig_id.toString(),
+                    difficulty = q.difficulty
                 )
                 poolsByLaw.getOrPut(law) { mutableListOf() }.add(entry)
             }

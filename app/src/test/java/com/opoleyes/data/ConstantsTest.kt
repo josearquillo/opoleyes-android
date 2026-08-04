@@ -9,8 +9,8 @@ import org.junit.Test
 class ConstantsTest {
 
     @Test
-    fun ranks_has7Entries() {
-        assertEquals(7, Constants.RANKS.size)
+    fun ranks_has9Entries() {
+        assertEquals(9, Constants.RANKS.size)
     }
 
     @Test
@@ -28,8 +28,8 @@ class ConstantsTest {
     }
 
     @Test
-    fun ranks_lastIsMaestro() {
-        assertEquals("Maestro", Constants.RANKS.last().name)
+    fun ranks_lastIsLeyenda() {
+        assertEquals("Leyenda", Constants.RANKS.last().name)
         assertEquals(25000, Constants.RANKS.last().xp)
     }
 
@@ -73,16 +73,17 @@ class ConstantsTest {
 
     @Test
     fun rankUnlocks_containsExpectedEntries() {
-        assertTrue(Constants.RANK_UNLOCKS.containsKey(1))
-        assertTrue(Constants.RANK_UNLOCKS.containsKey(2))
         assertTrue(Constants.RANK_UNLOCKS.containsKey(3))
         assertTrue(Constants.RANK_UNLOCKS.containsKey(4))
         assertTrue(Constants.RANK_UNLOCKS.containsKey(5))
+        assertTrue(Constants.RANK_UNLOCKS.containsKey(6))
+        assertTrue(Constants.RANK_UNLOCKS.containsKey(7))
+        assertTrue(Constants.RANK_UNLOCKS.containsKey(8))
     }
 
     @Test
-    fun rankUnlocks_examAtRank5() {
-        assertEquals("📝 Mini Examen", Constants.RANK_UNLOCKS[5])
+    fun rankUnlocks_examAtRank7() {
+        assertEquals("📝 Mini Examen", Constants.RANK_UNLOCKS[7])
     }
 
     @Test
@@ -118,28 +119,30 @@ class ConstantsTest {
     }
 
     @Test
-    fun rankPowerupRewards_higherRanksGiveMore() {
-        val rank1Rewards = Constants.RANK_POWERUP_REWARDS[1]?.size ?: 0
-        val rank6Rewards = Constants.RANK_POWERUP_REWARDS[6]?.size ?: 0
-        assertTrue("Higher ranks should give more power-ups", rank6Rewards >= rank1Rewards)
+    fun rankPowerupRewards_onlyAtRanks1And2() {
+        // Per plan section 1.2: power-up gifts are granted once at rank 1
+        // (shield, doubleScore) and rank 2 (fiftyFifty, hint). Higher ranks
+        // unlock mechanics (modes, missions) but no extra power-up gifts.
+        assertEquals(setOf(1, 2), Constants.RANK_POWERUP_REWARDS.keys)
     }
 
     @Test
     fun getRankByIndex_returnsCorrectRank() {
         assertEquals("Novato", Constants.getRankByIndex(0).name)
-        assertEquals("Maestro", Constants.getRankByIndex(6).name)
+        assertEquals("Veterano", Constants.getRankByIndex(6).name)
+        assertEquals("Maestro", Constants.getRankByIndex(7).name)
     }
 
     @Test
     fun getRankByIndex_outOfBoundsReturnsLast() {
         val rank = Constants.getRankByIndex(999)
-        assertEquals("Maestro", rank.name)
+        assertEquals("Leyenda", rank.name)
     }
 
     @Test
     fun getRankByIndex_negativeReturnsLast() {
         val rank = Constants.getRankByIndex(-1)
-        assertEquals("Maestro", rank.name)
+        assertEquals("Leyenda", rank.name)
     }
 
     @Test

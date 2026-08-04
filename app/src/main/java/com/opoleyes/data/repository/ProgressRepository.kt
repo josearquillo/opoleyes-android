@@ -151,7 +151,7 @@ open class ProgressRepository(private val context: Context) : com.opoleyes.data.
     fun getLastKnownRankIndex(): Int = prefs.getLastKnownRankIndex()
     fun setLastKnownRankIndex(index: Int) = prefs.setLastKnownRankIndex(index)
 
-    fun getPowerUpGiftsForRank(rankIndex: Int): List<String> {
+    fun getRankPowerUpGifts(rankIndex: Int): List<String> {
         return Constants.RANK_POWERUP_REWARDS[rankIndex] ?: emptyList()
     }
 

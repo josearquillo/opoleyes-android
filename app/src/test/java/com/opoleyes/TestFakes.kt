@@ -53,7 +53,10 @@ class FakeStatsRepository : IStatsRepository {
 
 class FakeProgressRepository : IProgressRepository {
     var xp = 0
-    var _rankIndex = 0
+    // Default to Aprendiz (rank 2) so game-engine tests get the full mechanics:
+    // 4 options, 3 lives, and all power-ups available. Tests that need a
+    // different rank (e.g. Novato onboarding) can override _rankIndex.
+    var _rankIndex = 2
     val unlocked = mutableSetOf<String>()
     override fun getXP() = xp
     override fun addXP(amount: Int): Int { xp += amount; return xp }

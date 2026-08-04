@@ -255,6 +255,8 @@ fun GameScreen(navController: NavController, gameViewModel: GameViewModel) {
 
                                 // Power-up buttons (always visible to prevent layout shift on answer)
                                 val availablePowerUps = gameViewModel.engine.availablePowerUps
+                                // 50/50 and Hint require at least 4 options to be meaningful (plan 3.5).
+                                val supportsOptionPowerUps = gameViewModel.engine.maxOptions >= 4
                                 FlowRow(
                                     modifier = Modifier.fillMaxWidth(),
                                     horizontalArrangement = Arrangement.Center,
@@ -263,10 +265,10 @@ fun GameScreen(navController: NavController, gameViewModel: GameViewModel) {
                                     if ("shield" in availablePowerUps && uiState.shieldCharges > 0 && uiState.mode != GameMode.QUICK) {
                                         PowerUpButton(stringResource(R.string.shield), "🛡️", uiState.shieldCharges, PrimaryLight, enabled = !uiState.answered && !uiState.shieldActive && !uiState.powerUpUsedThisQuestion) { gameViewModel.activateShield() }
                                     }
-                                    if ("hint" in availablePowerUps && uiState.hintCharges > 0 && uiState.mode != GameMode.QUICK) {
+                                    if ("hint" in availablePowerUps && supportsOptionPowerUps && uiState.hintCharges > 0 && uiState.mode != GameMode.QUICK) {
                                         PowerUpButton(stringResource(R.string.hint), "💡", uiState.hintCharges, WarningDark, enabled = !uiState.answered && !uiState.hintActive && !uiState.powerUpUsedThisQuestion) { gameViewModel.useHint() }
                                     }
-                                    if ("fiftyFifty" in availablePowerUps && uiState.fiftyFiftyCharges > 0 && uiState.mode != GameMode.QUICK) {
+                                    if ("fiftyFifty" in availablePowerUps && supportsOptionPowerUps && uiState.fiftyFiftyCharges > 0 && uiState.mode != GameMode.QUICK) {
                                         PowerUpButton(stringResource(R.string.fifty_fifty), "✂️", uiState.fiftyFiftyCharges, Primary, enabled = !uiState.answered && !uiState.fiftyFiftyActive && !uiState.powerUpUsedThisQuestion) { gameViewModel.activateFiftyFifty() }
                                     }
                                     if ("doubleScore" in availablePowerUps && uiState.doubleScoreCharges > 0 && uiState.mode != GameMode.QUICK) {

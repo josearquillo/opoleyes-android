@@ -700,8 +700,8 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
         if (rankAfter > rankBefore) {
             val allRewards = mutableListOf<String>()
             for (r in (rankBefore + 1)..rankAfter) {
-                val rewards = com.opoleyes.data.Constants.RANK_POWERUP_REWARDS[r]
-                if (rewards != null) {
+                val rewards = progressRepo.getRankPowerUpGifts(r)
+                if (rewards.isNotEmpty()) {
                     allRewards.addAll(rewards)
                     val current = prefs.getFreePowerUps().toMutableList()
                     current.addAll(rewards)

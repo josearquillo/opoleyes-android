@@ -37,6 +37,10 @@ class GameScreenExhaustiveTest {
         val app = ApplicationProvider.getApplicationContext<Application>()
         prefs = PreferencesManager(app)
         prefs.resetAll()
+        // Grant Aprendiz (rank 2) so the engine uses full mechanics: 4 options,
+        // 3 lives, and all power-ups available. Tests assert 3 lives and rely
+        // on power-ups being usable, which requires rank >= 2.
+        prefs.addXP(800)
         vm = GameViewModel(app)
     }
 

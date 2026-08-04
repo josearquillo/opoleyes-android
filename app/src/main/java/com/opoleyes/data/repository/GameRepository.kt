@@ -54,6 +54,16 @@ open class GameRepository(private val context: Context) : com.opoleyes.data.IGam
 
     override fun startQuickGame(): List<QuestionEntry> {
         val stats = statsRepo.getStats()
+        // Filter the pool by the rank's max difficulty so a Novato never gets
+        // difficulty-5 questions in Repaso Express (per plan section 3.2).
+        // The rank is read from PreferencesManager so the interface signature
+        // stays unchanged (startQuickGame() with no args).
+        val xp = prefs.getXP()
+        var rankIndex = 0
+        for (i in Constants.RANKS.indices.reversed()) {
+            if (xp >= Constants.RANKS[i].xp) { rankIndex = i; break }
+        }
+        val maxDifficulty = Constants.MAX_DIFFICULTY_BY_RANK[rankIndex] ?: 5
         val wrongPool = mutableListOf<QuestionEntry>()
         val unansweredPool = mutableListOf<QuestionEntry>()
         val correctPool = mutableListOf<QuestionEntry>()
@@ -63,9 +73,10 @@ open class GameRepository(private val context: Context) : com.opoleyes.data.IGam
             val am = d.answers.associate { it.id to it.correct }
             for (q in d.questions) {
                 val correct = am[q.id] ?: continue
+                val difficulty = q.difficulty
+                if (difficulty > maxDifficulty) continue
                 val key = (q.test_id) + ":" + (q.orig_id)
                 val s = stats[key]
-                val difficulty = q.difficulty
                 val attempted = if (s != null) s.correct + s.wrong else 0
                 val baseWeight = (difficulty * 15) + 25
                 val weight = if (s != null && attempted >= 3)
@@ -91,6 +102,20 @@ open class GameRepository(private val context: Context) : com.opoleyes.data.IGam
         if (pool.size < Constants.QUICK_MODE_QUESTIONS) pool.addAll(correctPool)
         pool.shuffle()
         return pool.take(Constants.QUICK_MODE_QUESTIONS)
+    }
+
+    /**
+     * Filters [pool] by the rank's max difficulty and applies weights based on
+     * per-question stats. Used by GameEngine to keep pool construction in the
+     * repository layer (per plan section 3.2).
+     */
+    fun getFilteredAndWeightedPool(
+        pool: List<QuestionEntry>,
+        rankIndex: Int,
+        stats: Map<String, com.opoleyes.data.model.QuestionStat>
+    ): List<QuestionEntry> {
+        val maxDifficulty = Constants.MAX_DIFFICULTY_BY_RANK[rankIndex] ?: 5
+        return pool.filter { it.difficulty <= maxDifficulty }
     }
 
     fun getFreePowerUps(): List<String> = prefs.getFreePowerUps()
