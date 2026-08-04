@@ -15,6 +15,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
+import org.robolectric.shadows.ShadowLooper
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 
@@ -67,7 +68,15 @@ class ExamResultFullCycleTest {
     private fun startSimulacroSync() {
         val latch = CountDownLatch(1)
         vm.startSimulacroAsync { latch.countDown() }
-        latch.await(30, TimeUnit.SECONDS)
+        // startSimulacroAsync dispatches the onDone callback to Dispatchers.Main.
+        // The test thread blocks the Main looper, so we must pump it explicitly
+        // for the callback to fire once the background loadSimulacro() finishes.
+        // Without this the latch waits the full 30s timeout (the load itself
+        // runs on Dispatchers.Default and completes quickly, but the Main-thread
+        // continuation never runs while we block on await()).
+        while (!latch.await(50, TimeUnit.MILLISECONDS)) {
+            ShadowLooper.idleMainLooper()
+        }
     }
 
     private fun answerAllCorrect(count: Int) {

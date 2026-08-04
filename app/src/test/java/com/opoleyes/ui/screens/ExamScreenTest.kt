@@ -32,6 +32,7 @@ class ExamScreenTest {
         prefs = PreferencesManager(app)
         prefs.resetAll()
         vm = GameViewModel(app)
+        composeRule.mainClock.autoAdvance = false
     }
 
     @After
@@ -49,7 +50,7 @@ class ExamScreenTest {
             ExamScreen(rememberNavController(), vm)
         }
         composeRule.waitForIdle()
-        composeRule.mainClock.advanceTimeBy(1000)
+        composeRule.mainClock.advanceTimeBy(100)
         composeRule.waitForIdle()
 
         // Should display "Pregunta 1 de 10" (first question)
@@ -65,7 +66,7 @@ class ExamScreenTest {
             ExamScreen(rememberNavController(), vm)
         }
         composeRule.waitForIdle()
-        composeRule.mainClock.advanceTimeBy(1000)
+        composeRule.mainClock.advanceTimeBy(100)
         composeRule.waitForIdle()
 
         // Should display the exam mode title

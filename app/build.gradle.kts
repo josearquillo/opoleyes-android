@@ -53,8 +53,13 @@ android {
 }
 
 tasks.withType<Test> {
-    maxParallelForks = Runtime.getRuntime().availableProcessors().coerceAtLeast(2)
+    // 6 forks × 1280m = 7.5GB heap ceiling, safe on 12GB RAM (leaves ~4GB for OS + Gradle daemon).
+    // More forks than cores (4) is fine because Robolectric tests are I/O-bound
+    // (loading Android framework + assets), not CPU-bound.
+    maxParallelForks = 6
     forkEvery = 0
+    maxHeapSize = "1280m"
+    jvmArgs("-XX:+UseParallelGC", "-XX:+TieredCompilation", "-XX:TieredStopAtLevel=1")
     configure<JacocoTaskExtension> {
         isIncludeNoLocationClasses = true
         excludes = listOf("jdk.internal.*", "sun.*")

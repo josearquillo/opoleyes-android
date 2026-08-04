@@ -18,6 +18,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
+import org.robolectric.shadows.ShadowLooper
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 
@@ -96,10 +97,14 @@ class GameViewModelTest {
 
     @Test
     fun finishSimulacro_guardAgainstDoubleSubmission() {
-        // Start simulacro via async API and wait for completion
+        // Start simulacro via async API and wait for completion.
+        // Pump the Main looper so the onDone callback (dispatched to
+        // Dispatchers.Main) fires once the background load finishes.
         val latch = CountDownLatch(1)
         vm.startSimulacroAsync { latch.countDown() }
-        latch.await(30, TimeUnit.SECONDS)
+        while (!latch.await(50, TimeUnit.MILLISECONDS)) {
+            ShadowLooper.idleMainLooper()
+        }
 
         val count = vm.examEngine.getQuestionCount()
         for (i in 0 until count) {
@@ -761,7 +766,13 @@ class GameViewModelTest {
     private fun startSimulacro(): Boolean {
         val latch = CountDownLatch(1)
         vm.startSimulacroAsync { latch.countDown() }
-        latch.await(30, TimeUnit.SECONDS)
+        // startSimulacroAsync dispatches onDone to Dispatchers.Main; pump the
+        // Main looper so the callback fires as soon as the background
+        // loadSimulacro() finishes (otherwise the latch hits its 30s timeout
+        // even though the load itself completes in well under a second).
+        while (!latch.await(50, TimeUnit.MILLISECONDS)) {
+            ShadowLooper.idleMainLooper()
+        }
         return vm.examEngine.getQuestionCount() > 0
     }
 

@@ -48,7 +48,7 @@ class ModeIntroScreenTest {
 
     private fun advance() {
         composeRule.waitForIdle()
-        composeRule.mainClock.advanceTimeBy(2000)
+        composeRule.mainClock.advanceTimeBy(500)
         composeRule.waitForIdle()
     }
 

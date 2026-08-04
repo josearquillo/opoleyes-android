@@ -42,6 +42,9 @@ class GameScreenExhaustiveTest {
         // on power-ups being usable, which requires rank >= 2.
         prefs.addXP(800)
         vm = GameViewModel(app)
+        // Disable real-time clock advancement so waitForIdle() doesn't wait
+        // for real milliseconds. Only advanceTimeBy() moves the virtual clock.
+        composeRule.mainClock.autoAdvance = false
     }
 
     @After
@@ -49,7 +52,7 @@ class GameScreenExhaustiveTest {
 
     private fun advance() {
         composeRule.waitForIdle()
-        composeRule.mainClock.advanceTimeBy(2000)
+        composeRule.mainClock.advanceTimeBy(100)
         composeRule.waitForIdle()
     }
 

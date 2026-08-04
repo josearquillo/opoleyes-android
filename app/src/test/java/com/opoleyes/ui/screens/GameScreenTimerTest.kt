@@ -32,6 +32,7 @@ class GameScreenTimerTest {
         prefs = PreferencesManager(app)
         prefs.resetAll()
         vm = GameViewModel(app)
+        composeRule.mainClock.autoAdvance = false
     }
 
     @After
