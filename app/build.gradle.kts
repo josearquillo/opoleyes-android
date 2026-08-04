@@ -53,7 +53,8 @@ android {
 }
 
 tasks.withType<Test> {
-    maxParallelForks = 4
+    maxParallelForks = Runtime.getRuntime().availableProcessors().coerceAtLeast(2)
+    forkEvery = 0
     configure<JacocoTaskExtension> {
         isIncludeNoLocationClasses = true
         excludes = listOf("jdk.internal.*", "sun.*")

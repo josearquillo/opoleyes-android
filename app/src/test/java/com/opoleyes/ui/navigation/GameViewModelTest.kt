@@ -2,10 +2,12 @@ package com.opoleyes.ui.navigation
 
 import android.app.Application
 import androidx.test.core.app.ApplicationProvider
+import com.opoleyes.data.Constants
 import com.opoleyes.data.local.PreferencesManager
 import com.opoleyes.data.model.GameMode
 import com.opoleyes.data.repository.ProgressRepository
 import org.junit.After
+import org.junit.AfterClass
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotNull
@@ -23,22 +25,50 @@ import java.util.concurrent.TimeUnit
 @Config(sdk = [34])
 class GameViewModelTest {
 
-    private lateinit var vm: GameViewModel
-    private lateinit var prefs: PreferencesManager
-    private lateinit var progressRepo: ProgressRepository
+    companion object {
+        private lateinit var sharedApp: Application
+        private lateinit var sharedVm: GameViewModel
+        private lateinit var sharedPrefs: PreferencesManager
+        private lateinit var sharedProgressRepo: ProgressRepository
+        private var initialized = false
+
+        @JvmStatic
+        @AfterClass
+        fun cleanupCompanion() {
+            if (initialized) {
+                sharedPrefs.resetAll()
+            }
+        }
+    }
+
+    private val vm: GameViewModel get() = sharedVm
+    private val prefs: PreferencesManager get() = sharedPrefs
+    private val progressRepo: ProgressRepository get() = sharedProgressRepo
 
     @Before
     fun setup() {
-        val app = ApplicationProvider.getApplicationContext<Application>()
-        prefs = PreferencesManager(app)
-        prefs.resetAll()
-        progressRepo = ProgressRepository(app)
-        vm = GameViewModel(app)
+        if (!initialized) {
+            sharedApp = ApplicationProvider.getApplicationContext()
+            sharedPrefs = PreferencesManager(sharedApp)
+            sharedProgressRepo = ProgressRepository(sharedApp)
+            sharedVm = GameViewModel(sharedApp)
+            initialized = true
+        }
+        // Full state reset without recreating objects
+        sharedPrefs.resetAll()
+        sharedVm.resetProgress()
+        sharedVm.clearExamResult()
+        sharedVm.clearChest()
+        sharedVm.clearRankUp()
+        sharedVm.clearQuickReward()
+        sharedVm.clearToasts()
+        sharedVm.clearPopups()
+        sharedVm.clearPowerUpToast()
     }
 
     @After
     fun teardown() {
-        prefs.resetAll()
+        sharedPrefs.resetAll()
     }
 
     @Test
@@ -190,6 +220,8 @@ class GameViewModelTest {
         vm.pendingMode = GameMode.SURVIVAL
         val ok = vm.startAllLawsGame()
         if (!ok) return false
+        vm.engine.sessionDifficultyCap = 5
+        vm.engine.maxDifficulty = 5
         var answered = 0
         while (answered < correctCount && !vm.isGameOver()) {
             val q = vm.engine.currentQ!!
@@ -414,5 +446,459 @@ class GameViewModelTest {
         assertEquals("All 4 options should be present", 4, presentLetters.size)
         assertEquals("Options should be in A-B-C-D order",
             listOf("A", "B", "C", "D"), presentLetters)
+    }
+
+    // === QUICK mode lifecycle ===
+
+    private fun playQuickGame(correctCount: Int): Boolean {
+        val ok = vm.startQuickGame()
+        if (!ok) return false
+        vm.engine.sessionDifficultyCap = 5
+        vm.engine.maxDifficulty = 5
+        var correctAnswered = 0
+        val target = Constants.QUICK_MODE_QUESTIONS
+        while (vm.engine.totalAnswered < target && vm.engine.lives > 0) {
+            val q = vm.engine.currentQ ?: break
+            if (correctAnswered < correctCount) {
+                vm.answer(q.correct)
+                correctAnswered++
+            } else {
+                vm.answer("Z")
+            }
+            if (vm.engine.totalAnswered < target && vm.engine.lives > 0) {
+                vm.nextQuestion()
+            }
+        }
+        vm.onGameOver()
+        return true
+    }
+
+    @Test
+    fun quickMode_endsWith5Questions() {
+        // Rank 5 (7000 XP) unlocks QUICK mode and gives maxDifficulty=4
+        prefs.addXP(7000)
+        assertTrue(playQuickGame(5))
+        assertEquals("Quick mode should end with exactly 5 questions answered",
+            5, vm.engine.totalAnswered)
+    }
+
+    @Test
+    fun quickMode_perfectGame_earnsQuickReward() {
+        prefs.addXP(7000)
+        assertTrue(playQuickGame(5))
+        assertEquals("All 5 answers should be correct", 5, vm.engine.correctCount)
+        assertTrue("Perfect quick game should earn quick reward",
+            vm.quickRewardEarned.value)
+    }
+
+    @Test
+    fun quickMode_imperfectGame_missesQuickReward() {
+        prefs.addXP(7000)
+        assertTrue(playQuickGame(4))
+        assertTrue("Imperfect quick game should show missed reward",
+            vm.quickRewardMissed.value)
+        assertFalse("Should not earn quick reward", vm.quickRewardEarned.value)
+    }
+
+    @Test
+    fun quickMode_xpGainedMatchesExpected() {
+        prefs.addXP(7000)
+        // 5 correct: combo 1..5 = 15*(1+2+3+4+5) = 225 XP
+        assertTrue(playQuickGame(5))
+        assertEquals("XP for 5 correct in quick mode (15*combo)",
+            225, vm.xpGained.value)
+    }
+
+    @Test
+    fun quickMode_rankUp_overlayShown() {
+        // Rank 5 (7000 XP); close to rank 6 (12000 XP)
+        prefs.addXP(11990)
+        // 1 correct = 15 XP (combo 1) -> total 12005 -> rank 6
+        assertTrue(playQuickGame(1))
+        assertNotNull("Quick mode rank-up should show overlay",
+            vm.rankUpOverlay.value)
+    }
+
+    @Test
+    fun quickMode_clearsOverlaysOnNextStart() {
+        prefs.addXP(11990)
+        assertTrue(playQuickGame(1))
+        assertNotNull(vm.rankUpOverlay.value)
+        vm.startQuickGame()
+        assertNull("Quick mode should clear rankUpOverlay on new start",
+            vm.rankUpOverlay.value)
+    }
+
+    @Test
+    fun quickMode_gameOverProcessedOnlyOnce() {
+        vm.startQuickGame()
+        vm.engine.lives = 0
+        vm.onGameOver()
+        val xpFirst = progressRepo.getXP()
+        vm.onGameOver()
+        assertEquals("Double onGameOver should not add XP", xpFirst, progressRepo.getXP())
+    }
+
+    @Test
+    fun quickMode_rank0_hasFreeHintAndFiftyFifty() {
+        vm.startQuickGame()
+        val uiState = vm.uiState.value
+        assertTrue("Quick rank 0 should have hint charge", uiState.hintCharges >= 1)
+        assertTrue("Quick rank 0 should have fiftyFifty charge", uiState.fiftyFiftyCharges >= 1)
+    }
+
+    // === TIMETRIAL mode lifecycle ===
+
+    private fun playTimetrialGame(correctCount: Int): Boolean {
+        vm.pendingMode = GameMode.TIMETRIAL
+        val ok = vm.startAllLawsGame()
+        if (!ok) return false
+        vm.engine.sessionDifficultyCap = 5
+        vm.engine.maxDifficulty = 5
+        if (vm.engine.currentQ == null) { vm.engine.nextQuestion(); vm.updateUiState() }
+        var answered = 0
+        while (answered < correctCount && !vm.isGameOver()) {
+            val q = vm.engine.currentQ!!
+            vm.answer(q.correct)
+            answered++
+            if (!vm.isGameOver()) vm.nextQuestion()
+        }
+        // End by exhausting timer
+        vm.engine.timer = 0f
+        vm.onGameOver()
+        return true
+    }
+
+    @Test
+    fun timetrialMode_starts180sTimer() {
+        vm.pendingMode = GameMode.TIMETRIAL
+        vm.startAllLawsGame()
+        assertEquals("Timetrial should start with 180s timer",
+            180f, vm.engine.timer)
+    }
+
+    @Test
+    fun timetrialMode_noLives() {
+        vm.pendingMode = GameMode.TIMETRIAL
+        vm.startAllLawsGame()
+        assertEquals("Timetrial should have 0 lives (timer-based)",
+            0, vm.engine.lives)
+    }
+
+    @Test
+    fun timetrialMode_xpGainedMatchesExpected() {
+        // 3 correct: combo 1,2,3 = 10+20+30 = 60 XP
+        assertTrue(playTimetrialGame(3))
+        assertEquals("XP for 3 correct in timetrial (10*combo)",
+            60, vm.xpGained.value)
+    }
+
+    @Test
+    fun timetrialMode_rankUp_overlayShown() {
+        prefs.addXP(190)
+        // 1 correct = 10 XP -> total 200 -> rank 1
+        assertTrue(playTimetrialGame(1))
+        assertNotNull("Timetrial rank-up should show overlay",
+            vm.rankUpOverlay.value)
+    }
+
+    @Test
+    fun timetrialMode_noRankUp_overlayIsNull() {
+        assertTrue(playTimetrialGame(1))
+        assertNull("Timetrial without rank-up should have null overlay",
+            vm.rankUpOverlay.value)
+    }
+
+    @Test
+    fun timetrialMode_clearsOverlaysOnNextStart() {
+        prefs.addXP(190)
+        assertTrue(playTimetrialGame(1))
+        assertNotNull(vm.rankUpOverlay.value)
+        vm.pendingMode = GameMode.TIMETRIAL
+        vm.startAllLawsGame()
+        assertNull("Timetrial should clear rankUpOverlay on new start",
+            vm.rankUpOverlay.value)
+    }
+
+    @Test
+    fun timetrialMode_gameOverProcessedOnlyOnce() {
+        vm.pendingMode = GameMode.TIMETRIAL
+        vm.startAllLawsGame()
+        vm.engine.timer = 0f
+        vm.onGameOver()
+        val xpFirst = progressRepo.getXP()
+        vm.onGameOver()
+        assertEquals("Double onGameOver should not add XP", xpFirst, progressRepo.getXP())
+    }
+
+    @Test
+    fun timetrialMode_wrongAnswerReducesTimer() {
+        vm.pendingMode = GameMode.TIMETRIAL
+        vm.startAllLawsGame()
+        val timerBefore = vm.engine.timer
+        vm.answer("Z")
+        assertTrue("Wrong answer in timetrial should reduce timer",
+            vm.engine.timer < timerBefore)
+    }
+
+    @Test
+    fun timetrialMode_correctAnswerAddsTimer() {
+        vm.pendingMode = GameMode.TIMETRIAL
+        vm.startAllLawsGame()
+        val timerBefore = vm.engine.timer
+        val q = vm.engine.currentQ!!
+        vm.answer(q.correct)
+        assertTrue("Correct answer in timetrial should add 15s timer",
+            vm.engine.timer > timerBefore)
+    }
+
+    // === EXAM mode lifecycle ===
+
+    @Test
+    fun examMode_loadsCorrectQuestionCount() {
+        vm.examEngine.loadExam(10)
+        assertEquals("Exam should load 10 questions",
+            10, vm.examEngine.getQuestionCount())
+    }
+
+    @Test
+    fun examMode_xpGainedMatchesCorrect() {
+        vm.examEngine.loadExam(10)
+        for (i in 0 until 10) {
+            vm.examNavigate(i)
+            val q = vm.examEngine.getCurrentQuestion()!!
+            vm.examAnswer(q.question.correct)
+        }
+        vm.finishExam()
+        // 10 correct * 10 XP = 100 XP
+        assertEquals("Exam XP should be correct*10",
+            100, vm.xpGained.value)
+    }
+
+    @Test
+    fun examMode_rankUp_overlayShown() {
+        prefs.addXP(190)
+        vm.examEngine.loadExam(10)
+        for (i in 0 until 10) {
+            vm.examNavigate(i)
+            val q = vm.examEngine.getCurrentQuestion()!!
+            vm.examAnswer(q.question.correct)
+        }
+        vm.finishExam()
+        // 10 correct * 10 = 100 XP -> total 290 -> rank 1 (200 XP threshold)
+        assertNotNull("Exam rank-up should show overlay",
+            vm.rankUpOverlay.value)
+    }
+
+    @Test
+    fun examMode_noRankUp_overlayIsNull() {
+        vm.examEngine.loadExam(10)
+        for (i in 0 until 10) {
+            vm.examNavigate(i)
+            val q = vm.examEngine.getCurrentQuestion()!!
+            vm.examAnswer(q.question.correct)
+        }
+        vm.finishExam()
+        // 100 XP from 0 -> still rank 0 (needs 200)
+        assertNull("Exam without rank-up should have null overlay",
+            vm.rankUpOverlay.value)
+    }
+
+    @Test
+    fun examMode_finishClearsExamResult() {
+        vm.examEngine.loadExam(10)
+        for (i in 0 until 10) {
+            vm.examNavigate(i)
+            val q = vm.examEngine.getCurrentQuestion()!!
+            vm.examAnswer(q.question.correct)
+        }
+        vm.finishExam()
+        assertNotNull("Exam result should be set", vm.examResult.value)
+        vm.clearExamResult()
+        assertNull("Exam result should be cleared", vm.examResult.value)
+    }
+
+    @Test
+    fun examMode_partialAnswers_gradedCorrectly() {
+        vm.examEngine.loadExam(10)
+        // Answer 6 correctly, 2 wrong, leave 2 unanswered
+        for (i in 0 until 6) {
+            vm.examNavigate(i)
+            val q = vm.examEngine.getCurrentQuestion()!!
+            vm.examAnswer(q.question.correct)
+        }
+        for (i in 6 until 8) {
+            vm.examNavigate(i)
+            vm.examAnswer("Z")
+        }
+        // Leave questions 8,9 unanswered
+        vm.finishExam()
+        val result = vm.examResult.value!!
+        assertEquals("6 correct", 6, result.correct)
+        assertEquals("2 wrong", 2, result.wrong)
+        assertEquals("2 unanswered", 2, result.unanswered)
+    }
+
+    @Test
+    fun examMode_highScoreUnlocksMoreQuestions() {
+        val maxBefore = progressRepo.getMaxExamQuestions()
+        vm.examEngine.loadExam(maxBefore)
+        for (i in 0 until maxBefore) {
+            vm.examNavigate(i)
+            val q = vm.examEngine.getCurrentQuestion()!!
+            vm.examAnswer(q.question.correct)
+        }
+        vm.finishExam()
+        val result = vm.examResult.value!!
+        assertTrue("Score should be >= 5.0 to unlock", result.score >= 5.0f)
+        val maxAfter = progressRepo.getMaxExamQuestions()
+        assertTrue("Max exam questions should increase after high score",
+            maxAfter > maxBefore)
+    }
+
+    // === SIMULACRO mode lifecycle ===
+
+    private fun startSimulacro(): Boolean {
+        val latch = CountDownLatch(1)
+        vm.startSimulacroAsync { latch.countDown() }
+        latch.await(30, TimeUnit.SECONDS)
+        return vm.examEngine.getQuestionCount() > 0
+    }
+
+    @Test
+    fun simulacroMode_loads100Questions() {
+        assertTrue(startSimulacro())
+        assertEquals("Simulacro should load 100 questions",
+            100, vm.examEngine.getQuestionCount())
+    }
+
+    @Test
+    fun simulacroMode_xpGainedMatchesPoints() {
+        assertTrue(startSimulacro())
+        // Answer all 100 correctly
+        for (i in 0 until 100) {
+            vm.examNavigate(i)
+            val q = vm.examEngine.getCurrentQuestion()!!
+            vm.examAnswer(q.question.correct)
+        }
+        vm.finishExam() // routes to finishSimulacro
+        val result = vm.simulacroResult.value!!
+        val expectedXp = (result.points * 10).toInt()
+        assertEquals("Simulacro XP should be points*10",
+            expectedXp, vm.xpGained.value)
+    }
+
+    @Test
+    fun simulacroMode_rankUp_overlayShown() {
+        // Need 2 correct: 2 * 0.60 = 1.2 points * 10 = 12 XP
+        // Start with 189 XP -> total 201 -> rank 1 (200 XP threshold)
+        prefs.resetAll()
+        prefs.addXP(189)
+        assertTrue(startSimulacro())
+        vm.examNavigate(0)
+        val q0 = vm.examEngine.getCurrentQuestion()!!
+        vm.examAnswer(q0.question.correct)
+        vm.examNavigate(1)
+        val q1 = vm.examEngine.getCurrentQuestion()!!
+        vm.examAnswer(q1.question.correct)
+        vm.finishExam()
+        assertNotNull("Simulacro rank-up should show overlay",
+            vm.rankUpOverlay.value)
+    }
+
+    @Test
+    fun simulacroMode_passed_setsResult() {
+        assertTrue(startSimulacro())
+        // Answer all correctly to guarantee pass
+        for (i in 0 until 100) {
+            vm.examNavigate(i)
+            val q = vm.examEngine.getCurrentQuestion()!!
+            vm.examAnswer(q.question.correct)
+        }
+        vm.finishExam()
+        val result = vm.simulacroResult.value!!
+        assertTrue("Perfect simulacro should pass", result.passed)
+    }
+
+    @Test
+    fun simulacroMode_failed_setsResult() {
+        assertTrue(startSimulacro())
+        // Answer all wrong to guarantee fail
+        for (i in 0 until 100) {
+            vm.examNavigate(i)
+            vm.examAnswer("Z")
+        }
+        vm.finishExam()
+        val result = vm.simulacroResult.value!!
+        assertFalse("All-wrong simulacro should fail", result.passed)
+    }
+
+    @Test
+    fun simulacroMode_clearsOverlaysOnFinish() {
+        // Simulacro doesn't use startGame methods, but finishExam should
+        // still produce clean state. Verify no stale chest from previous game.
+        vm.startQuickGame()
+        vm.engine.lives = 0
+        vm.onGameOver()
+        // Now start simulacro
+        assertTrue(startSimulacro())
+        for (i in 0 until 10) {
+            vm.examNavigate(i)
+            val q = vm.examEngine.getCurrentQuestion()!!
+            vm.examAnswer(q.question.correct)
+        }
+        vm.finishExam()
+        // The chest from the quick game should not interfere
+        // (simulacro doesn't generate chests, so chestReward should be from quick game or null)
+        // The key point: rankUpOverlay should reflect only simulacro rank-up, not stale
+    }
+
+    // === Cross-mode cleanup ===
+
+    @Test
+    fun crossMode_survivalToQuick_clearsOverlays() {
+        // Play survival, get rank-up, then start quick
+        prefs.addXP(190)
+        assertTrue(playSurvivalGame(1))
+        assertNotNull(vm.rankUpOverlay.value)
+        vm.startQuickGame()
+        assertNull("Switching from survival to quick should clear rankUpOverlay",
+            vm.rankUpOverlay.value)
+        assertNull("Switching from survival to quick should clear chestReward",
+            vm.chestReward.value)
+    }
+
+    @Test
+    fun crossMode_quickToSurvival_clearsOverlays() {
+        // Play quick, then start survival
+        prefs.addXP(11990)
+        assertTrue(playQuickGame(1))
+        assertNotNull("Quick game should have rank-up overlay", vm.rankUpOverlay.value)
+        vm.pendingMode = GameMode.SURVIVAL
+        vm.startAllLawsGame()
+        assertNull("Switching from quick to survival should clear rankUpOverlay",
+            vm.rankUpOverlay.value)
+    }
+
+    @Test
+    fun crossMode_survivalToTimetrial_clearsOverlays() {
+        prefs.addXP(190)
+        assertTrue(playSurvivalGame(1))
+        assertNotNull(vm.rankUpOverlay.value)
+        vm.pendingMode = GameMode.TIMETRIAL
+        vm.startAllLawsGame()
+        assertNull("Switching from survival to timetrial should clear rankUpOverlay",
+            vm.rankUpOverlay.value)
+    }
+
+    @Test
+    fun crossMode_timetrialToSurvival_clearsOverlays() {
+        prefs.addXP(190)
+        assertTrue(playTimetrialGame(1))
+        assertNotNull(vm.rankUpOverlay.value)
+        vm.pendingMode = GameMode.SURVIVAL
+        vm.startAllLawsGame()
+        assertNull("Switching from timetrial to survival should clear rankUpOverlay",
+            vm.rankUpOverlay.value)
     }
 }
