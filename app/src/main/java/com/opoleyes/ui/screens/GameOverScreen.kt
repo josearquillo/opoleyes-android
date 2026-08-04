@@ -74,6 +74,7 @@ fun GameOverScreen(navController: NavController, gameViewModel: GameViewModel) {
     var confettiTrigger by remember { mutableStateOf<Any?>(null) }
     var chestShake by remember { mutableStateOf(0) }
     var xpSummaryDismissed by remember { mutableStateOf(false) }
+    var chestDismissed by remember { mutableStateOf(false) }
 
     val chestBlocking = chestReward != null && !chestOpened
 
@@ -91,6 +92,10 @@ fun GameOverScreen(navController: NavController, gameViewModel: GameViewModel) {
                 chestShake++
                 delay(300)
             }
+            // Auto-open the chest after the shake animation (not dismissable)
+            delay(400)
+            chestOpened = true
+            gameViewModel.openChest()
         }
     }
 
@@ -98,6 +103,14 @@ fun GameOverScreen(navController: NavController, gameViewModel: GameViewModel) {
     // can appear immediately.
     LaunchedEffect(xpBreakdown) {
         if (xpBreakdown == null) xpSummaryDismissed = true
+    }
+
+    // If there is no chest, mark it as dismissed once the XP summary is done
+    // so the rank-up overlay can appear.
+    LaunchedEffect(chestReward, xpSummaryDismissed) {
+        if (chestReward == null && xpSummaryDismissed) {
+            chestDismissed = true
+        }
     }
 
     // Score count-up animation
@@ -329,15 +342,18 @@ fun GameOverScreen(navController: NavController, gameViewModel: GameViewModel) {
                         gameViewModel.clearChest()
                         chestOpened = false
                         chestVisible = false
+                        chestDismissed = true
                     }
                 )
             }
         }
 
-        // Rank-up overlay
+        // Rank-up overlay (shown only after XP summary and chest are dismissed)
         rankUpOverlay?.let { overlay ->
-            RankUpOverlayView(overlay) {
-                gameViewModel.clearRankUp()
+            if (chestDismissed) {
+                RankUpOverlayView(overlay) {
+                    gameViewModel.clearRankUp()
+                }
             }
         }
     }
@@ -378,7 +394,7 @@ fun ChestOverlay(chest: ChestReward, opened: Boolean, shakeCount: Int, onOpen: (
         modifier = Modifier
             .fillMaxSize()
             .background(Scrim)
-            .clickable { if (opened) onDismiss() else onOpen() },
+            .then(if (!opened) Modifier.clickable { onOpen() } else Modifier),
         contentAlignment = Alignment.Center
     ) {
         Column(
@@ -404,7 +420,7 @@ fun ChestOverlay(chest: ChestReward, opened: Boolean, shakeCount: Int, onOpen: (
                     )
                 }
                 Spacer(Modifier.height(16.dp))
-                Text(stringResource(R.string.tap_to_open), color = Warning, fontSize = 20.sp, fontWeight = FontWeight.Bold)
+                Text("¡Bonus desbloqueado!", color = Warning, fontSize = 20.sp, fontWeight = FontWeight.Bold)
             } else {
                 // Scale-in for opened content
                 val contentScale by animateFloatAsState(
@@ -448,7 +464,7 @@ fun ChestOverlay(chest: ChestReward, opened: Boolean, shakeCount: Int, onOpen: (
                     }
                 }
                 Spacer(Modifier.height(16.dp))
-                Text(stringResource(R.string.tap_to_continue), color = TextDim, fontSize = 13.sp)
+                GameButton(stringResource(R.string.continue_label), color1 = Primary, color2 = PurpleDark) { onDismiss() }
             }
         }
     }

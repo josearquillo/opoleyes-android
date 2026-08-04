@@ -163,8 +163,10 @@ private fun IntroInfoCard(card: IntroCard) {
             .padding(16.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Text(card.icon, fontSize = 28.sp)
-        Spacer(Modifier.width(16.dp))
+        Box(modifier = Modifier.width(36.dp), contentAlignment = Alignment.Center) {
+            Text(card.icon, fontSize = 26.sp, textAlign = TextAlign.Center)
+        }
+        Spacer(Modifier.width(12.dp))
         Column(modifier = Modifier.weight(1f)) {
             Text(card.title, color = TextLight, fontSize = 16.sp, fontWeight = FontWeight.Bold)
             Spacer(Modifier.height(4.dp))
@@ -172,7 +174,15 @@ private fun IntroInfoCard(card: IntroCard) {
         }
         if (card.visual.isNotEmpty()) {
             Spacer(Modifier.width(8.dp))
-            Text(card.visual, fontSize = 18.sp, fontWeight = FontWeight.Bold, color = AccentLight)
+            Text(
+                card.visual,
+                fontSize = 15.sp,
+                fontWeight = FontWeight.Bold,
+                color = AccentLight,
+                textAlign = TextAlign.End,
+                maxLines = 2,
+                modifier = Modifier.widthIn(max = 72.dp)
+            )
         }
     }
 }

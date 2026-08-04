@@ -747,7 +747,10 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun openChest() {
-        _chestReward.value?.let { chestSystem.openChest(it) }
+        _chestReward.value?.let {
+            chestSystem.openChest(it)
+            _xpGained.value = _xpGained.value + it.xp
+        }
     }
 
     fun clearChest() { _chestReward.value = null }
