@@ -26,18 +26,16 @@ import com.opoleyes.ui.navigation.GameViewModel
 import com.opoleyes.ui.navigation.Routes
 import com.opoleyes.ui.theme.*
 
-private data class IntroCard(
+private data class IntroItem(
     val icon: String,
-    val title: String,
-    val desc: String,
-    val visual: String = ""
+    val text: String
 )
 
 private data class IntroContent(
     val title: String,
     val subtitle: String,
     val accentColor: Color,
-    val cards: List<IntroCard>,
+    val items: List<IntroItem>,
     val footer: String
 )
 
@@ -81,29 +79,29 @@ fun ModeIntroScreen(navController: NavController, gameViewModel: GameViewModel) 
             Text(
                 content.subtitle,
                 color = content.accentColor,
-                fontSize = 22.sp,
+                fontSize = 20.sp,
                 fontWeight = FontWeight.Bold,
                 textAlign = TextAlign.Center
             )
 
-            Spacer(Modifier.height(24.dp))
+            Spacer(Modifier.height(20.dp))
 
-            content.cards.forEach { card ->
-                IntroInfoCard(card)
-                Spacer(Modifier.height(12.dp))
+            content.items.forEach { item ->
+                IntroItemRow(item)
+                Spacer(Modifier.height(8.dp))
             }
 
-            Spacer(Modifier.height(16.dp))
+            Spacer(Modifier.height(12.dp))
 
             Text(
                 content.footer,
                 color = TextMuted,
-                fontSize = 14.sp,
+                fontSize = 13.sp,
                 textAlign = TextAlign.Center,
                 modifier = Modifier.fillMaxWidth()
             )
 
-            Spacer(Modifier.height(24.dp))
+            Spacer(Modifier.height(20.dp))
 
             // "Don't show again" checkbox
             Row(
@@ -154,36 +152,23 @@ fun ModeIntroScreen(navController: NavController, gameViewModel: GameViewModel) 
 }
 
 @Composable
-private fun IntroInfoCard(card: IntroCard) {
+private fun IntroItemRow(item: IntroItem) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(14.dp))
+            .clip(RoundedCornerShape(10.dp))
             .background(Brush.verticalGradient(listOf(BgCard, BgDark)))
-            .padding(16.dp),
+            .padding(horizontal = 14.dp, vertical = 10.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Box(modifier = Modifier.width(36.dp), contentAlignment = Alignment.Center) {
-            Text(card.icon, fontSize = 26.sp, textAlign = TextAlign.Center)
-        }
+        Text(item.icon, fontSize = 20.sp)
         Spacer(Modifier.width(12.dp))
-        Column(modifier = Modifier.weight(1f)) {
-            Text(card.title, color = TextLight, fontSize = 16.sp, fontWeight = FontWeight.Bold)
-            Spacer(Modifier.height(4.dp))
-            Text(card.desc, color = TextMuted, fontSize = 13.sp)
-        }
-        if (card.visual.isNotEmpty()) {
-            Spacer(Modifier.width(8.dp))
-            Text(
-                card.visual,
-                fontSize = 15.sp,
-                fontWeight = FontWeight.Bold,
-                color = AccentLight,
-                textAlign = TextAlign.End,
-                maxLines = 2,
-                modifier = Modifier.widthIn(max = 72.dp)
-            )
-        }
+        Text(
+            item.text,
+            color = TextLight,
+            fontSize = 14.sp,
+            modifier = Modifier.weight(1f)
+        )
     }
 }
 
@@ -204,20 +189,6 @@ private fun buildSurvivalIntro(rankIndex: Int): IntroContent {
     val powerUps = Constants.AVAILABLE_POWERUPS_BY_RANK[rankIndex]
         ?: listOf("shield", "doubleScore", "fiftyFifty", "hint")
 
-    val hearts = "❤️".repeat(maxLives)
-    val optionLetters = (0 until maxOptions).joinToString("") { listOf("A", "B", "C", "D")[it] }
-
-    val powerUpText = when {
-        powerUps.isEmpty() -> "Sin power-ups"
-        powerUps.size <= 2 -> "Escudo y Doble Puntos"
-        else -> "Escudo, Doble Puntos, 50/50 y Pista"
-    }
-    val powerUpIcons = when {
-        powerUps.isEmpty() -> "🚫"
-        powerUps.size <= 2 -> "🛡️ ✨"
-        else -> "🛡️ ✨ ✂️ 💡"
-    }
-
     val rankName = Constants.getRankByIndex(rankIndex).name
     val title = when (rankIndex) {
         0 -> "¡Bienvenido a Supervivencia!"
@@ -227,96 +198,93 @@ private fun buildSurvivalIntro(rankIndex: Int): IntroContent {
     }
     val subtitle = "Rango: $rankName"
 
-    val cards = mutableListOf<IntroCard>()
-    cards.add(IntroCard("❤️", "Corazones", "Empiezas con $maxLives corazones. Cada fallo te quita uno. Los combos recuperan vida.", hearts))
-    cards.add(IntroCard("🔤", "Opciones por pregunta", "Cada pregunta muestra $maxOptions opciones. Solo una es correcta.", optionLetters))
-    cards.add(IntroCard("📊", "Dificultad de las preguntas", "Las preguntas más fáciles aparecen primero. Cada 5 aciertos, la dificultad sube (máx: $maxDiff).", "1 → $maxDiff"))
-    cards.add(IntroCard(powerUpIcons, "Power-ups", powerUpText, if (powerUps.isEmpty()) "" else "×${powerUps.size}"))
-    cards.add(IntroCard("🔥", "Combos y racha", "Acierta seguido para subir el combo. Cada 5 aciertos seguidos recuperas una vida o ganas tiempo.", "×5"))
+    val items = mutableListOf<IntroItem>()
+    items.add(IntroItem("❤️", "$maxLives corazones · Cada fallo resta 1 · Combos recuperan vida"))
+    items.add(IntroItem("🔤", "$maxOptions opciones por pregunta"))
+    items.add(IntroItem("📊", "Dificultad progresa de 1 a $maxDiff"))
+    if (powerUps.isEmpty())
+        items.add(IntroItem("🚫", "Sin power-ups"))
+    else
+        items.add(IntroItem("🛡️", "Power-ups: ${powerUps.size} disponibles"))
+    items.add(IntroItem("🔥", "Cada 5 aciertos seguidos: vida extra"))
 
     val footer = when (rankIndex) {
-        0 -> "¡Sin presión! Tienes 5 corazones y solo 2 opciones. Aprende las preguntas básicas."
-        1 -> "¡Más opciones! Ahora 3 respuestas y power-ups básicos para ayudarte."
-        2 -> "¡Modo completo! 4 opciones, 3 corazones y todos los power-ups. ¡Demuestra lo que sabes!"
+        0 -> "¡Sin presión! 5 corazones y solo 2 opciones. Aprende lo básico."
+        1 -> "3 opciones y power-ups básicos para ayudarte."
+        2 -> "4 opciones, 3 corazones y todos los power-ups. ¡A por todas!"
         else -> "Modo Supervivencia completo. ¡Buena suerte!"
     }
 
     val accentColor = when (rankIndex) { 0 -> Success; 1 -> Warning; else -> Danger }
 
-    return IntroContent(title, subtitle, accentColor, cards, footer)
+    return IntroContent(title, subtitle, accentColor, items, footer)
 }
 
 private fun buildTimetrialIntro(rankIndex: Int): IntroContent {
-    val powerUpIcons = "🛡️ ✨ ✂️ 💡"
-
-    val cards = listOf(
-        IntroCard("⏱️", "Tiempo limitado", "Tienes 180 segundos. El reloj no se detiene.", "180s"),
-        IntroCard("✅", "Acierto", "Cada acierto suma 15 segundos extra.", "+15s"),
-        IntroCard("❌", "Fallo", "Cada fallo resta 10 segundos. ¡Cuidado!", "-10s"),
-        IntroCard("🔤", "Opciones", "4 opciones por pregunta. Elige rápido.", "A B C D"),
-        IntroCard(powerUpIcons, "Power-ups disponibles", "Todos los power-ups están disponibles.", "×4"),
-        IntroCard("🔥", "Racha", "Cada 5 aciertos seguidos ganas 20 segundos extra.", "+20s")
+    val items = listOf(
+        IntroItem("⏱️", "180 segundos. El reloj no se detiene."),
+        IntroItem("✅", "Acierto: +15s · Fallo: -10s"),
+        IntroItem("🔤", "4 opciones por pregunta"),
+        IntroItem("🛡️", "Todos los power-ups disponibles"),
+        IntroItem("🔥", "Cada 5 aciertos seguidos: +20s extra")
     )
 
     return IntroContent(
         title = "Contrarreloj",
         subtitle = "Responde rápido y con precisión",
         accentColor = Primary,
-        cards = cards,
-        footer = "El tiempo es tu enemigo. Prioriza la velocidad sin perder precisión."
+        items = items,
+        footer = "El tiempo es tu enemigo. Velocidad sin perder precisión."
     )
 }
 
 private fun buildQuickIntro(@Suppress("UNUSED_PARAMETER") rankIndex: Int): IntroContent {
-    val cards = listOf(
-        IntroCard("⚡", "5 preguntas", "Repaso Express te muestra 5 preguntas de tus fallos previos.", "5️⃣"),
-        IntroCard("🔄", "De tus errores", "Las preguntas se eligen de las que has fallado antes o no has contestado.", "📝"),
-        IntroCard("❤️", "Corazones", "Tienes 3 corazones. Si fallas 3 veces, se acaba el repaso.", "❤️❤️❤️"),
-        IntroCard("🎁", "Recompensa 5/5", "Si aciertas las 5 preguntas, recibes un power-up gratis.", "🏆"),
-        IntroCard("🛡️✨✂️💡", "Power-ups", "Todos los power-ups disponibles.", "×4")
+    val items = listOf(
+        IntroItem("⚡", "5 preguntas de tus fallos previos"),
+        IntroItem("❤️", "3 corazones. 3 fallos = se acaba."),
+        IntroItem("🎁", "5/5 aciertos = power-up gratis"),
+        IntroItem("🛡️", "Todos los power-ups disponibles")
     )
 
     return IntroContent(
         title = "Repaso Express",
         subtitle = "Repasa tus errores rápidamente",
         accentColor = Warning,
-        cards = cards,
-        footer = "Ideal para repasar lo que aún no dominas. ¡5/5 = power-up gratis!"
+        items = items,
+        footer = "Ideal para repasar lo que aún no dominas."
     )
 }
 
 private fun buildExamIntro(@Suppress("UNUSED_PARAMETER") rankIndex: Int): IntroContent {
-    val cards = listOf(
-        IntroCard("📝", "Modo Examen", "Simula un examen real. Sin vidas, sin power-ups, sin pausa.", "📝"),
-        IntroCard("📊", "Corrección al final", "No sabes si aciertas o fallas hasta terminar todas las preguntas.", "🔍"),
-        IntroCard("🔢", "Número de preguntas", "Configurable: 10, 20, 30, 40 o 50 preguntas.", "10-50"),
-        IntroCard("🎯", "Puntuación", "Cada acierto vale 10 XP. Aprueba con 60%+ para desbloquear más.", "60%"),
-        IntroCard("📚", "Por ley", "Elige una ley específica o todas a la vez.", "📖")
+    val items = listOf(
+        IntroItem("📝", "Examen real: sin vidas, sin power-ups, sin pausa"),
+        IntroItem("📊", "Corrección al final del todo"),
+        IntroItem("🔢", "10 a 50 preguntas, configurable"),
+        IntroItem("🎯", "60%+ para aprobar y desbloquear más")
     )
 
     return IntroContent(
         title = "Mini Examen",
         subtitle = "Pon a prueba tu conocimiento",
         accentColor = Success,
-        cards = cards,
-        footer = "Sin pistas, sin ayudas. Solo tú y las preguntas. ¡Como en el examen real!"
+        items = items,
+        footer = "Sin pistas, sin ayudas. Como en el examen real."
     )
 }
 
 private fun buildSimulacroIntro(@Suppress("UNUSED_PARAMETER") rankIndex: Int): IntroContent {
-    // Simulacro has its own dedicated screen, but we provide content just in case.
-    val cards = listOf(
-        IntroCard("🎯", "Examen Oficial Simulado", "Réplica exacta del examen de Auxilio Judicial.", "100"),
-        IntroCard("⏱️", "100 minutos", "Tiempo limitado como en el examen real.", "100min"),
-        IntroCard("⚖️", "Preguntas por ley", "Distribuidas según los pesos oficiales.", "📐"),
-        IntroCard("🏆", "Puntuación oficial", "Cada acierto +0.60, cada fallo -0.15. Aprobado: 30 puntos.", "60pts")
+    val items = listOf(
+        IntroItem("🎯", "Réplica del examen de Auxilio Judicial"),
+        IntroItem("⏱️", "100 minutos de tiempo límite"),
+        IntroItem("⚖️", "Preguntas distribuidas por pesos oficiales"),
+        IntroItem("🏆", "Acierto +0.60 · Fallo -0.15 · Aprobado: 30 pts")
     )
 
     return IntroContent(
         title = "Simulacro",
         subtitle = "Examen Oficial Simulado",
         accentColor = Accent,
-        cards = cards,
-        footer = "La experiencia más cercana al examen real. ¡Mucha suerte!"
+        items = items,
+        footer = "La experiencia más cercana al examen real."
     )
 }
