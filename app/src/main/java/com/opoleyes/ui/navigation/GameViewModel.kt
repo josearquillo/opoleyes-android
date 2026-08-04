@@ -53,6 +53,7 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
 
     fun preloadHomeData() {
         if (_homePreload != null) return
+        checkRankUp(progressRepo.getLastKnownRankIndex())
         val rank = progressRepo.getRank()
         val xpProgress = progressRepo.getXPProgress()
         val missions = missionRepo.generateDailyMissions()
@@ -497,10 +498,10 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
                 if (engine.comboOverchargeActive && engine.comboOverchargeCharges == 3) {
                     addPopup("¡OVERCHARGE!", com.opoleyes.ui.theme.Warning, 48, 0f, "⚡")
                 }
-                checkAchievementsPerQuestion(AchievementContext(firstCorrect = true, maxCombo = engine.maxCombo, fiftyFiftyUsed = engine.ctxFiftyFiftyUsed, lifeRecovered = engine.ctxLifeRecovered))
+                checkAchievementsPerQuestion(AchievementContext(firstCorrect = true, maxCombo = engine.maxCombo, fiftyFiftyUsed = engine.ctxFiftyFiftyUsed, lifeRecovered = engine.ctxLifeRecovered, maxOptions = engine.maxOptions))
             }
             GameEngine.AnswerResult.WRONG -> {
-                checkAchievementsPerQuestion(AchievementContext(maxCombo = engine.maxCombo))
+                checkAchievementsPerQuestion(AchievementContext(maxCombo = engine.maxCombo, maxOptions = engine.maxOptions))
             }
             GameEngine.AnswerResult.SHIELD_USED -> {
                 addPopup("Escudo usado!", Primary, 44, 0f, "🛡️")
@@ -578,7 +579,8 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
             gameOver = true, maxCombo = engine.maxCombo, score = engine.score,
             gameMode = mode, newRecord = _newRecord.value,
             perfectGame = perfectGame, sharpshooter = sharpshooter,
-            fiftyFiftyUsed = engine.ctxFiftyFiftyUsed, lifeRecovered = engine.ctxLifeRecovered
+            fiftyFiftyUsed = engine.ctxFiftyFiftyUsed, lifeRecovered = engine.ctxLifeRecovered,
+            maxOptions = engine.maxOptions
         ))
 
         missionRepo.checkOnGameOver(mode, engine.maxCombo, engine.totalAnswered, engine.category, engine.correctCount, engine.score)
@@ -706,6 +708,7 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
                     prefs.setFreePowerUps(current)
                 }
             }
+            progressRepo.setLastKnownRankIndex(rankAfter)
             _rankUpOverlay.value = RankUpOverlay(
                 com.opoleyes.data.Constants.getRankByIndex(rankBefore),
                 com.opoleyes.data.Constants.getRankByIndex(rankAfter),

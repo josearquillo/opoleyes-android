@@ -15,7 +15,8 @@ data class AchievementContext(
     val perfectGame: Boolean = false,
     val sharpshooter: Boolean = false,
     val fiftyFiftyUsed: Boolean = false,
-    val lifeRecovered: Boolean = false
+    val lifeRecovered: Boolean = false,
+    val maxOptions: Int = 4
 )
 
 class AchievementChecker(private val context: Context) {
@@ -25,11 +26,13 @@ class AchievementChecker(private val context: Context) {
     fun checkPerQuestion(ctx: AchievementContext): List<Achievement> {
         val unlocked = mutableListOf<Achievement>()
         if (ctx.firstCorrect) unlock("first_correct", unlocked)
-        if (ctx.maxCombo >= 5) unlock("combo5", unlocked)
-        if (ctx.maxCombo >= 10) unlock("combo10", unlocked)
-        if (ctx.maxCombo >= 15) unlock("combo15", unlocked)
-        if (ctx.maxCombo >= 20) unlock("combo20", unlocked)
-        if (ctx.maxCombo >= 25) unlock("combo25", unlocked)
+        if (ctx.maxOptions >= 4) {
+            if (ctx.maxCombo >= 5) unlock("combo5", unlocked)
+            if (ctx.maxCombo >= 10) unlock("combo10", unlocked)
+            if (ctx.maxCombo >= 15) unlock("combo15", unlocked)
+            if (ctx.maxCombo >= 20) unlock("combo20", unlocked)
+            if (ctx.maxCombo >= 25) unlock("combo25", unlocked)
+        }
         if (ctx.fiftyFiftyUsed) unlock("strategist", unlocked)
         if (ctx.lifeRecovered) unlock("resurrection", unlocked)
         return unlocked
@@ -54,10 +57,10 @@ class AchievementChecker(private val context: Context) {
         if (gamesPlayed >= 10) unlock("dedicated", unlocked)
         if (gamesPlayed >= 25) unlock("habitual", unlocked)
         if (gamesPlayed >= 50) unlock("addicted", unlocked)
-        if (rankIdx >= 4) unlock("expert", unlocked)
-        if (rankIdx >= 6) unlock("master", unlocked)
-        if (ctx.perfectGame) unlock("perfect_game", unlocked)
-        if (ctx.sharpshooter) unlock("sharpshooter", unlocked)
+        if (rankIdx >= 5) unlock("expert", unlocked)
+        if (rankIdx >= 7) unlock("master", unlocked)
+        if (ctx.perfectGame && ctx.maxOptions >= 4) unlock("perfect_game", unlocked)
+        if (ctx.sharpshooter && ctx.maxOptions >= 4) unlock("sharpshooter", unlocked)
 
         val temaTests = com.opoleyes.data.local.DataProvider.getTemaTests(context)
         var dominatedLaws = 0

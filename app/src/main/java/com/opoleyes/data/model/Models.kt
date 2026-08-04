@@ -16,7 +16,8 @@ data class Question(
     val test_id: String = "",
     val orig_id: Int = 0,
     val enunciado: String = "",
-    val opciones: Map<String, String> = emptyMap()
+    val opciones: Map<String, String> = emptyMap(),
+    val difficulty: Int = 3
 )
 
 data class Answer(
@@ -36,7 +37,8 @@ data class QuestionEntry(
     val correct: String,
     val weight: Int,
     val testId: String,
-    val origId: String
+    val origId: String,
+    val difficulty: Int = 3
 )
 
 data class QuestionStat(

@@ -206,7 +206,8 @@ fun GameScreen(navController: NavController, gameViewModel: GameViewModel) {
                     timer = uiState.timer,
                     mode = uiState.mode,
                     questionNum = uiState.questionNum,
-                    streak = uiState.streak
+                    streak = uiState.streak,
+                    maxLives = gameViewModel.engine.maxLives
                 )
 
                 // Combo bar (bottom only, no fire icon up top)
@@ -253,32 +254,34 @@ fun GameScreen(navController: NavController, gameViewModel: GameViewModel) {
                                 Spacer(Modifier.height(8.dp))
 
                                 // Power-up buttons (always visible to prevent layout shift on answer)
+                                val availablePowerUps = gameViewModel.engine.availablePowerUps
                                 FlowRow(
                                     modifier = Modifier.fillMaxWidth(),
                                     horizontalArrangement = Arrangement.Center,
                                     verticalArrangement = Arrangement.spacedBy(4.dp)
                                 ) {
-                                    if (uiState.shieldCharges > 0 && uiState.mode != GameMode.QUICK) {
+                                    if ("shield" in availablePowerUps && uiState.shieldCharges > 0 && uiState.mode != GameMode.QUICK) {
                                         PowerUpButton(stringResource(R.string.shield), "🛡️", uiState.shieldCharges, PrimaryLight, enabled = !uiState.answered && !uiState.shieldActive && !uiState.powerUpUsedThisQuestion) { gameViewModel.activateShield() }
                                     }
-                                    if (uiState.hintCharges > 0 && uiState.mode != GameMode.QUICK) {
+                                    if ("hint" in availablePowerUps && uiState.hintCharges > 0 && uiState.mode != GameMode.QUICK) {
                                         PowerUpButton(stringResource(R.string.hint), "💡", uiState.hintCharges, WarningDark, enabled = !uiState.answered && !uiState.hintActive && !uiState.powerUpUsedThisQuestion) { gameViewModel.useHint() }
                                     }
-                                    if (uiState.fiftyFiftyCharges > 0 && uiState.mode != GameMode.QUICK) {
+                                    if ("fiftyFifty" in availablePowerUps && uiState.fiftyFiftyCharges > 0 && uiState.mode != GameMode.QUICK) {
                                         PowerUpButton(stringResource(R.string.fifty_fifty), "✂️", uiState.fiftyFiftyCharges, Primary, enabled = !uiState.answered && !uiState.fiftyFiftyActive && !uiState.powerUpUsedThisQuestion) { gameViewModel.activateFiftyFifty() }
                                     }
-                                    if (uiState.doubleScoreCharges > 0 && uiState.mode != GameMode.QUICK) {
+                                    if ("doubleScore" in availablePowerUps && uiState.doubleScoreCharges > 0 && uiState.mode != GameMode.QUICK) {
                                         PowerUpButton(stringResource(R.string.double_points), "✨", uiState.doubleScoreCharges, Warning, enabled = !uiState.answered && !uiState.doubleScoreActive && !uiState.powerUpUsedThisQuestion) { gameViewModel.activateDoubleScore() }
                                     }
                                 }
                                 Spacer(Modifier.height(12.dp))
 
-                                // Options (shuffled display order). Iterate over all letters and
-                                // drive visibility with AnimatedVisibility so 50/50 removals animate
-                                // out instead of vanishing abruptly.
+                                // Options (shuffled display order). Limit to maxOptions based on rank.
+                                // Always include the correct answer and fill with random wrong options.
                                 val allLetters = listOf("A", "B", "C", "D")
-                                val shuffledLetters = remember(q) { allLetters.shuffled() }
-                                val presentLetters = shuffledLetters.filter { q.opciones[it] != null }
+                                val maxOptions = gameViewModel.engine.maxOptions
+                                val correctLetter = q.correct
+                                val wrongLetters = remember(q) { allLetters.filter { it != correctLetter && q.opciones[it] != null }.shuffled() }
+                                val presentLetters = remember(q, maxOptions) { (listOf(correctLetter) + wrongLetters.take(maxOptions - 1)).shuffled() }
                                 val removedByFiftyFifty = uiState.fiftyFiftyActive && uiState.fiftyFiftyRemoved.isNotEmpty()
                                 presentLetters.forEachIndexed { index, letter ->
                                     key(letter) {

@@ -18,18 +18,21 @@ open class GameRepository(private val context: Context) : com.opoleyes.data.IGam
             val correct = am[q.id] ?: return@mapNotNull null
             val key = (q.test_id) + ":" + (q.orig_id)
             val s = stats[key]
+            val difficulty = q.difficulty
+            val baseWeight = (difficulty * 15) + 25
             val weight = if (s != null) {
                 val attempted = s.correct + s.wrong
-                if (attempted < 3) 50
-                else maxOf((100 * (1.0 - s.correct.toDouble() / attempted)).toInt(), 5)
-            } else 50
+                if (attempted < 3) baseWeight
+                else maxOf((100 * (1.0 - s.correct.toDouble() / attempted)).toInt() + (difficulty - 3) * 10, 5)
+            } else baseWeight
             QuestionEntry(
                 enunciado = q.enunciado,
                 opciones = q.opciones,
                 correct = correct,
                 weight = weight,
                 testId = q.test_id,
-                origId = q.orig_id.toString()
+                origId = q.orig_id.toString(),
+                difficulty = difficulty
             )
         }
     }
@@ -62,17 +65,20 @@ open class GameRepository(private val context: Context) : com.opoleyes.data.IGam
                 val correct = am[q.id] ?: continue
                 val key = (q.test_id) + ":" + (q.orig_id)
                 val s = stats[key]
+                val difficulty = q.difficulty
                 val attempted = if (s != null) s.correct + s.wrong else 0
+                val baseWeight = (difficulty * 15) + 25
                 val weight = if (s != null && attempted >= 3)
-                    maxOf((100 * (1.0 - s.correct.toDouble() / attempted)).toInt(), 5)
-                else 50
+                    maxOf((100 * (1.0 - s.correct.toDouble() / attempted)).toInt() + (difficulty - 3) * 10, 5)
+                else baseWeight
                 val entry = QuestionEntry(
                     enunciado = q.enunciado,
                     opciones = q.opciones,
                     correct = correct,
                     weight = weight,
                     testId = q.test_id,
-                    origId = q.orig_id.toString()
+                    origId = q.orig_id.toString(),
+                    difficulty = difficulty
                 )
                 when {
                     s != null && s.wrong > 0 -> wrongPool.add(entry)

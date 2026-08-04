@@ -34,6 +34,7 @@ open class PreferencesManager(private val context: Context) : com.opoleyes.data.
         const val MAX_EXAM_QUESTIONS = "max_exam_questions"
         const val SIMULACRO_UNLOCKED = "simulacro_unlocked"
         const val SIMULACRO_HISTORY_JSON = "simulacro_history_json"
+        const val LAST_KNOWN_RANK_INDEX = "last_known_rank_index"
         val EXAM_QUESTION_PRESETS = listOf(10, 20, 30, 40, 50)
         fun recordKey(mode: String) = "record_$mode"
         fun recordComboKey(mode: String) = "record_combo_$mode"
@@ -224,6 +225,13 @@ open class PreferencesManager(private val context: Context) : com.opoleyes.data.
         val history = getSimulacroHistory().toMutableList()
         history.add(entry)
         prefs.edit().putString(SIMULACRO_HISTORY_JSON, gson.toJson(history)).apply()
+    }
+
+    fun getLastKnownRankIndex(): Int = prefs.getInt(LAST_KNOWN_RANK_INDEX, 0)
+
+    fun setLastKnownRankIndex(index: Int) {
+        if (isWriteBlocked()) return
+        prefs.edit().putInt(LAST_KNOWN_RANK_INDEX, index).apply()
     }
 
     override fun resetAll() {

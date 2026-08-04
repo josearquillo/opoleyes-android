@@ -66,6 +66,14 @@ class GameEngine private constructor(
     var xpFromLawMastery: Int = 0
     var lawsMasteredThisGame: Int = 0
 
+    // Rank-based mechanics
+    var rankIndex: Int = 0
+    var maxOptions: Int = 4
+    var maxLives: Int = 3
+    var maxDifficulty: Int = 5
+    var sessionDifficultyCap: Int = 1
+    var availablePowerUps: List<String> = listOf("shield", "doubleScore", "fiftyFifty", "hint")
+
     var fiftyFiftyCharges: Int = 0
     var fiftyFiftyActive: Boolean = false
     var fiftyFiftyRemoved: List<String> = emptyList()
@@ -96,6 +104,15 @@ class GameEngine private constructor(
         xpFromCorrect = 0
         xpFromLawMastery = 0
         lawsMasteredThisGame = 0
+
+        // Configure rank-based mechanics.
+        rankIndex = startRankIndex.coerceIn(0, Constants.RANKS.size - 1)
+        maxOptions = Constants.MAX_OPTIONS_BY_RANK[rankIndex] ?: 4
+        maxLives = Constants.MAX_LIVES_BY_RANK[rankIndex] ?: 3
+        maxDifficulty = Constants.MAX_DIFFICULTY_BY_RANK[rankIndex] ?: 5
+        availablePowerUps = Constants.AVAILABLE_POWERUPS_BY_RANK[rankIndex] ?: listOf("shield", "doubleScore", "fiftyFifty", "hint")
+        sessionDifficultyCap = 1
+
         // Read and consume the pending XP multiplier from a gold chest so it
         // applies to ALL XP earned during this game, not just the first answer.
         xpMultiplier = prefs.getMultiplier()
@@ -103,11 +120,13 @@ class GameEngine private constructor(
 
         val freePowerUps = prefs.getFreePowerUps()
         for (pu in freePowerUps) {
-            when (pu) {
-                "shield" -> shieldCharges++
-                "fiftyFifty" -> fiftyFiftyCharges++
-                "hint" -> hintCharges++
-                "doubleScore" -> doubleScoreCharges++
+            if (pu in availablePowerUps) {
+                when (pu) {
+                    "shield" -> shieldCharges++
+                    "fiftyFifty" -> fiftyFiftyCharges++
+                    "hint" -> hintCharges++
+                    "doubleScore" -> doubleScoreCharges++
+                }
             }
         }
         if (!prefs.isDebugMode()) {
@@ -116,7 +135,7 @@ class GameEngine private constructor(
 
         when (mode) {
             GameMode.TIMETRIAL -> { timer = 180f; lives = 0 }
-            else -> { lives = 3; timer = 0f }
+            else -> { lives = maxLives; timer = 0f }
         }
     }
 
@@ -151,23 +170,35 @@ class GameEngine private constructor(
         if (mode == GameMode.QUICK && (lives <= 0 || questionNum >= Constants.QUICK_MODE_QUESTIONS)) return false
         if (mode == GameMode.TIMETRIAL && timer <= 0) return false
 
-        val available = pool.filter { !askedIds.contains("${it.testId}:${it.origId}") }
+        val cap = minOf(sessionDifficultyCap, maxDifficulty)
+        var available = pool.filter { !askedIds.contains("${it.testId}:${it.origId}") && it.difficulty <= cap }
+        if (available.isEmpty()) {
+            askedIds.clear()
+            available = pool.filter { it.difficulty <= cap }
+        }
         val usePool = if (available.isNotEmpty()) available else {
             askedIds.clear()
             pool
         }
-        val tw = usePool.sumOf { it.weight }
-        currentQ = if (tw == 0) {
-            usePool.random()
+
+        currentQ = if (rankIndex <= 1) {
+            // Novice / Beginner: serve easiest questions first.
+            usePool.sortedBy { it.difficulty }.firstOrNull()
+                ?: usePool.random()
         } else {
-            var r = (0 until tw).random()
-            var cum = 0
-            var selected: QuestionEntry? = null
-            for (item in usePool) {
-                cum += item.weight
-                if (r < cum) { selected = item; break }
+            val tw = usePool.sumOf { it.weight }
+            if (tw == 0) {
+                usePool.random()
+            } else {
+                var r = (0 until tw).random()
+                var cum = 0
+                var selected: QuestionEntry? = null
+                for (item in usePool) {
+                    cum += item.weight
+                    if (r < cum) { selected = item; break }
+                }
+                selected ?: usePool.random()
             }
-            selected ?: usePool.random()
         }
         askedIds.add("${currentQ!!.testId}:${currentQ!!.origId}")
         answered = false; selectedOption = null; questionNum++
@@ -189,6 +220,11 @@ class GameEngine private constructor(
         val isCorrect = letter == q.correct
         val key = "${q.testId}:${q.origId}"
 
+        // Increase session difficulty cap every 5 answered questions.
+        if (totalAnswered % 5 == 0 && sessionDifficultyCap < maxDifficulty) {
+            sessionDifficultyCap++
+        }
+
         if (isCorrect) {
             statsRepo.updateStat(key, true)
             combo++
@@ -202,7 +238,7 @@ class GameEngine private constructor(
             } else {
                 comboOverchargeCharges--
                 if (mode == GameMode.SURVIVAL || mode == GameMode.QUICK) {
-                    if (lives < 3) lives++
+                    if (lives < maxLives) lives++
                 } else {
                     timer = minOf(300f, timer + 30f)
                 }
@@ -220,15 +256,15 @@ class GameEngine private constructor(
             if (streak > 0 && streak % 5 == 0) {
                 val lifeRecoveryUnlocked = progressRepo.isUnlocked("lifeRecovery")
                 if (mode == GameMode.SURVIVAL && lifeRecoveryUnlocked) {
-                    if (lives < 3) {
+                    if (lives < maxLives) {
                         lives++; ctxLifeRecovered = true
-                    } else {
+                    } else if ("fiftyFifty" in availablePowerUps) {
                         fiftyFiftyCharges++
                     }
                 } else if (mode == GameMode.TIMETRIAL) {
                     timer = minOf(300f, timer + 20f)
                 }
-                if (streak % 15 == 0 && mode != GameMode.QUICK) doubleScoreCharges++
+                if (streak % 15 == 0 && mode != GameMode.QUICK && "doubleScore" in availablePowerUps) doubleScoreCharges++
             }
 
             if (mode == GameMode.TIMETRIAL) {
@@ -265,6 +301,7 @@ class GameEngine private constructor(
     }
 
     fun activateFiftyFifty() {
+        if ("fiftyFifty" !in availablePowerUps || maxOptions < 4) return
         if (fiftyFiftyCharges <= 0 || fiftyFiftyActive || answered || powerUpUsedThisQuestion) return
         val q = currentQ ?: return
         val allOptions = listOf("A", "B", "C", "D").filter { q.opciones[it] != null }
@@ -283,18 +320,21 @@ class GameEngine private constructor(
     }
 
     fun activateDoubleScore() {
+        if ("doubleScore" !in availablePowerUps) return
         if (doubleScoreCharges <= 0 || doubleScoreActive || answered || powerUpUsedThisQuestion) return
         doubleScoreCharges--; doubleScoreActive = true
         powerUpUsedThisQuestion = true
     }
 
     fun activateShield() {
+        if ("shield" !in availablePowerUps) return
         if (shieldCharges <= 0 || shieldActive || answered || powerUpUsedThisQuestion) return
         shieldCharges--; shieldActive = true
         powerUpUsedThisQuestion = true
     }
 
     fun useHint() {
+        if ("hint" !in availablePowerUps || maxOptions < 4) return
         if (hintCharges <= 0 || hintActive || answered || powerUpUsedThisQuestion) return
         val q = currentQ ?: return
         val allOptions = listOf("A", "B", "C", "D").filter { q.opciones[it] != null }

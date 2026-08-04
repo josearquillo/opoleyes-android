@@ -220,6 +220,7 @@ fun AnimatedHudBar(
     mode: com.opoleyes.data.model.GameMode,
     questionNum: Int,
     streak: Int = 0,
+    maxLives: Int = 3,
     modifier: Modifier = Modifier
 ) {
     // --- Score animation: roll-up counter + golden glow flash ---
@@ -278,7 +279,7 @@ fun AnimatedHudBar(
         animationSpec = tween(400, easing = FastOutSlowInEasing),
         label = "lifeFlash"
     )
-    val maxLives = 3
+    val maxLives = maxLives
     val showLives = mode == com.opoleyes.data.model.GameMode.SURVIVAL || mode == com.opoleyes.data.model.GameMode.QUICK
 
     // --- Timer animation: flash only on big jumps (>3s), not natural decrement ---

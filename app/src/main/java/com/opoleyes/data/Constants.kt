@@ -8,10 +8,12 @@ object Constants {
         Rank("Novato", "🌱", 0, 0),
         Rank("Principiante", "🌿", 200, 1),
         Rank("Aprendiz", "📚", 800, 2),
-        Rank("Avanzado", "🔥", 2500, 3),
-        Rank("Experto", "⚖️", 6000, 4),
-        Rank("Veterano", "🎯", 12000, 5),
-        Rank("Maestro", "👑", 25000, 6),
+        Rank("Estudiante", "📝", 2000, 3),
+        Rank("Avanzado", "🔥", 4000, 4),
+        Rank("Experto", "⚖️", 7000, 5),
+        Rank("Veterano", "🎯", 12000, 6),
+        Rank("Maestro", "👑", 18000, 7),
+        Rank("Leyenda", "💎", 25000, 8),
     )
 
     val ACHIEVEMENTS = listOf(
@@ -49,21 +51,46 @@ object Constants {
     const val QUICK_MODE_QUESTIONS = 5
 
     val RANK_UNLOCKS = mapOf(
-        1 to "⏱️ Contrarreloj",
-        2 to "📋 2 misiones diarias",
-        3 to "⚡ Repaso Express",
-        4 to "📋 3 misiones diarias",
-        5 to "📝 Mini Examen",
-        6 to "🎯 Simulacro",
+        3 to "⏱️ Contrarreloj",
+        4 to "📋 2 misiones diarias",
+        5 to "⚡ Repaso Express",
+        6 to "📋 3 misiones diarias",
+        7 to "📝 Mini Examen",
+        8 to "🎯 Simulacro",
     )
 
+    // Power-up gifts granted once when reaching the rank.
     val RANK_POWERUP_REWARDS = mapOf(
-        1 to listOf("shield", "hint"),
-        2 to listOf("fiftyFifty", "shield"),
-        3 to listOf("doubleScore"),
-        4 to listOf("fiftyFifty", "hint"),
-        5 to listOf("shield", "shield", "doubleScore"),
-        6 to listOf("fiftyFifty", "fiftyFifty", "hint", "doubleScore", "shield"),
+        1 to listOf("shield", "doubleScore"),
+        2 to listOf("fiftyFifty", "hint"),
+    )
+
+    // Mechanics per rank.
+    val MAX_OPTIONS_BY_RANK = mapOf(
+        0 to 2, 1 to 3, 2 to 4, 3 to 4, 4 to 4,
+        5 to 4, 6 to 4, 7 to 4, 8 to 4
+    )
+
+    val MAX_LIVES_BY_RANK = mapOf(
+        0 to 5, 1 to 4, 2 to 3, 3 to 3, 4 to 3,
+        5 to 3, 6 to 3, 7 to 3, 8 to 3
+    )
+
+    val MAX_DIFFICULTY_BY_RANK = mapOf(
+        0 to 2, 1 to 2, 2 to 3, 3 to 3, 4 to 4,
+        5 to 4, 6 to 5, 7 to 5, 8 to 5
+    )
+
+    val AVAILABLE_POWERUPS_BY_RANK = mapOf(
+        0 to listOf<String>(),
+        1 to listOf("shield", "doubleScore"),
+        2 to listOf("shield", "doubleScore", "fiftyFifty", "hint"),
+        3 to listOf("shield", "doubleScore", "fiftyFifty", "hint"),
+        4 to listOf("shield", "doubleScore", "fiftyFifty", "hint"),
+        5 to listOf("shield", "doubleScore", "fiftyFifty", "hint"),
+        6 to listOf("shield", "doubleScore", "fiftyFifty", "hint"),
+        7 to listOf("shield", "doubleScore", "fiftyFifty", "hint"),
+        8 to listOf("shield", "doubleScore", "fiftyFifty", "hint"),
     )
 
     fun getRankByIndex(index: Int): Rank = RANKS.getOrElse(index) { RANKS.last() }
