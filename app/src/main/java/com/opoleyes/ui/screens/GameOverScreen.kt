@@ -304,6 +304,8 @@ fun GameOverScreen(navController: NavController, gameViewModel: GameViewModel) {
                     color1 = Primary,
                     color2 = PurpleDark
                 ) {
+                    gameViewModel.clearChest()
+                    gameViewModel.clearRankUp()
                     gameViewModel.clearQuickReward()
                     navController.navigate(Routes.HOME) { popUpTo(Routes.HOME) { inclusive = true } }
                 }

@@ -78,7 +78,6 @@ class ModeIntroScreenTest {
         // Rank 0 (Novato): subtitle is "Rango: Novato"
         assertTextPresent("Rango: Novato")
         assertTextPresent("corazones")
-        assertTextPresent("4 opciones por pregunta")
         assertTextPresent("Dificultad progresa")
         assertTextPresent("Pista y 50/50")
     }
@@ -178,7 +177,6 @@ class ModeIntroScreenTest {
         // Rank 0 (Novato): 5 hearts, 4 options
         assertTextPresent("Rango: Novato")
         assertTextPresent("corazones")
-        assertTextPresent("4 opciones por pregunta")
     }
 
     @Test

@@ -121,6 +121,8 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
         prefs.initPowerUpsIfNeeded()
         _homePreload = null
         _profileData = null
+        _rankUpOverlay.value = null
+        _chestReward.value = null
     }
 
     fun isDebugMode(): Boolean = prefs.isDebugMode()
@@ -274,6 +276,8 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
         _quickRewardEarned.value = false
         gameOverProcessed = false
         _xpBreakdown.value = null
+        _rankUpOverlay.value = null
+        _chestReward.value = null
         missionRepo.clearSessionCompletedMissions()
         pendingMode = GameMode.QUICK
         val ok = engine.startQuickGame()
@@ -309,6 +313,8 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
         _toasts.value = emptyList()
         gameOverProcessed = false
         _xpBreakdown.value = null
+        _rankUpOverlay.value = null
+        _chestReward.value = null
         missionRepo.clearSessionCompletedMissions()
         val ok = engine.startTemaGame(testId, pendingMode)
         if (ok) { engine.nextQuestion(); updateUiState() }
@@ -320,6 +326,8 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
         _toasts.value = emptyList()
         gameOverProcessed = false
         _xpBreakdown.value = null
+        _rankUpOverlay.value = null
+        _chestReward.value = null
         missionRepo.clearSessionCompletedMissions()
         val ok = engine.startAllLawsGame(pendingMode)
         if (ok) { engine.nextQuestion(); updateUiState() }
@@ -750,6 +758,7 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
         _chestReward.value?.let {
             chestSystem.openChest(it)
             _xpGained.value = _xpGained.value + it.xp
+            checkRankUp(engine.startRankIndex)
         }
     }
 

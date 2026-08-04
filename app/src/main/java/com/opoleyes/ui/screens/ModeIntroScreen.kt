@@ -199,8 +199,7 @@ private fun buildSurvivalIntro(rankIndex: Int): IntroContent {
 
     val items = mutableListOf<IntroItem>()
     items.add(IntroItem("❤️", "$maxLives corazones · Cada fallo resta 1 · Combos recuperan vida"))
-    items.add(IntroItem("🔤", "4 opciones por pregunta (A, B, C, D)"))
-    items.add(IntroItem("📊", "Dificultad progresa de 1 a $maxDiff"))
+    items.add(IntroItem("", "Dificultad progresa de 1 a $maxDiff"))
     if (powerUps.isEmpty())
         items.add(IntroItem("🚫", "Sin power-ups"))
     else
@@ -210,7 +209,7 @@ private fun buildSurvivalIntro(rankIndex: Int): IntroContent {
     val footer = when (rankIndex) {
         0 -> "¡Sin presión! 5 corazones. Tienes Pista y 50/50 gratis para aprender."
         1 -> "Sigue aprendiendo con Pista y 50/50. ¡Tú puedes!"
-        2 -> "4 opciones, 3 corazones y todos los power-ups. ¡A por todas!"
+        2 -> "3 corazones y todos los power-ups. ¡A por todas!"
         else -> "Modo Supervivencia completo. ¡Buena suerte!"
     }
 
@@ -223,7 +222,6 @@ private fun buildTimetrialIntro(rankIndex: Int): IntroContent {
     val items = listOf(
         IntroItem("⏱️", "180 segundos. El reloj no se detiene."),
         IntroItem("✅", "Acierto: +15s · Fallo: -10s"),
-        IntroItem("🔤", "4 opciones por pregunta"),
         IntroItem("🛡️", "Todos los power-ups disponibles"),
         IntroItem("🔥", "Cada 5 aciertos seguidos: +20s extra")
     )
