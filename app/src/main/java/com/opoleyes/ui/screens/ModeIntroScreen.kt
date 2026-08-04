@@ -1,7 +1,5 @@
 package com.opoleyes.ui.screens
 
-import androidx.compose.animation.*
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -46,13 +44,11 @@ private data class IntroContent(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ModeIntroScreen(navController: NavController, gameViewModel: GameViewModel) {
-    val mode = gameViewModel.getEngineMode()
+    val mode = gameViewModel.pendingMode
     val rankIndex = gameViewModel.getEngineRankIndex()
     val content = remember(mode, rankIndex) { buildIntroContent(mode, rankIndex) }
 
     var dontShowAgain by remember { mutableStateOf(false) }
-    var visible by remember { mutableStateOf(false) }
-    LaunchedEffect(Unit) { visible = true }
 
     Scaffold(
         topBar = {
@@ -82,52 +78,38 @@ fun ModeIntroScreen(navController: NavController, gameViewModel: GameViewModel) 
                 .padding(24.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            AnimatedVisibility(
-                visible = visible,
-                enter = fadeIn(tween(400)) + slideInVertically(tween(400), initialOffsetY = { it / 4 })
-            ) {
-                Text(
-                    content.subtitle,
-                    color = content.accentColor,
-                    fontSize = 22.sp,
-                    fontWeight = FontWeight.Bold,
-                    textAlign = TextAlign.Center
-                )
-            }
+            Text(
+                content.subtitle,
+                color = content.accentColor,
+                fontSize = 22.sp,
+                fontWeight = FontWeight.Bold,
+                textAlign = TextAlign.Center
+            )
 
             Spacer(Modifier.height(24.dp))
 
-            content.cards.forEachIndexed { idx, card ->
-                AnimatedVisibility(
-                    visible = visible,
-                    enter = fadeIn(tween(400, delayMillis = idx * 100)) +
-                        slideInHorizontally(tween(400, delayMillis = idx * 100), initialOffsetX = { it / 5 })
-                ) {
-                    IntroInfoCard(card)
-                }
+            content.cards.forEach { card ->
+                IntroInfoCard(card)
                 Spacer(Modifier.height(12.dp))
             }
 
             Spacer(Modifier.height(16.dp))
 
-            AnimatedVisibility(
-                visible = visible,
-                enter = fadeIn(tween(400, delayMillis = content.cards.size * 100))
-            ) {
-                Text(
-                    content.footer,
-                    color = TextMuted,
-                    fontSize = 14.sp,
-                    textAlign = TextAlign.Center,
-                    modifier = Modifier.fillMaxWidth()
-                )
-            }
+            Text(
+                content.footer,
+                color = TextMuted,
+                fontSize = 14.sp,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.fillMaxWidth()
+            )
 
             Spacer(Modifier.height(24.dp))
 
             // "Don't show again" checkbox
             Row(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable { dontShowAgain = !dontShowAgain },
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Checkbox(
@@ -233,7 +215,7 @@ private fun buildSurvivalIntro(rankIndex: Int): IntroContent {
         2 -> "Supervivencia: Modo Completo"
         else -> "Supervivencia"
     }
-    val subtitle = "Rango: $rankName $rankName"
+    val subtitle = "Rango: $rankName"
 
     val cards = mutableListOf<IntroCard>()
     cards.add(IntroCard("❤️", "Corazones", "Empiezas con $maxLives corazones. Cada fallo te quita uno. Los combos recuperan vida.", hearts))

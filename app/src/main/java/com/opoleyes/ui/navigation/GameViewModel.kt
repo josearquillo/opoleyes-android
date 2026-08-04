@@ -275,6 +275,7 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
         gameOverProcessed = false
         _xpBreakdown.value = null
         missionRepo.clearSessionCompletedMissions()
+        pendingMode = GameMode.QUICK
         val ok = engine.startQuickGame()
         if (ok) {
             _quickRewardPowerUp.value = generateQuickReward()
@@ -358,6 +359,7 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
         _isSimulacroMode.value = false
         _xpBreakdown.value = null
         missionRepo.clearSessionCompletedMissions()
+        pendingMode = GameMode.EXAM
         viewModelScope.launch {
             withContext(Dispatchers.Default) { examEngine.loadExam(questionCount) }
             _examQuestionNum.value = 0
