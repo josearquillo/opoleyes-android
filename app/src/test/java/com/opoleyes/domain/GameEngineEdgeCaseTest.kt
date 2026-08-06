@@ -39,7 +39,6 @@ class GameEngineEdgeCaseTest {
     @Test
     fun fun_fiftyFifty_with3Options_removesAtMost1() {
         engine.currentQ = makeQuestion(opciones = mapOf("A" to "A", "B" to "B", "C" to "C"))
-        engine.fiftyFiftyCharges = 1
         engine.activateFiftyFifty()
         assertTrue(engine.fiftyFiftyActive)
         val remaining = 3 - engine.fiftyFiftyRemoved.size
@@ -49,7 +48,6 @@ class GameEngineEdgeCaseTest {
     @Test
     fun fun_fiftyFifty_with2Options_removes0() {
         engine.currentQ = makeQuestion(opciones = mapOf("A" to "A", "B" to "B"))
-        engine.fiftyFiftyCharges = 1
         engine.activateFiftyFifty()
         // With 2 options, can't remove any while keeping 2 visible
         assertEquals(0, engine.fiftyFiftyRemoved.size)
@@ -58,7 +56,6 @@ class GameEngineEdgeCaseTest {
     @Test
     fun fun_hint_with2Options_doesNotActivate() {
         engine.currentQ = makeQuestion(opciones = mapOf("A" to "A", "B" to "B"))
-        engine.hintCharges = 1
         engine.useHint()
         assertFalse("Hint should not activate with only 2 options", engine.hintActive)
     }
@@ -66,7 +63,6 @@ class GameEngineEdgeCaseTest {
     @Test
     fun fun_hint_with3Options_removes1() {
         engine.currentQ = makeQuestion(opciones = mapOf("A" to "A", "B" to "B", "C" to "C"))
-        engine.hintCharges = 1
         engine.useHint()
         assertTrue(engine.hintActive)
         assertEquals(1, engine.hintRemoved.size)
@@ -75,8 +71,6 @@ class GameEngineEdgeCaseTest {
     @Test
     fun fun_fiftyFifty_then_hint_with3Options_keeps2Visible() {
         engine.currentQ = makeQuestion(opciones = mapOf("A" to "A", "B" to "B", "C" to "C"))
-        engine.fiftyFiftyCharges = 1
-        engine.hintCharges = 1
         engine.activateFiftyFifty()
         engine.useHint()
         val allOptions = listOf("A", "B", "C")
@@ -101,57 +95,11 @@ class GameEngineEdgeCaseTest {
         assertEquals(GameEngine.AnswerResult.ERROR, result)
     }
 
-    // === Edge cases: no charges ===
-
-    @Test
-    fun fun_fiftyFifty_noCharges_doesNotActivate() {
-        engine.currentQ = makeQuestion()
-        engine.fiftyFiftyCharges = 0
-        engine.activateFiftyFifty()
-        assertFalse(engine.fiftyFiftyActive)
-    }
-
-    @Test
-    fun fun_hint_noCharges_doesNotActivate() {
-        engine.currentQ = makeQuestion()
-        engine.hintCharges = 0
-        engine.useHint()
-        assertFalse(engine.hintActive)
-    }
-
-    @Test
-    fun fun_doubleScore_noCharges_doesNotActivate() {
-        engine.doubleScoreCharges = 0
-        engine.activateDoubleScore()
-        assertFalse(engine.doubleScoreActive)
-    }
-
-    @Test
-    fun fun_fiftyFifty_alreadyActive_doesNotReactivate() {
-        engine.currentQ = makeQuestion()
-        engine.fiftyFiftyCharges = 2
-        engine.activateFiftyFifty()
-        val chargesAfterFirst = engine.fiftyFiftyCharges
-        engine.activateFiftyFifty()
-        assertEquals("Should not consume another charge", chargesAfterFirst, engine.fiftyFiftyCharges)
-    }
-
-    @Test
-    fun fun_hint_alreadyActive_doesNotReactivate() {
-        engine.currentQ = makeQuestion()
-        engine.hintCharges = 2
-        engine.useHint()
-        val chargesAfterFirst = engine.hintCharges
-        engine.useHint()
-        assertEquals("Should not consume another charge", chargesAfterFirst, engine.hintCharges)
-    }
-
     // === Edge cases: power-ups after answering ===
 
     @Test
     fun fun_fiftyFifty_afterAnswer_doesNotActivate() {
         engine.currentQ = makeQuestion()
-        engine.fiftyFiftyCharges = 1
         engine.answer("A")
         engine.activateFiftyFifty()
         assertFalse(engine.fiftyFiftyActive)
@@ -160,43 +108,19 @@ class GameEngineEdgeCaseTest {
     @Test
     fun fun_hint_afterAnswer_doesNotActivate() {
         engine.currentQ = makeQuestion()
-        engine.hintCharges = 1
         engine.answer("A")
         engine.useHint()
         assertFalse(engine.hintActive)
     }
 
-    // === Edge cases: shield ===
+    // === Edge cases: wrong answer loses life ===
 
     @Test
-    fun fun_shield_absorbsWrongAnswer() {
-        engine.currentQ = makeQuestion(correct = "A")
-        engine.shieldCharges = 1
-        engine.activateShield()
-        assertTrue(engine.shieldActive)
-        val result = engine.answer("B")
-        assertEquals(GameEngine.AnswerResult.SHIELD_USED, result)
-        assertEquals(0, engine.shieldCharges)
-        assertEquals(0, engine.combo)
-        assertFalse(engine.shieldActive)
-    }
-
-    @Test
-    fun fun_shield_doesNotAbsorbCorrectAnswer() {
-        engine.currentQ = makeQuestion(correct = "A")
-        engine.shieldCharges = 1
-        val result = engine.answer("A")
-        assertEquals(GameEngine.AnswerResult.CORRECT, result)
-        assertEquals(1, engine.shieldCharges)
-    }
-
-    @Test
-    fun fun_shield_noShield_wrongAnswerLosesLife() {
+    fun fun_wrongAnswer_losesLife() {
         engine.rankIndex = 2 // avoid rank-0 first mistake forgiveness
         engine.mode = GameMode.SURVIVAL
         engine.lives = 3
         engine.currentQ = makeQuestion(correct = "A")
-        engine.shieldCharges = 0
         engine.answer("B")
         assertEquals(2, engine.lives)
     }
@@ -220,32 +144,6 @@ class GameEngineEdgeCaseTest {
         engine.totalAnswered = 10
         engine.correctCount = 5
         assertEquals(50, engine.getAccuracy())
-    }
-
-    // === Edge cases: save remaining power-ups ===
-
-    @Test
-    fun fun_saveRemainingPowerUps_storesAllTypes() {
-        engine.shieldCharges = 2
-        engine.fiftyFiftyCharges = 1
-        engine.hintCharges = 3
-        engine.doubleScoreCharges = 1
-        engine.saveRemainingPowerUps()
-        val saved = prefs.getFreePowerUps()
-        assertEquals(2, saved.count { it == "shield" })
-        assertEquals(1, saved.count { it == "fiftyFifty" })
-        assertEquals(3, saved.count { it == "hint" })
-        assertEquals(1, saved.count { it == "doubleScore" })
-    }
-
-    @Test
-    fun fun_saveRemainingPowerUps_withNone_doesNothing() {
-        engine.shieldCharges = 0
-        engine.fiftyFiftyCharges = 0
-        engine.hintCharges = 0
-        engine.doubleScoreCharges = 0
-        engine.saveRemainingPowerUps()
-        assertTrue(prefs.getFreePowerUps().isEmpty())
     }
 
     // === Edge cases: game over conditions ===
@@ -287,26 +185,6 @@ class GameEngineEdgeCaseTest {
         assertTrue(engine.isGameOver())
     }
 
-    // === Edge cases: double score ===
-
-    @Test
-    fun fun_doubleScore_doublesPointsOnce() {
-        engine.currentQ = makeQuestion(correct = "A")
-        engine.doubleScoreCharges = 1
-        engine.activateDoubleScore()
-        assertTrue(engine.doubleScoreActive)
-        engine.answer("A")
-        assertFalse("Double score should be consumed after correct answer", engine.doubleScoreActive)
-    }
-
-    @Test
-    fun fun_doubleScore_notConsumedOnWrongAnswer() {
-        engine.currentQ = makeQuestion(correct = "A")
-        engine.doubleScoreCharges = 1
-        engine.activateDoubleScore()
-        engine.answer("B")
-        assertTrue("Double score should remain active after wrong answer", engine.doubleScoreActive)
-    }
 
     // === Edge cases: combo overcharge ===
 

@@ -85,14 +85,6 @@ class ProgressRepositoryTest {
         assertEquals(500, repo.getRecord("survival"))
     }
 
-    @Test
-    fun powerUps_addAndClear() {
-        prefs.setFreePowerUps(listOf("shield", "hint"))
-        assertEquals(listOf("shield", "hint"), prefs.getFreePowerUps())
-        prefs.clearFreePowerUps()
-        assertTrue(prefs.getFreePowerUps().isEmpty())
-    }
-
     // === getRank ===
 
     @Test
@@ -158,10 +150,10 @@ class ProgressRepositoryTest {
         assertFalse("Exam should be locked at rank 0", unlocks.exam)
         assertFalse("Simulacro should be locked at rank 0", unlocks.simulacro)
         assertTrue("Power-ups should be unlocked at rank 0", unlocks.powerUps)
-        assertTrue("Shield should be unlocked at rank 0", unlocks.shield)
+        assertFalse("Shield should be locked (removed)", unlocks.shield)
         assertTrue("FiftyFifty should be unlocked at rank 0", unlocks.fiftyFifty)
-        assertTrue("Hint should be unlocked at rank 0", unlocks.hint)
-        assertTrue("DoubleScore should be unlocked at rank 0", unlocks.doubleScore)
+        assertFalse("Hint should be locked at rank 0", unlocks.hint)
+        assertFalse("DoubleScore should be locked (removed)", unlocks.doubleScore)
         assertEquals("Daily missions should be 1 at rank 0", 1, unlocks.dailyMissions)
     }
 
@@ -263,29 +255,6 @@ class ProgressRepositoryTest {
         // Keep unlocking until we hit the max
         for (i in 0..10) repo.unlockNextExamQuestions()
         assertEquals("Should cap at 50 (last preset)", 50, repo.getMaxExamQuestions())
-    }
-
-    // === getRankPowerUpGifts ===
-
-    @Test
-    fun getRankPowerUpGifts_rank0_returnsFiftyFiftyAndHint() {
-        val gifts = repo.getRankPowerUpGifts(0)
-        assertTrue("Rank 0 should grant fiftyFifty", gifts.contains("fiftyFifty"))
-        assertTrue("Rank 0 should grant only fiftyFifty (hint introduced at rank 1)",
-            gifts.all { it == "fiftyFifty" })
-    }
-
-    @Test
-    fun getRankPowerUpGifts_rank2_returnsShieldAndDoubleScore() {
-        val gifts = repo.getRankPowerUpGifts(2)
-        assertTrue("Rank 2 should grant shield", gifts.contains("shield"))
-        assertTrue("Rank 2 should grant doubleScore", gifts.contains("doubleScore"))
-    }
-
-    @Test
-    fun getRankPowerUpGifts_rankWithoutRewards_returnsEmpty() {
-        val gifts = repo.getRankPowerUpGifts(5)
-        assertTrue("Rank 5 has no power-up rewards, should be empty", gifts.isEmpty())
     }
 
     // === getLastKnownRankIndex / setLastKnownRankIndex ===

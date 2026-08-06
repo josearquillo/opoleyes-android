@@ -66,15 +66,11 @@ class GameRulesSpecTest {
         engine.mode = GameMode.QUICK
         engine.lives = 3
         engine.streak = 14
-        engine.fiftyFiftyCharges = 0
-        engine.doubleScoreCharges = 0
-        engine.hintCharges = 0
         engine.answered = false
         engine.currentQ = makeQuestion("A")
         engine.answer("A")
-        assertEquals("No fiftyFifty in QUICK mode", 0, engine.fiftyFiftyCharges)
-        assertEquals("No doubleScore in QUICK mode", 0, engine.doubleScoreCharges)
-        assertEquals("No hint in QUICK mode", 0, engine.hintCharges)
+        // Power-ups are unlimited but QUICK mode doesn't award charges
+        assertEquals(15, engine.streak)
     }
 
     @Test

@@ -44,16 +44,6 @@ open class PreferencesManager(private val context: Context) : com.opoleyes.data.
         fun introShownKey(key: String) = "intro_shown_$key"
     }
 
-    fun initPowerUpsIfNeeded() {
-        if (!prefs.getBoolean(POWERUPS_INITIALIZED, false)) {
-            // New users start with the rank 0 power-up gift (4x 50/50).
-            // Additional power-ups come from rank-up rewards and chests.
-            val initialPowerUps = Constants.RANK_POWERUP_REWARDS[0] ?: emptyList()
-            setFreePowerUps(initialPowerUps)
-            prefs.edit().putBoolean(POWERUPS_INITIALIZED, true).apply()
-        }
-    }
-
     override fun getXP(): Int = prefs.getInt(XP, 0)
 
     override fun addXP(amount: Int): Int {
@@ -99,22 +89,6 @@ open class PreferencesManager(private val context: Context) : com.opoleyes.data.
     fun getRecordAcc(mode: String): Int = prefs.getInt(recordAccKey(mode), 0)
     fun setRecordAcc(mode: String, value: Int) { if (isWriteBlocked()) return; prefs.edit().putInt(recordAccKey(mode), value).apply() }
 
-    override fun getFreePowerUps(): List<String> {
-        val json = prefs.getString(FREE_POWERUPS_JSON, "[]")
-        val type = object : TypeToken<List<String>>() {}.type
-        return gson.fromJson(json, type) ?: emptyList()
-    }
-
-    override fun setFreePowerUps(list: List<String>) {
-        if (isWriteBlocked()) return
-        prefs.edit().putString(FREE_POWERUPS_JSON, gson.toJson(list)).apply()
-    }
-
-    override fun clearFreePowerUps() {
-        if (isWriteBlocked()) return
-        prefs.edit().remove(FREE_POWERUPS_JSON).apply()
-    }
-
     fun getAchievements(): Map<String, Long> {
         val json = prefs.getString(ACHIEVEMENTS_JSON, "{}")
         val type = object : TypeToken<Map<String, Long>>() {}.type
@@ -159,32 +133,13 @@ open class PreferencesManager(private val context: Context) : com.opoleyes.data.
             val editor = prefs.edit()
             if (enabled) {
                 // Save current real state before setting debug state
-                val currentPowerUps = getFreePowerUps()
-                editor.putString(SAVED_POWERUPS_JSON, gson.toJson(currentPowerUps))
                 editor.putInt(SAVED_MAX_EXAM_QUESTIONS, getMaxExamQuestions())
                 editor.putBoolean(SAVED_SIMULACRO_UNLOCKED, isSimulacroUnlocked())
-                // Set debug state: infinite power-ups, max exam questions, simulacro unlocked
-                val debugPowerUps = mutableListOf<String>()
-                repeat(99) { debugPowerUps.add("shield") }
-                repeat(99) { debugPowerUps.add("fiftyFifty") }
-                repeat(99) { debugPowerUps.add("hint") }
-                repeat(99) { debugPowerUps.add("doubleScore") }
-                editor.putString(FREE_POWERUPS_JSON, gson.toJson(debugPowerUps))
+                // Set debug state: max exam questions, simulacro unlocked
                 editor.putInt(MAX_EXAM_QUESTIONS, 50)
                 editor.putBoolean(SIMULACRO_UNLOCKED, true)
             } else {
                 // Restore saved state, with safe fallbacks if the saved snapshot is missing
-                val savedPowerUpsJson = prefs.getString(SAVED_POWERUPS_JSON, null)
-                val restoredPowerUps: List<String> = if (savedPowerUpsJson != null) {
-                    val type = object : TypeToken<List<String>>() {}.type
-                    gson.fromJson(savedPowerUpsJson, type) ?: listOf("shield", "fiftyFifty", "hint", "doubleScore")
-                } else {
-                    // No snapshot: fall back to the default initial power-ups
-                    listOf("shield", "fiftyFifty", "hint", "doubleScore")
-                }
-                editor.putString(FREE_POWERUPS_JSON, gson.toJson(restoredPowerUps))
-                editor.remove(SAVED_POWERUPS_JSON)
-
                 val savedMaxExam = prefs.getInt(SAVED_MAX_EXAM_QUESTIONS, 10)
                 editor.putInt(MAX_EXAM_QUESTIONS, savedMaxExam)
                 editor.remove(SAVED_MAX_EXAM_QUESTIONS)

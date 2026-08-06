@@ -40,11 +40,7 @@ fun HelpScreen(navController: NavController, gameViewModel: GameViewModel) {
         HelpSectionData("✨", stringResource(R.string.help_section_powerups_title), listOf(
             stringResource(R.string.help_section_powerups_l1),
             stringResource(R.string.help_section_powerups_l2),
-            stringResource(R.string.help_section_powerups_l3),
-            stringResource(R.string.help_section_powerups_l4),
-            stringResource(R.string.help_section_powerups_l5),
-            stringResource(R.string.help_section_powerups_l6),
-            stringResource(R.string.help_section_powerups_l7)
+            stringResource(R.string.help_section_powerups_l3)
         )),
         HelpSectionData("🔥", stringResource(R.string.help_section_combo_title), listOf(
             stringResource(R.string.help_section_combo_l1),

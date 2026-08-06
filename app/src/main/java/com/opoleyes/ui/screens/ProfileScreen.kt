@@ -46,19 +46,6 @@ fun ProfileScreen(navController: NavController, gameViewModel: GameViewModel) {
     val globalProgress = data.globalProgress
     val temaTests = data.temaTests
     val dominatedLaws = data.dominatedLaws
-    val powerUps = data.powerUps
-    val hintLabel = stringResource(R.string.hint)
-    val shieldLabel = stringResource(R.string.shield)
-    val fiftyFiftyLabel = stringResource(R.string.fifty_fifty)
-    val doublePtsLabel = stringResource(R.string.double_points)
-    val powerUpCounts = remember(powerUps) {
-        mapOf(
-            (Icons.Default.Lightbulb to hintLabel) to powerUps.count { it == "hint" },
-            (Icons.Default.Shield to shieldLabel) to powerUps.count { it == "shield" },
-            (Icons.Default.SwapHoriz to fiftyFiftyLabel) to powerUps.count { it == "fiftyFifty" },
-            (Icons.Default.AutoAwesome to doublePtsLabel) to powerUps.count { it == "doubleScore" }
-        )
-    }
 
     var showResetDialog by remember { mutableStateOf(false) }
     var selectedAchievement by remember { mutableStateOf<com.opoleyes.data.model.Achievement?>(null) }
@@ -166,41 +153,6 @@ fun ProfileScreen(navController: NavController, gameViewModel: GameViewModel) {
             ) {
                 Text(if (unlocked) label else "$label ${stringResource(R.string.blocked_suffix)}", color = if (unlocked) TextLight else TextDim, fontSize = 14.sp)
                 Text(if (unlocked) "$record pts" else "—", color = if (unlocked) Warning else TextDim, fontWeight = FontWeight.Bold, fontSize = 14.sp)
-            }
-        }
-
-        Spacer(Modifier.height(24.dp))
-
-        // Power-ups
-        Text(stringResource(R.string.available_helps), color = TextLight, fontSize = 18.sp, fontWeight = FontWeight.Bold)
-        Spacer(Modifier.height(12.dp))
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceEvenly
-        ) {
-            powerUpCounts.forEach { (pair, count) ->
-                val (icon, label) = pair
-                Column(
-                    modifier = Modifier
-                        .clip(RoundedCornerShape(12.dp))
-                        .background(BgCard)
-                        .padding(12.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    Icon(icon, contentDescription = label, tint = TextLight, modifier = Modifier.size(24.dp))
-                    Spacer(Modifier.height(4.dp))
-                    Text(
-                        label,
-                        color = TextMuted,
-                        fontSize = 10.sp
-                    )
-                    Text(
-                        if (count > 0) "x$count" else "—",
-                        color = if (count > 0) Warning else TextDim,
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 14.sp
-                    )
-                }
             }
         }
 

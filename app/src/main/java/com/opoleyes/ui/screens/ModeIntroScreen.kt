@@ -185,7 +185,7 @@ private fun buildIntroContent(mode: GameMode, rankIndex: Int): IntroContent {
 private fun buildSurvivalIntro(rankIndex: Int): IntroContent {
     val maxLives = Constants.MAX_LIVES_BY_RANK[rankIndex] ?: 3
     val powerUps = Constants.AVAILABLE_POWERUPS_BY_RANK[rankIndex]
-        ?: listOf("shield", "doubleScore", "fiftyFifty", "hint")
+        ?: listOf("fiftyFifty", "hint")
 
     val rankName = Constants.getRankByIndex(rankIndex).name
     val title = when (rankIndex) {
@@ -210,14 +210,14 @@ private fun buildSurvivalIntro(rankIndex: Int): IntroContent {
         if (powerUps.isEmpty())
             items.add(IntroItem("🚫", "Sin power-ups"))
         else
-            items.add(IntroItem("🛡️", "Todos los power-ups disponibles"))
+            items.add(IntroItem("�", "Pista y 50/50 disponibles"))
         items.add(IntroItem("🔥", "Cada 5 aciertos seguidos: vida extra"))
     }
 
     val footer = when (rankIndex) {
-        0 -> "¡Sin presión! $maxLives corazones y tu primer fallo no cuenta. Tienes 50/50 gratis para aprender."
+        0 -> "¡Sin presión! $maxLives corazones y tu primer fallo no cuenta. Tienes 50/50 para aprender."
         1 -> "¡Nueva ayuda! Pista elimina una respuesta incorrecta. Sigue practicando."
-        2 -> "3 corazones y todos los power-ups. ¡A por todas!"
+        2 -> "3 corazones y Pista + 50/50. ¡A por todas!"
         else -> "Modo Supervivencia completo. ¡Buena suerte!"
     }
 

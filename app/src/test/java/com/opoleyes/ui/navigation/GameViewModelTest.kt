@@ -288,16 +288,12 @@ class GameViewModelTest {
     }
 
     @Test
-    fun gameLifeCycle_rankUp_grantsPowerUpRewards() {
-        // Rank 0 -> 1 should grant fiftyFifty and hint (per RANK_POWERUP_REWARDS)
+    fun gameLifeCycle_rankUp_showsOverlay() {
+        // Rank 0 -> 1 should show rank-up overlay
         prefs.addXP(190)
         assertTrue(playSurvivalGame(1))
         val overlay = vm.rankUpOverlay.value
         assertNotNull(overlay)
-        assertTrue("Rank-up to rank 1 should grant fiftyFifty",
-            overlay!!.powerUpRewards.contains("fiftyFifty"))
-        assertTrue("Rank-up to rank 1 should grant hint",
-            overlay.powerUpRewards.contains("hint"))
     }
 
     @Test
@@ -318,13 +314,13 @@ class GameViewModelTest {
     fun gameLifeCycle_xpGainedMatchesExpected() {
         // Fresh user (0 XP, rank 0). 1 correct answer = 10 XP (combo 1).
         // At rank 0: 7 lives + first mistake forgiven = 8 wrong answers to end game.
-        // Each wrong answer gives 3 XP consolation = 24 XP.
-        // Total XP = 10 + 24 = 34.
+        // Each wrong answer gives 1 XP consolation = 8 XP.
+        // Total XP = 10 + 8 = 18.
         assertTrue(playSurvivalGame(1))
-        assertEquals("XP gained should be 34 (10 correct + 24 consolation)",
-            34, vm.xpGained.value)
-        assertEquals("Total XP should be 34",
-            34, progressRepo.getXP())
+        assertEquals("XP gained should be 18 (10 correct + 8 consolation)",
+            18, vm.xpGained.value)
+        assertEquals("Total XP should be 18",
+            18, progressRepo.getXP())
     }
 
     @Test
@@ -420,28 +416,14 @@ class GameViewModelTest {
     }
 
     @Test
-    fun gameLifeCycle_survivalRank0_hasFreeFiftyFiftyOnly() {
-        // Rank 0 players should get free 50/50 charges but NO hint
-        // (hint is introduced at rank 1)
+    fun gameLifeCycle_survivalRank0_hasFiftyFiftyAvailable() {
+        // Rank 0 players should have 50/50 available (unlimited, no charges)
         vm.pendingMode = GameMode.SURVIVAL
         vm.startAllLawsGame()
         val uiState = vm.uiState.value
-        assertEquals("Rank 0 should have 0 hint charges (hint introduced at rank 1)",
-            0, uiState.hintCharges)
-        assertTrue("Rank 0 should have at least 1 fiftyFifty charge",
-            uiState.fiftyFiftyCharges >= 1)
-    }
-
-    @Test
-    fun gameLifeCycle_survivalRank0_doesNotHaveShieldOrDoubleScore() {
-        // Rank 0 players should NOT have shield or doubleScore available
-        vm.pendingMode = GameMode.SURVIVAL
-        vm.startAllLawsGame()
-        val uiState = vm.uiState.value
-        assertEquals("Rank 0 should have 0 shield charges",
-            0, uiState.shieldCharges)
-        assertEquals("Rank 0 should have 0 doubleScore charges",
-            0, uiState.doubleScoreCharges)
+        // Power-ups are unlimited now; verify fiftyFifty is in available power-ups
+        assertTrue("Rank 0 should have fiftyFifty available",
+            "fiftyFifty" in vm.engine.availablePowerUps)
     }
 
     @Test
@@ -549,12 +531,11 @@ class GameViewModelTest {
     }
 
     @Test
-    fun quickMode_rank0_hasFreeFiftyFiftyOnly() {
+    fun quickMode_rank0_hasFiftyFiftyAvailable() {
         vm.startQuickGame()
-        val uiState = vm.uiState.value
-        assertEquals("Quick rank 0 should have 0 hint charges (hint introduced at rank 1)",
-            0, uiState.hintCharges)
-        assertTrue("Quick rank 0 should have fiftyFifty charge", uiState.fiftyFiftyCharges >= 1)
+        // Power-ups are unlimited; verify fiftyFifty is available
+        assertTrue("Quick rank 0 should have fiftyFifty available",
+            "fiftyFifty" in vm.engine.availablePowerUps)
     }
 
     // === TIMETRIAL mode lifecycle ===

@@ -106,50 +106,35 @@ class ChestSystemTest {
     }
 
     @Test
-    fun generateChest_goldRewardHasTwoPowerUps() {
-        val reward = chestSystem.generateChest(newRecord = true, accuracy = 95, totalAnswered = 15, score = 500)!!
-        assertEquals("GOLD chest should grant 2 power-ups", 2, reward.powerUps.size)
-    }
-
-    @Test
-    fun generateChest_silverRewardHasOnePowerUp() {
-        val reward = chestSystem.generateChest(newRecord = true, accuracy = 75, totalAnswered = 10, score = 300)!!
-        assertEquals("SILVER chest should grant 1 power-up", 1, reward.powerUps.size)
-    }
-
-    @Test
     fun generateChest_goldXpIsInExpectedRange() {
-        // With power-ups unlocked (default), xpBonus=2, so GOLD range is 600-1200
         val reward = chestSystem.generateChest(newRecord = true, accuracy = 95, totalAnswered = 15, score = 500)!!
-        assertTrue("GOLD XP should be >= 600 (300*2), got ${reward.xp}", reward.xp >= 600)
-        assertTrue("GOLD XP should be <= 1200 (600*2), got ${reward.xp}", reward.xp <= 1200)
+        assertTrue("GOLD XP should be >= 300, got ${reward.xp}", reward.xp >= 300)
+        assertTrue("GOLD XP should be <= 600, got ${reward.xp}", reward.xp <= 600)
     }
 
     @Test
     fun generateChest_silverXpIsInExpectedRange() {
-        // With power-ups unlocked (default), xpBonus=2, so SILVER range is 300-700
         val reward = chestSystem.generateChest(newRecord = true, accuracy = 75, totalAnswered = 10, score = 300)!!
-        assertTrue("SILVER XP should be >= 300 (150*2), got ${reward.xp}", reward.xp >= 300)
-        assertTrue("SILVER XP should be <= 700 (350*2), got ${reward.xp}", reward.xp <= 700)
+        assertTrue("SILVER XP should be >= 150, got ${reward.xp}", reward.xp >= 150)
+        assertTrue("SILVER XP should be <= 350, got ${reward.xp}", reward.xp <= 350)
     }
 
     @Test
     fun generateChest_bronzeXpIsInExpectedRange() {
-        // With power-ups unlocked (default), xpBonus=2, so BRONZE range is 100-300
         val reward = chestSystem.generateChest(newRecord = false, accuracy = 65, totalAnswered = 5, score = 100)!!
-        assertTrue("BRONZE XP should be >= 100 (50*2), got ${reward.xp}", reward.xp >= 100)
-        assertTrue("BRONZE XP should be <= 300 (150*2), got ${reward.xp}", reward.xp <= 300)
+        assertTrue("BRONZE XP should be >= 50, got ${reward.xp}", reward.xp >= 50)
+        assertTrue("BRONZE XP should be <= 150, got ${reward.xp}", reward.xp <= 150)
     }
 
     @Test
     fun generateChest_goldMinXpGreaterThanOrEqualSilverMinXp() {
         // Verify that better chests give at least as good rewards (min XP)
-        // GOLD min (600) >= SILVER min (300) >= BRONZE min (100)
+        // GOLD min (300) >= SILVER min (150) >= BRONZE min (50)
         val gold = chestSystem.generateChest(newRecord = true, accuracy = 95, totalAnswered = 15, score = 500)!!
         val silver = chestSystem.generateChest(newRecord = true, accuracy = 75, totalAnswered = 10, score = 300)!!
         val bronze = chestSystem.generateChest(newRecord = false, accuracy = 65, totalAnswered = 5, score = 100)!!
         // Compare minimum possible XP for each type
-        val goldMin = 600; val silverMin = 300; val bronzeMin = 100
+        val goldMin = 300; val silverMin = 150; val bronzeMin = 50
         assertTrue("GOLD min XP ($goldMin) >= SILVER min XP ($silverMin)", goldMin >= silverMin)
         assertTrue("SILVER min XP ($silverMin) >= BRONZE min XP ($bronzeMin)", silverMin >= bronzeMin)
         // Verify actual XP is within each range
@@ -186,14 +171,6 @@ class ChestSystemTest {
         chestSystem.openChest(reward)
         val xpAfter = progressRepo.getXP()
         assertEquals("XP should increase by reward.xp", xpBefore + reward.xp, xpAfter)
-    }
-
-    @Test
-    fun openChest_appliesPowerUps() {
-        val reward = chestSystem.generateChest(newRecord = true, accuracy = 95, totalAnswered = 15, score = 500)!!
-        chestSystem.openChest(reward)
-        val freePowerUps = gameRepo.getFreePowerUps()
-        assertEquals("Free power-ups should match reward.powerUps size", reward.powerUps.size, freePowerUps.size)
     }
 
     @Test

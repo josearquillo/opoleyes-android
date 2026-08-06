@@ -54,7 +54,6 @@ class GameEngineTimerFlowTest {
     @Test
     fun fun_timer_wrongAnswerSubtractsTimeInTimetrial2() {
         engine.startAllLawsGame(GameMode.TIMETRIAL)
-        engine.shieldCharges = 0
         engine.nextQuestion()
         val timerBefore = engine.timer
         val q = engine.currentQ!!
@@ -75,7 +74,6 @@ class GameEngineTimerFlowTest {
     @Test
     fun fun_timer_wrongAnswerSubtractsTimeInTimetrial() {
         engine.startAllLawsGame(GameMode.TIMETRIAL)
-        engine.shieldCharges = 0
         engine.nextQuestion()
         val timerBefore = engine.timer
         val q = engine.currentQ!!
@@ -105,7 +103,6 @@ class GameEngineTimerFlowTest {
     @Test
     fun fun_timer_neverGoesNegative() {
         engine.startAllLawsGame(GameMode.TIMETRIAL)
-        engine.shieldCharges = 0
         engine.timer = 5f
         engine.nextQuestion()
         val q = engine.currentQ!!

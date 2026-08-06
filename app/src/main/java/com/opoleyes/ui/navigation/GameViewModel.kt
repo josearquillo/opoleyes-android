@@ -75,7 +75,6 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
         val globalProgress: Int,
         val temaTests: List<com.opoleyes.data.model.Test>,
         val dominatedLaws: Int,
-        val powerUps: List<String>,
         val records: Map<String, Int>,
         val unlockedModes: Map<String, Boolean>
     )
@@ -105,7 +104,6 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
             globalProgress = statsRepo.getGlobalProgress(),
             temaTests = temaTests,
             dominatedLaws = temaTests.count { statsRepo.getLeyProgress(it.id) >= 100 },
-            powerUps = prefs.getFreePowerUps(),
             records = records,
             unlockedModes = unlockedModes
         )
@@ -119,7 +117,6 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
     fun resetProgress() {
         progressRepo.resetAll()
         statsRepo.invalidateCache()
-        prefs.initPowerUpsIfNeeded()
         _homePreload = null
         _profileData = null
         _rankUpOverlay.value = null
@@ -178,9 +175,6 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
 
     private val _isLoading = MutableStateFlow(false)
     val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
-
-    private val _quickRewardPowerUp = MutableStateFlow<String?>(null)
-    val quickRewardPowerUp: StateFlow<String?> = _quickRewardPowerUp.asStateFlow()
 
     private val _quickRewardEarned = MutableStateFlow(false)
     val quickRewardEarned: StateFlow<Boolean> = _quickRewardEarned.asStateFlow()
@@ -256,16 +250,10 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
             comboOverchargeActive = engine.comboOverchargeActive,
             comboOverchargeCharges = engine.comboOverchargeCharges,
             streak = engine.streak,
-            fiftyFiftyCharges = engine.fiftyFiftyCharges,
             fiftyFiftyActive = engine.fiftyFiftyActive,
             fiftyFiftyRemoved = engine.fiftyFiftyRemoved,
-            doubleScoreCharges = engine.doubleScoreCharges,
-            doubleScoreActive = engine.doubleScoreActive,
-            hintCharges = engine.hintCharges,
             hintActive = engine.hintActive,
             hintRemoved = engine.hintRemoved,
-            shieldCharges = engine.shieldCharges,
-            shieldActive = engine.shieldActive,
             powerUpUsedThisQuestion = engine.powerUpUsedThisQuestion,
             currentQ = engine.currentQ,
             mode = engine.mode,
@@ -286,31 +274,17 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
         pendingMode = GameMode.QUICK
         val ok = engine.startQuickGame()
         if (ok) {
-            _quickRewardPowerUp.value = generateQuickReward()
             engine.nextQuestion(); updateUiState()
         }
         return ok
     }
 
-    private fun generateQuickReward(): String {
-        val avgWeight = if (engine.pool.isNotEmpty()) engine.pool.map { it.weight }.average() else 50.0
-        return when {
-            avgWeight >= 70 -> "doubleScore"
-            avgWeight >= 50 -> "fiftyFifty"
-            avgWeight >= 30 -> "shield"
-            else -> "hint"
-        }
-    }
-
-    fun getQuickRewardPowerUp(): String? = _quickRewardPowerUp.value
+    var pendingMode: GameMode = GameMode.SURVIVAL
 
     fun clearQuickReward() {
-        _quickRewardPowerUp.value = null
         _quickRewardEarned.value = false
         _quickRewardMissed.value = false
     }
-
-    var pendingMode: GameMode = GameMode.SURVIVAL
 
     fun startTemaGame(testId: String): Boolean {
         _popups.value = emptyList()
@@ -547,9 +521,6 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
                 }
                 checkAchievementsPerQuestion(AchievementContext(maxCombo = engine.maxCombo, maxOptions = engine.maxOptions))
             }
-            GameEngine.AnswerResult.SHIELD_USED -> {
-                addPopup("Escudo usado!", Primary, 44, 0f, "🛡️")
-            }
             else -> {}
         }
         return result
@@ -565,8 +536,6 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
     fun isGameOver(): Boolean = engine.isGameOver()
 
     fun activateFiftyFifty() { engine.activateFiftyFifty(); updateUiState() }
-    fun activateDoubleScore() { engine.activateDoubleScore(); _powerUpToast.value = PowerUpToast("¡Doble puntuación activada!", "✨"); updateUiState() }
-    fun activateShield() { engine.activateShield(); _powerUpToast.value = PowerUpToast("¡Escudo activado!", "🛡️"); updateUiState() }
     fun useHint() { engine.useHint(); updateUiState() }
 
     fun clearPowerUpToast() { _powerUpToast.value = null }
@@ -592,7 +561,6 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
     fun onGameOver() {
         if (gameOverProcessed) return
         gameOverProcessed = true
-        engine.saveRemainingPowerUps()
         val mode = engine.mode.name.lowercase()
         val record = progressRepo.getRecord(mode)
         _newRecord.value = engine.score > record
@@ -640,12 +608,8 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
 
         if (engine.mode == GameMode.QUICK && engine.totalAnswered >= Constants.QUICK_MODE_QUESTIONS) {
             if (engine.correctCount == engine.totalAnswered) {
-                _quickRewardPowerUp.value?.let { reward ->
-                    val current = prefs.getFreePowerUps().toMutableList()
-                    current.add(reward)
-                    prefs.setFreePowerUps(current)
-                    _quickRewardEarned.value = true
-                }
+                _quickRewardEarned.value = true
+                progressRepo.addXP(50)
             } else {
                 _quickRewardMissed.value = true
             }
@@ -765,21 +729,10 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
     private fun checkRankUp(rankBefore: Int) {
         val rankAfter = progressRepo.getRankIndex()
         if (rankAfter > rankBefore) {
-            val allRewards = mutableListOf<String>()
-            for (r in (rankBefore + 1)..rankAfter) {
-                val rewards = progressRepo.getRankPowerUpGifts(r)
-                if (rewards.isNotEmpty()) {
-                    allRewards.addAll(rewards)
-                    val current = prefs.getFreePowerUps().toMutableList()
-                    current.addAll(rewards)
-                    prefs.setFreePowerUps(current)
-                }
-            }
             progressRepo.setLastKnownRankIndex(rankAfter)
             _rankUpOverlay.value = RankUpOverlay(
                 com.opoleyes.data.Constants.getRankByIndex(rankBefore),
-                com.opoleyes.data.Constants.getRankByIndex(rankAfter),
-                allRewards
+                com.opoleyes.data.Constants.getRankByIndex(rankAfter)
             )
         }
     }
@@ -797,7 +750,6 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
     fun clearPopups() { _popups.value = emptyList() }
 
     fun exitGame() {
-        engine.saveRemainingPowerUps()
     }
 
     // --- Encapsulated engine access for UI ---
@@ -842,16 +794,10 @@ data class GameUiState(
     val comboOverchargeActive: Boolean = false,
     val comboOverchargeCharges: Int = 0,
     val streak: Int = 0,
-    val fiftyFiftyCharges: Int = 0,
     val fiftyFiftyActive: Boolean = false,
     val fiftyFiftyRemoved: List<String> = emptyList(),
-    val doubleScoreCharges: Int = 0,
-    val doubleScoreActive: Boolean = false,
-    val hintCharges: Int = 0,
     val hintActive: Boolean = false,
     val hintRemoved: List<String> = emptyList(),
-    val shieldCharges: Int = 0,
-    val shieldActive: Boolean = false,
     val powerUpUsedThisQuestion: Boolean = false,
     val currentQ: QuestionEntry? = null,
     val mode: GameMode = GameMode.SURVIVAL,

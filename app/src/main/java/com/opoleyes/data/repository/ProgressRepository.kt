@@ -54,10 +54,10 @@ open class ProgressRepository(private val context: Context) : com.opoleyes.data.
                 simulacro = true,
                 powerUps = true,
                 hint = true,
-                shield = true,
+                shield = false,
                 fiftyFifty = true,
                 lifeRecovery = true,
-                doubleScore = true,
+                doubleScore = false,
                 dailyMissions = 3
             )
         }
@@ -69,11 +69,11 @@ open class ProgressRepository(private val context: Context) : com.opoleyes.data.
             exam = r >= 7,
             simulacro = isSimulacroUnlocked(),
             powerUps = true,
-            hint = true,
-            shield = true,
+            hint = r >= 1,
+            shield = false,
             fiftyFifty = true,
             lifeRecovery = true,
-            doubleScore = true,
+            doubleScore = false,
             dailyMissions = if (r >= 6) 3 else if (r >= 4) 2 else 1
         )
     }
@@ -150,10 +150,6 @@ open class ProgressRepository(private val context: Context) : com.opoleyes.data.
 
     fun getLastKnownRankIndex(): Int = prefs.getLastKnownRankIndex()
     fun setLastKnownRankIndex(index: Int) = prefs.setLastKnownRankIndex(index)
-
-    fun getRankPowerUpGifts(rankIndex: Int): List<String> {
-        return Constants.RANK_POWERUP_REWARDS[rankIndex] ?: emptyList()
-    }
 
     fun resetAll() = prefs.resetAll()
 }

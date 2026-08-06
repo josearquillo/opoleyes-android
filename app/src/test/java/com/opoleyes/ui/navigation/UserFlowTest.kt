@@ -192,10 +192,6 @@ class UserFlowTest {
         assertEquals("Should rank up from Novato", "Novato", overlay?.oldRank?.name)
         assertEquals("Should rank up to Principiante", "Principiante", overlay?.newRank?.name)
 
-        // Verify power-up rewards granted (rank 0→1 grants fiftyFifty + hint)
-        assertTrue("Should grant fiftyFifty reward", overlay!!.powerUpRewards.contains("fiftyFifty"))
-        assertTrue("Should grant hint reward", overlay.powerUpRewards.contains("hint"))
-
         // Verify last known rank index updated
         assertEquals("Last known rank index should be 1", 1, progressRepo.getLastKnownRankIndex())
     }
@@ -297,13 +293,6 @@ class UserFlowTest {
         assertEquals("XP should increase by chest.xp after openChest",
             xpBeforeOpen + chest.xp, xpAfterOpen)
 
-        // Verify power-ups were added (if chest had power-ups)
-        if (chest.powerUps.isNotEmpty()) {
-            val freePowerUps = prefs.getFreePowerUps()
-            assertTrue("Free power-ups should contain chest power-ups",
-                chest.powerUps.all { it in freePowerUps })
-        }
-
         // Verify multiplier set for GOLD chest
         if (chest.multiplier) {
             assertEquals("GOLD chest should set multiplier to 2", 2, prefs.getMultiplier())
@@ -346,29 +335,21 @@ class UserFlowTest {
     @Test
     fun flow_debugMode_play_disableDebug_stateRestored() {
         // Set up initial state
-        prefs.setFreePowerUps(listOf("shield", "hint"))
         prefs.setMaxExamQuestions(20)
 
         // Enable debug mode
         vm.setDebugMode(true)
         assertTrue("Debug mode should be active", vm.isDebugMode())
 
-        // Verify debug state: infinite power-ups
-        val debugPowerUps = prefs.getFreePowerUps()
-        assertEquals("Debug mode should give 396 power-ups", 396, debugPowerUps.size)
-
         // Play a game in debug mode
         vm.pendingMode = GameMode.SURVIVAL
         vm.startAllLawsGame()
-        // In debug mode, power-ups are not cleared after game starts
-        // (initGameStats checks !prefs.isDebugMode() before clearing)
 
         // Disable debug mode
         vm.setDebugMode(false)
         assertFalse("Debug mode should be off", vm.isDebugMode())
 
         // Verify state was restored
-        assertEquals("Power-ups should be restored", listOf("shield", "hint"), prefs.getFreePowerUps())
         assertEquals("Max exam questions should be restored", 20, prefs.getMaxExamQuestions())
     }
 

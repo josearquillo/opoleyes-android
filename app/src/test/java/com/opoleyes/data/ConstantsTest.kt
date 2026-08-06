@@ -95,38 +95,6 @@ class ConstantsTest {
     }
 
     @Test
-    fun rankPowerupRewards_hasEntries() {
-        assertTrue(Constants.RANK_POWERUP_REWARDS.isNotEmpty())
-    }
-
-    @Test
-    fun rankPowerupRewards_allContainValidPowerUps() {
-        val validPowerUps = setOf("shield", "fiftyFifty", "hint", "doubleScore")
-        Constants.RANK_POWERUP_REWARDS.forEach { (rank, rewards) ->
-            assertTrue("Rank $rank rewards should not be empty", rewards.isNotEmpty())
-            rewards.forEach { pu ->
-                assertTrue("Rank $rank has invalid power-up: $pu", validPowerUps.contains(pu))
-            }
-        }
-    }
-
-    @Test
-    fun rankPowerupRewards_noFreezeTime() {
-        Constants.RANK_POWERUP_REWARDS.values.forEach { rewards ->
-            assertTrue("No reward should contain freezeTime",
-                !rewards.contains("freezeTime"))
-        }
-    }
-
-    @Test
-    fun rankPowerupRewards_onlyAtRanks0Through2() {
-        // Power-up gifts are granted at ranks 0, 1 (fiftyFifty, hint) and
-        // rank 2 (shield, doubleScore). Higher ranks unlock mechanics
-        // (modes, missions) but no extra power-up gifts.
-        assertEquals(setOf(0, 1, 2), Constants.RANK_POWERUP_REWARDS.keys)
-    }
-
-    @Test
     fun getRankByIndex_returnsCorrectRank() {
         assertEquals("Novato", Constants.getRankByIndex(0).name)
         assertEquals("Veterano", Constants.getRankByIndex(6).name)

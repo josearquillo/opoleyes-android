@@ -20,10 +20,6 @@ class ChestSystem(private val context: Context) {
             accuracy >= 60 -> ChestType.BRONZE
             else -> return null
         }
-        val hasPowerUps = progressRepo.isUnlocked("shield") || progressRepo.isUnlocked("fiftyFifty") ||
-                progressRepo.isUnlocked("doubleScore")
-        // Reward players who have unlocked power-ups with a bonus XP multiplier
-        val xpBonus = if (hasPowerUps) 2 else 1
 
         val (xpMin, xpMax) = when (type) {
             ChestType.BRONZE -> 50 to 150
@@ -31,33 +27,13 @@ class ChestSystem(private val context: Context) {
             ChestType.GOLD -> 300 to 600
         }
         val lootXP = (xpMin..xpMax).random()
-        val actualXP = lootXP * xpBonus
-
-        val powerUps = mutableListOf<String>()
-        if (hasPowerUps) {
-            when (type) {
-                ChestType.BRONZE -> if ((0..1).random() == 1) powerUps.add(pickRandomPowerUp())
-                ChestType.SILVER -> powerUps.add(pickRandomPowerUp())
-                ChestType.GOLD -> {
-                    powerUps.add(pickRandomPowerUp())
-                    powerUps.add(pickRandomPowerUp())
-                }
-                else -> {}
-            }
-        }
         val multiplier = type == ChestType.GOLD
 
-        return ChestReward(type, actualXP, powerUps, multiplier)
+        return ChestReward(type, lootXP, emptyList(), multiplier)
     }
 
     fun openChest(reward: ChestReward) {
         progressRepo.addXP(reward.xp)
-        if (reward.powerUps.isNotEmpty()) gameRepo.addFreePowerUps(reward.powerUps)
         if (reward.multiplier) gameRepo.setMultiplier(2)
-    }
-
-    private fun pickRandomPowerUp(): String {
-        val available = mutableListOf("shield", "fiftyFifty", "hint", "doubleScore")
-        return available.random()
     }
 }

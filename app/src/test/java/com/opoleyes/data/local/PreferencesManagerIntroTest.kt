@@ -67,36 +67,7 @@ class PreferencesManagerIntroTest {
         assertFalse(prefs.isIntroShown("intro_timetrial"))
     }
 
-    // === initPowerUpsIfNeeded ===
-
-    @Test
-    fun initPowerUpsIfNeeded_firstTime_initializesWithRank0Rewards() {
-        prefs.initPowerUpsIfNeeded()
-        val powerUps = prefs.getFreePowerUps()
-        assertEquals("After init, should have 4 fiftyFifty from rank 0 rewards", 4, powerUps.size)
-        assertTrue("All should be fiftyFifty", powerUps.all { it == "fiftyFifty" })
-    }
-
-    @Test
-    fun initPowerUpsIfNeeded_secondTime_doesNotChange() {
-        prefs.initPowerUpsIfNeeded()
-        // Set some power-ups after first init
-        prefs.setFreePowerUps(listOf("shield", "hint"))
-        // Second call should not reset
-        prefs.initPowerUpsIfNeeded()
-        assertEquals("Second init should not change existing power-ups",
-            listOf("shield", "hint"), prefs.getFreePowerUps())
-    }
-
     // === setDebugMode ===
-
-    @Test
-    fun setDebugMode_true_activatesInfinitePowerUps() {
-        prefs.setDebugMode(true)
-        assertTrue("Debug mode should be active", prefs.isDebugMode())
-        val powerUps = prefs.getFreePowerUps()
-        assertEquals("Debug mode should give 99*4=396 power-ups", 396, powerUps.size)
-    }
 
     @Test
     fun setDebugMode_true_setsMaxExamTo50() {
@@ -113,7 +84,6 @@ class PreferencesManagerIntroTest {
     @Test
     fun setDebugMode_false_restoresSavedState() {
         // Set up initial state
-        prefs.setFreePowerUps(listOf("shield", "hint"))
         prefs.setMaxExamQuestions(20)
         prefs.setSimulacroUnlocked()
         // Enable debug mode (saves current state)
@@ -121,7 +91,6 @@ class PreferencesManagerIntroTest {
         // Disable debug mode (should restore saved state)
         prefs.setDebugMode(false)
         assertFalse("Debug mode should be off", prefs.isDebugMode())
-        assertEquals("Should restore saved power-ups", listOf("shield", "hint"), prefs.getFreePowerUps())
         assertEquals("Should restore saved max exam questions", 20, prefs.getMaxExamQuestions())
         assertTrue("Should restore saved simulacro unlocked", prefs.isSimulacroUnlocked())
     }
@@ -130,11 +99,9 @@ class PreferencesManagerIntroTest {
     fun setDebugMode_false_withoutSnapshot_fallsBackToDefaults() {
         // After resetAll, no SAVED_* keys exist. Calling setDebugMode(false)
         // directly (without first calling setDebugMode(true)) should fall back
-        // to the default power-up list since there's no saved snapshot to restore.
+        // to the default values since there's no saved snapshot to restore.
         prefs.resetAll()
         prefs.setDebugMode(false)
-        assertEquals("Should fall back to default power-ups",
-            listOf("shield", "fiftyFifty", "hint", "doubleScore"), prefs.getFreePowerUps())
         assertEquals("Should fall back to default max exam questions", 10, prefs.getMaxExamQuestions())
         assertFalse("Should fall back to default simulacro locked", prefs.isSimulacroUnlocked())
     }
@@ -331,26 +298,6 @@ class PreferencesManagerIntroTest {
     fun setMultiplier_roundTrip() {
         prefs.setMultiplier(2)
         assertEquals(2, prefs.getMultiplier())
-    }
-
-    // === Free Power Ups ===
-
-    @Test
-    fun getFreePowerUps_emptyByDefault() {
-        assertTrue("Free power-ups should be empty by default", prefs.getFreePowerUps().isEmpty())
-    }
-
-    @Test
-    fun setFreePowerUps_roundTrip() {
-        prefs.setFreePowerUps(listOf("shield", "hint", "fiftyFifty"))
-        assertEquals(listOf("shield", "hint", "fiftyFifty"), prefs.getFreePowerUps())
-    }
-
-    @Test
-    fun clearFreePowerUps_emptiesList() {
-        prefs.setFreePowerUps(listOf("shield", "hint"))
-        prefs.clearFreePowerUps()
-        assertTrue(prefs.getFreePowerUps().isEmpty())
     }
 
     // === Stats ===

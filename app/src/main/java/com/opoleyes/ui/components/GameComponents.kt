@@ -397,7 +397,6 @@ fun AnimatedHudBar(
             }
         }
 
-        Text("Pregunta $questionNum", color = TextDim, fontSize = 12.sp, maxLines = 1)
     }
 }
 

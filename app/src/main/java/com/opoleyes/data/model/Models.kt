@@ -127,8 +127,7 @@ data class PowerUpToast(
 
 data class RankUpOverlay(
     val oldRank: Rank,
-    val newRank: Rank,
-    val powerUpRewards: List<String> = emptyList()
+    val newRank: Rank
 )
 
 data class SimulacroHistoryEntry(

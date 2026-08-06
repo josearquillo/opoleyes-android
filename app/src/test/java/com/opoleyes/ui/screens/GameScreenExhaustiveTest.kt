@@ -58,25 +58,21 @@ class GameScreenExhaustiveTest {
 
     private fun startSurvival() {
         vm.startAllLawsGame()
-        vm.engine.hintCharges = 5; vm.engine.fiftyFiftyCharges = 5; vm.engine.doubleScoreCharges = 5
         vm.updateUiState()
     }
 
     private fun startTimetrial() {
         vm.startAllLawsGame(); vm.engine.mode = GameMode.TIMETRIAL; vm.engine.timer = 180f
-        vm.engine.hintCharges = 5; vm.engine.fiftyFiftyCharges = 5; vm.engine.doubleScoreCharges = 5
         vm.updateUiState()
     }
 
     private fun startChallenge() {
         vm.startAllLawsGame(); vm.engine.mode = GameMode.TIMETRIAL; vm.engine.timer = 180f
-        vm.engine.hintCharges = 5; vm.engine.fiftyFiftyCharges = 5; vm.engine.doubleScoreCharges = 5
         vm.updateUiState()
     }
 
     private fun startQuick() {
         vm.startQuickGame()
-        vm.engine.hintCharges = 5; vm.engine.fiftyFiftyCharges = 5; vm.engine.doubleScoreCharges = 5
         vm.updateUiState()
     }
 
@@ -95,7 +91,7 @@ class GameScreenExhaustiveTest {
         return count
     }
 
-    // === TEST 1: Power-up mutual exclusivity (all 3 combinations) ===
+    // === TEST 1: Power-up mutual exclusivity ===
     @Test
     fun fun_powerUp_mutualExclusivity_allCombinations() {
         startSurvival(); render()
@@ -114,16 +110,6 @@ class GameScreenExhaustiveTest {
         assertTrue("Hint active", vm.engine.hintActive)
         vm.activateFiftyFifty()
         assertFalse("50/50 blocked after hint", vm.engine.fiftyFiftyActive)
-
-        // Reset
-        vm.answer(vm.engine.currentQ!!.correct); advance()
-        vm.nextQuestion(); advance()
-
-        // DoubleScore blocks 50/50
-        vm.activateDoubleScore()
-        assertTrue("DoubleScore active", vm.engine.doubleScoreActive)
-        vm.activateFiftyFifty()
-        assertFalse("50/50 blocked after doubleScore", vm.engine.fiftyFiftyActive)
     }
 
     // === TEST 2: Power-up re-enabled on next question + disabled after answer ===
@@ -138,10 +124,8 @@ class GameScreenExhaustiveTest {
         vm.answer(vm.uiState.value.currentQ!!.correct)
         composeRule.waitForIdle()
         assertTrue("Should be answered", vm.engine.answered)
-        val chargesBefore = vm.engine.fiftyFiftyCharges
         vm.engine.activateFiftyFifty()
         assertFalse("50/50 blocked after answering", vm.engine.fiftyFiftyActive)
-        assertEquals("Charges should not decrement", chargesBefore, vm.engine.fiftyFiftyCharges)
 
         // Next question -> power-ups re-enabled
         vm.nextQuestion()
@@ -151,43 +135,50 @@ class GameScreenExhaustiveTest {
         assertTrue("50/50 works on new question", vm.uiState.value.fiftyFiftyActive)
     }
 
-    // === TEST 3: Power-up visibility (0 charges, QUICK mode) ===
+    // === TEST 3: Power-up visibility (QUICK mode hides power-ups) ===
     @Test
     fun fun_powerUp_visibilityRules() {
-        // 0 charges -> not visible
-        vm.startAllLawsGame()
-        vm.engine.hintCharges = 0; vm.engine.fiftyFiftyCharges = 0; vm.engine.doubleScoreCharges = 0
+        // QUICK mode -> power-ups not visible
+        vm.startQuickGame()
         vm.updateUiState(); render()
-        assertTrue("No power-ups with 0 charges",
+        assertTrue("No power-ups in QUICK mode",
             composeRule.onAllNodesWithText("Pista").fetchSemanticsNodes().isEmpty() &&
-            composeRule.onAllNodesWithText("50/50").fetchSemanticsNodes().isEmpty() &&
-            composeRule.onAllNodesWithText("x2 pts").fetchSemanticsNodes().isEmpty())
+            composeRule.onAllNodesWithText("50/50").fetchSemanticsNodes().isEmpty())
     }
 
-    // === TEST 4: Charges display + decrement ===
+    // === TEST 4: Power-up penalty on points ===
     @Test
-    fun fun_powerUp_chargesDisplayAndDecrement() {
-        startSurvival()
-        vm.engine.hintCharges = 3; vm.engine.fiftyFiftyCharges = 2; vm.engine.doubleScoreCharges = 1
-        vm.updateUiState(); render()
-        // Verify charges via engine state (UI text matching is ambiguous with question content)
-        assertEquals(3, vm.uiState.value.hintCharges)
-        assertEquals(2, vm.uiState.value.fiftyFiftyCharges)
-        assertEquals(1, vm.uiState.value.doubleScoreCharges)
-        composeRule.onNodeWithText("50/50").performClick(); advance()
-        assertEquals(1, vm.uiState.value.fiftyFiftyCharges)
-    }
-
-    // === TEST 5: Double score toast + scoring ===
-    @Test
-    fun fun_doubleScore_toastAndScoring() {
+    fun fun_powerUp_pointPenalty() {
         startSurvival(); render()
         assertEquals(0, vm.uiState.value.score)
-        composeRule.onNodeWithText("x2 pts").performClick(); advance()
-        assertTrue("Toast shown for double score", vm.powerUpToast.value != null)
+        // Answer without power-up: 10 * 1 (combo=1) = 10 pts
         vm.answer(vm.uiState.value.currentQ!!.correct)
         composeRule.waitForIdle()
-        assertEquals(20, vm.uiState.value.score)
+        assertEquals(10, vm.uiState.value.score)
+
+        // Next question, use 50/50: 10 * 2 (combo=2) * 0.25 = 5 pts
+        vm.nextQuestion(); composeRule.waitForIdle()
+        vm.activateFiftyFifty(); advance()
+        vm.answer(vm.uiState.value.currentQ!!.correct)
+        composeRule.waitForIdle()
+        assertEquals(15, vm.uiState.value.score)
+
+        // Next question, use hint: 10 * 3 (combo=3) * 0.5 = 15 pts
+        vm.nextQuestion(); composeRule.waitForIdle()
+        vm.useHint(); advance()
+        vm.answer(vm.uiState.value.currentQ!!.correct)
+        composeRule.waitForIdle()
+        assertEquals(30, vm.uiState.value.score)
+    }
+
+    // === TEST 5: Scoring without power-up ===
+    @Test
+    fun fun_scoring_noPowerUp() {
+        startSurvival(); render()
+        assertEquals(0, vm.uiState.value.score)
+        vm.answer(vm.uiState.value.currentQ!!.correct)
+        composeRule.waitForIdle()
+        assertEquals(10, vm.uiState.value.score)
     }
 
     // === TEST 6: Answer effects per mode (survival, timetrial, challenge) ===
@@ -215,33 +206,22 @@ class GameScreenExhaustiveTest {
         assertTrue("Challenge timer increased", vm.uiState.value.timer > tBefore)
     }
 
-    // === TEST 7: Wrong answer effects (life lost, combo reset, shield) ===
+    // === TEST 7: Wrong answer effects (life lost, combo reset) ===
     @Test
     fun fun_wrongAnswer_effects() {
-        startSurvival(); vm.engine.shieldCharges = 0; vm.engine.combo = 3; vm.updateUiState(); render()
+        startSurvival(); vm.engine.combo = 3; vm.updateUiState(); render()
         val q = vm.uiState.value.currentQ!!
         val wrong = listOf("A","B","C","D").first { it != q.correct }
         vm.answer(wrong)
         composeRule.waitForIdle()
         assertEquals(2, vm.uiState.value.lives)
         assertEquals(0, vm.uiState.value.combo)
-
-        // Shield absorbs (engine only, no re-render)
-        startSurvival(); vm.engine.shieldCharges = 1; vm.engine.combo = 3; vm.updateUiState()
-        vm.engine.activateShield(); vm.updateUiState()
-        val q2 = vm.uiState.value.currentQ!!
-        val wrong2 = listOf("A","B","C","D").first { it != q2.correct }
-        val result = vm.answer(wrong2)
-        composeRule.waitForIdle()
-        assertEquals(GameEngine.AnswerResult.SHIELD_USED, result)
-        assertEquals(3, vm.uiState.value.lives)
-        assertEquals(3, vm.uiState.value.combo)
     }
 
     // === TEST 8: 50/50 shows exactly 2 options, correct visible, then wrong answer works ===
     @Test
     fun fun_fiftyFifty_fullFlow() {
-        startSurvival(); vm.engine.shieldCharges = 0; render()
+        startSurvival(); render()
         composeRule.onNodeWithText("50/50").performClick(); advance()
         assertEquals(2, countVisibleOptions())
         val q = vm.uiState.value.currentQ!!
@@ -334,7 +314,7 @@ class GameScreenExhaustiveTest {
         assertEquals(100, vm.engine.getAccuracy())
 
         // Half correct (engine only, no re-render)
-        startSurvival(); vm.engine.shieldCharges = 0
+        startSurvival()
         vm.answer(vm.uiState.value.currentQ!!.correct)
         composeRule.waitForIdle()
         vm.nextQuestion()

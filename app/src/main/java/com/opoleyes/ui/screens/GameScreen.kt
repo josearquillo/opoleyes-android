@@ -260,17 +260,11 @@ fun GameScreen(navController: NavController, gameViewModel: GameViewModel) {
                                     horizontalArrangement = Arrangement.Center,
                                     verticalArrangement = Arrangement.spacedBy(4.dp)
                                 ) {
-                                    if ("shield" in availablePowerUps && uiState.shieldCharges > 0 && uiState.mode != GameMode.QUICK) {
-                                        PowerUpButton(stringResource(R.string.shield), "🛡️", uiState.shieldCharges, PrimaryLight, enabled = !uiState.answered && !uiState.shieldActive && !uiState.powerUpUsedThisQuestion) { gameViewModel.activateShield() }
+                                    if ("hint" in availablePowerUps && uiState.mode != GameMode.QUICK) {
+                                        PowerUpButton(stringResource(R.string.hint), "💡", 0, WarningDark, enabled = !uiState.answered && !uiState.hintActive && !uiState.powerUpUsedThisQuestion) { gameViewModel.useHint() }
                                     }
-                                    if ("hint" in availablePowerUps && uiState.hintCharges > 0 && uiState.mode != GameMode.QUICK) {
-                                        PowerUpButton(stringResource(R.string.hint), "💡", uiState.hintCharges, WarningDark, enabled = !uiState.answered && !uiState.hintActive && !uiState.powerUpUsedThisQuestion) { gameViewModel.useHint() }
-                                    }
-                                    if ("fiftyFifty" in availablePowerUps && uiState.fiftyFiftyCharges > 0 && uiState.mode != GameMode.QUICK) {
-                                        PowerUpButton(stringResource(R.string.fifty_fifty), "✂️", uiState.fiftyFiftyCharges, Primary, enabled = !uiState.answered && !uiState.fiftyFiftyActive && !uiState.powerUpUsedThisQuestion) { gameViewModel.activateFiftyFifty() }
-                                    }
-                                    if ("doubleScore" in availablePowerUps && uiState.doubleScoreCharges > 0 && uiState.mode != GameMode.QUICK) {
-                                        PowerUpButton(stringResource(R.string.double_points), "✨", uiState.doubleScoreCharges, Warning, enabled = !uiState.answered && !uiState.doubleScoreActive && !uiState.powerUpUsedThisQuestion) { gameViewModel.activateDoubleScore() }
+                                    if ("fiftyFifty" in availablePowerUps && uiState.mode != GameMode.QUICK) {
+                                        PowerUpButton(stringResource(R.string.fifty_fifty), "✂️", 0, Primary, enabled = !uiState.answered && !uiState.fiftyFiftyActive && !uiState.powerUpUsedThisQuestion) { gameViewModel.activateFiftyFifty() }
                                     }
                                 }
                                 Spacer(Modifier.height(12.dp))
@@ -569,17 +563,19 @@ fun PowerUpButton(text: String, icon: String, charges: Int, color: Color, enable
             Spacer(Modifier.height(2.dp))
             Text(text, color = Color.White.copy(alpha = alpha), fontWeight = FontWeight.Bold, fontSize = 10.sp)
         }
-        // Circular badge for charges
-        Box(
-            modifier = Modifier
-                .align(Alignment.TopEnd)
-                .size(18.dp)
-                .clip(CircleShape)
-                .background(Color.White.copy(alpha = alpha))
-                .border(1.dp, color.copy(alpha = alpha), CircleShape),
-            contentAlignment = Alignment.Center
-        ) {
-            Text("$charges", color = color, fontSize = 9.sp, fontWeight = FontWeight.Bold)
+        // Circular badge for charges (hidden when 0 = unlimited)
+        if (charges > 0) {
+            Box(
+                modifier = Modifier
+                    .align(Alignment.TopEnd)
+                    .size(18.dp)
+                    .clip(CircleShape)
+                    .background(Color.White.copy(alpha = alpha))
+                    .border(1.dp, color.copy(alpha = alpha), CircleShape),
+                contentAlignment = Alignment.Center
+            ) {
+                Text("$charges", color = color, fontSize = 9.sp, fontWeight = FontWeight.Bold)
+            }
         }
     }
     LaunchedEffect(pressed) {

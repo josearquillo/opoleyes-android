@@ -59,7 +59,6 @@ class GameEngine private constructor(
     var comboOverchargeCharges: Int = 0
     var startRankIndex: Int = 0
     var startXP: Int = 0
-    var powerUpsSaved: Boolean = false
     var xpMultiplier: Int = 1
     // XP breakdown accumulators (reset in initGameStats)
     var xpFromCorrect: Int = 0
@@ -73,22 +72,17 @@ class GameEngine private constructor(
     var maxLives: Int = 3
     var maxDifficulty: Int = 5
     var sessionDifficultyCap: Int = 1
-    var availablePowerUps: List<String> = listOf("shield", "doubleScore", "fiftyFifty", "hint")
+    var availablePowerUps: List<String> = listOf("fiftyFifty", "hint")
 
-    var fiftyFiftyCharges: Int = 0
     var fiftyFiftyActive: Boolean = false
     var fiftyFiftyRemoved: List<String> = emptyList()
-    var doubleScoreCharges: Int = 0
-    var doubleScoreActive: Boolean = false
-    var hintCharges: Int = 0
     var hintActive: Boolean = false
     var hintRemoved: List<String> = emptyList()
-    var shieldCharges: Int = 0
-    var shieldActive: Boolean = false
     var ctxFiftyFiftyUsed: Boolean = false
     var ctxLifeRecovered: Boolean = false
     var ctxFirstMistakeForgiven: Boolean = false
     var powerUpUsedThisQuestion: Boolean = false
+    var powerUpUsedType: String = ""
     var consecutiveWrong: Int = 0
     var firstMistakeUsed: Boolean = false
 
@@ -97,12 +91,11 @@ class GameEngine private constructor(
         comboBarFill = 0f; comboOverchargeActive = false; comboOverchargeCharges = 0
         answered = false; selectedOption = null; questionNum = 0
         askedIds.clear()
-        fiftyFiftyCharges = 0; fiftyFiftyActive = false; fiftyFiftyRemoved = emptyList()
-        doubleScoreCharges = 0; doubleScoreActive = false
-        hintCharges = 0; hintActive = false; hintRemoved = emptyList()
-        shieldCharges = 0; shieldActive = false; ctxFiftyFiftyUsed = false; ctxLifeRecovered = false
+        fiftyFiftyActive = false; fiftyFiftyRemoved = emptyList()
+        hintActive = false; hintRemoved = emptyList()
+        ctxFiftyFiftyUsed = false; ctxLifeRecovered = false
         powerUpUsedThisQuestion = false
-        powerUpsSaved = false
+        powerUpUsedType = ""
         startRankIndex = progressRepo.getRankIndex()
         startXP = progressRepo.getXP()
         xpFromCorrect = 0
@@ -117,35 +110,13 @@ class GameEngine private constructor(
         maxOptions = Constants.MAX_OPTIONS_BY_RANK[rankIndex] ?: 4
         maxLives = Constants.MAX_LIVES_BY_RANK[rankIndex] ?: 3
         maxDifficulty = Constants.MAX_DIFFICULTY_BY_RANK[rankIndex] ?: 5
-        availablePowerUps = Constants.AVAILABLE_POWERUPS_BY_RANK[rankIndex] ?: listOf("shield", "doubleScore", "fiftyFifty", "hint")
+        availablePowerUps = Constants.AVAILABLE_POWERUPS_BY_RANK[rankIndex] ?: listOf("fiftyFifty", "hint")
         sessionDifficultyCap = 1
 
         // Read and consume the pending XP multiplier from a gold chest so it
         // applies to ALL XP earned during this game, not just the first answer.
         xpMultiplier = prefs.getMultiplier()
         if (xpMultiplier > 1) prefs.setMultiplier(1)
-
-        val freePowerUps = prefs.getFreePowerUps()
-        for (pu in freePowerUps) {
-            if (pu in availablePowerUps) {
-                when (pu) {
-                    "shield" -> shieldCharges++
-                    "fiftyFifty" -> fiftyFiftyCharges++
-                    "hint" -> hintCharges++
-                    "doubleScore" -> doubleScoreCharges++
-                }
-            }
-        }
-        if (!prefs.isDebugMode()) {
-            prefs.clearFreePowerUps()
-        }
-
-        // Give free power-up charges to beginners (ranks 0-1) so they can
-        // learn the mechanics without needing to earn them first.
-        if (rankIndex <= 1) {
-            if ("fiftyFifty" in availablePowerUps) fiftyFiftyCharges++
-            if ("hint" in availablePowerUps) hintCharges++
-        }
 
         when (mode) {
             GameMode.TIMETRIAL -> { timer = 180f; lives = 0 }
@@ -220,9 +191,8 @@ class GameEngine private constructor(
         answered = false; selectedOption = null; questionNum++
         fiftyFiftyActive = false; fiftyFiftyRemoved = emptyList()
         hintActive = false; hintRemoved = emptyList()
-        doubleScoreActive = false
-        // Shield persists across questions until the user fails (per help text)
         powerUpUsedThisQuestion = false
+        powerUpUsedType = ""
         ctxFirstMistakeForgiven = false
         return true
     }
@@ -258,7 +228,11 @@ class GameEngine private constructor(
             }
 
             var pts = if (mode == GameMode.QUICK) 15 * combo else 10 * combo
-            if (doubleScoreActive) { pts *= 2; doubleScoreActive = false }
+            // Apply power-up penalty: fewer points if a power-up was used this question
+            if (powerUpUsedType.isNotEmpty()) {
+                val multiplier = Constants.POWERUP_POINTS_MULTIPLIER[powerUpUsedType] ?: 1f
+                pts = (pts * multiplier).toInt()
+            }
             score += pts
             correctCount++
             // Increase session difficulty cap every 5 correct answers (per plan 2.2).
@@ -275,13 +249,10 @@ class GameEngine private constructor(
                 if (mode == GameMode.SURVIVAL && lifeRecoveryUnlocked) {
                     if (lives < maxLives) {
                         lives++; ctxLifeRecovered = true
-                    } else if ("fiftyFifty" in availablePowerUps) {
-                        fiftyFiftyCharges++
                     }
                 } else if (mode == GameMode.TIMETRIAL) {
                     timer = minOf(300f, timer + 20f)
                 }
-                if (streak % 15 == 0 && mode != GameMode.QUICK && "doubleScore" in availablePowerUps) doubleScoreCharges++
             }
 
             if (mode == GameMode.TIMETRIAL) {
@@ -300,11 +271,6 @@ class GameEngine private constructor(
 
             return AnswerResult.CORRECT
         } else {
-            if (shieldActive) {
-                shieldActive = false
-                statsRepo.updateStat(key, false)
-                return AnswerResult.SHIELD_USED
-            }
             ctxFirstMistakeForgiven = false
             streak = 0
             statsRepo.updateStat(key, false)
@@ -333,7 +299,7 @@ class GameEngine private constructor(
             }
             // XP consolation for beginners: earn a small amount even when wrong
             if (rankIndex <= 1) {
-                val consolationXp = 3 * xpMultiplier
+                val consolationXp = 1 * xpMultiplier
                 progressRepo.addXP(consolationXp)
                 xpFromConsolation += consolationXp
             }
@@ -343,7 +309,7 @@ class GameEngine private constructor(
 
     fun activateFiftyFifty() {
         if ("fiftyFifty" !in availablePowerUps) return
-        if (fiftyFiftyCharges <= 0 || fiftyFiftyActive || answered || powerUpUsedThisQuestion) return
+        if (fiftyFiftyActive || answered || powerUpUsedThisQuestion) return
         val q = currentQ ?: return
         val allOptions = listOf("A", "B", "C", "D").filter { q.opciones[it] != null }
         val wrong = allOptions.filter { it != q.correct }
@@ -355,28 +321,15 @@ class GameEngine private constructor(
         // Hard guarantee: correct answer is never removed
         // Hard guarantee: at least 2 options remain visible
         if (allOptions.size - removed.size < 2) return
-        fiftyFiftyCharges--; fiftyFiftyActive = true; ctxFiftyFiftyUsed = true
+        fiftyFiftyActive = true; ctxFiftyFiftyUsed = true
         powerUpUsedThisQuestion = true
+        powerUpUsedType = "fiftyFifty"
         fiftyFiftyRemoved = removed
-    }
-
-    fun activateDoubleScore() {
-        if ("doubleScore" !in availablePowerUps) return
-        if (doubleScoreCharges <= 0 || doubleScoreActive || answered || powerUpUsedThisQuestion) return
-        doubleScoreCharges--; doubleScoreActive = true
-        powerUpUsedThisQuestion = true
-    }
-
-    fun activateShield() {
-        if ("shield" !in availablePowerUps) return
-        if (shieldCharges <= 0 || shieldActive || answered || powerUpUsedThisQuestion) return
-        shieldCharges--; shieldActive = true
-        powerUpUsedThisQuestion = true
     }
 
     fun useHint() {
         if ("hint" !in availablePowerUps) return
-        if (hintCharges <= 0 || hintActive || answered || powerUpUsedThisQuestion) return
+        if (hintActive || answered || powerUpUsedThisQuestion) return
         val q = currentQ ?: return
         val allOptions = listOf("A", "B", "C", "D").filter { q.opciones[it] != null }
         // Don't remove if it would leave fewer than 2 visible options
@@ -385,8 +338,9 @@ class GameEngine private constructor(
         if (wrong.isEmpty()) return
         val remove = wrong.random()
         hintRemoved = listOf(remove)
-        hintActive = true; hintCharges--
+        hintActive = true
         powerUpUsedThisQuestion = true
+        powerUpUsedType = "hint"
     }
 
     fun isGameOver(): Boolean {
@@ -399,22 +353,5 @@ class GameEngine private constructor(
     fun getAccuracy(): Int =
         if (totalAnswered > 0) correctCount * 100 / totalAnswered else 0
 
-    fun saveRemainingPowerUps() {
-        if (prefs.isDebugMode()) return
-        if (powerUpsSaved) return
-        powerUpsSaved = true
-        val remaining = mutableListOf<String>()
-        if (shieldActive) remaining.add("shield")
-        repeat(shieldCharges) { remaining.add("shield") }
-        repeat(fiftyFiftyCharges) { remaining.add("fiftyFifty") }
-        repeat(hintCharges) { remaining.add("hint") }
-        repeat(doubleScoreCharges) { remaining.add("doubleScore") }
-        if (remaining.isNotEmpty()) {
-            val current = prefs.getFreePowerUps().toMutableList()
-            current.addAll(remaining)
-            prefs.setFreePowerUps(current)
-        }
-    }
-
-    enum class AnswerResult { CORRECT, WRONG, SHIELD_USED, ALREADY_ANSWERED, ERROR }
+    enum class AnswerResult { CORRECT, WRONG, ALREADY_ANSWERED, ERROR }
 }

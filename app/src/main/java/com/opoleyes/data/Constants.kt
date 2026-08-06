@@ -59,15 +59,8 @@ object Constants {
         8 to "🎯 Simulacro",
     )
 
-    // Power-up gifts granted once when reaching the rank.
-    // Rank 0: 4x 50/50 only (simple onboarding, one powerup type).
-    // Rank 1: introduces Pista (4x hint) + 2x 50/50.
-    // Rank 2: introduces Escudo and x2 pts.
-    val RANK_POWERUP_REWARDS = mapOf(
-        0 to listOf("fiftyFifty", "fiftyFifty", "fiftyFifty", "fiftyFifty"),
-        1 to listOf("hint", "hint", "hint", "hint", "fiftyFifty", "fiftyFifty"),
-        2 to listOf("shield", "doubleScore"),
-    )
+    // Power-ups are now unlimited. No rank-based gifts needed.
+    // Penalty for using power-ups is applied as a points multiplier on correct answers.
 
     // Mechanics per rank.
     val MAX_OPTIONS_BY_RANK = mapOf(
@@ -85,16 +78,24 @@ object Constants {
         5 to 4, 6 to 5, 7 to 5, 8 to 5
     )
 
+    // Only 50/50 and Pista exist. Escudo and x2pts have been removed.
+    // 50/50 is available from rank 0, Pista unlocks at rank 1.
     val AVAILABLE_POWERUPS_BY_RANK = mapOf(
         0 to listOf("fiftyFifty"),
         1 to listOf("fiftyFifty", "hint"),
-        2 to listOf("shield", "doubleScore", "fiftyFifty", "hint"),
-        3 to listOf("shield", "doubleScore", "fiftyFifty", "hint"),
-        4 to listOf("shield", "doubleScore", "fiftyFifty", "hint"),
-        5 to listOf("shield", "doubleScore", "fiftyFifty", "hint"),
-        6 to listOf("shield", "doubleScore", "fiftyFifty", "hint"),
-        7 to listOf("shield", "doubleScore", "fiftyFifty", "hint"),
-        8 to listOf("shield", "doubleScore", "fiftyFifty", "hint"),
+        2 to listOf("fiftyFifty", "hint"),
+        3 to listOf("fiftyFifty", "hint"),
+        4 to listOf("fiftyFifty", "hint"),
+        5 to listOf("fiftyFifty", "hint"),
+        6 to listOf("fiftyFifty", "hint"),
+        7 to listOf("fiftyFifty", "hint"),
+        8 to listOf("fiftyFifty", "hint"),
+    )
+
+    // Points multiplier when a power-up was used on the correct answer.
+    val POWERUP_POINTS_MULTIPLIER = mapOf(
+        "hint" to 0.5f,      // Pista: 50% points
+        "fiftyFifty" to 0.25f // 50/50: 25% points
     )
 
     fun getRankByIndex(index: Int): Rank = RANKS.getOrElse(index) { RANKS.last() }

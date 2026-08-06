@@ -66,7 +66,6 @@ fun GameOverScreen(navController: NavController, gameViewModel: GameViewModel) {
     val rankUpOverlay by gameViewModel.rankUpOverlay.collectAsState()
     val quickRewardEarned by gameViewModel.quickRewardEarned.collectAsState()
     val quickRewardMissed by gameViewModel.quickRewardMissed.collectAsState()
-    val quickRewardPowerUp by gameViewModel.quickRewardPowerUp.collectAsState()
     val xpBreakdown by gameViewModel.xpBreakdown.collectAsState()
 
     var displayScore by remember { mutableStateOf(0) }
@@ -228,13 +227,6 @@ fun GameOverScreen(navController: NavController, gameViewModel: GameViewModel) {
 
             // Quick reward earned banner
             if (quickRewardEarned && uiState.mode == GameMode.QUICK) {
-                val (emoji, label) = when (quickRewardPowerUp) {
-                    "shield" -> "🛡️" to stringResource(R.string.shield)
-                    "hint" -> "💡" to stringResource(R.string.hint)
-                    "fiftyFifty" -> "✂️" to stringResource(R.string.fifty_fifty)
-                    "doubleScore" -> "✨" to stringResource(R.string.double_points)
-                    else -> "🎁" to "Power-up"
-                }
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -244,11 +236,11 @@ fun GameOverScreen(navController: NavController, gameViewModel: GameViewModel) {
                     contentAlignment = Alignment.Center
                 ) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
-                        Text(emoji, fontSize = 28.sp)
+                        Text("⭐", fontSize = 28.sp)
                         Spacer(Modifier.width(12.dp))
                         Column {
                             Text(stringResource(R.string.quick_reward_earned), color = Color.White, fontSize = 16.sp, fontWeight = FontWeight.Bold)
-                            Text("+1 $label", color = Color.White.copy(alpha = 0.8f), fontSize = 13.sp)
+                            Text("+50 XP bonus", color = Color.White.copy(alpha = 0.8f), fontSize = 13.sp)
                         }
                     }
                 }
@@ -456,20 +448,6 @@ fun ChestOverlay(chest: ChestReward, opened: Boolean, shakeCount: Int, onOpen: (
                         Text(typeLabel, color = typeColor, fontSize = 16.sp, fontWeight = FontWeight.Bold)
                         Spacer(Modifier.height(16.dp))
                         Text("+${chest.xp} XP", color = AccentLight, fontSize = 32.sp, fontWeight = FontWeight.Bold)
-                        if (chest.powerUps.isNotEmpty()) {
-                            Spacer(Modifier.height(12.dp))
-                            Row {
-                                chest.powerUps.forEach { pu ->
-                                    val puEmoji = when (pu) {
-                                        "shield" -> "🛡️"; "fiftyFifty" -> "✂️"; "hint" -> "💡"
-                                        "lifeRecovery" -> "❤️"; "doubleScore" -> "✨"
-                                        else -> "🎁"
-                                    }
-                                    Text(puEmoji, fontSize = 24.sp)
-                                    Spacer(Modifier.width(16.dp))
-                                }
-                            }
-                        }
                         if (chest.multiplier) {
                             Spacer(Modifier.height(12.dp))
                             Text(stringResource(R.string.next_xp_double), color = Warning, fontSize = 12.sp, fontWeight = FontWeight.Bold)
@@ -541,39 +519,6 @@ fun RankUpOverlayView(overlay: RankUpOverlay, onDismiss: () -> Unit) {
                             fontWeight = FontWeight.Bold,
                             modifier = Modifier.padding(horizontal = 20.dp, vertical = 12.dp)
                         )
-                    }
-                }
-
-                if (overlay.powerUpRewards.isNotEmpty()) {
-                    Spacer(Modifier.height(16.dp))
-                    Text(stringResource(R.string.powerups_received), color = TextLight, fontSize = 14.sp, fontWeight = FontWeight.Bold)
-                    Spacer(Modifier.height(8.dp))
-                    val powerUpIcons = mapOf(
-                        "shield" to "🛡️ Escudo",
-                        "hint" to "💡 Pista",
-                        "fiftyFifty" to "🎯 50/50",
-                        "doubleScore" to "✨ x2 pts"
-                    )
-                    val counts = overlay.powerUpRewards.groupingBy { it }.eachCount()
-                    Row(
-                        horizontalArrangement = Arrangement.spacedBy(8.dp),
-                        modifier = Modifier.fillMaxWidth(),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        counts.forEach { (id, count) ->
-                            Surface(
-                                shape = RoundedCornerShape(10.dp),
-                                color = TrackColorDim
-                            ) {
-                                Text(
-                                    "${powerUpIcons[id] ?: id} ${if (count > 1) "x$count" else ""}",
-                                    color = TextLight,
-                                    fontSize = 13.sp,
-                                    fontWeight = FontWeight.Medium,
-                                    modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp)
-                                )
-                            }
-                        }
                     }
                 }
 

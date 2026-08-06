@@ -65,21 +65,17 @@ class FakeProgressRepository : IProgressRepository {
 }
 
 class FakePreferencesManager : IPreferencesManager {
-    val _freePowerUps = mutableListOf<String>()
     var _debugMode = false
     val masteredLaws = mutableSetOf<String>()
     var xp = 0
     var _multiplier = 1
     override fun getXP() = xp
     override fun addXP(amount: Int): Int { xp += amount; return xp }
-    override fun getFreePowerUps() = _freePowerUps.toList()
-    override fun setFreePowerUps(list: List<String>) { _freePowerUps.clear(); _freePowerUps.addAll(list) }
-    override fun clearFreePowerUps() { _freePowerUps.clear() }
     override fun isDebugMode() = _debugMode
     override fun setDebugMode(enabled: Boolean) { _debugMode = enabled }
     override fun isLawMastered(testId: String) = testId in masteredLaws
     override fun setLawMastered(testId: String) { masteredLaws.add(testId) }
     override fun getMultiplier() = _multiplier
     override fun setMultiplier(value: Int) { _multiplier = value }
-    override fun resetAll() { _freePowerUps.clear(); _debugMode = false; masteredLaws.clear(); xp = 0; _multiplier = 1 }
+    override fun resetAll() { _debugMode = false; masteredLaws.clear(); xp = 0; _multiplier = 1 }
 }

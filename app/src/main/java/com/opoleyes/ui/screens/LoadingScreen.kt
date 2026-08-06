@@ -55,7 +55,6 @@ fun LoadingScreen(navController: NavController, gameViewModel: GameViewModel) {
             }
             withContext(Dispatchers.Default) {
                 MissionRepository(context).generateDailyMissions()
-                PreferencesManager(context).initPowerUpsIfNeeded()
                 ProgressRepository(context).getXPProgress()
                 StatsRepository(context).getStats()
                 DataProvider.getTestDataMap(context)

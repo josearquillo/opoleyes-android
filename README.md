@@ -124,13 +124,14 @@ opoleyes-android/
 
 ## Features
 
-- **5 game modes**: Supervivencia, Contrarreloj, Repaso Express (5 preguntas, power-up gratis si 5/5), Mini Examen, Simulacro
-- **7 ranks** with XP progression and mode/power-up unlocks
+- **5 game modes**: Supervivencia, Contrarreloj, Repaso Express (5 preguntas, +50 XP bonus si 5/5), Mini Examen, Simulacro
+- **7 ranks** with XP progression and mode/unlock progression
 - **Daily missions** (1-3 depending on rank) with XP rewards
-- **Power-ups**: Pista, Escudo, 50/50, x2 pts — received on rank-up and from chests
-- **Chest rewards** (Bronze/Silver/Gold) with XP, power-ups, and XP multiplier
+- **Power-ups**: Pista (50% points) and 50/50 (25% points) — unlimited usage with point penalties
+- **Chest rewards** (Bronze/Silver/Gold) with XP and XP multiplier
 - **Achievements** (30+) split into per-question (combo, firsts) and game-over (milestones)
 - **Combo system** with overcharge charges for life/time recovery
+- **Beginner-friendly**: first mistake forgiven at rank 0, combo forgiveness at ranks 0-1, 1 XP consolation per wrong answer at ranks 0-1
 - **Debug mode** (long-press title in Help) with sandboxed progress
 - **Lottie animations** for loading screen and chest openings
 

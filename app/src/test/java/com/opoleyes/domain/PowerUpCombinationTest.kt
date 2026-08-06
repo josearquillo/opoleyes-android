@@ -27,10 +27,6 @@ class PowerUpCombinationTest {
         engine.startAllLawsGame()
         engine.initGameStats()
         engine.nextQuestion()
-        engine.hintCharges = 99
-        engine.fiftyFiftyCharges = 99
-        engine.doubleScoreCharges = 99
-        engine.shieldCharges = 99
     }
 
     @After
@@ -43,7 +39,6 @@ class PowerUpCombinationTest {
         engine.fiftyFiftyRemoved = emptyList()
         engine.hintActive = false
         engine.hintRemoved = emptyList()
-        engine.doubleScoreActive = false
         engine.powerUpUsedThisQuestion = false
         engine.answered = false
         engine.selectedOption = null
@@ -153,42 +148,6 @@ class PowerUpCombinationTest {
         engine.useHint()
         assertFalse("Hint should NOT be active after 50/50", engine.hintActive)
         assertTrue("Should have at least 2 clickable", clickableOptions().size >= 2)
-    }
-
-    @Test
-    fun fun_mutualExclusivity_hintThenDoubleScore_blocked() {
-        resetPowerUpState()
-        engine.useHint()
-        assertTrue("Hint should be active", engine.hintActive)
-        engine.activateDoubleScore()
-        assertFalse("DoubleScore should NOT be active after hint", engine.doubleScoreActive)
-    }
-
-    @Test
-    fun fun_mutualExclusivity_doubleScoreThenHint_blocked() {
-        resetPowerUpState()
-        engine.activateDoubleScore()
-        assertTrue("DoubleScore should be active", engine.doubleScoreActive)
-        engine.useHint()
-        assertFalse("Hint should NOT be active after doubleScore", engine.hintActive)
-    }
-
-    @Test
-    fun fun_mutualExclusivity_fiftyFiftyThenDoubleScore_blocked() {
-        resetPowerUpState()
-        engine.activateFiftyFifty()
-        assertTrue("FiftyFifty should be active", engine.fiftyFiftyActive)
-        engine.activateDoubleScore()
-        assertFalse("DoubleScore should NOT be active after 50/50", engine.doubleScoreActive)
-    }
-
-    @Test
-    fun fun_mutualExclusivity_doubleScoreThenFiftyFifty_blocked() {
-        resetPowerUpState()
-        engine.activateDoubleScore()
-        assertTrue("DoubleScore should be active", engine.doubleScoreActive)
-        engine.activateFiftyFifty()
-        assertFalse("FiftyFifty should NOT be active after doubleScore", engine.fiftyFiftyActive)
     }
 
     @Test
@@ -392,7 +351,6 @@ class PowerUpCombinationTest {
         val actions = listOf(
             { e: GameEngine -> e.useHint() },
             { e: GameEngine -> e.activateFiftyFifty() },
-            { e: GameEngine -> e.activateDoubleScore() },
             { e: GameEngine -> } // no power-ups
         )
         repeat(10) { round ->

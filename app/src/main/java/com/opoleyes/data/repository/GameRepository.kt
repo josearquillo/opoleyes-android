@@ -118,14 +118,6 @@ open class GameRepository(private val context: Context) : com.opoleyes.data.IGam
         return pool.filter { it.difficulty <= maxDifficulty }
     }
 
-    fun getFreePowerUps(): List<String> = prefs.getFreePowerUps()
-    fun clearFreePowerUps() = prefs.clearFreePowerUps()
-    fun addFreePowerUps(list: List<String>) {
-        val current = prefs.getFreePowerUps().toMutableList()
-        current.addAll(list)
-        prefs.setFreePowerUps(current)
-    }
-
     fun getMultiplier(): Int = prefs.getMultiplier()
     fun setMultiplier(value: Int) = prefs.setMultiplier(value)
 }

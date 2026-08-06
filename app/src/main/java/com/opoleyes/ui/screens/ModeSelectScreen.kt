@@ -292,15 +292,6 @@ private fun QuickRewardDialog(
     onDismiss: () -> Unit,
     onStart: () -> Unit
 ) {
-    val rewardPowerUp = gameViewModel.getQuickRewardPowerUp()
-    val (emoji, label, color) = when (rewardPowerUp) {
-        "shield" -> Triple("🛡️", stringResource(R.string.shield), Primary)
-        "hint" -> Triple("💡", stringResource(R.string.hint), WarningDark)
-        "fiftyFifty" -> Triple("✂️", stringResource(R.string.fifty_fifty), Primary)
-        "doubleScore" -> Triple("✨", stringResource(R.string.double_points), Warning)
-        else -> Triple("🎁", "Power-up", Accent)
-    }
-
     AlertDialog(
         onDismissRequest = onDismiss,
         containerColor = BgCard,
@@ -319,14 +310,14 @@ private fun QuickRewardDialog(
                 Box(
                     modifier = Modifier
                         .clip(RoundedCornerShape(16.dp))
-                        .background(Brush.verticalGradient(listOf(color, color.copy(alpha = 0.7f))))
+                        .background(Brush.verticalGradient(listOf(Warning, Warning.copy(alpha = 0.7f))))
                         .padding(horizontal = 24.dp, vertical = 16.dp),
                     contentAlignment = Alignment.Center
                 ) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
-                        Text(emoji, fontSize = 32.sp)
+                        Text("⭐", fontSize = 32.sp)
                         Spacer(Modifier.width(12.dp))
-                        Text(label, color = Color.White, fontSize = 18.sp, fontWeight = FontWeight.Bold)
+                        Text("+50 XP", color = Color.White, fontSize = 18.sp, fontWeight = FontWeight.Bold)
                     }
                 }
             }

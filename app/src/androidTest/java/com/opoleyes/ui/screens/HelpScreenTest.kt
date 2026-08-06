@@ -89,7 +89,7 @@ class HelpScreenTest {
         composeRule.waitForIdle()
         composeRule.mainClock.advanceTimeBy(1000)
         composeRule.waitForIdle()
-        composeRule.onNodeWithText("Cofres").assertIsDisplayed()
+        composeRule.onNodeWithText("Bonus").assertIsDisplayed()
     }
 
     @Test

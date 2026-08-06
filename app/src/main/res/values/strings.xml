@@ -30,7 +30,7 @@
     <string name="mode_timetrial">Contrarreloj</string>
     <string name="mode_timetrial_desc">180s. +15s acierto, -10s fallo.</string>
     <string name="mode_quick">Repaso Express</string>
-    <string name="mode_quick_desc">5 preguntas de fallos previos. 5/5 = power-up gratis.</string>
+    <string name="mode_quick_desc">5 preguntas de fallos previos. 5/5 = +50 XP bonus.</string>
     <string name="mode_exam">Mini Examen</string>
     <string name="mode_exam_desc">Simula un examen. Sin vidas, sin power-ups, corrección al final.</string>
     <string name="mode_simulacro">Simulacro</string>
@@ -50,20 +50,18 @@
     <string name="dominated_suffix">%1$d%% dominado</string>
 
     <string name="quick_reward_title">¡Repaso Express!</string>
-    <string name="quick_reward_desc">Responde 5 preguntas de tus fallos previos. Si aciertas todas, recibes:</string>
+    <string name="quick_reward_desc">Responde 5 preguntas de tus fallos previos. Si aciertas todas, recibes +50 XP bonus.</string>
     <string name="quick_reward_start">Empezar</string>
     <string name="quick_reward_cancel">Cancelar</string>
-    <string name="quick_reward_earned">¡Power-up conseguido!</string>
+    <string name="quick_reward_earned">¡+50 XP bonus conseguido!</string>
     <string name="quick_reward_missed">¡Casi! Inténtalo de nuevo.</string>
 
     <!-- Game -->
     <string name="back_to_menu">¿Volver al menú?</string>
     <string name="lose_progress">Perderás tu progreso.</string>
     <string name="exit">Salir</string>
-    <string name="shield">Escudo</string>
     <string name="hint">Pista</string>
     <string name="fifty_fifty">50/50</string>
-    <string name="double_points">x2 pts</string>
 
     <!-- Game over -->
     <string name="game_over">Fin de partida</string>
@@ -160,17 +158,13 @@
     <string name="help_section_modes_title">Modos de juego</string>
     <string name="help_section_modes_l1">❤️ Supervivencia: Tienes vidas (más si eres principiante) y sin límite de tiempo. Falla todas tus vidas y se acaba.</string>
     <string name="help_section_modes_l2">⏱️ Contrarreloj: 3 minutos. Cada acierto suma 15 segundos, cada fallo resta 10. Se desbloquea al rango Estudiante.</string>
-    <string name="help_section_modes_l3">⚡ Repaso Express: 5 preguntas de las que has fallado antes, con 3 vidas. Sin power-ups. Si aciertas las 5, recibes un power-up gratis (mejor cuánto más difíciles sean tus fallos). Se desbloquea al rango Experto.</string>
+    <string name="help_section_modes_l3">⚡ Repaso Express: 5 preguntas de las que has fallado antes, con 3 vidas. Sin ayudas. Si aciertas las 5, recibes +50 XP bonus. Se desbloquea al rango Experto.</string>
     <string name="help_section_modes_l4">📝 Mini Examen: Simula un examen de 10 a 50 preguntas. Sin vidas, sin power-ups, corrección al final. Se desbloquea al rango Maestro.</string>
     <string name="help_section_modes_l5">🏆 Simulacro: 100 preguntas, 100 minutos. Réplica del examen oficial con pesos por ley, penalización (+0.60/−0.15) y nota sobre 60. Se desbloquea al aprobar un Mini Examen de 50 preguntas (disponible desde rango Maestro).</string>
     <string name="help_section_powerups_title">Ayudas (Power-ups)</string>
-    <string name="help_section_powerups_l1">💡 Pista: Quita una respuesta incorrecta de la pantalla.</string>
-    <string name="help_section_powerups_l2">🛡️ Escudo: Actívalo manualmente pulsando su botón. Si fallas, se consume y no te penaliza. Permanece activo hasta que falles. Es mutuamente excluyente con otras ayudas.</string>
-    <string name="help_section_powerups_l3">🎯 50/50: Elimina dos respuestas incorrectas de golpe.</string>
-    <string name="help_section_powerups_l4">✨ x2 pts: La próxima respuesta que aciertes vale el doble de puntos.</string>
-    <string name="help_section_powerups_l5">❤️ Recuperación: Cada 5 aciertos seguidos recuperas 1 vida automáticamente (Supervivencia y Repaso Express). Si ya tienes el máximo de vidas, recibes una carga de 50/50 en su lugar.</string>
-    <string name="help_section_powerups_l6">⏱️ En Contrarreloj, cada 5 aciertos seguidos te da +20 segundos extra.</string>
-    <string name="help_section_powerups_l7">📦 Las ayudas se consiguen al subir de rango (cargas gratis), al abrir bonus y al hacer 5/5 en Repaso Express. Se gastan al usarlas. Solo puedes usar una ayuda por pregunta.</string>
+    <string name="help_section_powerups_l1">💡 Pista: Quita una respuesta incorrecta de la pantalla. Acertar con Pista vale el 50%% de puntos.</string>
+    <string name="help_section_powerups_l2">🎯 50/50: Elimina dos respuestas incorrectas de golpe. Acertar con 50/50 vale el 25%% de puntos.</string>
+    <string name="help_section_powerups_l3">📦 Las ayudas son ilimitadas. Solo puedes usar una ayuda por pregunta. Usar una ayuda reduce los puntos que ganas al acertar.</string>
     <string name="help_section_combo_title">Combo</string>
     <string name="help_section_combo_l1">Cada vez que aciertes seguidas, tu combo sube.</string>
     <string name="help_section_combo_l2">Cuanto más alto sea el combo, más puntos ganas por respuesta (10 × combo).</string>
@@ -178,12 +172,12 @@
     <string name="help_section_combo_l4">Al llenarla, obtienes 3 cargas gratis que puedes canjear por vida extra o tiempo adicional.</string>
     <string name="help_section_ranks_title">Rangos</string>
     <string name="help_section_ranks_l1">Hay 7 rangos, desde Novato (0 XP) hasta Maestro (25.000 XP).</string>
-    <string name="help_section_ranks_l2">Cada rango desbloquea nuevos modos de juego, más misiones diarias y recibes cargas de ayudas gratis.</string>
+    <string name="help_section_ranks_l2">Cada rango desbloquea nuevos modos de juego, más misiones diarias y la ayuda Pista (rango 1).</string>
     <string name="help_section_ranks_l3">Gana XP acertando preguntas y completando misiones diarias.</string>
     <string name="help_section_bonus_title">Bonus</string>
-    <string name="help_section_bonus_l1">🥉 Bonus Bronce: 50–150 XP y 50% de probabilidad de una ayuda. Lo recibes con 60%+ de aciertos (mín. 3 preguntas).</string>
-    <string name="help_section_bonus_l2">🥈 Bonus Plata: 150–350 XP y una ayuda extra. Lo recibes con 80%+ de aciertos (mín. 5 preguntas) o batiendo récord con 70%+.</string>
-    <string name="help_section_bonus_l3">🥇 Bonus Oro: 300–600 XP, dos ayudas extra y doble XP en la próxima partida. Lo recibes batiendo récord con 90%+ de aciertos (mín. 10 preguntas).</string>
+    <string name="help_section_bonus_l1">🥉 Bonus Bronce: 50–150 XP. Lo recibes con 60%%+ de aciertos (mín. 3 preguntas).</string>
+    <string name="help_section_bonus_l2">🥈 Bonus Plata: 150–350 XP. Lo recibes con 80%%+ de aciertos (mín. 5 preguntas) o batiendo récord con 70%%+.</string>
+    <string name="help_section_bonus_l3">🥇 Bonus Oro: 300–600 XP y x2 XP en la próxima partida. Lo recibes batiendo récord con 90%%+ de aciertos (mín. 10 preguntas).</string>
     <string name="help_section_missions_title">Misiones diarias</string>
     <string name="help_section_missions_l1">Cada día recibes misiones nuevas y diferentes.</string>
     <string name="help_section_missions_l2">Puedes tener entre 1 y 3 misiones según tu rango.</string>
@@ -199,7 +193,6 @@
     <!-- Misc UI strings -->
     <string name="rank_up_message">¡Has subido a %1$s!</string>
     <string name="unlocked_label">Has desbloqueado:</string>
-    <string name="powerups_received">Ayudas recibidas:</string>
     <string name="achievement_unlocked">¡Logro desbloqueado!</string>
     <string name="achievement_unlocked_status">✅ Desbloqueado</string>
     <string name="achievement_locked_status">🔒 No desbloqueado</string>

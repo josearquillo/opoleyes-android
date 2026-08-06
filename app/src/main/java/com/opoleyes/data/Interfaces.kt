@@ -25,9 +25,6 @@ interface IProgressRepository {
 interface IPreferencesManager {
     fun getXP(): Int
     fun addXP(amount: Int): Int
-    fun getFreePowerUps(): List<String>
-    fun setFreePowerUps(list: List<String>)
-    fun clearFreePowerUps()
     fun isDebugMode(): Boolean
     fun setDebugMode(enabled: Boolean)
     fun isLawMastered(testId: String): Boolean

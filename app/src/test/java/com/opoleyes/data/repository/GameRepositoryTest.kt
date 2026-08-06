@@ -155,41 +155,6 @@ class GameRepositoryTest {
         }
     }
 
-    // === Power-ups round-trip ===
-
-    @Test
-    fun getFreePowerUps_emptyByDefault() {
-        assertTrue("Free power-ups should be empty by default", gameRepo.getFreePowerUps().isEmpty())
-    }
-
-    @Test
-    fun addFreePowerUps_addsToList() {
-        gameRepo.addFreePowerUps(listOf("shield", "hint"))
-        assertEquals(listOf("shield", "hint"), gameRepo.getFreePowerUps())
-    }
-
-    @Test
-    fun addFreePowerUps_appendsToExisting() {
-        gameRepo.addFreePowerUps(listOf("shield"))
-        gameRepo.addFreePowerUps(listOf("hint", "fiftyFifty"))
-        assertEquals(listOf("shield", "hint", "fiftyFifty"), gameRepo.getFreePowerUps())
-    }
-
-    @Test
-    fun clearFreePowerUps_emptiesList() {
-        gameRepo.addFreePowerUps(listOf("shield", "hint"))
-        gameRepo.clearFreePowerUps()
-        assertTrue("Free power-ups should be empty after clear", gameRepo.getFreePowerUps().isEmpty())
-    }
-
-    @Test
-    fun addFreePowerUps_thenClear_thenAddAgain_works() {
-        gameRepo.addFreePowerUps(listOf("shield"))
-        gameRepo.clearFreePowerUps()
-        gameRepo.addFreePowerUps(listOf("hint"))
-        assertEquals(listOf("hint"), gameRepo.getFreePowerUps())
-    }
-
     // === Multiplier round-trip ===
 
     @Test
