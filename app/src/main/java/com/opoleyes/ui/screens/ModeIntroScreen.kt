@@ -184,8 +184,6 @@ private fun buildIntroContent(mode: GameMode, rankIndex: Int): IntroContent {
 
 private fun buildSurvivalIntro(rankIndex: Int): IntroContent {
     val maxLives = Constants.MAX_LIVES_BY_RANK[rankIndex] ?: 3
-    val powerUps = Constants.AVAILABLE_POWERUPS_BY_RANK[rankIndex]
-        ?: listOf("fiftyFifty", "hint")
 
     val rankName = Constants.getRankByIndex(rankIndex).name
     val title = when (rankIndex) {
@@ -199,25 +197,19 @@ private fun buildSurvivalIntro(rankIndex: Int): IntroContent {
     val items = mutableListOf<IntroItem>()
     if (rankIndex == 0) {
         items.add(IntroItem("❤️", "$maxLives corazones · Primer fallo NO cuenta"))
-        items.add(IntroItem("🎯", "50/50 disponible desde el inicio"))
         items.add(IntroItem("❤️", "Cada 5 aciertos seguidos: vida extra"))
     } else if (rankIndex == 1) {
         items.add(IntroItem("❤️", "$maxLives corazones · Cada fallo resta 1 · Combos recuperan vida"))
-        items.add(IntroItem("🛡️", "Pista y 50/50 disponibles"))
         items.add(IntroItem("🔥", "Cada 5 aciertos seguidos: vida extra"))
     } else {
         items.add(IntroItem("❤️", "$maxLives corazones · Cada fallo resta 1 · Combos recuperan vida"))
-        if (powerUps.isEmpty())
-            items.add(IntroItem("🚫", "Sin power-ups"))
-        else
-            items.add(IntroItem("�", "Pista y 50/50 disponibles"))
         items.add(IntroItem("🔥", "Cada 5 aciertos seguidos: vida extra"))
     }
 
     val footer = when (rankIndex) {
-        0 -> "¡Sin presión! $maxLives corazones y tu primer fallo no cuenta. Tienes 50/50 para aprender."
-        1 -> "¡Nueva ayuda! Pista elimina una respuesta incorrecta. Sigue practicando."
-        2 -> "3 corazones y Pista + 50/50. ¡A por todas!"
+        0 -> "¡Sin presión! $maxLives corazones y tu primer fallo no cuenta."
+        1 -> "¡Sigue practicando! Los combos recuperan vida."
+        2 -> "$maxLives corazones. ¡A por todas!"
         else -> "Modo Supervivencia completo. ¡Buena suerte!"
     }
 
@@ -230,7 +222,6 @@ private fun buildTimetrialIntro(rankIndex: Int): IntroContent {
     val items = listOf(
         IntroItem("⏱️", "180 segundos. El reloj no se detiene."),
         IntroItem("✅", "Acierto: +15s · Fallo: -10s"),
-        IntroItem("🛡️", "Todos los power-ups disponibles"),
         IntroItem("🔥", "Cada 5 aciertos seguidos: +20s extra")
     )
 
@@ -247,8 +238,7 @@ private fun buildQuickIntro(@Suppress("UNUSED_PARAMETER") rankIndex: Int): Intro
     val items = listOf(
         IntroItem("⚡", "5 preguntas de tus fallos previos"),
         IntroItem("❤️", "3 corazones. 3 fallos = se acaba."),
-        IntroItem("🎁", "5/5 aciertos = power-up gratis"),
-        IntroItem("🛡️", "Todos los power-ups disponibles")
+        IntroItem("🎁", "5/5 aciertos = +50 XP bonus")
     )
 
     return IntroContent(

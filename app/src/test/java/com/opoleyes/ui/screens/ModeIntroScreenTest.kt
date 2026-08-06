@@ -78,7 +78,6 @@ class ModeIntroScreenTest {
         // Rank 0 (Novato): subtitle is "Rango: Novato"
         assertTextPresent("Rango: Novato")
         assertTextPresent("corazones")
-        assertTextPresent("50/50 disponible")
         assertTextPresent("Primer fallo NO cuenta")
     }
 

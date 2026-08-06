@@ -83,6 +83,7 @@ class GameEngine private constructor(
     var ctxFirstMistakeForgiven: Boolean = false
     var powerUpUsedThisQuestion: Boolean = false
     var powerUpUsedType: String = ""
+    var lastPtsEarned: Int = 0
     var consecutiveWrong: Int = 0
     var firstMistakeUsed: Boolean = false
 
@@ -233,6 +234,7 @@ class GameEngine private constructor(
                 val multiplier = Constants.POWERUP_POINTS_MULTIPLIER[powerUpUsedType] ?: 1f
                 pts = (pts * multiplier).toInt()
             }
+            lastPtsEarned = pts
             score += pts
             correctCount++
             // Increase session difficulty cap every 5 correct answers (per plan 2.2).

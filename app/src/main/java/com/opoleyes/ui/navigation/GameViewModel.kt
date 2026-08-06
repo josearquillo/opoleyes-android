@@ -489,6 +489,13 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
 
         when (result) {
             GameEngine.AnswerResult.CORRECT -> {
+                val pts = engine.lastPtsEarned
+                val powerUpLabel = when (engine.powerUpUsedType) {
+                    "fiftyFifty" -> " (50/50)"
+                    "hint" -> " (Pista)"
+                    else -> ""
+                }
+                addPopup("+$pts pts$powerUpLabel", com.opoleyes.ui.theme.AccentLight, 36, 0f, "✅")
                 if (engine.combo >= 3) {
                     val comboColor = when {
                         engine.combo >= 20 -> com.opoleyes.ui.theme.Warning
@@ -598,14 +605,6 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
 
         missionRepo.checkOnGameOver(mode, engine.maxCombo, engine.totalAnswered, engine.category, engine.correctCount, engine.score)
 
-        _xpGained.value = progressRepo.getXP() - engine.startXP
-        _xpBreakdown.value = buildGameXpBreakdown()
-
-        checkRankUp(engine.startRankIndex)
-
-        _homePreload = null
-        _profileData = null
-
         if (engine.mode == GameMode.QUICK && engine.totalAnswered >= Constants.QUICK_MODE_QUESTIONS) {
             if (engine.correctCount == engine.totalAnswered) {
                 _quickRewardEarned.value = true
@@ -614,6 +613,14 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
                 _quickRewardMissed.value = true
             }
         }
+
+        _xpGained.value = progressRepo.getXP() - engine.startXP
+        _xpBreakdown.value = buildGameXpBreakdown()
+
+        checkRankUp(engine.startRankIndex)
+
+        _homePreload = null
+        _profileData = null
 
         val chest = chestSystem.generateChest(_newRecord.value, acc, engine.totalAnswered, engine.score)
         _chestReward.value = chest
@@ -649,6 +656,14 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
                 label = "Esfuerzo ($wrongCount intentos)",
                 value = engine.xpFromConsolation,
                 color = Orange
+            ))
+        }
+        if (_quickRewardEarned.value) {
+            lines.add(XpLine(
+                icon = "⚡",
+                label = "Repaso Express perfecto",
+                value = 50,
+                color = Warning
             ))
         }
         missionRepo.getSessionCompletedMissions().forEach { m ->
