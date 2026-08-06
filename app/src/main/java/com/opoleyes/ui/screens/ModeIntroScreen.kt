@@ -184,7 +184,6 @@ private fun buildIntroContent(mode: GameMode, rankIndex: Int): IntroContent {
 
 private fun buildSurvivalIntro(rankIndex: Int): IntroContent {
     val maxLives = Constants.MAX_LIVES_BY_RANK[rankIndex] ?: 3
-    val maxDiff = Constants.MAX_DIFFICULTY_BY_RANK[rankIndex] ?: 5
     val powerUps = Constants.AVAILABLE_POWERUPS_BY_RANK[rankIndex]
         ?: listOf("shield", "doubleScore", "fiftyFifty", "hint")
 
@@ -200,17 +199,14 @@ private fun buildSurvivalIntro(rankIndex: Int): IntroContent {
     val items = mutableListOf<IntroItem>()
     if (rankIndex == 0) {
         items.add(IntroItem("❤️", "$maxLives corazones · Primer fallo NO cuenta"))
-        items.add(IntroItem("", "Dificultad progresa de 1 a $maxDiff"))
         items.add(IntroItem("🎯", "50/50 disponible desde el inicio"))
-        items.add(IntroItem("�", "Cada 5 aciertos seguidos: vida extra"))
+        items.add(IntroItem("❤️", "Cada 5 aciertos seguidos: vida extra"))
     } else if (rankIndex == 1) {
         items.add(IntroItem("❤️", "$maxLives corazones · Cada fallo resta 1 · Combos recuperan vida"))
-        items.add(IntroItem("", "Dificultad progresa de 1 a $maxDiff"))
         items.add(IntroItem("🛡️", "Pista y 50/50 disponibles"))
         items.add(IntroItem("🔥", "Cada 5 aciertos seguidos: vida extra"))
     } else {
         items.add(IntroItem("❤️", "$maxLives corazones · Cada fallo resta 1 · Combos recuperan vida"))
-        items.add(IntroItem("", "Dificultad progresa de 1 a $maxDiff"))
         if (powerUps.isEmpty())
             items.add(IntroItem("🚫", "Sin power-ups"))
         else

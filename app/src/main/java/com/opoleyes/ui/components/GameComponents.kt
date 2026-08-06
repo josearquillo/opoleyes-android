@@ -553,10 +553,10 @@ private fun HeartIcon(
         label = "popScale"
     )
 
-    // 32dp container - enough room for heart and effects
+    // 24dp container - compact for 7-heart HUD on mobile
     Box(
         contentAlignment = Alignment.Center,
-        modifier = Modifier.size(32.dp)
+        modifier = Modifier.size(24.dp)
     ) {
         // Red glow behind heart during tremble
         if (animatedGlow > 0f) {
@@ -648,7 +648,7 @@ private fun HeartIcon(
                 contentDescription = "Vida",
                 tint = Danger,
                 modifier = Modifier
-                    .size(24.dp)
+                    .size(20.dp)
                     .scale(animatedPopScale * heartPulse)
             )
         } else if (shatterPhase in 1..2 && animatedShatterAlpha > 0f) {
@@ -658,7 +658,7 @@ private fun HeartIcon(
                 contentDescription = "Vida perdida",
                 tint = Danger.copy(alpha = animatedShatterAlpha),
                 modifier = Modifier
-                    .size(24.dp)
+                    .size(20.dp)
                     .scale(animatedShatterScale)
                     .graphicsLayer {
                         rotationZ = animatedShatterRotation
@@ -679,7 +679,7 @@ fun ComboBar(
     modifier: Modifier = Modifier
 ) {
     Column(
-        modifier = modifier.padding(horizontal = 60.dp),
+        modifier = modifier.padding(horizontal = 24.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         // Combo multiplier + streak text above the bar

@@ -126,7 +126,7 @@ fun GameScreen(navController: NavController, gameViewModel: GameViewModel) {
     LaunchedEffect(uiState.answered) {
         if (uiState.answered && !autoAdvanceTriggered) {
             autoAdvanceTriggered = true
-            val delayMs = if (uiState.mode == GameMode.QUICK && uiState.selectedOption != q.correct) 3500L else 1500L
+            val delayMs = if (uiState.mode == GameMode.QUICK && uiState.selectedOption != q.correct) 3500L else 2000L
             delay(delayMs)
             if (gameViewModel.isGameOver()) {
                 gameViewModel.onGameOver()

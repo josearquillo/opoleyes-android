@@ -26,7 +26,7 @@
     <!-- Mode select -->
     <string name="select_mode">Selecciona modo</string>
     <string name="mode_survival">Supervivencia</string>
-    <string name="mode_survival_desc">3 vidas, sin tiempo. Los combos recuperan vida.</string>
+    <string name="mode_survival_desc">Vidas según tu rango, sin tiempo. Los combos recuperan vida.</string>
     <string name="mode_timetrial">Contrarreloj</string>
     <string name="mode_timetrial_desc">180s. +15s acierto, -10s fallo.</string>
     <string name="mode_quick">Repaso Express</string>
@@ -40,7 +40,7 @@
     <string name="question_count">Número de preguntas</string>
     <string name="questions_count">%1$d preguntas</string>
     <string name="exam_unlock_next">Aprueba el examen de %1$d preguntas para desbloquear %2$d</string>
-    <string name="simulacro_unlock_rank">Veterano</string>
+    <string name="simulacro_unlock_rank">Maestro</string>
     <string name="simulacro_unlock_exam">+ aprobar 50</string>
 
     <!-- Tema select -->
@@ -122,9 +122,9 @@
     <string name="simulacro_info_time_title">100 minutos</string>
     <string name="simulacro_info_time_desc">Tienes tiempo limitado, como en el examen real. El reloj no se detiene.</string>
     <string name="simulacro_info_weights_title">Preguntas por ley</string>
-    <string name="simulacro_info_weights_desc">Distribuidas según los pesos oficiales: LOPJ 28%, LEC 22%, CE 20%, etc.</string>
+    <string name="simulacro_info_weights_desc">Distribuidas según los pesos oficiales del examen.</string>
     <string name="simulacro_info_scoring_title">Puntuación oficial</string>
-    <string name="simulacro_info_scoring_desc">Cada acierto suma 0.60 puntos. Cada fallo resta 0.15. Máximo: 60 puntos. Aprobado: 30 puntos.</string>
+    <string name="simulacro_info_scoring_desc">Cada acierto +0.60, cada fallo −0.15. Aprobado: 30 puntos.</string>
     <string name="simulacro_start">Comenzar Simulacro</string>
     <string name="intro_dont_show_again">No mostrar más</string>
     <string name="intro_play">Jugar</string>
@@ -158,17 +158,17 @@
     <string name="help_section_objective_l2">Gana puntos de experiencia (XP), sube de rango y desbloquea nuevos modos de juego.</string>
     <string name="help_section_objective_l3">Supera tus récords y domina todas las leyes.</string>
     <string name="help_section_modes_title">Modos de juego</string>
-    <string name="help_section_modes_l1">❤️ Supervivencia: Tienes 3 vidas y sin límite de tiempo. Falla 3 veces y se acaba.</string>
-    <string name="help_section_modes_l2">⏱️ Contrarreloj: 3 minutos. Cada acierto suma 15 segundos, cada fallo resta 10. Se desbloquea al rango 1.</string>
-    <string name="help_section_modes_l3">⚡ Repaso Express: 5 preguntas de las que has fallado antes, con 3 vidas. Sin power-ups. Si aciertas las 5, recibes un power-up gratis (mejor cuánto más difíciles sean tus fallos). Se desbloquea al rango 3.</string>
-    <string name="help_section_modes_l4">📝 Mini Examen: Simula un examen de 10 a 50 preguntas. Sin vidas, sin power-ups, corrección al final. Se desbloquea al rango 5.</string>
-    <string name="help_section_modes_l5">🏆 Simulacro: 100 preguntas, 100 minutos. Réplica del examen oficial con pesos por ley, penalización (+0.60/−0.15) y nota sobre 60. Se desbloquea al aprobar un Mini Examen de 50 preguntas (disponible desde rango Veterano).</string>
+    <string name="help_section_modes_l1">❤️ Supervivencia: Tienes vidas (más si eres principiante) y sin límite de tiempo. Falla todas tus vidas y se acaba.</string>
+    <string name="help_section_modes_l2">⏱️ Contrarreloj: 3 minutos. Cada acierto suma 15 segundos, cada fallo resta 10. Se desbloquea al rango Estudiante.</string>
+    <string name="help_section_modes_l3">⚡ Repaso Express: 5 preguntas de las que has fallado antes, con 3 vidas. Sin power-ups. Si aciertas las 5, recibes un power-up gratis (mejor cuánto más difíciles sean tus fallos). Se desbloquea al rango Experto.</string>
+    <string name="help_section_modes_l4">📝 Mini Examen: Simula un examen de 10 a 50 preguntas. Sin vidas, sin power-ups, corrección al final. Se desbloquea al rango Maestro.</string>
+    <string name="help_section_modes_l5">🏆 Simulacro: 100 preguntas, 100 minutos. Réplica del examen oficial con pesos por ley, penalización (+0.60/−0.15) y nota sobre 60. Se desbloquea al aprobar un Mini Examen de 50 preguntas (disponible desde rango Maestro).</string>
     <string name="help_section_powerups_title">Ayudas (Power-ups)</string>
     <string name="help_section_powerups_l1">💡 Pista: Quita una respuesta incorrecta de la pantalla.</string>
     <string name="help_section_powerups_l2">🛡️ Escudo: Actívalo manualmente pulsando su botón. Si fallas, se consume y no te penaliza. Permanece activo hasta que falles. Es mutuamente excluyente con otras ayudas.</string>
     <string name="help_section_powerups_l3">🎯 50/50: Elimina dos respuestas incorrectas de golpe.</string>
     <string name="help_section_powerups_l4">✨ x2 pts: La próxima respuesta que aciertes vale el doble de puntos.</string>
-    <string name="help_section_powerups_l5">❤️ Recuperación: Cada 5 aciertos seguidos recuperas 1 vida automáticamente (Solo Supervivencia). Si ya tienes 3 vidas, recibes una carga de 50/50 en su lugar.</string>
+    <string name="help_section_powerups_l5">❤️ Recuperación: Cada 5 aciertos seguidos recuperas 1 vida automáticamente (Supervivencia y Repaso Express). Si ya tienes el máximo de vidas, recibes una carga de 50/50 en su lugar.</string>
     <string name="help_section_powerups_l6">⏱️ En Contrarreloj, cada 5 aciertos seguidos te da +20 segundos extra.</string>
     <string name="help_section_powerups_l7">📦 Las ayudas se consiguen al subir de rango (cargas gratis), al abrir bonus y al hacer 5/5 en Repaso Express. Se gastan al usarlas. Solo puedes usar una ayuda por pregunta.</string>
     <string name="help_section_combo_title">Combo</string>

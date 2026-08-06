@@ -210,19 +210,19 @@ fun ProfileScreen(navController: NavController, gameViewModel: GameViewModel) {
         Text(stringResource(R.string.achievements, achievements.size, Constants.ACHIEVEMENTS.size), color = TextLight, fontSize = 18.sp, fontWeight = FontWeight.Bold)
         Spacer(Modifier.height(12.dp))
         // Use a simple grid via Rows
-        val chunked = Constants.ACHIEVEMENTS.chunked(4)
+        val chunked = Constants.ACHIEVEMENTS.chunked(3)
         chunked.forEach { row ->
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
                 row.forEach { ach ->
                     val isUnlocked = achievements.containsKey(ach.id)
                     Column(
                         modifier = Modifier
-                            .width(76.dp)
+                            .width(100.dp)
                             .clip(RoundedCornerShape(12.dp))
                             .background(BgCard.copy(alpha = if (isUnlocked) 1f else 0.3f))
                             .alpha(if (isUnlocked) 1f else 0.3f)
                             .clickable { selectedAchievement = ach }
-                            .padding(6.dp),
+                            .padding(8.dp),
                         horizontalAlignment = Alignment.CenterHorizontally,
                         verticalArrangement = Arrangement.Center
                     ) {

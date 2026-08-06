@@ -521,7 +521,7 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
                         engine.combo >= 10 -> com.opoleyes.ui.theme.Danger
                         else -> com.opoleyes.ui.theme.Orange
                     }
-                    addPopup("COMBO x${engine.combo}", comboColor, 40, 0.15f, "🔥")
+                    addPopup("COMBO x${engine.combo}", comboColor, 40, 0f, "🔥")
                 }
                 if (engine.streak > 0 && engine.streak % 5 == 0) {
                     val streakMsg = when {
@@ -534,7 +534,7 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
                         engine.mode == GameMode.TIMETRIAL -> "⏱️"
                         else -> "⚡"
                     }
-                    addPopup(streakMsg, com.opoleyes.ui.theme.Warning, 38, 0.45f, streakIcon)
+                    addPopup(streakMsg, com.opoleyes.ui.theme.Warning, 38, 0f, streakIcon)
                 }
                 if (engine.comboOverchargeActive && engine.comboOverchargeCharges == 3) {
                     addPopup("¡OVERCHARGE!", com.opoleyes.ui.theme.Warning, 48, 0f, "⚡")
@@ -543,7 +543,7 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
             }
             GameEngine.AnswerResult.WRONG -> {
                 if (engine.ctxFirstMistakeForgiven) {
-                    addPopup("¡Primer fallo sin contar! Estás aprendiendo 💪", com.opoleyes.ui.theme.Success, 38, 0.45f, "🛡️")
+                    addPopup("¡Primer fallo sin contar! Estás aprendiendo 💪", com.opoleyes.ui.theme.Success, 38, 0f, "🛡️")
                 }
                 checkAchievementsPerQuestion(AchievementContext(maxCombo = engine.maxCombo, maxOptions = engine.maxOptions))
             }

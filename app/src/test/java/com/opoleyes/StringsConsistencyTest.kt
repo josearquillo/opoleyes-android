@@ -41,7 +41,7 @@ class StringsConsistencyTest {
         // Fix: added string resources simulacro_unlock_rank and simulacro_unlock_exam
         val rank = ctx.getString(com.opoleyes.R.string.simulacro_unlock_rank)
         val exam = ctx.getString(com.opoleyes.R.string.simulacro_unlock_exam)
-        assertEquals("Veterano", rank)
+        assertEquals("Maestro", rank)
         assertEquals("+ aprobar 50", exam)
     }
 

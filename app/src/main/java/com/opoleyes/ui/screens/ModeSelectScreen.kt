@@ -45,10 +45,10 @@ fun ModeSelectScreen(navController: NavController, gameViewModel: GameViewModel)
 
     val modes = listOf(
         ModeInfo(GameMode.SURVIVAL, Icons.Default.Favorite, stringResource(R.string.mode_survival), stringResource(R.string.mode_survival_desc), true, 0),
-        ModeInfo(GameMode.TIMETRIAL, Icons.Default.Timer, stringResource(R.string.mode_timetrial), stringResource(R.string.mode_timetrial_desc), unlocks.timetrial, 1),
-        ModeInfo(GameMode.QUICK, Icons.Default.Bolt, stringResource(R.string.mode_quick), stringResource(R.string.mode_quick_desc), unlocks.quick, 3),
-        ModeInfo(GameMode.EXAM, Icons.AutoMirrored.Filled.Assignment, stringResource(R.string.mode_exam), stringResource(R.string.mode_exam_desc), unlocks.exam, 5),
-        ModeInfo(GameMode.SIMULACRO, Icons.Default.EmojiEvents, stringResource(R.string.mode_simulacro), stringResource(R.string.mode_simulacro_desc), unlocks.simulacro, 6),
+        ModeInfo(GameMode.TIMETRIAL, Icons.Default.Timer, stringResource(R.string.mode_timetrial), stringResource(R.string.mode_timetrial_desc), unlocks.timetrial, 3),
+        ModeInfo(GameMode.QUICK, Icons.Default.Bolt, stringResource(R.string.mode_quick), stringResource(R.string.mode_quick_desc), unlocks.quick, 5),
+        ModeInfo(GameMode.EXAM, Icons.AutoMirrored.Filled.Assignment, stringResource(R.string.mode_exam), stringResource(R.string.mode_exam_desc), unlocks.exam, 7),
+        ModeInfo(GameMode.SIMULACRO, Icons.Default.EmojiEvents, stringResource(R.string.mode_simulacro), stringResource(R.string.mode_simulacro_desc), unlocks.simulacro, 7),
     )
 
     var showExamDialog by remember { mutableStateOf(false) }
@@ -183,7 +183,7 @@ private fun ModeCard(mode: ModeInfo, enabled: Boolean = true, onClick: () -> Uni
             Spacer(Modifier.width(16.dp))
             Column(modifier = Modifier.weight(1f)) {
                 Text(mode.name, color = if (locked) TextDim else Color.White, fontSize = 20.sp, fontWeight = FontWeight.Bold)
-                Text(mode.desc, color = if (locked) TextDim else Color.White.copy(alpha = 0.8f), fontSize = 13.sp)
+                Text(mode.desc, color = if (locked) TextDim else Color.White.copy(alpha = 0.8f), fontSize = 13.sp, maxLines = 2, overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis)
             }
             if (locked) {
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
