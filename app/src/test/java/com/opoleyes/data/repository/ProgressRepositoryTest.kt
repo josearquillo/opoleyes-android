@@ -271,7 +271,8 @@ class ProgressRepositoryTest {
     fun getRankPowerUpGifts_rank0_returnsFiftyFiftyAndHint() {
         val gifts = repo.getRankPowerUpGifts(0)
         assertTrue("Rank 0 should grant fiftyFifty", gifts.contains("fiftyFifty"))
-        assertTrue("Rank 0 should grant hint", gifts.contains("hint"))
+        assertTrue("Rank 0 should grant only fiftyFifty (hint introduced at rank 1)",
+            gifts.all { it == "fiftyFifty" })
     }
 
     @Test

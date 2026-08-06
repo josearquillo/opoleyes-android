@@ -198,17 +198,29 @@ private fun buildSurvivalIntro(rankIndex: Int): IntroContent {
     val subtitle = "Rango: $rankName"
 
     val items = mutableListOf<IntroItem>()
-    items.add(IntroItem("❤️", "$maxLives corazones · Cada fallo resta 1 · Combos recuperan vida"))
-    items.add(IntroItem("", "Dificultad progresa de 1 a $maxDiff"))
-    if (powerUps.isEmpty())
-        items.add(IntroItem("🚫", "Sin power-ups"))
-    else
-        items.add(IntroItem("�", "Pista y 50/50 disponibles desde el inicio"))
-    items.add(IntroItem("🔥", "Cada 5 aciertos seguidos: vida extra"))
+    if (rankIndex == 0) {
+        items.add(IntroItem("❤️", "$maxLives corazones · Primer fallo NO cuenta"))
+        items.add(IntroItem("", "Dificultad progresa de 1 a $maxDiff"))
+        items.add(IntroItem("🎯", "50/50 disponible desde el inicio"))
+        items.add(IntroItem("�", "Cada 5 aciertos seguidos: vida extra"))
+    } else if (rankIndex == 1) {
+        items.add(IntroItem("❤️", "$maxLives corazones · Cada fallo resta 1 · Combos recuperan vida"))
+        items.add(IntroItem("", "Dificultad progresa de 1 a $maxDiff"))
+        items.add(IntroItem("🛡️", "Pista y 50/50 disponibles"))
+        items.add(IntroItem("🔥", "Cada 5 aciertos seguidos: vida extra"))
+    } else {
+        items.add(IntroItem("❤️", "$maxLives corazones · Cada fallo resta 1 · Combos recuperan vida"))
+        items.add(IntroItem("", "Dificultad progresa de 1 a $maxDiff"))
+        if (powerUps.isEmpty())
+            items.add(IntroItem("🚫", "Sin power-ups"))
+        else
+            items.add(IntroItem("🛡️", "Todos los power-ups disponibles"))
+        items.add(IntroItem("🔥", "Cada 5 aciertos seguidos: vida extra"))
+    }
 
     val footer = when (rankIndex) {
-        0 -> "¡Sin presión! 5 corazones. Tienes Pista y 50/50 gratis para aprender."
-        1 -> "Sigue aprendiendo con Pista y 50/50. ¡Tú puedes!"
+        0 -> "¡Sin presión! $maxLives corazones y tu primer fallo no cuenta. Tienes 50/50 gratis para aprender."
+        1 -> "¡Nueva ayuda! Pista elimina una respuesta incorrecta. Sigue practicando."
         2 -> "3 corazones y todos los power-ups. ¡A por todas!"
         else -> "Modo Supervivencia completo. ¡Buena suerte!"
     }

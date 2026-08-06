@@ -70,9 +70,11 @@ class PreferencesManagerIntroTest {
     // === initPowerUpsIfNeeded ===
 
     @Test
-    fun initPowerUpsIfNeeded_firstTime_initializesEmptyList() {
+    fun initPowerUpsIfNeeded_firstTime_initializesWithRank0Rewards() {
         prefs.initPowerUpsIfNeeded()
-        assertTrue("After init, free power-ups should be empty list", prefs.getFreePowerUps().isEmpty())
+        val powerUps = prefs.getFreePowerUps()
+        assertEquals("After init, should have 4 fiftyFifty from rank 0 rewards", 4, powerUps.size)
+        assertTrue("All should be fiftyFifty", powerUps.all { it == "fiftyFifty" })
     }
 
     @Test

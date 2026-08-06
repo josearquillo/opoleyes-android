@@ -60,9 +60,12 @@ object Constants {
     )
 
     // Power-up gifts granted once when reaching the rank.
+    // Rank 0: 4x 50/50 only (simple onboarding, one powerup type).
+    // Rank 1: introduces Pista (4x hint) + 2x 50/50.
+    // Rank 2: introduces Escudo and x2 pts.
     val RANK_POWERUP_REWARDS = mapOf(
-        0 to listOf("fiftyFifty", "hint"),
-        1 to listOf("fiftyFifty", "hint"),
+        0 to listOf("fiftyFifty", "fiftyFifty", "fiftyFifty", "fiftyFifty"),
+        1 to listOf("hint", "hint", "hint", "hint", "fiftyFifty", "fiftyFifty"),
         2 to listOf("shield", "doubleScore"),
     )
 
@@ -73,7 +76,7 @@ object Constants {
     )
 
     val MAX_LIVES_BY_RANK = mapOf(
-        0 to 5, 1 to 4, 2 to 3, 3 to 3, 4 to 3,
+        0 to 7, 1 to 5, 2 to 3, 3 to 3, 4 to 3,
         5 to 3, 6 to 3, 7 to 3, 8 to 3
     )
 
@@ -83,7 +86,7 @@ object Constants {
     )
 
     val AVAILABLE_POWERUPS_BY_RANK = mapOf(
-        0 to listOf("fiftyFifty", "hint"),
+        0 to listOf("fiftyFifty"),
         1 to listOf("fiftyFifty", "hint"),
         2 to listOf("shield", "doubleScore", "fiftyFifty", "hint"),
         3 to listOf("shield", "doubleScore", "fiftyFifty", "hint"),

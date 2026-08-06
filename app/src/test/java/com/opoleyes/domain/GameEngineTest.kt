@@ -1324,4 +1324,149 @@ class GameEngineTest {
         assertEquals(15, engine.streak)
         assertTrue("doubleScore should be awarded at streak 15 in SURVIVAL", engine.doubleScoreCharges > 0)
     }
+
+    // === Beginner mechanics tests (rank 0/1) ===
+
+    @Test
+    fun fun_rank0_firstMistakeForgiven() {
+        progressRepo._rankIndex = 0
+        engine.startAllLawsGame()
+        engine.shieldCharges = 0
+        engine.nextQuestion()
+        val livesBefore = engine.lives
+        val q = engine.currentQ!!
+        val wrong = listOf("A", "B", "C", "D").first { it != q.correct }
+        engine.answer(wrong)
+        assertEquals("First mistake at rank 0 should not cost a life",
+            livesBefore, engine.lives)
+        assertTrue("ctxFirstMistakeForgiven should be true", engine.ctxFirstMistakeForgiven)
+    }
+
+    @Test
+    fun fun_rank0_secondMistakeCostsLife() {
+        progressRepo._rankIndex = 0
+        engine.startAllLawsGame()
+        engine.shieldCharges = 0
+        engine.nextQuestion()
+        val livesBefore = engine.lives
+        // First wrong (forgiven)
+        val q1 = engine.currentQ!!
+        val wrong1 = listOf("A", "B", "C", "D").first { it != q1.correct }
+        engine.answer(wrong1)
+        assertEquals(livesBefore, engine.lives)
+        // Second wrong (costs life)
+        engine.nextQuestion()
+        val q2 = engine.currentQ!!
+        val wrong2 = listOf("A", "B", "C", "D").first { it != q2.correct }
+        engine.answer(wrong2)
+        assertEquals("Second mistake at rank 0 should cost a life",
+            livesBefore - 1, engine.lives)
+    }
+
+    @Test
+    fun fun_rank0_comboHalvedOnWrong() {
+        progressRepo._rankIndex = 0
+        engine.startAllLawsGame()
+        engine.shieldCharges = 0
+        engine.nextQuestion()
+        engine.answer(engine.currentQ!!.correct)
+        engine.nextQuestion()
+        engine.answer(engine.currentQ!!.correct)
+        engine.nextQuestion()
+        engine.answer(engine.currentQ!!.correct)
+        assertEquals(3, engine.combo)
+        engine.nextQuestion()
+        val q = engine.currentQ!!
+        val wrong = listOf("A", "B", "C", "D").first { it != q.correct }
+        engine.answer(wrong)
+        assertEquals("Combo should be halved (3/2=1) at rank 0", 1, engine.combo)
+    }
+
+    @Test
+    fun fun_rank2_comboResetOnWrong() {
+        progressRepo._rankIndex = 2
+        engine.startAllLawsGame()
+        engine.shieldCharges = 0
+        engine.nextQuestion()
+        engine.answer(engine.currentQ!!.correct)
+        engine.nextQuestion()
+        engine.answer(engine.currentQ!!.correct)
+        engine.nextQuestion()
+        engine.answer(engine.currentQ!!.correct)
+        assertEquals(3, engine.combo)
+        engine.nextQuestion()
+        val q = engine.currentQ!!
+        val wrong = listOf("A", "B", "C", "D").first { it != q.correct }
+        engine.answer(wrong)
+        assertEquals("Combo should be reset to 0 at rank 2", 0, engine.combo)
+    }
+
+    @Test
+    fun fun_rank0_xpConsolationOnWrong() {
+        progressRepo._rankIndex = 0
+        engine.startAllLawsGame()
+        engine.shieldCharges = 0
+        val xpBefore = progressRepo.getXP()
+        engine.nextQuestion()
+        val q = engine.currentQ!!
+        val wrong = listOf("A", "B", "C", "D").first { it != q.correct }
+        engine.answer(wrong)
+        assertEquals("XP consolation of 3 should be granted at rank 0",
+            3, progressRepo.getXP() - xpBefore)
+        assertTrue("xpFromConsolation should be 3", engine.xpFromConsolation == 3)
+    }
+
+    @Test
+    fun fun_rank2_noXpConsolationOnWrong() {
+        progressRepo._rankIndex = 2
+        engine.startAllLawsGame()
+        engine.shieldCharges = 0
+        val xpBefore = progressRepo.getXP()
+        engine.nextQuestion()
+        val q = engine.currentQ!!
+        val wrong = listOf("A", "B", "C", "D").first { it != q.correct }
+        engine.answer(wrong)
+        assertEquals("No XP consolation at rank 2", 0, progressRepo.getXP() - xpBefore)
+    }
+
+    @Test
+    fun fun_rank0_adaptiveDifficultyLowersAfter2Wrong() {
+        progressRepo._rankIndex = 0
+        engine.startAllLawsGame()
+        engine.shieldCharges = 0
+        engine.sessionDifficultyCap = 2
+        engine.nextQuestion()
+        engine.answer(listOf("A", "B", "C", "D").first { it != engine.currentQ!!.correct })
+        assertEquals("Cap should still be 2 after 1 wrong", 2, engine.sessionDifficultyCap)
+        engine.nextQuestion()
+        engine.answer(listOf("A", "B", "C", "D").first { it != engine.currentQ!!.correct })
+        assertEquals("Cap should lower to 1 after 2 consecutive wrong", 1, engine.sessionDifficultyCap)
+    }
+
+    @Test
+    fun fun_rank0_adaptiveDifficultyResetsOnCorrect() {
+        progressRepo._rankIndex = 0
+        engine.startAllLawsGame()
+        engine.shieldCharges = 0
+        engine.sessionDifficultyCap = 2
+        engine.nextQuestion()
+        engine.answer(listOf("A", "B", "C", "D").first { it != engine.currentQ!!.correct })
+        assertEquals(1, engine.consecutiveWrong)
+        engine.nextQuestion()
+        engine.answer(engine.currentQ!!.correct)
+        assertEquals("consecutiveWrong should reset on correct", 0, engine.consecutiveWrong)
+    }
+
+    @Test
+    fun fun_rank0_adaptiveDifficultyMinIs1() {
+        progressRepo._rankIndex = 0
+        engine.startAllLawsGame()
+        engine.shieldCharges = 0
+        engine.sessionDifficultyCap = 1
+        engine.nextQuestion()
+        engine.answer(listOf("A", "B", "C", "D").first { it != engine.currentQ!!.correct })
+        engine.nextQuestion()
+        engine.answer(listOf("A", "B", "C", "D").first { it != engine.currentQ!!.correct })
+        assertEquals("Cap should not go below 1", 1, engine.sessionDifficultyCap)
+    }
 }

@@ -106,6 +106,7 @@ class GameRulesSpecTest {
     @Test
     fun timetrial_wrong_subtracts10Seconds() {
         // Help: "Contrarreloj: ... fallo resta 10"
+        engine.rankIndex = 2 // avoid rank-0 first mistake forgiveness
         engine.mode = GameMode.TIMETRIAL
         engine.timer = 100f
         engine.answered = false

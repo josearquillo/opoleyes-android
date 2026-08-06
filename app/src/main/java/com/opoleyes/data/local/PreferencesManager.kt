@@ -3,6 +3,7 @@ package com.opoleyes.data.local
 import android.content.Context
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
+import com.opoleyes.data.Constants
 import com.opoleyes.data.model.MissionData
 import com.opoleyes.data.model.QuestionStat
 import com.opoleyes.data.model.SimulacroHistoryEntry
@@ -45,11 +46,10 @@ open class PreferencesManager(private val context: Context) : com.opoleyes.data.
 
     fun initPowerUpsIfNeeded() {
         if (!prefs.getBoolean(POWERUPS_INITIALIZED, false)) {
-            // New users start with no stored power-ups. Free charges of
-            // Pista and 50/50 are given per-game in GameEngine.initGameStats()
-            // for ranks 0-1. Stored power-ups come from rank-up rewards and
-            // chests.
-            setFreePowerUps(emptyList())
+            // New users start with the rank 0 power-up gift (4x 50/50).
+            // Additional power-ups come from rank-up rewards and chests.
+            val initialPowerUps = Constants.RANK_POWERUP_REWARDS[0] ?: emptyList()
+            setFreePowerUps(initialPowerUps)
             prefs.edit().putBoolean(POWERUPS_INITIALIZED, true).apply()
         }
     }

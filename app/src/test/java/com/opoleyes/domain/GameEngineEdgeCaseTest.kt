@@ -192,6 +192,7 @@ class GameEngineEdgeCaseTest {
 
     @Test
     fun fun_shield_noShield_wrongAnswerLosesLife() {
+        engine.rankIndex = 2 // avoid rank-0 first mistake forgiveness
         engine.mode = GameMode.SURVIVAL
         engine.lives = 3
         engine.currentQ = makeQuestion(correct = "A")

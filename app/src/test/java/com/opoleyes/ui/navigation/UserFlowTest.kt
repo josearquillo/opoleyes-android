@@ -493,7 +493,9 @@ class UserFlowTest {
         vm.onGameOver()
 
         assertEquals("Lives should be 0 at game over", 0, vm.engine.lives)
-        assertEquals("Total answered should be maxLives ($maxLives)", maxLives, vm.engine.totalAnswered)
+        // At rank 0, first mistake is forgiven so it takes maxLives + 1 wrong answers
+        assertEquals("Total answered should be maxLives + 1 (first mistake forgiven at rank 0)",
+            maxLives + 1, vm.engine.totalAnswered)
         assertEquals("Correct count should be 0", 0, vm.engine.correctCount)
     }
 

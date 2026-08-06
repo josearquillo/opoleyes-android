@@ -316,12 +316,15 @@ class GameViewModelTest {
 
     @Test
     fun gameLifeCycle_xpGainedMatchesExpected() {
-        // Fresh user (0 XP). 1 correct answer = 10 XP (combo 1).
+        // Fresh user (0 XP, rank 0). 1 correct answer = 10 XP (combo 1).
+        // At rank 0: 7 lives + first mistake forgiven = 8 wrong answers to end game.
+        // Each wrong answer gives 3 XP consolation = 24 XP.
+        // Total XP = 10 + 24 = 34.
         assertTrue(playSurvivalGame(1))
-        assertEquals("XP gained should be 10 for 1 correct answer",
-            10, vm.xpGained.value)
-        assertEquals("Total XP should be 10",
-            10, progressRepo.getXP())
+        assertEquals("XP gained should be 34 (10 correct + 24 consolation)",
+            34, vm.xpGained.value)
+        assertEquals("Total XP should be 34",
+            34, progressRepo.getXP())
     }
 
     @Test
@@ -417,13 +420,14 @@ class GameViewModelTest {
     }
 
     @Test
-    fun gameLifeCycle_survivalRank0_hasFreeHintAndFiftyFifty() {
-        // Rank 0 players should get free hint and 50/50 charges
+    fun gameLifeCycle_survivalRank0_hasFreeFiftyFiftyOnly() {
+        // Rank 0 players should get free 50/50 charges but NO hint
+        // (hint is introduced at rank 1)
         vm.pendingMode = GameMode.SURVIVAL
         vm.startAllLawsGame()
         val uiState = vm.uiState.value
-        assertTrue("Rank 0 should have at least 1 hint charge",
-            uiState.hintCharges >= 1)
+        assertEquals("Rank 0 should have 0 hint charges (hint introduced at rank 1)",
+            0, uiState.hintCharges)
         assertTrue("Rank 0 should have at least 1 fiftyFifty charge",
             uiState.fiftyFiftyCharges >= 1)
     }
@@ -545,10 +549,11 @@ class GameViewModelTest {
     }
 
     @Test
-    fun quickMode_rank0_hasFreeHintAndFiftyFifty() {
+    fun quickMode_rank0_hasFreeFiftyFiftyOnly() {
         vm.startQuickGame()
         val uiState = vm.uiState.value
-        assertTrue("Quick rank 0 should have hint charge", uiState.hintCharges >= 1)
+        assertEquals("Quick rank 0 should have 0 hint charges (hint introduced at rank 1)",
+            0, uiState.hintCharges)
         assertTrue("Quick rank 0 should have fiftyFifty charge", uiState.fiftyFiftyCharges >= 1)
     }
 

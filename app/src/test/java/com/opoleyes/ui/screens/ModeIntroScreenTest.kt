@@ -79,7 +79,8 @@ class ModeIntroScreenTest {
         assertTextPresent("Rango: Novato")
         assertTextPresent("corazones")
         assertTextPresent("Dificultad progresa")
-        assertTextPresent("Pista y 50/50")
+        assertTextPresent("50/50 disponible")
+        assertTextPresent("Primer fallo NO cuenta")
     }
 
     @Test

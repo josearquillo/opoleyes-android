@@ -61,6 +61,7 @@ fun GameOverScreen(navController: NavController, gameViewModel: GameViewModel) {
     val xpGained by gameViewModel.xpGained.collectAsState()
     val medal by gameViewModel.medal.collectAsState()
     val accuracy by gameViewModel.accuracy.collectAsState()
+    val motivationalMessage by gameViewModel.motivationalMessage.collectAsState()
     val chestReward by gameViewModel.chestReward.collectAsState()
     val rankUpOverlay by gameViewModel.rankUpOverlay.collectAsState()
     val quickRewardEarned by gameViewModel.quickRewardEarned.collectAsState()
@@ -190,6 +191,16 @@ fun GameOverScreen(navController: NavController, gameViewModel: GameViewModel) {
             } else if (medal.isNotEmpty()) {
                 Spacer(Modifier.height(8.dp))
                 Text(medal, fontSize = 20.sp)
+            }
+
+            if (motivationalMessage.isNotEmpty()) {
+                Spacer(Modifier.height(10.dp))
+                Text(
+                    motivationalMessage,
+                    color = AccentLight,
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Medium
+                )
             }
 
             Spacer(Modifier.height(20.dp))

@@ -64,6 +64,7 @@ class GameEngine private constructor(
     // XP breakdown accumulators (reset in initGameStats)
     var xpFromCorrect: Int = 0
     var xpFromLawMastery: Int = 0
+    var xpFromConsolation: Int = 0
     var lawsMasteredThisGame: Int = 0
 
     // Rank-based mechanics
@@ -86,7 +87,10 @@ class GameEngine private constructor(
     var shieldActive: Boolean = false
     var ctxFiftyFiftyUsed: Boolean = false
     var ctxLifeRecovered: Boolean = false
+    var ctxFirstMistakeForgiven: Boolean = false
     var powerUpUsedThisQuestion: Boolean = false
+    var consecutiveWrong: Int = 0
+    var firstMistakeUsed: Boolean = false
 
     fun initGameStats() {
         score = 0; combo = 0; maxCombo = 0; correctCount = 0; totalAnswered = 0; streak = 0
@@ -103,7 +107,10 @@ class GameEngine private constructor(
         startXP = progressRepo.getXP()
         xpFromCorrect = 0
         xpFromLawMastery = 0
+        xpFromConsolation = 0
         lawsMasteredThisGame = 0
+        consecutiveWrong = 0
+        firstMistakeUsed = false
 
         // Configure rank-based mechanics.
         rankIndex = startRankIndex.coerceIn(0, Constants.RANKS.size - 1)
@@ -216,6 +223,7 @@ class GameEngine private constructor(
         doubleScoreActive = false
         // Shield persists across questions until the user fails (per help text)
         powerUpUsedThisQuestion = false
+        ctxFirstMistakeForgiven = false
         return true
     }
 
@@ -260,6 +268,7 @@ class GameEngine private constructor(
             progressRepo.addXP(pts * xpMultiplier)
             xpFromCorrect += pts * xpMultiplier
 
+            consecutiveWrong = 0
             streak++
             if (streak > 0 && streak % 5 == 0) {
                 val lifeRecoveryUnlocked = progressRepo.isUnlocked("lifeRecovery")
@@ -296,13 +305,37 @@ class GameEngine private constructor(
                 statsRepo.updateStat(key, false)
                 return AnswerResult.SHIELD_USED
             }
+            ctxFirstMistakeForgiven = false
             streak = 0
             statsRepo.updateStat(key, false)
-            combo = 0; comboBarFill = 0f; comboOverchargeActive = false; comboOverchargeCharges = 0
-            if (mode == GameMode.SURVIVAL || mode == GameMode.QUICK) {
+            // Combo forgiveness for beginners: halve combo instead of resetting
+            if (rankIndex <= 1) {
+                combo = combo / 2
+                comboBarFill = comboBarFill / 2f
+            } else {
+                combo = 0; comboBarFill = 0f
+            }
+            comboOverchargeActive = false; comboOverchargeCharges = 0
+            // Adaptive difficulty: lower session cap after 2 consecutive wrong answers
+            consecutiveWrong++
+            if (consecutiveWrong >= 2 && sessionDifficultyCap > 1) {
+                sessionDifficultyCap--
+                consecutiveWrong = 0
+            }
+            // First mistake forgiven for rank 0: don't lose a life on the first wrong answer
+            if (rankIndex == 0 && !firstMistakeUsed && (mode == GameMode.SURVIVAL || mode == GameMode.QUICK)) {
+                firstMistakeUsed = true
+                ctxFirstMistakeForgiven = true
+            } else if (mode == GameMode.SURVIVAL || mode == GameMode.QUICK) {
                 lives--
             } else {
                 timer = maxOf(0f, timer - 10f)
+            }
+            // XP consolation for beginners: earn a small amount even when wrong
+            if (rankIndex <= 1) {
+                val consolationXp = 3 * xpMultiplier
+                progressRepo.addXP(consolationXp)
+                xpFromConsolation += consolationXp
             }
             return AnswerResult.WRONG
         }

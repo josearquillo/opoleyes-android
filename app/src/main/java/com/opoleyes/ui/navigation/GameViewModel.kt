@@ -19,6 +19,7 @@ import com.opoleyes.ui.theme.AccentLight
 import com.opoleyes.ui.theme.Success
 import com.opoleyes.ui.theme.PrimaryLight
 import com.opoleyes.ui.theme.Warning
+import com.opoleyes.ui.theme.Orange
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -237,6 +238,9 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
 
     private val _accuracy = MutableStateFlow(0)
     val accuracy: StateFlow<Int> = _accuracy.asStateFlow()
+
+    private val _motivationalMessage = MutableStateFlow("")
+    val motivationalMessage: StateFlow<String> = _motivationalMessage.asStateFlow()
 
     fun updateUiState() {
         _uiState.value = GameUiState(
@@ -538,6 +542,9 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
                 checkAchievementsPerQuestion(AchievementContext(firstCorrect = true, maxCombo = engine.maxCombo, fiftyFiftyUsed = engine.ctxFiftyFiftyUsed, lifeRecovered = engine.ctxLifeRecovered, maxOptions = engine.maxOptions))
             }
             GameEngine.AnswerResult.WRONG -> {
+                if (engine.ctxFirstMistakeForgiven) {
+                    addPopup("¡Primer fallo sin contar! Estás aprendiendo 💪", com.opoleyes.ui.theme.Success, 38, 0.45f, "🛡️")
+                }
                 checkAchievementsPerQuestion(AchievementContext(maxCombo = engine.maxCombo, maxOptions = engine.maxOptions))
             }
             GameEngine.AnswerResult.SHIELD_USED -> {
@@ -603,6 +610,7 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
         progressRepo.incrementGamesPlayed()
 
         _accuracy.value = acc
+        _motivationalMessage.value = computeMotivationalMessage(acc, engine.totalAnswered, engine.correctCount)
         _medal.value = when {
             engine.score >= 1000 -> "🥇"
             engine.score >= 600 -> "🥈"
@@ -670,6 +678,15 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
                 color = Success
             ))
         }
+        if (engine.xpFromConsolation > 0) {
+            val wrongCount = engine.totalAnswered - engine.correctCount
+            lines.add(XpLine(
+                icon = "💪",
+                label = "Esfuerzo ($wrongCount intentos)",
+                value = engine.xpFromConsolation,
+                color = Orange
+            ))
+        }
         missionRepo.getSessionCompletedMissions().forEach { m ->
             lines.add(XpLine(
                 icon = m.icon,
@@ -730,6 +747,19 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
             ))
         }
         return XpBreakdown(lines = lines, total = _xpGained.value, multiplierApplied = false)
+    }
+
+    private fun computeMotivationalMessage(acc: Int, totalAnswered: Int, correctCount: Int): String {
+        val gamesPlayed = progressRepo.getGamesPlayed()
+        return when {
+            gamesPlayed <= 1 -> "¡Has dado el primer paso! 🌱"
+            totalAnswered == 0 -> "¡Sigue intentándolo! 💪"
+            acc == 0 -> "¡Cada error te enseña algo nuevo! 💪"
+            acc < 40 -> "¡Cada error te acerca al acierto! Sigue 💪"
+            acc < 70 -> "¡Vas por buen camino! 🎯"
+            acc < 90 -> "¡Lo estás dominando! ⚡"
+            else -> "¡Excelente precisión! 🏆"
+        }
     }
 
     private fun checkRankUp(rankBefore: Int) {
