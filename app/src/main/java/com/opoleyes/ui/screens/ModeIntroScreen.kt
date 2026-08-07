@@ -236,11 +236,12 @@ private fun buildTimetrialIntro(rankIndex: Int): IntroContent {
     )
 }
 
-private fun buildQuickIntro(@Suppress("UNUSED_PARAMETER") rankIndex: Int): IntroContent {
+private fun buildQuickIntro(rankIndex: Int): IntroContent {
+    val quickReward = 50 * (1 + rankIndex)
     val items = listOf(
         IntroItem("⚡", "5 preguntas de tus fallos previos"),
         IntroItem("❤️", "3 corazones. 3 fallos = se acaba."),
-        IntroItem("🎁", "5/5 aciertos = +50 XP bonus")
+        IntroItem("🎁", "5/5 aciertos = +$quickReward XP bonus")
     )
 
     return IntroContent(

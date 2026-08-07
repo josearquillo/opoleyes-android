@@ -608,7 +608,8 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
         if (engine.mode == GameMode.QUICK && engine.totalAnswered >= Constants.QUICK_MODE_QUESTIONS) {
             if (engine.correctCount == engine.totalAnswered) {
                 _quickRewardEarned.value = true
-                progressRepo.addXP(50)
+                val quickReward = 50 * (1 + engine.rankIndex)
+                progressRepo.addXP(quickReward)
             } else {
                 _quickRewardMissed.value = true
             }
@@ -659,10 +660,11 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
             ))
         }
         if (_quickRewardEarned.value) {
+            val quickReward = 50 * (1 + engine.rankIndex)
             lines.add(XpLine(
                 icon = "⚡",
                 label = "Repaso Express perfecto",
-                value = 50,
+                value = quickReward,
                 color = Warning
             ))
         }

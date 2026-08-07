@@ -494,10 +494,10 @@ class GameViewModelTest {
     @Test
     fun quickMode_xpGainedMatchesExpected() {
         prefs.addXP(7000)
-        // 5 correct: combo 1..5 = 15*(1+2+3+4+5) = 225 XP + 50 quick reward = 275 XP
+        // 5 correct: combo 1..5 = 15*(1+2+3+4+5) = 225 XP + 300 quick reward (50*(1+5)) = 525 XP
         assertTrue(playQuickGame(5))
-        assertEquals("XP for 5 correct in quick mode (15*combo + 50 quick reward)",
-            275, vm.xpGained.value)
+        assertEquals("XP for 5 correct in quick mode (15*combo + 300 quick reward at rank 5)",
+            525, vm.xpGained.value)
     }
 
     @Test
