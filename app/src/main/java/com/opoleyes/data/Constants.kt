@@ -78,6 +78,11 @@ object Constants {
         5 to 4, 6 to 5, 7 to 5, 8 to 5
     )
 
+    val STREAK_RECOVERY_THRESHOLD_BY_RANK = mapOf(
+        0 to 3, 1 to 4, 2 to 5, 3 to 5, 4 to 5,
+        5 to 5, 6 to 5, 7 to 5, 8 to 5
+    )
+
     // Only 50/50 and Pista exist. Escudo and x2pts have been removed.
     // 50/50 is available from rank 0, Pista unlocks at rank 1.
     val AVAILABLE_POWERUPS_BY_RANK = mapOf(

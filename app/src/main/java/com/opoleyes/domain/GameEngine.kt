@@ -246,7 +246,8 @@ class GameEngine private constructor(
 
             consecutiveWrong = 0
             streak++
-            if (streak > 0 && streak % 5 == 0) {
+            val streakThreshold = Constants.STREAK_RECOVERY_THRESHOLD_BY_RANK[rankIndex] ?: 5
+            if (streak > 0 && streak % streakThreshold == 0) {
                 val lifeRecoveryUnlocked = progressRepo.isUnlocked("lifeRecovery")
                 if (mode == GameMode.SURVIVAL && lifeRecoveryUnlocked) {
                     if (lives < maxLives) {

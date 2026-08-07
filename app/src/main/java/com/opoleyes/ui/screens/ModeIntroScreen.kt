@@ -184,6 +184,7 @@ private fun buildIntroContent(mode: GameMode, rankIndex: Int): IntroContent {
 
 private fun buildSurvivalIntro(rankIndex: Int): IntroContent {
     val maxLives = Constants.MAX_LIVES_BY_RANK[rankIndex] ?: 3
+    val streakThreshold = Constants.STREAK_RECOVERY_THRESHOLD_BY_RANK[rankIndex] ?: 5
 
     val rankName = Constants.getRankByIndex(rankIndex).name
     val title = when (rankIndex) {
@@ -197,13 +198,13 @@ private fun buildSurvivalIntro(rankIndex: Int): IntroContent {
     val items = mutableListOf<IntroItem>()
     if (rankIndex == 0) {
         items.add(IntroItem("❤️", "$maxLives corazones · Primer fallo NO cuenta"))
-        items.add(IntroItem("❤️", "Cada 5 aciertos seguidos: vida extra"))
+        items.add(IntroItem("❤️", "Cada $streakThreshold aciertos seguidos: vida extra"))
     } else if (rankIndex == 1) {
         items.add(IntroItem("❤️", "$maxLives corazones · Cada fallo resta 1 · Combos recuperan vida"))
-        items.add(IntroItem("🔥", "Cada 5 aciertos seguidos: vida extra"))
+        items.add(IntroItem("🔥", "Cada $streakThreshold aciertos seguidos: vida extra"))
     } else {
         items.add(IntroItem("❤️", "$maxLives corazones · Cada fallo resta 1 · Combos recuperan vida"))
-        items.add(IntroItem("🔥", "Cada 5 aciertos seguidos: vida extra"))
+        items.add(IntroItem("🔥", "Cada $streakThreshold aciertos seguidos: vida extra"))
     }
 
     val footer = when (rankIndex) {
@@ -219,10 +220,11 @@ private fun buildSurvivalIntro(rankIndex: Int): IntroContent {
 }
 
 private fun buildTimetrialIntro(rankIndex: Int): IntroContent {
+    val streakThreshold = Constants.STREAK_RECOVERY_THRESHOLD_BY_RANK[rankIndex] ?: 5
     val items = listOf(
         IntroItem("⏱️", "180 segundos. El reloj no se detiene."),
         IntroItem("✅", "Acierto: +15s · Fallo: -10s"),
-        IntroItem("🔥", "Cada 5 aciertos seguidos: +20s extra")
+        IntroItem("🔥", "Cada $streakThreshold aciertos seguidos: +20s extra")
     )
 
     return IntroContent(

@@ -76,6 +76,7 @@ class GameRulesSpecTest {
     @Test
     fun timetrial_streak5_adds20Seconds() {
         // Help: "Contrarreloj: ... +20 segundos extra por cada 5 aciertos consecutivos"
+        engine.rankIndex = 2 // rank 2+ has streak threshold of 5
         engine.mode = GameMode.TIMETRIAL
         engine.timer = 100f
         engine.streak = 4
