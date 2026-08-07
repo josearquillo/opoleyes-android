@@ -181,7 +181,7 @@
     <string name="help_section_missions_title">Misiones diarias</string>
     <string name="help_section_missions_l1">Cada día recibes misiones nuevas y diferentes.</string>
     <string name="help_section_missions_l2">Puedes tener entre 1 y 3 misiones según tu rango.</string>
-    <string name="help_section_missions_l3">Las recompensas escalan con tu rango: más XP cuanto más alto seas.</string>
+    <string name="help_section_missions_l3">Las misiones se adaptan a tu rango: fáciles al principio (acertar preguntas en Supervivencia), más desafiantes conforme avanzas.</string>
     <string name="help_section_missions_l4">Las misiones se adaptan a los modos que tienes desbloqueados: Supervivencia, Contrarreloj, Repaso Express, Mini Examen y Simulacro.</string>
     <string name="help_section_missions_l5">Las misiones de aciertos en Supervivencia acumulan entre partidas, no necesitas hacerlo todo en una sola.</string>
     <string name="help_section_missions_l6">Cada misión completada te da XP al instante. ¡Completa todas para sacarle el máximo rendimiento!</string>

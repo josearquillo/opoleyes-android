@@ -75,65 +75,108 @@ class MissionRepository(private val context: Context) {
         for ((_, v) in stats) wrongCount += v.wrong
 
         val unlocks = progressRepo.getUnlocks()
-        val varietyTargetEasy = 3 + rankIndex
-        val varietyTargetMedium = 5 + rankIndex
+        val isBeginner = rankIndex <= 1
 
         // === EASY pool ===
-        val easyPool = mutableListOf<Mission>(
-            Mission("variety", "🌍",
+        val easyPool = mutableListOf<Mission>()
+
+        if (isBeginner) {
+            // Ranks 0-1: extremely simple missions, only Supervivencia, no law mention
+            val correctTarget = if (rankIndex == 0) 3 else 5
+            easyPool.add(Mission("variety", "🌍",
+                "Acierta $correctTarget preguntas en Supervivencia",
+                correctTarget, 0, false, easyReward, "variety_any",
+                null, MissionDifficulty.EASY))
+            easyPool.add(Mission("quality", "🎯",
+                "Acierta ${if (rankIndex == 0) 2 else 3} preguntas seguidas en Supervivencia",
+                if (rankIndex == 0) 2 else 3, 0, false, easyReward, "streak",
+                null, MissionDifficulty.EASY))
+        } else {
+            // Ranks 2+: can include law-specific missions
+            val varietyTargetEasy = 3 + rankIndex
+            easyPool.add(Mission("variety", "🌍",
                 if (unplayedLaw != null) "Acierta $varietyTargetEasy preguntas en Supervivencia en \"${unplayedLaw.title.ifEmpty { unplayedLaw.name }}\""
                 else "Acierta $varietyTargetEasy preguntas en Supervivencia en cualquier ley",
                 varietyTargetEasy, 0, false, easyReward,
-                "variety_${unplayedLaw?.id ?: "any"}", unplayedLaw?.id, MissionDifficulty.EASY),
-            Mission("progress", "📈",
+                "variety_${unplayedLaw?.id ?: "any"}", unplayedLaw?.id, MissionDifficulty.EASY))
+            easyPool.add(Mission("progress", "📈",
                 if (lowestLaw != null) "Sube el progreso de \"${lowestLaw.title.ifEmpty { lowestLaw.name }}\" al ${minOf(100, lowestPct + 5)}% en Supervivencia"
                 else "Acierta al menos $varietyTargetEasy preguntas en Supervivencia (cualquier ley)",
                 if (lowestLaw != null) minOf(100, lowestPct + 5) else varietyTargetEasy,
                 if (lowestLaw != null) lowestPct else 0, false, easyReward,
-                "progress_${lowestLaw?.id ?: "any"}", lowestLaw?.id, MissionDifficulty.EASY),
-        )
-        if (unlocks.quick) {
-            easyPool.add(Mission("review", "🔄",
-                "Responde ${minOf(15, maxOf(5, wrongCount / 2))} preguntas en Repaso Express",
-                minOf(15, maxOf(5, wrongCount / 2)), 0, false, easyReward, "quick_review",
-                null, MissionDifficulty.EASY))
+                "progress_${lowestLaw?.id ?: "any"}", lowestLaw?.id, MissionDifficulty.EASY))
+            if (unlocks.quick) {
+                easyPool.add(Mission("review", "🔄",
+                    "Responde ${minOf(15, maxOf(5, wrongCount / 2))} preguntas en Repaso Express",
+                    minOf(15, maxOf(5, wrongCount / 2)), 0, false, easyReward, "quick_review",
+                    null, MissionDifficulty.EASY))
+            }
         }
 
         // === MEDIUM pool ===
-        val mediumPool = mutableListOf<Mission>(
-            Mission("quality", "🎯",
+        val mediumPool = mutableListOf<Mission>()
+
+        if (rankIndex <= 2) {
+            // Ranks 2-3: moderate streak/combo targets, no law-specific missions
+            val streakTarget = maxOf(3, rankIndex)
+            mediumPool.add(Mission("quality", "🎯",
+                "Acierta $streakTarget preguntas seguidas en Supervivencia (todas las leyes)",
+                streakTarget, 0, false, mediumReward, "streak",
+                null, MissionDifficulty.MEDIUM))
+            mediumPool.add(Mission("combo", "🔥",
+                "Llega a combo x${maxOf(3, streakTarget + 1)} en Supervivencia (todas las leyes)",
+                maxOf(3, streakTarget + 1), 0, false, mediumReward, "combo",
+                null, MissionDifficulty.MEDIUM))
+        } else {
+            // Ranks 4+: full medium pool with law-specific and timetrial missions
+            val varietyTargetMedium = 5 + rankIndex
+            mediumPool.add(Mission("quality", "🎯",
                 "Acierta $streakTargetMedium preguntas seguidas en Supervivencia (todas las leyes)",
                 streakTargetMedium, 0, false, mediumReward, "streak",
-                null, MissionDifficulty.MEDIUM),
-            Mission("combo", "🔥",
+                null, MissionDifficulty.MEDIUM))
+            mediumPool.add(Mission("combo", "🔥",
                 "Llega a combo x$comboTargetMedium en Supervivencia (todas las leyes)",
                 comboTargetMedium, 0, false, mediumReward, "combo",
-                null, MissionDifficulty.MEDIUM),
-            Mission("variety", "🌍",
+                null, MissionDifficulty.MEDIUM))
+            mediumPool.add(Mission("variety", "🌍",
                 "Acierta $varietyTargetMedium preguntas en Supervivencia en \"${(lowestLaw ?: temaTests.firstOrNull())?.title?.ifEmpty { (lowestLaw ?: temaTests.firstOrNull())?.name } ?: "cualquier ley"}\"",
                 varietyTargetMedium, 0, false, mediumReward,
                 "variety_${(lowestLaw ?: temaTests.firstOrNull())?.id ?: "any"}",
-                (lowestLaw ?: temaTests.firstOrNull())?.id, MissionDifficulty.MEDIUM),
-        )
-        if (unlocks.timetrial) {
-            val ttTarget = 300 + rankIndex * 100
-            mediumPool.add(Mission("timetrial", "⏱️",
-                "Alcanza $ttTarget puntos en Contrarreloj (todas las leyes)",
-                ttTarget, 0, false, mediumReward, "timetrial_score",
-                null, MissionDifficulty.MEDIUM))
+                (lowestLaw ?: temaTests.firstOrNull())?.id, MissionDifficulty.MEDIUM))
+            if (unlocks.timetrial) {
+                val ttTarget = 300 + rankIndex * 100
+                mediumPool.add(Mission("timetrial", "⏱️",
+                    "Alcanza $ttTarget puntos en Contrarreloj (todas las leyes)",
+                    ttTarget, 0, false, mediumReward, "timetrial_score",
+                    null, MissionDifficulty.MEDIUM))
+            }
         }
 
         // === HARD pool ===
-        val hardPool = mutableListOf<Mission>(
-            Mission("quality", "🎯",
+        val hardPool = mutableListOf<Mission>()
+
+        if (rankIndex <= 3) {
+            // Ranks 0-3: hard is still achievable — moderate streak/combo
+            val streakTarget = maxOf(4, rankIndex + 2)
+            hardPool.add(Mission("quality", "🎯",
+                "Acierta $streakTarget preguntas seguidas en Supervivencia (todas las leyes)",
+                streakTarget, 0, false, hardReward, "streak",
+                null, MissionDifficulty.HARD))
+            hardPool.add(Mission("combo", "🔥",
+                "Llega a combo x${streakTarget + 1} en Supervivencia (todas las leyes)",
+                streakTarget + 1, 0, false, hardReward, "combo",
+                null, MissionDifficulty.HARD))
+        } else {
+            // Ranks 4+: full hard pool with dynamic mission based on unlocked modes
+            hardPool.add(Mission("quality", "🎯",
                 "Acierta $streakTargetHard preguntas seguidas en Supervivencia (todas las leyes)",
                 streakTargetHard, 0, false, hardReward, "streak",
-                null, MissionDifficulty.HARD),
-            Mission("combo", "🔥",
+                null, MissionDifficulty.HARD))
+            hardPool.add(Mission("combo", "🔥",
                 "Llega a combo x$comboTargetHard en Supervivencia (todas las leyes)",
                 comboTargetHard, 0, false, hardReward, "combo",
-                null, MissionDifficulty.HARD),
-        )
+                null, MissionDifficulty.HARD))
+        }
 
         // Dynamic mission 3 based on highest unlocked mode
         when {
