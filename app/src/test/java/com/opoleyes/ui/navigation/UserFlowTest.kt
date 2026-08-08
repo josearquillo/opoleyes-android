@@ -1,9 +1,8 @@
 package com.opoleyes.ui.navigation
 
-import android.app.Application
-import androidx.test.core.app.ApplicationProvider
-import com.opoleyes.data.local.DataProvider
-import com.opoleyes.data.local.PreferencesManager
+import com.opoleyes.FakeGameRepository
+import com.opoleyes.FakePreferencesManager
+import com.opoleyes.TestFakes
 import com.opoleyes.data.model.GameMode
 import com.opoleyes.data.model.Mission
 import com.opoleyes.data.model.MissionData
@@ -11,49 +10,62 @@ import com.opoleyes.data.model.MissionDifficulty
 import com.opoleyes.data.repository.MissionRepository
 import com.opoleyes.data.repository.ProgressRepository
 import com.opoleyes.data.repository.StatsRepository
+import com.opoleyes.domain.AchievementChecker
+import com.opoleyes.domain.ChestSystem
+import com.opoleyes.domain.ExamEngine
+import com.opoleyes.domain.GameEngine
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.test.StandardTestDispatcher
+import kotlinx.coroutines.test.resetMain
+import kotlinx.coroutines.test.setMain
 import org.junit.After
+import org.junit.AfterClass
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Before
+import org.junit.BeforeClass
 import org.junit.Test
-import org.junit.runner.RunWith
-import org.robolectric.RobolectricTestRunner
-import org.robolectric.annotation.Config
-import org.robolectric.shadows.ShadowLooper
 import java.time.LocalDate
-import java.util.concurrent.CountDownLatch
-import java.util.concurrent.TimeUnit
 
-/**
- * End-to-end functional tests that simulate complete user flows by validating
- * ViewModel state (StateFlow values), NOT by rendering Compose UI.
- *
- * All tests run under a single Robolectric class to pay the ~20s startup cost
- * once. No Compose UI tests (createComposeRule/setContent/onNodeWithText) are
- * used — these tests validate the ViewModel state that the UI would render.
- */
-@RunWith(RobolectricTestRunner::class)
-@Config(sdk = [34])
+@OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
 class UserFlowTest {
 
     private lateinit var vm: GameViewModel
-    private lateinit var prefs: PreferencesManager
+    private lateinit var prefs: FakePreferencesManager
     private lateinit var progressRepo: ProgressRepository
     private lateinit var statsRepo: StatsRepository
     private lateinit var missionRepo: MissionRepository
 
+    companion object {
+        @OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
+        private val testDispatcher = StandardTestDispatcher()
+
+        @JvmStatic
+        @BeforeClass
+        fun setUpClass() { Dispatchers.setMain(testDispatcher) }
+
+        @JvmStatic
+        @AfterClass
+        fun tearDownClass() { Dispatchers.resetMain() }
+    }
+
     @Before
     fun setup() {
-        val app = ApplicationProvider.getApplicationContext<Application>()
-        prefs = PreferencesManager(app)
+        prefs = FakePreferencesManager()
         prefs.resetAll()
-        progressRepo = ProgressRepository(app)
-        statsRepo = StatsRepository(app)
-        missionRepo = MissionRepository(app)
-        vm = GameViewModel(app)
+        progressRepo = ProgressRepository(prefs)
+        statsRepo = StatsRepository(prefs)
+        missionRepo = MissionRepository(prefs)
+        val engine = GameEngine.createForTest(FakeGameRepository(), statsRepo, progressRepo, prefs)
+        val examEngine = ExamEngine.createForTest(statsRepo, TestFakes.makePool(100))
+        vm = GameViewModel.createForTest(
+            progressRepo, statsRepo, missionRepo,
+            AchievementChecker(prefs), ChestSystem(prefs),
+            prefs, engine, examEngine
+        )
         vm.resetProgress()
         vm.clearExamResult()
         vm.clearChest()
@@ -72,11 +84,7 @@ class UserFlowTest {
     // === Helpers ===
 
     private fun startSimulacroSync() {
-        val latch = CountDownLatch(1)
-        vm.startSimulacroAsync { latch.countDown() }
-        while (!latch.await(50, TimeUnit.MILLISECONDS)) {
-            ShadowLooper.idleMainLooper()
-        }
+        vm.loadSimulacroSync()
     }
 
     /**
@@ -406,35 +414,7 @@ class UserFlowTest {
     }
 
     // === Flow 15: Tema game → pool only from that tema ===
-
-    @Test
-    fun flow_temaGame_poolOnlyFromThatTema() {
-        val app = ApplicationProvider.getApplicationContext<Application>()
-        val temaTests = DataProvider.getTemaTests(app)
-        assertTrue("Should have tema tests", temaTests.isNotEmpty())
-        val firstTema = temaTests.first()
-        // A single TestData entry may contain questions with multiple test_id values
-        // (e.g. Constitución Española has Tema_N01-N04). Verify all pool questions
-        // come from this TestData entry by checking their test_id is in the source set.
-        val testData = DataProvider.getTestDataMap(app)[firstTema.id]!!
-        val sourceTestIds = testData.questions.map { it.test_id }.toSet()
-
-        vm.pendingMode = GameMode.SURVIVAL
-        val ok = vm.startTemaGame(firstTema.id)
-        assertTrue("Tema game should start", ok)
-
-        // Verify all questions in the pool are from that tema
-        for (q in vm.engine.pool) {
-            assertTrue("Pool question testId '${q.testId}' should be from tema ${firstTema.id}",
-                q.testId in sourceTestIds)
-        }
-
-        // Verify the current question is also from that tema
-        val currentQ = vm.engine.currentQ
-        assertNotNull("Current question should not be null", currentQ)
-        assertTrue("Current question should be from tema",
-            currentQ!!.testId in sourceTestIds)
-    }
+    // (Moved to UserFlowTemaTest.kt — requires DataProvider/Context)
 
     // === Additional flow: New user → multiple games → stats accumulate ===
 

@@ -193,9 +193,9 @@ open class PreferencesManager(private val context: Context) : com.opoleyes.data.
         prefs.edit().putInt(LAST_KNOWN_RANK_INDEX, index).apply()
     }
 
-    fun isIntroShown(key: String): Boolean = prefs.getBoolean(introShownKey(key), false)
+    override fun isIntroShown(key: String): Boolean = prefs.getBoolean(introShownKey(key), false)
 
-    fun setIntroShown(key: String) {
+    override fun setIntroShown(key: String) {
         if (isWriteBlocked()) return
         prefs.edit().putBoolean(introShownKey(key), true).apply()
     }

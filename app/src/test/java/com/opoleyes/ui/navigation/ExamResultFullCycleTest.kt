@@ -1,55 +1,64 @@
 package com.opoleyes.ui.navigation
 
-import android.app.Application
-import androidx.test.core.app.ApplicationProvider
-import com.opoleyes.data.local.PreferencesManager
+import com.opoleyes.FakeGameRepository
+import com.opoleyes.FakePreferencesManager
+import com.opoleyes.TestFakes
 import com.opoleyes.data.repository.ProgressRepository
+import com.opoleyes.data.repository.StatsRepository
+import com.opoleyes.data.repository.MissionRepository
+import com.opoleyes.domain.AchievementChecker
+import com.opoleyes.domain.ChestSystem
+import com.opoleyes.domain.ExamEngine
+import com.opoleyes.domain.GameEngine
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.test.StandardTestDispatcher
+import kotlinx.coroutines.test.resetMain
+import kotlinx.coroutines.test.setMain
 import org.junit.After
+import org.junit.AfterClass
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Before
+import org.junit.BeforeClass
 import org.junit.Test
-import org.junit.runner.RunWith
-import org.robolectric.RobolectricTestRunner
-import org.robolectric.annotation.Config
-import org.robolectric.shadows.ShadowLooper
-import java.util.concurrent.CountDownLatch
-import java.util.concurrent.TimeUnit
 
-/**
- * Fast ViewModel-level tests covering a full correct cycle of each exam mode
- * (mini-examen and simulacro) plus edge-case scenarios.
- *
- * These tests do NOT use Compose UI (which is slow under Robolectric). They
- * verify the state flows exposed by GameViewModel after finishExam(), which
- * is what the ExamResultScreen renders. The UI layer is a thin function of
- * this state, so verifying the state covers the full cycle.
- *
- * Scenarios covered:
- *  - Mini-examen: all correct, all wrong, half correct, all unanswered
- *  - Simulacro:   all correct (pass), all wrong (fail), all unanswered (fail),
- *                 mixed at threshold (pass), mixed below threshold (fail),
- *                 mixed with wrongs at threshold (pass),
- *                 mixed with wrongs below threshold (fail)
- */
-@RunWith(RobolectricTestRunner::class)
-@Config(sdk = [34])
+@OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
 class ExamResultFullCycleTest {
 
     private lateinit var vm: GameViewModel
-    private lateinit var prefs: PreferencesManager
+    private lateinit var prefs: FakePreferencesManager
     private lateinit var progressRepo: ProgressRepository
+
+    companion object {
+        @OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
+        private val testDispatcher = StandardTestDispatcher()
+
+        @JvmStatic
+        @BeforeClass
+        fun setUpClass() { Dispatchers.setMain(testDispatcher) }
+
+        @JvmStatic
+        @AfterClass
+        fun tearDownClass() { Dispatchers.resetMain() }
+    }
 
     @Before
     fun setup() {
-        val app = ApplicationProvider.getApplicationContext<Application>()
-        prefs = PreferencesManager(app)
+        prefs = FakePreferencesManager()
         prefs.resetAll()
-        progressRepo = ProgressRepository(app)
-        vm = GameViewModel(app)
+        progressRepo = ProgressRepository(prefs)
+        val statsRepo = StatsRepository(prefs)
+        val missionRepo = MissionRepository(prefs)
+        val engine = GameEngine.createForTest(FakeGameRepository(), statsRepo, progressRepo, prefs)
+        val examEngine = ExamEngine.createForTest(statsRepo, TestFakes.makePool(100))
+        vm = GameViewModel.createForTest(
+            progressRepo, statsRepo, missionRepo,
+            AchievementChecker(prefs), ChestSystem(prefs),
+            prefs, engine, examEngine
+        )
     }
 
     @After
@@ -66,17 +75,7 @@ class ExamResultFullCycleTest {
             ?: listOf("A", "B", "C", "D").first { it != q.correct }
 
     private fun startSimulacroSync() {
-        val latch = CountDownLatch(1)
-        vm.startSimulacroAsync { latch.countDown() }
-        // startSimulacroAsync dispatches the onDone callback to Dispatchers.Main.
-        // The test thread blocks the Main looper, so we must pump it explicitly
-        // for the callback to fire once the background loadSimulacro() finishes.
-        // Without this the latch waits the full 30s timeout (the load itself
-        // runs on Dispatchers.Default and completes quickly, but the Main-thread
-        // continuation never runs while we block on await()).
-        while (!latch.await(50, TimeUnit.MILLISECONDS)) {
-            ShadowLooper.idleMainLooper()
-        }
+        vm.loadSimulacroSync()
     }
 
     private fun answerAllCorrect(count: Int) {

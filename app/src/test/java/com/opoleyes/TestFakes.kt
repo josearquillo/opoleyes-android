@@ -81,6 +81,7 @@ class FakePreferencesManager : IPreferencesManager {
     private var simulacroUnlocked = false
     private val simulacroHistory = mutableListOf<SimulacroHistoryEntry>()
     private var lastKnownRankIndex = 0
+    private val introShown = mutableSetOf<String>()
     private var dailyMissions: MissionData? = null
 
     override fun getXP() = xp
@@ -96,7 +97,7 @@ class FakePreferencesManager : IPreferencesManager {
         statsMap.clear(); gamesPlayed = 0; records.clear(); comboRecords.clear()
         accRecords.clear(); achievements.clear(); maxExamQuestions = 10
         simulacroUnlocked = false; simulacroHistory.clear(); lastKnownRankIndex = 0
-        dailyMissions = null
+        dailyMissions = null; introShown.clear()
     }
     override fun getStats(): Map<String, QuestionStat> = statsMap.toMap()
     override fun saveStats(stats: Map<String, QuestionStat>) { statsMap.clear(); statsMap.putAll(stats) }
@@ -122,4 +123,6 @@ class FakePreferencesManager : IPreferencesManager {
     override fun setLastKnownRankIndex(index: Int) { lastKnownRankIndex = index }
     override fun getDailyMissions(): MissionData? = dailyMissions
     override fun saveDailyMissions(data: MissionData) { dailyMissions = data }
+    override fun isIntroShown(key: String) = key in introShown
+    override fun setIntroShown(key: String) { introShown.add(key) }
 }

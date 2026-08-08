@@ -4,8 +4,12 @@ import androidx.compose.animation.*
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.*
+import android.app.Application
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.*
 import androidx.navigation.compose.*
@@ -30,7 +34,14 @@ object Routes {
 @Composable
 fun NavGraph() {
     val navController = rememberNavController()
-    val gameViewModel: GameViewModel = viewModel()
+    val context = LocalContext.current
+    val gameViewModel: GameViewModel = viewModel(
+        factory = object : ViewModelProvider.Factory {
+            @Suppress("UNCHECKED_CAST")
+            override fun <T : ViewModel> create(modelClass: Class<T>): T =
+                GameViewModel(context.applicationContext as Application) as T
+        }
+    )
 
     NavHost(
         navController = navController,

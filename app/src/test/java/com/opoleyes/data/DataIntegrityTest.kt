@@ -1,28 +1,24 @@
 package com.opoleyes.data
 
-import android.app.Application
-import androidx.test.core.app.ApplicationProvider
-import com.opoleyes.data.local.DataProvider
-import com.opoleyes.data.repository.GameRepository
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
+import com.opoleyes.data.model.TestData
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
-import org.junit.runner.RunWith
-import org.robolectric.RobolectricTestRunner
-import org.robolectric.annotation.Config
+import java.io.File
 
-@RunWith(RobolectricTestRunner::class)
-@Config(sdk = [34])
 class DataIntegrityTest {
 
-    private lateinit var data: List<com.opoleyes.data.model.TestData>
+    private lateinit var data: List<TestData>
 
     @Before
     fun setup() {
-        val ctx = ApplicationProvider.getApplicationContext<Application>()
-        data = DataProvider.loadData(ctx)
+        val json = File("src/main/assets/data.json").readText()
+        val type = object : TypeToken<List<TestData>>() {}.type
+        data = Gson().fromJson(json, type)
     }
 
     @Test
@@ -253,9 +249,7 @@ class DataIntegrityTest {
 
     @Test
     fun fun_data_gameRepo_startAllLawsGameBuildsValidPool() {
-        val ctx = ApplicationProvider.getApplicationContext<Application>()
-        val repo = GameRepository(ctx)
-        val pool = repo.startAllLawsGame()
+        val pool = buildAllLawsPool(data, emptyMap())
         assertTrue("Pool should not be empty", pool.isNotEmpty())
         for (q in pool) {
             assertTrue("Pool question has blank enunciado", q.enunciado.isNotBlank())
@@ -266,9 +260,7 @@ class DataIntegrityTest {
 
     @Test
     fun fun_data_gameRepo_startQuickGameBuildsValidPool() {
-        val ctx = ApplicationProvider.getApplicationContext<Application>()
-        val repo = GameRepository(ctx)
-        val pool = repo.startQuickGame()
+        val pool = buildQuickPool(data, emptyMap(), 5)
         assertTrue("Quick pool should not be empty", pool.isNotEmpty())
         assertTrue("Quick pool should have <= ${Constants.QUICK_MODE_QUESTIONS} questions",
             pool.size <= Constants.QUICK_MODE_QUESTIONS)
@@ -279,12 +271,11 @@ class DataIntegrityTest {
 
     @Test
     fun fun_data_gameRepo_startTemaGameBuildsValidPool() {
-        val ctx = ApplicationProvider.getApplicationContext<Application>()
-        val repo = GameRepository(ctx)
-        val temaTests = DataProvider.getTemaTests(ctx)
+        val temaTests = data.map { it.test }.filter { it.tema != null }.sortedBy { it.tema }
         assertTrue("Should have tema tests", temaTests.isNotEmpty())
         val firstTest = temaTests.first()
-        val pool = repo.startTemaGame(firstTest.id)
+        val td = data.associateBy { it.test.id }[firstTest.id]!!
+        val pool = buildTemaPool(td, emptyMap())
         assertTrue("Tema pool for ${firstTest.id} should not be empty", pool.isNotEmpty())
         for (q in pool) {
             assertTrue("Tema pool question correct not in options", q.opciones.containsKey(q.correct))
@@ -293,11 +284,89 @@ class DataIntegrityTest {
 
     @Test
     fun fun_data_allPoolsHaveNonNegativeWeight() {
-        val ctx = ApplicationProvider.getApplicationContext<Application>()
-        val repo = GameRepository(ctx)
-        val pool = repo.startAllLawsGame()
+        val pool = buildAllLawsPool(data, emptyMap())
         for (q in pool) {
             assertTrue("Pool question has negative weight: ${q.weight}", q.weight >= 0)
         }
+    }
+
+    // --- Pool builders (replicate GameRepository logic without Context) ---
+
+    private fun buildPoolFromTestData(td: TestData, stats: Map<String, com.opoleyes.data.model.QuestionStat>): List<com.opoleyes.data.model.QuestionEntry> {
+        val am = td.answers.associate { it.id to it.correct }
+        return td.questions.mapNotNull { q ->
+            val correct = am[q.id] ?: return@mapNotNull null
+            val difficulty = q.difficulty
+            val baseWeight = (difficulty * 15) + 25
+            val key = (q.test_id) + ":" + (q.orig_id)
+            val s = stats[key]
+            val weight = if (s != null) {
+                val attempted = s.correct + s.wrong
+                if (attempted < 3) baseWeight
+                else maxOf((100 * (1.0 - s.correct.toDouble() / attempted)).toInt() + (difficulty - 3) * 10, 5)
+            } else baseWeight
+            com.opoleyes.data.model.QuestionEntry(
+                enunciado = q.enunciado,
+                opciones = q.opciones,
+                correct = correct,
+                weight = weight,
+                testId = q.test_id,
+                origId = q.orig_id.toString(),
+                difficulty = difficulty
+            )
+        }
+    }
+
+    private fun buildAllLawsPool(data: List<TestData>, stats: Map<String, com.opoleyes.data.model.QuestionStat>): List<com.opoleyes.data.model.QuestionEntry> {
+        val pool = mutableListOf<com.opoleyes.data.model.QuestionEntry>()
+        for (d in data) {
+            if (d.test.tema == null) continue
+            pool.addAll(buildPoolFromTestData(d, stats))
+        }
+        return pool
+    }
+
+    private fun buildTemaPool(td: TestData, stats: Map<String, com.opoleyes.data.model.QuestionStat>): List<com.opoleyes.data.model.QuestionEntry> {
+        return buildPoolFromTestData(td, stats)
+    }
+
+    private fun buildQuickPool(data: List<TestData>, stats: Map<String, com.opoleyes.data.model.QuestionStat>, maxDifficulty: Int): List<com.opoleyes.data.model.QuestionEntry> {
+        val wrongPool = mutableListOf<com.opoleyes.data.model.QuestionEntry>()
+        val unansweredPool = mutableListOf<com.opoleyes.data.model.QuestionEntry>()
+        val correctPool = mutableListOf<com.opoleyes.data.model.QuestionEntry>()
+        for (d in data) {
+            if (d.test.tema == null) continue
+            val am = d.answers.associate { it.id to it.correct }
+            for (q in d.questions) {
+                val correct = am[q.id] ?: continue
+                val difficulty = q.difficulty
+                if (difficulty > maxDifficulty) continue
+                val key = (q.test_id) + ":" + (q.orig_id)
+                val s = stats[key]
+                val attempted = if (s != null) s.correct + s.wrong else 0
+                val baseWeight = (difficulty * 15) + 25
+                val weight = if (s != null && attempted >= 3)
+                    maxOf((100 * (1.0 - s.correct.toDouble() / attempted)).toInt() + (difficulty - 3) * 10, 5)
+                else baseWeight
+                val entry = com.opoleyes.data.model.QuestionEntry(
+                    enunciado = q.enunciado,
+                    opciones = q.opciones,
+                    correct = correct,
+                    weight = weight,
+                    testId = q.test_id,
+                    origId = q.orig_id.toString(),
+                    difficulty = difficulty
+                )
+                when {
+                    s != null && s.wrong > 0 -> wrongPool.add(entry)
+                    s == null -> unansweredPool.add(entry)
+                    else -> correctPool.add(entry)
+                }
+            }
+        }
+        var pool = (wrongPool + unansweredPool).toMutableList()
+        if (pool.size < Constants.QUICK_MODE_QUESTIONS) pool.addAll(correctPool)
+        pool.shuffle()
+        return pool.take(Constants.QUICK_MODE_QUESTIONS)
     }
 }

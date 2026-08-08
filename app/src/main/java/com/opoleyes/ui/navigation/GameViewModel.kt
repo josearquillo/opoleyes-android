@@ -1,11 +1,13 @@
 package com.opoleyes.ui.navigation
 
 import android.app.Application
-import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.opoleyes.data.IPreferencesManager
 import com.opoleyes.data.model.*
 import com.opoleyes.data.Constants
-import com.opoleyes.data.repository.GameRepository
+import com.opoleyes.data.local.DataProvider
+import com.opoleyes.data.local.PreferencesManager
 import com.opoleyes.data.repository.MissionRepository
 import com.opoleyes.data.repository.ProgressRepository
 import com.opoleyes.data.repository.StatsRepository
@@ -28,17 +30,46 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.time.LocalDate
 
-class GameViewModel(application: Application) : AndroidViewModel(application) {
-    private val progressRepo = ProgressRepository(application)
-    private val statsRepo = StatsRepository(application)
-    private val gameRepo = GameRepository(application)
-    private val missionRepo = MissionRepository(application)
-    private val achievementChecker = AchievementChecker(application)
-    private val chestSystem = ChestSystem(application)
-    private val prefs = com.opoleyes.data.local.PreferencesManager(application)
+class GameViewModel private constructor(
+    private val progressRepo: ProgressRepository,
+    private val statsRepo: StatsRepository,
+    private val missionRepo: MissionRepository,
+    private val achievementChecker: AchievementChecker,
+    private val chestSystem: ChestSystem,
+    private val prefs: IPreferencesManager,
+    val engine: GameEngine,
+    val examEngine: ExamEngine,
+    private val temaTestsProvider: () -> List<com.opoleyes.data.model.Test>
+) : ViewModel() {
 
-    val engine = GameEngine(application)
-    val examEngine = ExamEngine(application)
+    constructor(application: Application) : this(
+        ProgressRepository(application),
+        StatsRepository(application),
+        MissionRepository(application),
+        AchievementChecker(application),
+        ChestSystem(application),
+        PreferencesManager(application),
+        GameEngine(application),
+        ExamEngine(application),
+        { DataProvider.getTemaTests(application) }
+    )
+
+    companion object {
+        fun createForTest(
+            progressRepo: ProgressRepository,
+            statsRepo: StatsRepository,
+            missionRepo: MissionRepository,
+            achievementChecker: AchievementChecker,
+            chestSystem: ChestSystem,
+            prefs: IPreferencesManager,
+            engine: GameEngine,
+            examEngine: ExamEngine,
+            temaTestsProvider: () -> List<com.opoleyes.data.model.Test> = { emptyList() }
+        ) = GameViewModel(
+            progressRepo, statsRepo, missionRepo, achievementChecker,
+            chestSystem, prefs, engine, examEngine, temaTestsProvider
+        )
+    }
 
     // Preloaded data for HomeScreen (computed during loading screen)
     data class HomePreload(
@@ -83,7 +114,7 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
 
     fun preloadProfileData() {
         if (_profileData != null) return
-        val temaTests = com.opoleyes.data.local.DataProvider.getTemaTests(getApplication())
+        val temaTests = temaTestsProvider()
         val records = linkedMapOf(
             "survival" to progressRepo.getRecord("survival"),
             "timetrial" to progressRepo.getRecord("timetrial"),
@@ -110,8 +141,7 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun getLeyProgress(testId: String): Int = statsRepo.getLeyProgress(testId)
-    fun getTemaTests(): List<com.opoleyes.data.model.Test> =
-        com.opoleyes.data.local.DataProvider.getTemaTests(getApplication())
+    fun getTemaTests(): List<com.opoleyes.data.model.Test> = temaTestsProvider()
     fun getUnlocks(): com.opoleyes.data.repository.Unlocks = progressRepo.getUnlocks()
 
     fun resetProgress() {
@@ -379,6 +409,20 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
             _isLoading.value = false
             onDone(true)
         }
+    }
+
+    fun loadSimulacroSync() {
+        _examResult.value = null
+        _simulacroResult.value = null
+        _isSimulacroMode.value = true
+        _xpBreakdown.value = null
+        missionRepo.clearSessionCompletedMissions()
+        examEngine.loadSimulacro()
+        _examQuestionNum.value = 0
+        _examAnswered.value = 0
+        _examTotalQuestions.value = examEngine.getQuestionCount()
+        _examCurrentQuestion.value = examEngine.getCurrentQuestion()
+        _simulacroTimer.value = ExamEngine.SIMULACRO_TIME_SECONDS
     }
 
     fun examAnswer(letter: String) {

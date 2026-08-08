@@ -1,12 +1,17 @@
 package com.opoleyes.domain
 
 import android.content.Context
+import com.opoleyes.data.IStatsRepository
 import com.opoleyes.data.local.DataProvider
 import com.opoleyes.data.model.QuestionEntry
 import com.opoleyes.data.repository.StatsRepository
 
-class ExamEngine(private val context: Context) {
-    private val statsRepo = StatsRepository(context)
+class ExamEngine private constructor(
+    private val context: Context?,
+    private val statsRepo: IStatsRepository,
+    private val testPool: List<QuestionEntry>?
+) {
+    constructor(context: Context) : this(context, StatsRepository(context), null)
 
     data class ExamQuestion(
         val question: QuestionEntry,
@@ -46,6 +51,11 @@ class ExamEngine(private val context: Context) {
     private var testLawMap: Map<String, String> = emptyMap()
 
     companion object {
+        fun createForTest(
+            statsRepo: IStatsRepository,
+            pool: List<QuestionEntry>
+        ) = ExamEngine(null, statsRepo, pool)
+
         const val SIMULACRO_QUESTIONS = 100
         const val SIMULACRO_TIME_SECONDS = 100 * 60
         const val SIMULACRO_CORRECT_POINTS = 0.60f
@@ -61,6 +71,13 @@ class ExamEngine(private val context: Context) {
     fun isFinished(): Boolean = currentIndex >= questions.size
 
     fun loadExam(questionCount: Int) {
+        if (testPool != null) {
+            val shuffled = testPool.shuffled()
+            questions = shuffled.take(questionCount).map { ExamQuestion(it) }
+            currentIndex = 0
+            testLawMap = testPool.associate { it.testId to "Otros" }
+            return
+        }
         val lawWeights = mapOf(
             "LOPJ" to 28,
             "LEC" to 22,
@@ -73,7 +90,7 @@ class ExamEngine(private val context: Context) {
             "Otros" to 2
         )
 
-        val allData = DataProvider.loadData(context).filter { it.test.tema != null }
+        val allData = DataProvider.loadData(context!!).filter { it.test.tema != null }
         val stats = statsRepo.getStats()
         val poolsByLaw = mutableMapOf<String, MutableList<QuestionEntry>>()
         val testLaw = mutableMapOf<String, String>()

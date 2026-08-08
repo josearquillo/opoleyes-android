@@ -56,4 +56,6 @@ interface IPreferencesManager {
     fun setLastKnownRankIndex(index: Int)
     fun getDailyMissions(): MissionData?
     fun saveDailyMissions(data: MissionData)
+    fun isIntroShown(key: String): Boolean
+    fun setIntroShown(key: String)
 }

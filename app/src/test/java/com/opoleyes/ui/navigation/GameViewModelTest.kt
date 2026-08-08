@@ -1,11 +1,21 @@
 package com.opoleyes.ui.navigation
 
-import android.app.Application
-import androidx.test.core.app.ApplicationProvider
+import com.opoleyes.FakeGameRepository
+import com.opoleyes.FakePreferencesManager
+import com.opoleyes.TestFakes
 import com.opoleyes.data.Constants
-import com.opoleyes.data.local.PreferencesManager
 import com.opoleyes.data.model.GameMode
 import com.opoleyes.data.repository.ProgressRepository
+import com.opoleyes.data.repository.StatsRepository
+import com.opoleyes.data.repository.MissionRepository
+import com.opoleyes.domain.AchievementChecker
+import com.opoleyes.domain.ChestSystem
+import com.opoleyes.domain.ExamEngine
+import com.opoleyes.domain.GameEngine
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.test.StandardTestDispatcher
+import kotlinx.coroutines.test.resetMain
+import kotlinx.coroutines.test.setMain
 import org.junit.After
 import org.junit.AfterClass
 import org.junit.Assert.assertEquals
@@ -14,45 +24,62 @@ import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Before
+import org.junit.BeforeClass
 import org.junit.Test
-import org.junit.runner.RunWith
-import org.robolectric.RobolectricTestRunner
-import org.robolectric.annotation.Config
-import org.robolectric.shadows.ShadowLooper
-import java.util.concurrent.CountDownLatch
-import java.util.concurrent.TimeUnit
 
-@RunWith(RobolectricTestRunner::class)
-@Config(sdk = [34])
+@OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
 class GameViewModelTest {
 
     companion object {
-        private lateinit var sharedApp: Application
         private lateinit var sharedVm: GameViewModel
-        private lateinit var sharedPrefs: PreferencesManager
+        private lateinit var sharedPrefs: FakePreferencesManager
         private lateinit var sharedProgressRepo: ProgressRepository
+        private lateinit var sharedStatsRepo: StatsRepository
+        private lateinit var sharedMissionRepo: MissionRepository
+        private lateinit var sharedEngine: GameEngine
+        private lateinit var sharedExamEngine: ExamEngine
         private var initialized = false
+        @OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
+        private val testDispatcher = StandardTestDispatcher()
+
+        @JvmStatic
+        @BeforeClass
+        fun setUpClass() {
+            Dispatchers.setMain(testDispatcher)
+        }
 
         @JvmStatic
         @AfterClass
-        fun cleanupCompanion() {
-            if (initialized) {
-                sharedPrefs.resetAll()
-            }
+        fun tearDownClass() {
+            Dispatchers.resetMain()
         }
     }
 
     private val vm: GameViewModel get() = sharedVm
-    private val prefs: PreferencesManager get() = sharedPrefs
+    private val prefs: FakePreferencesManager get() = sharedPrefs
     private val progressRepo: ProgressRepository get() = sharedProgressRepo
 
     @Before
     fun setup() {
         if (!initialized) {
-            sharedApp = ApplicationProvider.getApplicationContext()
-            sharedPrefs = PreferencesManager(sharedApp)
-            sharedProgressRepo = ProgressRepository(sharedApp)
-            sharedVm = GameViewModel(sharedApp)
+            sharedPrefs = FakePreferencesManager()
+            sharedPrefs.resetAll()
+            sharedProgressRepo = ProgressRepository(sharedPrefs)
+            sharedStatsRepo = StatsRepository(sharedPrefs)
+            sharedMissionRepo = MissionRepository(sharedPrefs)
+            val gameRepo = FakeGameRepository()
+            sharedEngine = GameEngine.createForTest(gameRepo, sharedStatsRepo, sharedProgressRepo, sharedPrefs)
+            sharedExamEngine = ExamEngine.createForTest(sharedStatsRepo, TestFakes.makePool(100))
+            sharedVm = GameViewModel.createForTest(
+                sharedProgressRepo,
+                sharedStatsRepo,
+                sharedMissionRepo,
+                AchievementChecker(sharedPrefs),
+                ChestSystem(sharedPrefs),
+                sharedPrefs,
+                sharedEngine,
+                sharedExamEngine
+            )
             initialized = true
         }
         // Full state reset without recreating objects
@@ -97,15 +124,7 @@ class GameViewModelTest {
 
     @Test
     fun finishSimulacro_guardAgainstDoubleSubmission() {
-        // Start simulacro via async API and wait for completion.
-        // Pump the Main looper so the onDone callback (dispatched to
-        // Dispatchers.Main) fires once the background load finishes.
-        val latch = CountDownLatch(1)
-        vm.startSimulacroAsync { latch.countDown() }
-        while (!latch.await(50, TimeUnit.MILLISECONDS)) {
-            ShadowLooper.idleMainLooper()
-        }
-
+        startSimulacroSync()
         val count = vm.examEngine.getQuestionCount()
         for (i in 0 until count) {
             vm.examNavigate(i)
@@ -750,16 +769,12 @@ class GameViewModelTest {
     // === SIMULACRO mode lifecycle ===
 
     private fun startSimulacro(): Boolean {
-        val latch = CountDownLatch(1)
-        vm.startSimulacroAsync { latch.countDown() }
-        // startSimulacroAsync dispatches onDone to Dispatchers.Main; pump the
-        // Main looper so the callback fires as soon as the background
-        // loadSimulacro() finishes (otherwise the latch hits its 30s timeout
-        // even though the load itself completes in well under a second).
-        while (!latch.await(50, TimeUnit.MILLISECONDS)) {
-            ShadowLooper.idleMainLooper()
-        }
+        vm.loadSimulacroSync()
         return vm.examEngine.getQuestionCount() > 0
+    }
+
+    private fun startSimulacroSync() {
+        vm.loadSimulacroSync()
     }
 
     @Test
