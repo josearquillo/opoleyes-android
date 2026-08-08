@@ -4,14 +4,24 @@ import android.content.Context
 import com.opoleyes.data.local.PreferencesManager
 import com.opoleyes.data.model.ChestReward
 import com.opoleyes.data.model.ChestType
-import com.opoleyes.data.repository.GameRepository
 import com.opoleyes.data.repository.ProgressRepository
 
-class ChestSystem(private val context: Context) {
-    private val progressRepo = ProgressRepository(context)
-    private val gameRepo = GameRepository(context)
+class ChestSystem(
+    private val progressRepo: ProgressRepository,
+    private val prefs: com.opoleyes.data.IPreferencesManager
+) {
 
-    fun generateChest(newRecord: Boolean, accuracy: Int, totalAnswered: Int, score: Int): ChestReward? {
+    constructor(context: Context) : this(
+        ProgressRepository(context),
+        PreferencesManager(context)
+    )
+
+    constructor(prefs: com.opoleyes.data.IPreferencesManager) : this(
+        ProgressRepository(prefs),
+        prefs
+    )
+
+    fun generateChest(newRecord: Boolean, accuracy: Int, totalAnswered: Int): ChestReward? {
         if (totalAnswered < 3) return null
         val type = when {
             newRecord && accuracy >= 90 && totalAnswered >= 10 -> ChestType.GOLD
@@ -34,6 +44,6 @@ class ChestSystem(private val context: Context) {
 
     fun openChest(reward: ChestReward) {
         progressRepo.addXP(reward.xp)
-        if (reward.multiplier) gameRepo.setMultiplier(2)
+        if (reward.multiplier) prefs.setMultiplier(2)
     }
 }

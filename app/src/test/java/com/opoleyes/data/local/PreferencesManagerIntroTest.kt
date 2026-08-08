@@ -1,11 +1,12 @@
 package com.opoleyes.data.local
 
+import android.app.Application
 import androidx.test.core.app.ApplicationProvider
-import com.opoleyes.TestContextProvider
 import com.opoleyes.data.model.Mission
 import com.opoleyes.data.model.MissionData
 import com.opoleyes.data.model.MissionDifficulty
 import com.opoleyes.data.model.SimulacroHistoryEntry
+import org.junit.AfterClass
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
@@ -20,13 +21,29 @@ import java.time.LocalDate
 @Config(sdk = [34])
 class PreferencesManagerIntroTest {
 
-    private lateinit var prefs: PreferencesManager
+    companion object {
+        private lateinit var sharedPrefs: PreferencesManager
+        private var initialized = false
+
+        @JvmStatic
+        @AfterClass
+        fun cleanupCompanion() {
+            if (initialized) {
+                sharedPrefs.resetAll()
+            }
+        }
+    }
+
+    private val prefs: PreferencesManager get() = sharedPrefs
 
     @Before
     fun setup() {
-        val ctx = TestContextProvider.getContext()
-        prefs = PreferencesManager(ctx)
-        prefs.resetAll()
+        if (!initialized) {
+            val app = ApplicationProvider.getApplicationContext<Application>()
+            sharedPrefs = PreferencesManager(app)
+            initialized = true
+        }
+        sharedPrefs.resetAll()
     }
 
     @Test

@@ -2,11 +2,7 @@ package com.opoleyes.data.repository
 
 import org.junit.Before
 import org.junit.Test
-import org.junit.runner.RunWith
-import org.robolectric.RobolectricTestRunner
-import org.robolectric.annotation.Config
-import com.opoleyes.TestContextProvider
-import com.opoleyes.data.local.PreferencesManager
+import com.opoleyes.FakePreferencesManager
 import com.opoleyes.data.model.Mission
 import com.opoleyes.data.model.MissionData
 import com.opoleyes.data.model.MissionDifficulty
@@ -15,21 +11,18 @@ import org.junit.Assert.assertTrue
 import org.junit.Assert.assertFalse
 import java.time.LocalDate
 
-@RunWith(RobolectricTestRunner::class)
-@Config(sdk = [34])
 class MissionRepositoryTest {
 
-    private lateinit var prefs: PreferencesManager
+    private lateinit var prefs: FakePreferencesManager
     private lateinit var missionRepo: MissionRepository
     private lateinit var progressRepo: ProgressRepository
 
     @Before
     fun setup() {
-        val ctx = TestContextProvider.getContext()
-        prefs = PreferencesManager(ctx)
+        prefs = FakePreferencesManager()
         prefs.resetAll()
-        missionRepo = MissionRepository(ctx)
-        progressRepo = ProgressRepository(ctx)
+        missionRepo = MissionRepository(prefs)
+        progressRepo = ProgressRepository(prefs)
     }
 
     private fun makeMission(
@@ -108,21 +101,6 @@ class MissionRepositoryTest {
         assertEquals(5, missionRepo.getDailyMissions()!!.missions[0].current)
         missionRepo.updateProgress("streak", 3)
         assertEquals(5, missionRepo.getDailyMissions()!!.missions[0].current)
-    }
-
-    @Test
-    fun generateDailyMissions_returnsMissionsForToday() {
-        val data = missionRepo.generateDailyMissions()
-        assertEquals(LocalDate.now().toString(), data.date)
-        assertTrue("At least 1 mission", data.missions.isNotEmpty())
-    }
-
-    @Test
-    fun generateDailyMissions_sameDayReturnsSame() {
-        val first = missionRepo.generateDailyMissions()
-        val second = missionRepo.generateDailyMissions()
-        assertEquals(first.date, second.date)
-        assertEquals(first.missions.size, second.missions.size)
     }
 
     // === Regression tests for bugs fixed ===

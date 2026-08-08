@@ -111,8 +111,7 @@ open class GameRepository(private val context: Context) : com.opoleyes.data.IGam
      */
     fun getFilteredAndWeightedPool(
         pool: List<QuestionEntry>,
-        rankIndex: Int,
-        stats: Map<String, com.opoleyes.data.model.QuestionStat>
+        rankIndex: Int
     ): List<QuestionEntry> {
         val maxDifficulty = Constants.MAX_DIFFICULTY_BY_RANK[rankIndex] ?: 5
         return pool.filter { it.difficulty <= maxDifficulty }

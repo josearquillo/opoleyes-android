@@ -130,7 +130,7 @@ class GameRepositoryTest {
     fun getFilteredAndWeightedPool_rank0_filtersByMaxDifficulty() {
         val fullPool = gameRepo.startAllLawsGame()
         val maxDiffRank0 = Constants.MAX_DIFFICULTY_BY_RANK[0] ?: 5
-        val filtered = gameRepo.getFilteredAndWeightedPool(fullPool, rankIndex = 0, stats = emptyMap())
+        val filtered = gameRepo.getFilteredAndWeightedPool(fullPool, rankIndex = 0)
         for (q in filtered) {
             assertTrue("Rank 0 should not see difficulty > $maxDiffRank0, got ${q.difficulty}",
                 q.difficulty <= maxDiffRank0)
@@ -140,7 +140,7 @@ class GameRepositoryTest {
     @Test
     fun getFilteredAndWeightedPool_highRank_includesAll() {
         val fullPool = gameRepo.startAllLawsGame()
-        val filtered = gameRepo.getFilteredAndWeightedPool(fullPool, rankIndex = 8, stats = emptyMap())
+        val filtered = gameRepo.getFilteredAndWeightedPool(fullPool, rankIndex = 8)
         // Rank 8 has maxDifficulty=5, so all questions should be included
         assertEquals("Rank 8 should include all questions", fullPool.size, filtered.size)
     }
@@ -149,7 +149,7 @@ class GameRepositoryTest {
     fun getFilteredAndWeightedPool_rank2_filtersDifficulty3() {
         val fullPool = gameRepo.startAllLawsGame()
         val maxDiffRank2 = Constants.MAX_DIFFICULTY_BY_RANK[2] ?: 5
-        val filtered = gameRepo.getFilteredAndWeightedPool(fullPool, rankIndex = 2, stats = emptyMap())
+        val filtered = gameRepo.getFilteredAndWeightedPool(fullPool, rankIndex = 2)
         for (q in filtered) {
             assertTrue("Rank 2 should not see difficulty > $maxDiffRank2", q.difficulty <= maxDiffRank2)
         }

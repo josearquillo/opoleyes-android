@@ -2,30 +2,24 @@ package com.opoleyes.domain
 
 import org.junit.Before
 import org.junit.Test
-import org.junit.runner.RunWith
-import org.robolectric.RobolectricTestRunner
-import org.robolectric.annotation.Config
-import com.opoleyes.TestContextProvider
-import com.opoleyes.data.local.PreferencesManager
+import com.opoleyes.FakePreferencesManager
 import com.opoleyes.data.repository.ProgressRepository
-import com.opoleyes.data.repository.StatsRepository
 import org.junit.Assert.assertTrue
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertEquals
 
-@RunWith(RobolectricTestRunner::class)
-@Config(sdk = [34])
 class AchievementCheckerTest {
 
-    private lateinit var prefs: PreferencesManager
+    private lateinit var prefs: FakePreferencesManager
     private lateinit var checker: AchievementChecker
+    private lateinit var progressRepo: ProgressRepository
 
     @Before
     fun setup() {
-        val ctx = TestContextProvider.getContext()
-        prefs = PreferencesManager(ctx)
+        prefs = FakePreferencesManager()
         prefs.resetAll()
-        checker = AchievementChecker(ctx)
+        progressRepo = ProgressRepository(prefs)
+        checker = AchievementChecker(prefs)
     }
 
     @Test
@@ -105,8 +99,7 @@ class AchievementCheckerTest {
 
     @Test
     fun gameOver_dedicated_unlocksAt10Games() {
-        val repo = ProgressRepository(TestContextProvider.getContext())
-        repeat(10) { repo.incrementGamesPlayed() }
+        repeat(10) { progressRepo.incrementGamesPlayed() }
         val result = checker.checkGameOver(AchievementContext(gameOver = true))
         assertTrue("dedicated unlocked at 10 games", result.any { it.id == "dedicated" })
     }

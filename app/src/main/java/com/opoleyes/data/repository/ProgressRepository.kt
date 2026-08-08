@@ -8,8 +8,11 @@ import com.opoleyes.data.model.Rank
 import com.opoleyes.data.model.SimulacroHistoryEntry
 import com.opoleyes.data.model.XPProgress
 
-open class ProgressRepository(private val context: Context) : com.opoleyes.data.IProgressRepository {
-    private val prefs = PreferencesManager(context)
+open class ProgressRepository(
+    private val prefs: com.opoleyes.data.IPreferencesManager
+) : com.opoleyes.data.IProgressRepository {
+
+    constructor(context: Context) : this(PreferencesManager(context))
 
     override fun getXP(): Int = if (prefs.isDebugMode()) 100000 else prefs.getXP()
     override fun addXP(amount: Int): Int {

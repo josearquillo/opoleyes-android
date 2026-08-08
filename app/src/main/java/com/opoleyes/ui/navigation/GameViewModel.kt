@@ -635,7 +635,7 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
         _homePreload = null
         _profileData = null
 
-        val chest = chestSystem.generateChest(_newRecord.value, acc, engine.totalAnswered, engine.score)
+        val chest = chestSystem.generateChest(_newRecord.value, acc, engine.totalAnswered)
         _chestReward.value = chest
     }
 

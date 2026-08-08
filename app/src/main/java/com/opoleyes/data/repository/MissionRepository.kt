@@ -9,10 +9,26 @@ import com.opoleyes.data.model.MissionData
 import com.opoleyes.data.model.MissionDifficulty
 import java.time.LocalDate
 
-class MissionRepository(private val context: Context) {
-    private val prefs = PreferencesManager(context)
-    private val statsRepo = StatsRepository(context)
-    private val progressRepo = ProgressRepository(context)
+class MissionRepository private constructor(
+    private val context: Context?,
+    private val prefs: com.opoleyes.data.IPreferencesManager,
+    private val statsRepo: StatsRepository,
+    private val progressRepo: ProgressRepository
+) {
+
+    constructor(context: Context) : this(
+        context,
+        PreferencesManager(context),
+        StatsRepository(context),
+        ProgressRepository(context)
+    )
+
+    constructor(prefs: com.opoleyes.data.IPreferencesManager) : this(
+        null,
+        prefs,
+        StatsRepository(prefs),
+        ProgressRepository(prefs)
+    )
 
     // Missions completed during the current game session (cleared by clearSessionCompletedMissions).
     // Used by the ViewModel to build the XP breakdown shown on GameOver.
@@ -39,7 +55,7 @@ class MissionRepository(private val context: Context) {
         val today = getTodayStr()
         val existing = getDailyMissions()
         if (existing != null && existing.date == today) {
-            val testDataMap = DataProvider.getTestDataMap(context)
+            val testDataMap = context?.let { DataProvider.getTestDataMap(it) } ?: emptyMap()
             val allValid = existing.missions.all { m ->
                 m.testId == null || testDataMap.containsKey(m.testId)
             }
@@ -50,7 +66,7 @@ class MissionRepository(private val context: Context) {
         val seed = today.split("-").map { it.toLong() }.reduce { a, b -> a * 100 + b }
         val rng = seededRandom(seed)
         val stats = statsRepo.getStats()
-        val temaTests = DataProvider.getTemaTests(context)
+        val temaTests = context?.let { DataProvider.getTemaTests(it) } ?: emptyList()
 
         val rankIndex = progressRepo.getRankIndex()
         val easyReward = 30 * (1 + rankIndex)

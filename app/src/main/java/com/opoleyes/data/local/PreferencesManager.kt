@@ -60,42 +60,42 @@ open class PreferencesManager(private val context: Context) : com.opoleyes.data.
         prefs.edit().putInt(XP_MULTIPLIER, value).apply()
     }
 
-    fun getStats(): Map<String, QuestionStat> {
+    override fun getStats(): Map<String, QuestionStat> {
         val json = prefs.getString(STATS_JSON, "{}")
         val type = object : TypeToken<Map<String, QuestionStat>>() {}.type
         return gson.fromJson(json, type) ?: emptyMap()
     }
 
-    fun saveStats(stats: Map<String, QuestionStat>) {
+    override fun saveStats(stats: Map<String, QuestionStat>) {
         if (isWriteBlocked()) return
         prefs.edit().putString(STATS_JSON, gson.toJson(stats)).apply()
     }
 
-    fun getGamesPlayed(): Int = prefs.getInt(GAMES_PLAYED, 0)
+    override fun getGamesPlayed(): Int = prefs.getInt(GAMES_PLAYED, 0)
 
-    fun incrementGamesPlayed(): Int {
+    override fun incrementGamesPlayed(): Int {
         if (isWriteBlocked()) return getGamesPlayed()
         val v = getGamesPlayed() + 1
         prefs.edit().putInt(GAMES_PLAYED, v).apply()
         return v
     }
 
-    fun getRecord(mode: String): Int = prefs.getInt(recordKey(mode), 0)
-    fun setRecord(mode: String, value: Int) { if (isWriteBlocked()) return; prefs.edit().putInt(recordKey(mode), value).apply() }
+    override fun getRecord(mode: String): Int = prefs.getInt(recordKey(mode), 0)
+    override fun setRecord(mode: String, value: Int) { if (isWriteBlocked()) return; prefs.edit().putInt(recordKey(mode), value).apply() }
 
-    fun getRecordCombo(mode: String): Int = prefs.getInt(recordComboKey(mode), 0)
-    fun setRecordCombo(mode: String, value: Int) { if (isWriteBlocked()) return; prefs.edit().putInt(recordComboKey(mode), value).apply() }
+    override fun getRecordCombo(mode: String): Int = prefs.getInt(recordComboKey(mode), 0)
+    override fun setRecordCombo(mode: String, value: Int) { if (isWriteBlocked()) return; prefs.edit().putInt(recordComboKey(mode), value).apply() }
 
-    fun getRecordAcc(mode: String): Int = prefs.getInt(recordAccKey(mode), 0)
-    fun setRecordAcc(mode: String, value: Int) { if (isWriteBlocked()) return; prefs.edit().putInt(recordAccKey(mode), value).apply() }
+    override fun getRecordAcc(mode: String): Int = prefs.getInt(recordAccKey(mode), 0)
+    override fun setRecordAcc(mode: String, value: Int) { if (isWriteBlocked()) return; prefs.edit().putInt(recordAccKey(mode), value).apply() }
 
-    fun getAchievements(): Map<String, Long> {
+    override fun getAchievements(): Map<String, Long> {
         val json = prefs.getString(ACHIEVEMENTS_JSON, "{}")
         val type = object : TypeToken<Map<String, Long>>() {}.type
         return gson.fromJson(json, type) ?: emptyMap()
     }
 
-    fun saveAchievements(achievements: Map<String, Long>) {
+    override fun saveAchievements(achievements: Map<String, Long>) {
         val wasInternal = internalWrite
         internalWrite = true
         try {
@@ -105,12 +105,12 @@ open class PreferencesManager(private val context: Context) : com.opoleyes.data.
         }
     }
 
-    fun getDailyMissions(): MissionData? {
+    override fun getDailyMissions(): MissionData? {
         val json = prefs.getString(DAILY_MISSIONS_JSON, null) ?: return null
         return gson.fromJson(json, MissionData::class.java)
     }
 
-    fun saveDailyMissions(data: MissionData) {
+    override fun saveDailyMissions(data: MissionData) {
         if (isWriteBlocked()) return
         prefs.edit().putString(DAILY_MISSIONS_JSON, gson.toJson(data)).apply()
     }
@@ -159,36 +159,36 @@ open class PreferencesManager(private val context: Context) : com.opoleyes.data.
         }
     }
 
-    fun getMaxExamQuestions(): Int = prefs.getInt(MAX_EXAM_QUESTIONS, 10)
+    override fun getMaxExamQuestions(): Int = prefs.getInt(MAX_EXAM_QUESTIONS, 10)
 
-    fun setMaxExamQuestions(value: Int) {
+    override fun setMaxExamQuestions(value: Int) {
         if (isWriteBlocked()) return
         prefs.edit().putInt(MAX_EXAM_QUESTIONS, value).apply()
     }
 
-    fun isSimulacroUnlocked(): Boolean = prefs.getBoolean(SIMULACRO_UNLOCKED, false)
+    override fun isSimulacroUnlocked(): Boolean = prefs.getBoolean(SIMULACRO_UNLOCKED, false)
 
-    fun setSimulacroUnlocked() {
+    override fun setSimulacroUnlocked() {
         if (isWriteBlocked()) return
         prefs.edit().putBoolean(SIMULACRO_UNLOCKED, true).apply()
     }
 
-    fun getSimulacroHistory(): List<SimulacroHistoryEntry> {
+    override fun getSimulacroHistory(): List<SimulacroHistoryEntry> {
         val json = prefs.getString(SIMULACRO_HISTORY_JSON, "[]")
         val type = object : TypeToken<List<SimulacroHistoryEntry>>() {}.type
         return gson.fromJson(json, type) ?: emptyList()
     }
 
-    fun addSimulacroHistory(entry: SimulacroHistoryEntry) {
+    override fun addSimulacroHistory(entry: SimulacroHistoryEntry) {
         if (isWriteBlocked()) return
         val history = getSimulacroHistory().toMutableList()
         history.add(entry)
         prefs.edit().putString(SIMULACRO_HISTORY_JSON, gson.toJson(history)).apply()
     }
 
-    fun getLastKnownRankIndex(): Int = prefs.getInt(LAST_KNOWN_RANK_INDEX, 0)
+    override fun getLastKnownRankIndex(): Int = prefs.getInt(LAST_KNOWN_RANK_INDEX, 0)
 
-    fun setLastKnownRankIndex(index: Int) {
+    override fun setLastKnownRankIndex(index: Int) {
         if (isWriteBlocked()) return
         prefs.edit().putInt(LAST_KNOWN_RANK_INDEX, index).apply()
     }

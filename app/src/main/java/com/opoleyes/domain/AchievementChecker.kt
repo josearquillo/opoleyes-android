@@ -19,9 +19,23 @@ data class AchievementContext(
     val maxOptions: Int = 4
 )
 
-class AchievementChecker(private val context: Context) {
-    private val progressRepo = ProgressRepository(context)
-    private val statsRepo = StatsRepository(context)
+class AchievementChecker(
+    private val progressRepo: ProgressRepository,
+    private val statsRepo: StatsRepository,
+    private val context: Context?
+) {
+
+    constructor(context: Context) : this(
+        ProgressRepository(context),
+        StatsRepository(context),
+        context
+    )
+
+    constructor(prefs: com.opoleyes.data.IPreferencesManager) : this(
+        ProgressRepository(prefs),
+        StatsRepository(prefs),
+        null
+    )
 
     fun checkPerQuestion(ctx: AchievementContext): List<Achievement> {
         val unlocked = mutableListOf<Achievement>()
@@ -62,7 +76,7 @@ class AchievementChecker(private val context: Context) {
         if (ctx.perfectGame && ctx.maxOptions >= 4) unlock("perfect_game", unlocked)
         if (ctx.sharpshooter && ctx.maxOptions >= 4) unlock("sharpshooter", unlocked)
 
-        val temaTests = com.opoleyes.data.local.DataProvider.getTemaTests(context)
+        val temaTests = context?.let { com.opoleyes.data.local.DataProvider.getTemaTests(it) } ?: emptyList()
         var dominatedLaws = 0
         for (t in temaTests) { if (statsRepo.getLeyProgress(t.id) >= 100) dominatedLaws++ }
         if (dominatedLaws >= 1) unlock("first_law", unlocked)

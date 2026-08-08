@@ -5,8 +5,13 @@ import com.opoleyes.data.local.DataProvider
 import com.opoleyes.data.local.PreferencesManager
 import com.opoleyes.data.model.QuestionStat
 
-open class StatsRepository(private val context: Context) : com.opoleyes.data.IStatsRepository {
-    private val prefs = PreferencesManager(context)
+open class StatsRepository private constructor(
+    private val context: Context?,
+    private val prefs: com.opoleyes.data.IPreferencesManager
+) : com.opoleyes.data.IStatsRepository {
+
+    constructor(context: Context) : this(context, PreferencesManager(context))
+    constructor(prefs: com.opoleyes.data.IPreferencesManager) : this(null, prefs)
     @Volatile
     private var cachedStats: Map<String, QuestionStat>? = null
     private val lock = Any()
@@ -45,7 +50,8 @@ open class StatsRepository(private val context: Context) : com.opoleyes.data.ISt
     }
 
     override fun getLeyProgress(testId: String): Int {
-        val testDataMap = DataProvider.getTestDataMap(context)
+        val ctx = context ?: return 0
+        val testDataMap = DataProvider.getTestDataMap(ctx)
         val td = testDataMap[testId] ?: return 0
         if (td.questions.isEmpty()) return 0
         val stats = getStats()
@@ -59,7 +65,8 @@ open class StatsRepository(private val context: Context) : com.opoleyes.data.ISt
     }
 
     fun getGlobalProgress(): Int {
-        val allData = DataProvider.loadData(context)
+        val ctx = context ?: return 0
+        val allData = DataProvider.loadData(ctx)
         val stats = getStats()
         var totalQ = 0
         var mastered = 0

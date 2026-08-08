@@ -2,11 +2,7 @@ package com.opoleyes.data.repository
 
 import org.junit.Before
 import org.junit.Test
-import org.junit.runner.RunWith
-import org.robolectric.RobolectricTestRunner
-import org.robolectric.annotation.Config
-import com.opoleyes.TestContextProvider
-import com.opoleyes.data.local.PreferencesManager
+import com.opoleyes.FakePreferencesManager
 import com.opoleyes.data.model.SimulacroHistoryEntry
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -14,19 +10,16 @@ import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 
-@RunWith(RobolectricTestRunner::class)
-@Config(sdk = [34])
 class ProgressRepositoryTest {
 
-    private lateinit var prefs: PreferencesManager
+    private lateinit var prefs: FakePreferencesManager
     private lateinit var repo: ProgressRepository
 
     @Before
     fun setup() {
-        val ctx = TestContextProvider.getContext()
-        prefs = PreferencesManager(ctx)
+        prefs = FakePreferencesManager()
         prefs.resetAll()
-        repo = ProgressRepository(ctx)
+        repo = ProgressRepository(prefs)
     }
 
     @Test
