@@ -224,12 +224,9 @@ fun OptionCard(
 @Composable
 fun AnimatedHudBar(
     score: Int,
-    combo: Int,
     lives: Int,
     timer: Float,
     mode: com.opoleyes.data.model.GameMode,
-    questionNum: Int,
-    streak: Int = 0,
     maxLives: Int = 3,
     modifier: Modifier = Modifier
 ) {
@@ -675,6 +672,7 @@ fun ComboBar(
     overchargeCharges: Int,
     combo: Int = 0,
     streak: Int = 0,
+    streakThreshold: Int = 5,
     modifier: Modifier = Modifier
 ) {
     Column(
@@ -683,7 +681,7 @@ fun ComboBar(
     ) {
         // Combo multiplier + streak text above the bar
         if (combo > 0) {
-            val streakText = if (streak > 0) " · ${streak % 5}/5" else ""
+            val streakText = if (streak > 0) " · ${streak % streakThreshold}/$streakThreshold" else ""
             val comboColor = if (overchargeActive) Warning else if (combo >= 10) Danger else if (combo >= 5) Orange else PrimaryLight
             Row(
                 verticalAlignment = Alignment.CenterVertically,

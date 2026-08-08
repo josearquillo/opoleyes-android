@@ -121,6 +121,7 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
         _profileData = null
         _rankUpOverlay.value = null
         _chestReward.value = null
+        chestOpened = false
     }
 
     fun isDebugMode(): Boolean = prefs.isDebugMode()
@@ -266,10 +267,12 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
         _popups.value = emptyList()
         _toasts.value = emptyList()
         _quickRewardEarned.value = false
+        _quickRewardMissed.value = false
         gameOverProcessed = false
         _xpBreakdown.value = null
         _rankUpOverlay.value = null
         _chestReward.value = null
+        chestOpened = false
         missionRepo.clearSessionCompletedMissions()
         pendingMode = GameMode.QUICK
         val ok = engine.startQuickGame()
@@ -293,6 +296,7 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
         _xpBreakdown.value = null
         _rankUpOverlay.value = null
         _chestReward.value = null
+        chestOpened = false
         missionRepo.clearSessionCompletedMissions()
         val ok = engine.startTemaGame(testId, pendingMode)
         if (ok) { engine.nextQuestion(); updateUiState() }
@@ -306,6 +310,7 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
         _xpBreakdown.value = null
         _rankUpOverlay.value = null
         _chestReward.value = null
+        chestOpened = false
         missionRepo.clearSessionCompletedMissions()
         val ok = engine.startAllLawsGame(pendingMode)
         if (ok) { engine.nextQuestion(); updateUiState() }
@@ -421,11 +426,14 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
         val result = examEngine.grade()
         _examResult.value = result
         progressRepo.incrementGamesPlayed()
-        val xp = result.correct * 10
+        val multiplier = prefs.getMultiplier()
+        if (multiplier > 1) prefs.setMultiplier(1)
+        val xp = result.correct * 10 * multiplier
         progressRepo.addXP(xp)
-        _xpGained.value = xp
         val scorePct = if (result.total > 0) (result.correct * 100 / result.total) else 0
         missionRepo.checkExamResult(scorePct)
+        val missionRewards = missionRepo.getSessionCompletedMissions().sumOf { it.reward }
+        _xpGained.value = xp + missionRewards
         if (result.score >= 5.0) {
             progressRepo.unlockNextExamQuestions()
             if (result.total >= 50 && !progressRepo.isSimulacroUnlocked()) {
@@ -433,7 +441,7 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
             }
         }
         checkRankUp(rankBefore)
-        _xpBreakdown.value = buildExamXpBreakdown(result.correct, result.total)
+        _xpBreakdown.value = buildExamXpBreakdown(result.correct, result.total, multiplier)
         _homePreload = null
         _profileData = null
     }
@@ -443,9 +451,10 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
         val result = examEngine.gradeSimulacro()
         _simulacroResult.value = result
         progressRepo.incrementGamesPlayed()
-        val xp = (result.points * 10).toInt().coerceAtLeast(0)
+        val multiplier = prefs.getMultiplier()
+        if (multiplier > 1) prefs.setMultiplier(1)
+        val xp = ((result.points * 10).toInt().coerceAtLeast(0)) * multiplier
         progressRepo.addXP(xp)
-        _xpGained.value = xp
         progressRepo.addSimulacroHistory(
             SimulacroHistoryEntry(
                 date = LocalDate.now().toString(),
@@ -457,8 +466,10 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
             )
         )
         missionRepo.checkSimulacroResult(result.passed)
+        val missionRewards = missionRepo.getSessionCompletedMissions().sumOf { it.reward }
+        _xpGained.value = xp + missionRewards
         checkRankUp(rankBefore)
-        _xpBreakdown.value = buildSimulacroXpBreakdown(result.points, result.correct)
+        _xpBreakdown.value = buildSimulacroXpBreakdown(result.points, result.correct, multiplier)
         _homePreload = null
         _profileData = null
     }
@@ -504,7 +515,8 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
                     }
                     addPopup("COMBO x${engine.combo}", comboColor, 40, 0f, "🔥")
                 }
-                if (engine.streak > 0 && engine.streak % 5 == 0) {
+                val streakThreshold = Constants.STREAK_RECOVERY_THRESHOLD_BY_RANK[engine.rankIndex] ?: 5
+                if (engine.streak > 0 && engine.streak % streakThreshold == 0) {
                     val streakMsg = when {
                         engine.ctxLifeRecovered -> "¡Vida recuperada! (Racha x${engine.streak})"
                         engine.mode == GameMode.TIMETRIAL -> "+20s (Racha x${engine.streak})"
@@ -585,7 +597,7 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
         progressRepo.incrementGamesPlayed()
 
         _accuracy.value = acc
-        _motivationalMessage.value = computeMotivationalMessage(acc, engine.totalAnswered, engine.correctCount)
+        _motivationalMessage.value = computeMotivationalMessage(acc, engine.totalAnswered)
         _medal.value = when {
             engine.score >= 1000 -> "🥇"
             engine.score >= 600 -> "🥈"
@@ -603,7 +615,7 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
             maxOptions = engine.maxOptions
         ))
 
-        missionRepo.checkOnGameOver(mode, engine.maxCombo, engine.totalAnswered, engine.category, engine.correctCount, engine.score)
+        missionRepo.checkOnGameOver(mode, engine.maxCombo, engine.maxStreak, engine.totalAnswered, engine.category, engine.correctCount, engine.score)
 
         if (engine.mode == GameMode.QUICK && engine.totalAnswered >= Constants.QUICK_MODE_QUESTIONS) {
             if (engine.correctCount == engine.totalAnswered) {
@@ -687,13 +699,13 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
         return XpBreakdown(lines = lines, total = _xpGained.value, multiplierApplied = multiplierApplied)
     }
 
-    private fun buildExamXpBreakdown(correct: Int, total: Int): XpBreakdown {
+    private fun buildExamXpBreakdown(correct: Int, total: Int, multiplier: Int = 1): XpBreakdown {
         val lines = mutableListOf<XpLine>()
         if (correct > 0) {
             lines.add(XpLine(
                 icon = "✓",
                 label = "Aciertos ($correct/$total)",
-                value = correct * 10,
+                value = correct * 10 * multiplier,
                 color = AccentLight
             ))
         }
@@ -705,12 +717,20 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
                 color = PrimaryLight
             ))
         }
-        return XpBreakdown(lines = lines, total = _xpGained.value, multiplierApplied = false)
+        if (multiplier > 1) {
+            lines.add(XpLine(
+                icon = "×$multiplier",
+                label = "Multiplicador",
+                value = 0,
+                color = Warning
+            ))
+        }
+        return XpBreakdown(lines = lines, total = _xpGained.value, multiplierApplied = multiplier > 1)
     }
 
-    private fun buildSimulacroXpBreakdown(points: Float, correct: Int): XpBreakdown {
+    private fun buildSimulacroXpBreakdown(points: Float, correct: Int, multiplier: Int = 1): XpBreakdown {
         val lines = mutableListOf<XpLine>()
-        val xp = (points * 10).toInt().coerceAtLeast(0)
+        val xp = ((points * 10).toInt().coerceAtLeast(0)) * multiplier
         if (xp > 0) {
             lines.add(XpLine(
                 icon = "🎯",
@@ -727,10 +747,18 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
                 color = PrimaryLight
             ))
         }
-        return XpBreakdown(lines = lines, total = _xpGained.value, multiplierApplied = false)
+        if (multiplier > 1) {
+            lines.add(XpLine(
+                icon = "×$multiplier",
+                label = "Multiplicador",
+                value = 0,
+                color = Warning
+            ))
+        }
+        return XpBreakdown(lines = lines, total = _xpGained.value, multiplierApplied = multiplier > 1)
     }
 
-    private fun computeMotivationalMessage(acc: Int, totalAnswered: Int, correctCount: Int): String {
+    private fun computeMotivationalMessage(acc: Int, totalAnswered: Int): String {
         val gamesPlayed = progressRepo.getGamesPlayed()
         return when {
             gamesPlayed <= 1 -> "¡Has dado el primer paso! 🌱"
@@ -754,15 +782,29 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
+    private var chestOpened = false
+
     fun openChest() {
+        if (chestOpened) return
+        chestOpened = true
         _chestReward.value?.let {
             chestSystem.openChest(it)
             _xpGained.value = _xpGained.value + it.xp
+            _xpBreakdown.value = _xpBreakdown.value?.let { breakdown ->
+                val lines = breakdown.lines.toMutableList()
+                lines.add(XpLine(
+                    icon = it.type.icon,
+                    label = "Cofre ${it.type.label}",
+                    value = it.xp,
+                    color = Warning
+                ))
+                XpBreakdown(lines = lines, total = _xpGained.value, multiplierApplied = breakdown.multiplierApplied)
+            }
             checkRankUp(engine.startRankIndex)
         }
     }
 
-    fun clearChest() { _chestReward.value = null }
+    fun clearChest() { _chestReward.value = null; chestOpened = false }
     fun clearRankUp() { _rankUpOverlay.value = null }
     fun clearPopups() { _popups.value = emptyList() }
 

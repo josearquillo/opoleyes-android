@@ -1,6 +1,7 @@
 package com.opoleyes.data.repository
 
 import android.content.Context
+import com.opoleyes.data.Constants
 import com.opoleyes.data.local.DataProvider
 import com.opoleyes.data.local.PreferencesManager
 import com.opoleyes.data.model.Mission
@@ -248,12 +249,12 @@ class MissionRepository(private val context: Context) {
         saveDailyMissions(data)
     }
 
-    fun checkOnGameOver(mode: String, maxCombo: Int, totalAnswered: Int, gameCategory: String, correctCount: Int, score: Int = 0) {
+    fun checkOnGameOver(mode: String, maxCombo: Int, maxStreak: Int, totalAnswered: Int, gameCategory: String, correctCount: Int, score: Int = 0) {
         val data = getDailyMissions() ?: return
         // streak, combo, variety and progress missions say "en Supervivencia" in their text,
         // so only update them when the game mode is actually survival.
         if (mode == "survival") {
-            updateProgress("streak", maxCombo)
+            updateProgress("streak", maxStreak)
             updateProgress("combo", maxCombo)
             for (m in data.missions) {
                 if (m.key.startsWith("progress_")) {
@@ -269,7 +270,9 @@ class MissionRepository(private val context: Context) {
         }
         if (mode == "quick") {
             updateProgress("quick_review", totalAnswered)
-            updateProgress("quick_complete", 1)
+            if (totalAnswered >= Constants.QUICK_MODE_QUESTIONS) {
+                updateProgress("quick_complete", 1)
+            }
         }
         if (mode == "timetrial") updateProgress("timetrial_score", score)
     }

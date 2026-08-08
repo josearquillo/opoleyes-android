@@ -50,6 +50,7 @@ class GameEngine private constructor(
     var correctCount: Int = 0
     var totalAnswered: Int = 0
     var streak: Int = 0
+    var maxStreak: Int = 0
     var lives: Int = 0
     var timer: Float = 0f
     var answered: Boolean = false
@@ -88,7 +89,7 @@ class GameEngine private constructor(
     var firstMistakeUsed: Boolean = false
 
     fun initGameStats() {
-        score = 0; combo = 0; maxCombo = 0; correctCount = 0; totalAnswered = 0; streak = 0
+        score = 0; combo = 0; maxCombo = 0; correctCount = 0; totalAnswered = 0; streak = 0; maxStreak = 0
         comboBarFill = 0f; comboOverchargeActive = false; comboOverchargeCharges = 0
         answered = false; selectedOption = null; questionNum = 0
         askedIds.clear()
@@ -246,6 +247,7 @@ class GameEngine private constructor(
 
             consecutiveWrong = 0
             streak++
+            maxStreak = maxOf(maxStreak, streak)
             val streakThreshold = Constants.STREAK_RECOVERY_THRESHOLD_BY_RANK[rankIndex] ?: 5
             if (streak > 0 && streak % streakThreshold == 0) {
                 val lifeRecoveryUnlocked = progressRepo.isUnlocked("lifeRecovery")

@@ -317,7 +317,7 @@ private fun QuickRewardDialog(
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Text("⭐", fontSize = 32.sp)
                         Spacer(Modifier.width(12.dp))
-                        Text("+50 XP", color = Color.White, fontSize = 18.sp, fontWeight = FontWeight.Bold)
+                        Text("+${50 * (1 + gameViewModel.getEngineRankIndex())} XP", color = Color.White, fontSize = 18.sp, fontWeight = FontWeight.Bold)
                     }
                 }
             }

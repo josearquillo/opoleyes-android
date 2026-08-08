@@ -90,6 +90,10 @@ fun ExamResultScreen(navController: NavController, gameViewModel: GameViewModel)
                 onHome = {
                     gameViewModel.clearExamResult()
                     navController.navigate(Routes.HOME) { popUpTo(0) }
+                },
+                onRetry = {
+                    gameViewModel.clearExamResult()
+                    navController.navigate(Routes.SIMULACRO_INTRO) { popUpTo(Routes.HOME) }
                 }
             )
         } else if (r != null) {
@@ -150,7 +154,7 @@ fun ExamResultScreen(navController: NavController, gameViewModel: GameViewModel)
                 Button(
                     onClick = {
                         gameViewModel.clearExamResult()
-                        navController.navigate(Routes.HOME) { popUpTo(0) }
+                        navController.navigate(Routes.MODE_SELECT) { popUpTo(Routes.HOME) }
                     },
                     modifier = Modifier.weight(1f).height(56.dp),
                     colors = ButtonDefaults.buttonColors(containerColor = Primary)
@@ -255,7 +259,7 @@ private fun SimulacroResultContent(
 }
 
 @Composable
-private fun SimulacroActions(onHome: () -> Unit) {
+private fun SimulacroActions(onHome: () -> Unit, onRetry: () -> Unit) {
     Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.spacedBy(12.dp)
@@ -269,7 +273,7 @@ private fun SimulacroActions(onHome: () -> Unit) {
             Text(stringResource(R.string.home_label), fontSize = 16.sp)
         }
         Button(
-            onClick = onHome,
+            onClick = onRetry,
             modifier = Modifier.weight(1f).height(56.dp),
             colors = ButtonDefaults.buttonColors(containerColor = Accent)
         ) {

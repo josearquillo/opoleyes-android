@@ -240,7 +240,7 @@ fun GameOverScreen(navController: NavController, gameViewModel: GameViewModel) {
                         Spacer(Modifier.width(12.dp))
                         Column {
                             Text(stringResource(R.string.quick_reward_earned), color = Color.White, fontSize = 16.sp, fontWeight = FontWeight.Bold)
-                            Text("+50 XP bonus", color = Color.White.copy(alpha = 0.8f), fontSize = 13.sp)
+                            Text("+${50 * (1 + gameViewModel.getEngineRankIndex())} XP bonus", color = Color.White.copy(alpha = 0.8f), fontSize = 13.sp)
                         }
                     }
                 }

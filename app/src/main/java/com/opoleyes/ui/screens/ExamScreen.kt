@@ -42,7 +42,7 @@ fun ExamScreen(navController: NavController, gameViewModel: GameViewModel) {
 
     val currentQ by gameViewModel.examCurrentQuestion.collectAsState()
     val totalQuestions by gameViewModel.examTotalQuestions.collectAsState()
-    val allQuestions = remember { gameViewModel.getExamQuestions() }
+    val allQuestions = remember(examAnswered) { gameViewModel.getExamQuestions() }
 
     if (currentQ == null || totalQuestions == 0) {
         if (!isLoading) {

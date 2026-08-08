@@ -201,12 +201,9 @@ fun GameScreen(navController: NavController, gameViewModel: GameViewModel) {
 
                 AnimatedHudBar(
                     score = uiState.score,
-                    combo = uiState.combo,
                     lives = uiState.lives,
                     timer = uiState.timer,
                     mode = uiState.mode,
-                    questionNum = uiState.questionNum,
-                    streak = uiState.streak,
                     maxLives = gameViewModel.engine.maxLives
                 )
 
@@ -218,7 +215,8 @@ fun GameScreen(navController: NavController, gameViewModel: GameViewModel) {
                         overchargeActive = uiState.comboOverchargeActive,
                         overchargeCharges = uiState.comboOverchargeCharges,
                         combo = uiState.combo,
-                        streak = uiState.streak
+                        streak = uiState.streak,
+                        streakThreshold = Constants.STREAK_RECOVERY_THRESHOLD_BY_RANK[gameViewModel.getEngineRankIndex()] ?: 5
                     )
                 }
 
