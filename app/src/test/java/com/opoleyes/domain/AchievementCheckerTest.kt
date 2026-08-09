@@ -109,4 +109,40 @@ class AchievementCheckerTest {
         val result = checker.checkGameOver(AchievementContext(gameOver = true, newRecord = true, gameMode = "survival"))
         assertTrue("record_survival unlocked", result.any { it.id == "record_survival" })
     }
+
+    @Test
+    fun gameOver_examPassed_unlocks() {
+        val result = checker.checkGameOver(AchievementContext(gameOver = true, examPassed = true))
+        assertTrue("exam_pass unlocked", result.any { it.id == "exam_pass" })
+    }
+
+    @Test
+    fun gameOver_examPerfect_unlocks() {
+        val result = checker.checkGameOver(AchievementContext(gameOver = true, examPerfect = true))
+        assertTrue("exam_perfect unlocked", result.any { it.id == "exam_perfect" })
+    }
+
+    @Test
+    fun gameOver_examNotPassed_doesNotUnlock() {
+        val result = checker.checkGameOver(AchievementContext(gameOver = true, examPassed = false))
+        assertFalse("exam_pass not unlocked when not passed", result.any { it.id == "exam_pass" })
+    }
+
+    @Test
+    fun gameOver_simulacroPassed_unlocks() {
+        val result = checker.checkGameOver(AchievementContext(gameOver = true, simulacroPassed = true))
+        assertTrue("simulacro_pass unlocked", result.any { it.id == "simulacro_pass" })
+    }
+
+    @Test
+    fun gameOver_simulacroPerfect_unlocks() {
+        val result = checker.checkGameOver(AchievementContext(gameOver = true, simulacroPerfect = true))
+        assertTrue("simulacro_perfect unlocked", result.any { it.id == "simulacro_perfect" })
+    }
+
+    @Test
+    fun gameOver_simulacroNotPassed_doesNotUnlock() {
+        val result = checker.checkGameOver(AchievementContext(gameOver = true, simulacroPassed = false))
+        assertFalse("simulacro_pass not unlocked when not passed", result.any { it.id == "simulacro_pass" })
+    }
 }

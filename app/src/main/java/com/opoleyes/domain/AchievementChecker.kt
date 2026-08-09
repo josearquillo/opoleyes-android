@@ -16,7 +16,11 @@ data class AchievementContext(
     val sharpshooter: Boolean = false,
     val fiftyFiftyUsed: Boolean = false,
     val lifeRecovered: Boolean = false,
-    val maxOptions: Int = 4
+    val maxOptions: Int = 4,
+    val examPassed: Boolean = false,
+    val examPerfect: Boolean = false,
+    val simulacroPassed: Boolean = false,
+    val simulacroPerfect: Boolean = false
 )
 
 class AchievementChecker(
@@ -75,10 +79,14 @@ class AchievementChecker(
         if (rankIdx >= 7) unlock("master", unlocked)
         if (ctx.perfectGame && ctx.maxOptions >= 4) unlock("perfect_game", unlocked)
         if (ctx.sharpshooter && ctx.maxOptions >= 4) unlock("sharpshooter", unlocked)
+        if (ctx.examPassed) unlock("exam_pass", unlocked)
+        if (ctx.examPerfect) unlock("exam_perfect", unlocked)
+        if (ctx.simulacroPassed) unlock("simulacro_pass", unlocked)
+        if (ctx.simulacroPerfect) unlock("simulacro_perfect", unlocked)
 
         val temaTests = context?.let { com.opoleyes.data.local.DataProvider.getTemaTests(it) } ?: emptyList()
         var dominatedLaws = 0
-        for (t in temaTests) { if (statsRepo.getLeyProgress(t.id) >= 100) dominatedLaws++ }
+        for (t in temaTests) { if (statsRepo.getLeyProgress(t.id) >= 80) dominatedLaws++ }
         if (dominatedLaws >= 1) unlock("first_law", unlocked)
         if (dominatedLaws >= 5) unlock("five_laws", unlocked)
         if (dominatedLaws >= 10) unlock("ten_laws", unlocked)

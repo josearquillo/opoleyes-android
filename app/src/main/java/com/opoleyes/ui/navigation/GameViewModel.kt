@@ -486,6 +486,11 @@ class GameViewModel private constructor(
         }
         checkRankUp(rankBefore)
         _xpBreakdown.value = buildExamXpBreakdown(result.correct, result.total, multiplier)
+        checkAchievementsGameOver(AchievementContext(
+            gameOver = true, gameMode = "exam",
+            examPassed = result.score >= 5.0f,
+            examPerfect = result.correct == result.total
+        ))
         _homePreload = null
         _profileData = null
     }
@@ -514,6 +519,11 @@ class GameViewModel private constructor(
         _xpGained.value = xp + missionRewards
         checkRankUp(rankBefore)
         _xpBreakdown.value = buildSimulacroXpBreakdown(result.points, result.correct, multiplier)
+        checkAchievementsGameOver(AchievementContext(
+            gameOver = true, gameMode = "simulacro",
+            simulacroPassed = result.passed,
+            simulacroPerfect = result.correct == result.total
+        ))
         _homePreload = null
         _profileData = null
     }

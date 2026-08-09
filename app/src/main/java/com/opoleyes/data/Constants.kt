@@ -26,7 +26,7 @@ object Constants {
         Achievement("100correct", "💯", "100 aciertos", "100 aciertos totales"),
         Achievement("500correct", "🔢", "500 aciertos", "500 aciertos totales"),
         Achievement("1000correct", "🏅", "Mil aciertos", "1000 aciertos totales"),
-        Achievement("first_record", "🏆", "Primer récord", "Primer game over"),
+        Achievement("first_record", "🏆", "Primer game over", "Completar tu primera partida"),
         Achievement("medal_bronze", "🥉", "Medalla bronce", "300+ pts en una partida"),
         Achievement("medal_silver", "🥈", "Medalla plata", "600+ pts en una partida"),
         Achievement("medal_gold", "🥇", "Medalla oro", "1000+ pts en una partida"),
@@ -42,10 +42,14 @@ object Constants {
         Achievement("sharpshooter", "📐", "Precisión quirúrgica", "90%+ acierto (mín. 10 preguntas)"),
         Achievement("strategist", "🎲", "Estratega", "Usar el 50/50 por primera vez"),
         Achievement("resurrection", "❤️", "Resurrección", "Recuperar una vida con la racha"),
-        Achievement("first_law", "📖", "Primera ley", "Dominar 1 ley al 100%"),
-        Achievement("five_laws", "📚", "Estudioso", "Dominar 5 leyes al 100%"),
-        Achievement("ten_laws", "⚖️", "Jurista", "Dominar 10 leyes al 100%"),
-        Achievement("all_laws", "👑", "Jurisconsulto", "Dominar todas las leyes al 100%"),
+        Achievement("exam_pass", "📝", "Aprobado", "Aprobar un mini examen"),
+        Achievement("exam_perfect", "🎓", "Matrícula de honor", "10/10 en un mini examen"),
+        Achievement("simulacro_pass", "🎯", "Simulacro superado", "Aprobar un simulacro"),
+        Achievement("simulacro_perfect", "💎", "Simulacro perfecto", "100/100 en un simulacro"),
+        Achievement("first_law", "📖", "Primera ley", "Dominar 1 ley al 80%"),
+        Achievement("five_laws", "📚", "Estudioso", "Dominar 5 leyes al 80%"),
+        Achievement("ten_laws", "⚖️", "Jurista", "Dominar 10 leyes al 80%"),
+        Achievement("all_laws", "👑", "Jurisconsulto", "Dominar todas las leyes al 80%"),
     )
 
     const val QUICK_MODE_QUESTIONS = 5
