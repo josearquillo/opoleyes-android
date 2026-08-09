@@ -681,7 +681,9 @@ class GameViewModel private constructor(
             }
         }
 
-        _xpGained.value = progressRepo.getXP() - engine.startXP
+        val missionRewards = missionRepo.getSessionCompletedMissions().sumOf { it.reward }
+        val quickReward = if (_quickRewardEarned.value) 50 * (1 + engine.rankIndex) else 0
+        _xpGained.value = engine.xpFromCorrect + engine.xpFromLawMastery + engine.xpFromConsolation + missionRewards + quickReward
         _xpBreakdown.value = buildGameXpBreakdown()
 
         checkRankUp(engine.startRankIndex)
