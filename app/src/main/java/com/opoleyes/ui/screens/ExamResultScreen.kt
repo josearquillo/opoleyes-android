@@ -63,7 +63,6 @@ fun ExamResultScreen(navController: NavController, gameViewModel: GameViewModel)
                 },
                 navigationIcon = {
                     IconButton(onClick = {
-                        gameViewModel.clearExamResult()
                         navController.navigate(Routes.HOME) { popUpTo(0) }
                     }) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.back), tint = TextLight)
@@ -88,11 +87,9 @@ fun ExamResultScreen(navController: NavController, gameViewModel: GameViewModel)
             SimulacroResultContent(sr, xpGained, allQuestions, showReview) { showReview = !showReview }
             SimulacroActions(
                 onHome = {
-                    gameViewModel.clearExamResult()
                     navController.navigate(Routes.HOME) { popUpTo(0) }
                 },
                 onRetry = {
-                    gameViewModel.clearExamResult()
                     navController.navigate(Routes.SIMULACRO_INTRO) { popUpTo(Routes.HOME) }
                 }
             )
@@ -142,7 +139,6 @@ fun ExamResultScreen(navController: NavController, gameViewModel: GameViewModel)
             ) {
                 OutlinedButton(
                     onClick = {
-                        gameViewModel.clearExamResult()
                         navController.navigate(Routes.HOME) { popUpTo(0) }
                     },
                     modifier = Modifier.weight(1f).height(56.dp),
@@ -153,7 +149,6 @@ fun ExamResultScreen(navController: NavController, gameViewModel: GameViewModel)
                 }
                 Button(
                     onClick = {
-                        gameViewModel.clearExamResult()
                         navController.navigate(Routes.MODE_SELECT) { popUpTo(Routes.HOME) }
                     },
                     modifier = Modifier.weight(1f).height(56.dp),

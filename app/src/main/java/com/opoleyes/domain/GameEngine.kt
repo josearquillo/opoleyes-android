@@ -122,6 +122,7 @@ class GameEngine private constructor(
 
         when (mode) {
             GameMode.TIMETRIAL -> { timer = 180f; lives = 0 }
+            GameMode.QUICK -> { lives = maxLives; timer = 0f; sessionDifficultyCap = maxDifficulty }
             else -> { lives = maxLives; timer = 0f }
         }
     }
