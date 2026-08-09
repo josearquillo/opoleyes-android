@@ -26,6 +26,7 @@ import com.opoleyes.domain.ExamEngine
 import com.opoleyes.ui.navigation.GameViewModel
 import com.opoleyes.ui.navigation.Routes
 import com.opoleyes.ui.theme.*
+import com.opoleyes.ui.components.GameButton
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -85,14 +86,27 @@ fun ExamResultScreen(navController: NavController, gameViewModel: GameViewModel)
         ) {
         if (isSimulacro && sr != null) {
             SimulacroResultContent(sr, xpGained, allQuestions, showReview) { showReview = !showReview }
-            SimulacroActions(
-                onHome = {
-                    navController.navigate(Routes.HOME) { popUpTo(0) }
-                },
-                onRetry = {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(10.dp)
+            ) {
+                GameButton(
+                    text = stringResource(R.string.retry_label),
+                    modifier = Modifier.weight(1f).height(50.dp),
+                    color1 = Success,
+                    color2 = SuccessDark
+                ) {
                     navController.navigate(Routes.SIMULACRO_INTRO) { popUpTo(Routes.HOME) }
                 }
-            )
+                GameButton(
+                    text = stringResource(R.string.menu),
+                    modifier = Modifier.weight(1f).height(50.dp),
+                    color1 = Primary,
+                    color2 = PurpleDark
+                ) {
+                    navController.navigate(Routes.HOME) { popUpTo(0) }
+                }
+            }
         } else if (r != null) {
             ScoreCard(r)
             Spacer(Modifier.height(16.dp))
@@ -135,26 +149,23 @@ fun ExamResultScreen(navController: NavController, gameViewModel: GameViewModel)
 
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(12.dp)
+                horizontalArrangement = Arrangement.spacedBy(10.dp)
             ) {
-                OutlinedButton(
-                    onClick = {
-                        navController.navigate(Routes.HOME) { popUpTo(0) }
-                    },
-                    modifier = Modifier.weight(1f).height(56.dp),
-                    colors = ButtonDefaults.outlinedButtonColors(contentColor = TextLight),
-                    border = androidx.compose.foundation.BorderStroke(1.dp, SurfaceVariant)
+                GameButton(
+                    text = stringResource(R.string.retry_label),
+                    modifier = Modifier.weight(1f).height(50.dp),
+                    color1 = Success,
+                    color2 = SuccessDark
                 ) {
-                    Text(stringResource(R.string.home_label), fontSize = 16.sp)
+                    navController.navigate(Routes.MODE_SELECT) { popUpTo(Routes.HOME) }
                 }
-                Button(
-                    onClick = {
-                        navController.navigate(Routes.MODE_SELECT) { popUpTo(Routes.HOME) }
-                    },
-                    modifier = Modifier.weight(1f).height(56.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = Primary)
+                GameButton(
+                    text = stringResource(R.string.menu),
+                    modifier = Modifier.weight(1f).height(50.dp),
+                    color1 = Primary,
+                    color2 = PurpleDark
                 ) {
-                    Text(stringResource(R.string.retry_label), fontSize = 16.sp)
+                    navController.navigate(Routes.HOME) { popUpTo(0) }
                 }
             }
         }
@@ -253,29 +264,6 @@ private fun SimulacroResultContent(
     Spacer(Modifier.height(24.dp))
 }
 
-@Composable
-private fun SimulacroActions(onHome: () -> Unit, onRetry: () -> Unit) {
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.spacedBy(12.dp)
-    ) {
-        OutlinedButton(
-            onClick = onHome,
-            modifier = Modifier.weight(1f).height(56.dp),
-            colors = ButtonDefaults.outlinedButtonColors(contentColor = TextLight),
-            border = androidx.compose.foundation.BorderStroke(1.dp, SurfaceVariant)
-        ) {
-            Text(stringResource(R.string.home_label), fontSize = 16.sp)
-        }
-        Button(
-            onClick = onRetry,
-            modifier = Modifier.weight(1f).height(56.dp),
-            colors = ButtonDefaults.buttonColors(containerColor = Accent)
-        ) {
-            Text(stringResource(R.string.retry_label), fontSize = 16.sp)
-        }
-    }
-}
 
 @Composable
 private fun ScoreCard(r: ExamEngine.ExamResult) {

@@ -4,14 +4,16 @@ import android.content.Context
 import com.opoleyes.data.IStatsRepository
 import com.opoleyes.data.local.DataProvider
 import com.opoleyes.data.model.QuestionEntry
+import com.opoleyes.data.model.TestData
 import com.opoleyes.data.repository.StatsRepository
 
 class ExamEngine private constructor(
     private val context: Context?,
     private val statsRepo: IStatsRepository,
-    private val testPool: List<QuestionEntry>?
+    private val testPool: List<QuestionEntry>?,
+    private val testData: List<TestData>? = null
 ) {
-    constructor(context: Context) : this(context, StatsRepository(context), null)
+    constructor(context: Context) : this(context, StatsRepository(context), null, null)
 
     data class ExamQuestion(
         val question: QuestionEntry,
@@ -56,6 +58,11 @@ class ExamEngine private constructor(
             pool: List<QuestionEntry>
         ) = ExamEngine(null, statsRepo, pool)
 
+        fun createForTestData(
+            statsRepo: IStatsRepository,
+            testData: List<TestData>
+        ) = ExamEngine(null, statsRepo, null, testData)
+
         const val SIMULACRO_QUESTIONS = 100
         const val SIMULACRO_TIME_SECONDS = 100 * 60
         const val SIMULACRO_CORRECT_POINTS = 0.60f
@@ -90,17 +97,17 @@ class ExamEngine private constructor(
             "Otros" to 2
         )
 
-        val allData = DataProvider.loadData(context!!).filter { it.test.tema != null }
+        val allData = (testData ?: DataProvider.loadData(context!!)).filter { it.test.tema != null }
         val stats = statsRepo.getStats()
         val poolsByLaw = mutableMapOf<String, MutableList<QuestionEntry>>()
         val testLaw = mutableMapOf<String, String>()
 
         for (d in allData) {
             val law = mapTestToLaw(d.test.name)
-            testLaw[d.test.id] = law
             val am = d.answers.associate { it.id to it.correct }
             for (q in d.questions) {
                 val correct = am[q.id] ?: continue
+                testLaw[q.test_id] = law
                 val key = (q.test_id) + ":" + (q.orig_id)
                 val s = stats[key]
                 val attempted = if (s != null) s.correct + s.wrong else 0
