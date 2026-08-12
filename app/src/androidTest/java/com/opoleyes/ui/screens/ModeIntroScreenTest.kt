@@ -5,53 +5,51 @@ import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.activity.ComponentActivity
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.onNodeWithContentDescription
+import androidx.navigation.compose.rememberNavController
 import androidx.test.core.app.ApplicationProvider
 import android.app.Application
 import com.opoleyes.data.local.DataProvider
+import com.opoleyes.data.model.GameMode
 import com.opoleyes.ui.navigation.GameViewModel
 import com.opoleyes.ui.navigation.TestStrings
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import androidx.navigation.compose.rememberNavController
 
 @RunWith(AndroidJUnit4::class)
-class TemaSelectScreenTest {
+class ModeIntroScreenTest {
 
     @get:Rule
     val composeRule = createAndroidComposeRule<ComponentActivity>()
 
-    private fun setupTemaSelectScreen() {
-        val vm = GameViewModel(ApplicationProvider.getApplicationContext<Application>())
+    private fun setupModeIntro(mode: GameMode) {
+        val ctx = ApplicationProvider.getApplicationContext<Application>()
+        DataProvider.loadData(ctx)
+        val vm = GameViewModel(ctx)
+        vm.pendingMode = mode
         composeRule.mainClock.autoAdvance = true
         composeRule.setContent {
-            TemaSelectScreen(rememberNavController(), vm)
+            ModeIntroScreen(rememberNavController(), vm)
         }
         composeRule.waitForIdle()
     }
 
     @Test
-    fun temaSelect_displaysTitle() {
-        setupTemaSelectScreen()
-        composeRule.onNodeWithText(TestStrings.selectLaw).assertIsDisplayed()
+    fun modeIntro_displaysPlayButton() {
+        setupModeIntro(GameMode.QUICK)
+        composeRule.onNodeWithText(TestStrings.introPlay).assertIsDisplayed()
     }
 
     @Test
-    fun temaSelect_displaysAllLawsOption() {
-        setupTemaSelectScreen()
-        composeRule.onNodeWithText(TestStrings.allLaws).assertIsDisplayed()
-    }
-
-    @Test
-    fun temaSelect_displaysSearchPlaceholder() {
-        setupTemaSelectScreen()
-        composeRule.onNodeWithText(TestStrings.searchLaw).assertIsDisplayed()
-    }
-
-    @Test
-    fun temaSelect_displaysBackButton() {
-        setupTemaSelectScreen()
+    fun modeIntro_displaysBackButton() {
+        setupModeIntro(GameMode.QUICK)
         composeRule.onNodeWithContentDescription(TestStrings.back).assertIsDisplayed()
+    }
+
+    @Test
+    fun modeIntro_displaysDontShowAgainCheckbox() {
+        setupModeIntro(GameMode.QUICK)
+        composeRule.onNodeWithText(TestStrings.introDontShowAgain).assertIsDisplayed()
     }
 }

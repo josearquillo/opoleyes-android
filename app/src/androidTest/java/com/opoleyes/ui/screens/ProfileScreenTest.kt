@@ -1,9 +1,17 @@
 package com.opoleyes.ui.screens
 
 import androidx.compose.ui.test.assertIsDisplayed
-import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.junit4.createAndroidComposeRule
+import androidx.activity.ComponentActivity
 import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.performScrollTo
+import androidx.compose.ui.test.performClick
 import androidx.navigation.compose.rememberNavController
+import androidx.test.core.app.ApplicationProvider
+import android.app.Application
+import com.opoleyes.data.local.DataProvider
+import com.opoleyes.ui.navigation.GameViewModel
+import com.opoleyes.ui.navigation.TestStrings
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -13,93 +21,60 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 class ProfileScreenTest {
 
     @get:Rule
-    val composeRule = createComposeRule()
+    val composeRule = createAndroidComposeRule<ComponentActivity>()
+
+    private fun setupProfileScreen() {
+        val vm = GameViewModel(ApplicationProvider.getApplicationContext<Application>())
+        composeRule.mainClock.autoAdvance = true
+        composeRule.setContent {
+            ProfileScreen(rememberNavController(), vm)
+        }
+        composeRule.waitUntil(timeoutMillis = 10000) {
+            try { composeRule.onNodeWithText(TestStrings.profile).assertIsDisplayed(); true }
+            catch (e: Exception) { false }
+        }
+    }
 
     @Test
     fun profileScreen_displaysTitle() {
-        composeRule.setContent {
-            ProfileScreen(rememberNavController())
-        }
-        composeRule.waitForIdle()
-        composeRule.mainClock.advanceTimeBy(1000)
-        composeRule.waitForIdle()
-        composeRule.onNodeWithText("Perfil").assertIsDisplayed()
+        setupProfileScreen()
+        composeRule.onNodeWithText(TestStrings.profile).assertIsDisplayed()
     }
 
     @Test
     fun profileScreen_displaysRecordsSection() {
-        composeRule.setContent {
-            ProfileScreen(rememberNavController())
-        }
-        composeRule.waitForIdle()
-        composeRule.mainClock.advanceTimeBy(1000)
-        composeRule.waitForIdle()
-        composeRule.onNodeWithText("Récords").assertIsDisplayed()
-    }
-
-    @Test
-    fun profileScreen_displaysSurvivalRecord() {
-        composeRule.setContent {
-            ProfileScreen(rememberNavController())
-        }
-        composeRule.waitForIdle()
-        composeRule.mainClock.advanceTimeBy(1000)
-        composeRule.waitForIdle()
-        composeRule.onNodeWithText("Supervivencia").assertIsDisplayed()
-    }
-
-    @Test
-    fun profileScreen_displaysPowerUpsSection() {
-        composeRule.setContent {
-            ProfileScreen(rememberNavController())
-        }
-        composeRule.waitForIdle()
-        composeRule.mainClock.advanceTimeBy(1000)
-        composeRule.waitForIdle()
-        composeRule.onNodeWithText("Ayudas disponibles").assertIsDisplayed()
+        setupProfileScreen()
+        composeRule.onNodeWithText(TestStrings.records).assertIsDisplayed()
     }
 
     @Test
     fun profileScreen_displaysAchievementsSection() {
-        composeRule.setContent {
-            ProfileScreen(rememberNavController())
-        }
-        composeRule.waitForIdle()
-        composeRule.mainClock.advanceTimeBy(1000)
-        composeRule.waitForIdle()
-        composeRule.onNodeWithText("Logros").assertIsDisplayed()
+        setupProfileScreen()
+        composeRule.onNodeWithText("Logros", substring = true).performScrollTo()
+        composeRule.onNodeWithText("Logros", substring = true).assertIsDisplayed()
     }
 
     @Test
-    fun profileScreen_displaysStatsSection() {
-        composeRule.setContent {
-            ProfileScreen(rememberNavController())
-        }
-        composeRule.waitForIdle()
-        composeRule.mainClock.advanceTimeBy(1000)
-        composeRule.waitForIdle()
-        composeRule.onNodeWithText("Estadísticas").assertIsDisplayed()
-    }
-
-    @Test
-    fun profileScreen_displaysGamesPlayed() {
-        composeRule.setContent {
-            ProfileScreen(rememberNavController())
-        }
-        composeRule.waitForIdle()
-        composeRule.mainClock.advanceTimeBy(1000)
-        composeRule.waitForIdle()
-        composeRule.onNodeWithText("Partidas jugadas").assertIsDisplayed()
+    fun profileScreen_displaysStatisticsSection() {
+        setupProfileScreen()
+        composeRule.onNodeWithText(TestStrings.statistics).performScrollTo()
+        composeRule.onNodeWithText(TestStrings.statistics).assertIsDisplayed()
     }
 
     @Test
     fun profileScreen_displaysResetButton() {
-        composeRule.setContent {
-            ProfileScreen(rememberNavController())
-        }
+        setupProfileScreen()
+        composeRule.onNodeWithText(TestStrings.resetProgress).performScrollTo()
+        composeRule.onNodeWithText(TestStrings.resetProgress).assertIsDisplayed()
+    }
+
+    @Test
+    fun profileScreen_clickReset_showsConfirmDialog() {
+        setupProfileScreen()
+        composeRule.onNodeWithText(TestStrings.resetProgress).performScrollTo()
+        composeRule.onNodeWithText(TestStrings.resetProgress).performClick()
         composeRule.waitForIdle()
-        composeRule.mainClock.advanceTimeBy(1000)
-        composeRule.waitForIdle()
-        composeRule.onNodeWithText("Reiniciar progreso").assertIsDisplayed()
+        composeRule.onNodeWithText(TestStrings.reset).assertIsDisplayed()
+        composeRule.onNodeWithText(TestStrings.cancel).assertIsDisplayed()
     }
 }

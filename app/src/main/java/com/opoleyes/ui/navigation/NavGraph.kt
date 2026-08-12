@@ -32,10 +32,10 @@ object Routes {
 }
 
 @Composable
-fun NavGraph() {
+fun NavGraph(startDestination: String = Routes.LOADING, gameViewModel: GameViewModel? = null) {
     val navController = rememberNavController()
     val context = LocalContext.current
-    val gameViewModel: GameViewModel = viewModel(
+    val vm: GameViewModel = gameViewModel ?: viewModel(
         factory = object : ViewModelProvider.Factory {
             @Suppress("UNCHECKED_CAST")
             override fun <T : ViewModel> create(modelClass: Class<T>): T =
@@ -45,7 +45,7 @@ fun NavGraph() {
 
     NavHost(
         navController = navController,
-        startDestination = Routes.LOADING,
+        startDestination = startDestination,
         modifier = Modifier.fillMaxSize().windowInsetsPadding(WindowInsets.systemBars),
         enterTransition = {
             slideInHorizontally(animationSpec = tween(350, easing = FastOutSlowInEasing), initialOffsetX = { it / 3 }) +
@@ -61,18 +61,18 @@ fun NavGraph() {
             fadeOut(tween(200)) + scaleOut(targetScale = 0.95f, animationSpec = tween(200))
         },
     ) {
-        composable(Routes.LOADING) { LoadingScreen(navController, gameViewModel) }
+        composable(Routes.LOADING) { LoadingScreen(navController, vm) }
         composable(Routes.ERROR) { ErrorScreen(navController) }
-        composable(Routes.HOME) { HomeScreen(navController, gameViewModel) }
-        composable(Routes.MODE_SELECT) { ModeSelectScreen(navController, gameViewModel) }
-        composable(Routes.TEMA_SELECT) { TemaSelectScreen(navController, gameViewModel) }
-        composable(Routes.GAME) { GameScreen(navController, gameViewModel) }
-        composable(Routes.GAME_OVER) { GameOverScreen(navController, gameViewModel) }
-        composable(Routes.EXAM) { ExamScreen(navController, gameViewModel) }
-        composable(Routes.EXAM_RESULT) { ExamResultScreen(navController, gameViewModel) }
-        composable(Routes.PROFILE) { ProfileScreen(navController, gameViewModel) }
-        composable(Routes.HELP) { HelpScreen(navController, gameViewModel) }
-        composable(Routes.SIMULACRO_INTRO) { SimulacroIntroScreen(navController, gameViewModel) }
-        composable(Routes.MODE_INTRO) { ModeIntroScreen(navController, gameViewModel) }
+        composable(Routes.HOME) { HomeScreen(navController, vm) }
+        composable(Routes.MODE_SELECT) { ModeSelectScreen(navController, vm) }
+        composable(Routes.TEMA_SELECT) { TemaSelectScreen(navController, vm) }
+        composable(Routes.GAME) { GameScreen(navController, vm) }
+        composable(Routes.GAME_OVER) { GameOverScreen(navController, vm) }
+        composable(Routes.EXAM) { ExamScreen(navController, vm) }
+        composable(Routes.EXAM_RESULT) { ExamResultScreen(navController, vm) }
+        composable(Routes.PROFILE) { ProfileScreen(navController, vm) }
+        composable(Routes.HELP) { HelpScreen(navController, vm) }
+        composable(Routes.SIMULACRO_INTRO) { SimulacroIntroScreen(navController, vm) }
+        composable(Routes.MODE_INTRO) { ModeIntroScreen(navController, vm) }
     }
 }

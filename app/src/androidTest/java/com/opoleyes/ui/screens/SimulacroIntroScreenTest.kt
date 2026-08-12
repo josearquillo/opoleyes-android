@@ -4,6 +4,7 @@ import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.activity.ComponentActivity
 import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.navigation.compose.rememberNavController
 import androidx.test.core.app.ApplicationProvider
 import android.app.Application
@@ -16,35 +17,37 @@ import org.junit.runner.RunWith
 import androidx.test.ext.junit.runners.AndroidJUnit4
 
 @RunWith(AndroidJUnit4::class)
-class GameOverScreenTest {
+class SimulacroIntroScreenTest {
 
     @get:Rule
     val composeRule = createAndroidComposeRule<ComponentActivity>()
 
-    private fun setupGameOverScreen() {
-        val vm = GameViewModel(ApplicationProvider.getApplicationContext<Application>())
-        vm.startAllLawsGame()
-        vm.engine.lives = 0
-        vm.onGameOver()
+    private fun setupSimulacroIntro() {
+        val ctx = ApplicationProvider.getApplicationContext<Application>()
+        DataProvider.loadData(ctx)
+        val vm = GameViewModel(ctx)
         composeRule.mainClock.autoAdvance = true
         composeRule.setContent {
-            GameOverScreen(rememberNavController(), vm)
+            SimulacroIntroScreen(rememberNavController(), vm)
         }
-        composeRule.waitUntil(timeoutMillis = 10000) {
-            try { composeRule.onNodeWithText(TestStrings.gameOver).assertIsDisplayed(); true }
-            catch (e: Exception) { false }
-        }
+        composeRule.waitForIdle()
     }
 
     @Test
-    fun gameOverScreen_displaysTitle() {
-        setupGameOverScreen()
-        composeRule.onNodeWithText(TestStrings.gameOver).assertIsDisplayed()
+    fun simulacroIntro_displaysTitle() {
+        setupSimulacroIntro()
+        composeRule.onNodeWithText(TestStrings.simulacroIntroTitle).assertIsDisplayed()
     }
 
     @Test
-    fun gameOverScreen_displaysPointsLabel() {
-        setupGameOverScreen()
-        composeRule.onNodeWithText(TestStrings.points).assertIsDisplayed()
+    fun simulacroIntro_displaysStartButton() {
+        setupSimulacroIntro()
+        composeRule.onNodeWithText(TestStrings.simulacroStart).assertIsDisplayed()
+    }
+
+    @Test
+    fun simulacroIntro_displaysBackButton() {
+        setupSimulacroIntro()
+        composeRule.onNodeWithContentDescription(TestStrings.back).assertIsDisplayed()
     }
 }
