@@ -25,6 +25,10 @@ android {
     }
 
     buildTypes {
+        debug {
+            enableUnitTestCoverage = true
+            enableAndroidTestCoverage = true
+        }
         release {
             isMinifyEnabled = true
             isShrinkResources = true
@@ -64,7 +68,7 @@ tasks.withType<Test> {
     configure<JacocoTaskExtension> {
         isIncludeNoLocationClasses = true
         excludes = listOf("jdk.internal.*", "sun.*")
-        isEnabled = false
+        isEnabled = true
     }
 }
 
@@ -88,6 +92,7 @@ tasks.register<JacocoReport>("jacocoTestReport") {
     sourceDirectories.setFrom(listOf("src/main/java", "src/main/kotlin"))
     executionData.setFrom(fileTree(project.layout.buildDirectory.get()) {
         include("jacoco/testDebugUnitTest.exec")
+        include("outputs/code_coverage/debugAndroidTest/connected/**/*.ec")
     })
 }
 
@@ -151,6 +156,7 @@ dependencies {
     androidTestImplementation("androidx.test:runner:1.5.2")
     androidTestImplementation("androidx.test:rules:1.5.0")
     androidTestImplementation("androidx.compose.ui:ui-test-junit4")
+    androidTestImplementation("androidx.test:core:1.5.0")
     debugImplementation("androidx.compose.ui:ui-test-manifest")
 }
 

@@ -427,4 +427,73 @@ class ProgressRepositoryTest {
         assertTrue(unlocks.exam)
         assertTrue(unlocks.simulacro)
     }
+
+    // === isUnlocked: all feature branches ===
+
+    @Test
+    fun isUnlocked_quick_rankDependent() {
+        assertFalse("Quick locked at rank 0", repo.isUnlocked("quick"))
+        repo.addXP(7000) // rank 5
+        assertTrue("Quick unlocked at rank 5", repo.isUnlocked("quick"))
+    }
+
+    @Test
+    fun isUnlocked_exam_rankDependent() {
+        assertFalse("Exam locked at rank 0", repo.isUnlocked("exam"))
+        repo.addXP(18000) // rank 7
+        assertTrue("Exam unlocked at rank 7", repo.isUnlocked("exam"))
+    }
+
+    @Test
+    fun isUnlocked_simulacro_rankDependent() {
+        assertFalse("Simulacro locked by default", repo.isUnlocked("simulacro"))
+        repo.unlockSimulacro()
+        assertTrue("Simulacro unlocked after unlockSimulacro", repo.isUnlocked("simulacro"))
+    }
+
+    @Test
+    fun isUnlocked_powerUps_alwaysTrue() {
+        assertTrue("PowerUps always unlocked", repo.isUnlocked("powerUps"))
+    }
+
+    @Test
+    fun isUnlocked_hint_rankDependent() {
+        assertFalse("Hint locked at rank 0", repo.isUnlocked("hint"))
+        repo.addXP(200) // rank 1
+        assertTrue("Hint unlocked at rank 1", repo.isUnlocked("hint"))
+    }
+
+    @Test
+    fun isUnlocked_shield_alwaysFalse() {
+        assertFalse("Shield always locked (removed)", repo.isUnlocked("shield"))
+    }
+
+    @Test
+    fun isUnlocked_fiftyFifty_alwaysTrue() {
+        assertTrue("FiftyFifty always unlocked", repo.isUnlocked("fiftyFifty"))
+    }
+
+    @Test
+    fun isUnlocked_lifeRecovery_alwaysTrue() {
+        assertTrue("LifeRecovery always unlocked", repo.isUnlocked("lifeRecovery"))
+    }
+
+    @Test
+    fun isUnlocked_doubleScore_alwaysFalse() {
+        assertFalse("DoubleScore always locked (removed)", repo.isUnlocked("doubleScore"))
+    }
+
+    @Test
+    fun getXPProgressFor_specificXp() {
+        val progress = repo.getXPProgressFor(500)
+        assertEquals(300, progress.intoRank) // 500 - 200 = 300
+        assertEquals(600, progress.rankSpan) // 800 - 200 = 600
+        assertEquals(50, progress.pct) // 300 * 100 / 600 = 50
+    }
+
+    @Test
+    fun getXPProgressFor_maxRank() {
+        val progress = repo.getXPProgressFor(100000)
+        assertEquals(100, progress.pct)
+    }
 }

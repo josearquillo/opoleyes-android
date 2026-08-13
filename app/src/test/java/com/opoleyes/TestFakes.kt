@@ -36,7 +36,7 @@ object TestFakes {
 }
 
 class FakeGameRepository(
-    private val pool: List<QuestionEntry> = TestFakes.makePool()
+    var pool: List<QuestionEntry> = TestFakes.makePool()
 ) : IGameRepository {
     override fun startTemaGame(testId: String) = pool
     override fun startAllLawsGame() = pool
@@ -45,12 +45,13 @@ class FakeGameRepository(
 
 class FakeStatsRepository : IStatsRepository {
     val statsMap = mutableMapOf<String, QuestionStat>()
+    var leyProgress: Int = 0
     override fun getStats(): Map<String, QuestionStat> = statsMap
     override fun updateStat(key: String, isCorrect: Boolean) {
         val s = statsMap.getOrPut(key) { QuestionStat(0, 0) }
         statsMap[key] = if (isCorrect) QuestionStat(s.correct + 1, s.wrong) else QuestionStat(s.correct, s.wrong + 1)
     }
-    override fun getLeyProgress(testId: String) = 0
+    override fun getLeyProgress(testId: String) = leyProgress
 }
 
 class FakeProgressRepository : IProgressRepository {

@@ -145,4 +145,131 @@ class AchievementCheckerTest {
         val result = checker.checkGameOver(AchievementContext(gameOver = true, simulacroPassed = false))
         assertFalse("simulacro_pass not unlocked when not passed", result.any { it.id == "simulacro_pass" })
     }
+
+    @Test
+    fun perQuestion_combo15_unlocks() {
+        val result = checker.checkPerQuestion(AchievementContext(maxCombo = 15))
+        assertTrue("combo15 unlocked", result.any { it.id == "combo15" })
+    }
+
+    @Test
+    fun perQuestion_combo20_unlocks() {
+        val result = checker.checkPerQuestion(AchievementContext(maxCombo = 20))
+        assertTrue("combo20 unlocked", result.any { it.id == "combo20" })
+    }
+
+    @Test
+    fun perQuestion_combo25_unlocks() {
+        val result = checker.checkPerQuestion(AchievementContext(maxCombo = 25))
+        assertTrue("combo25 unlocked", result.any { it.id == "combo25" })
+    }
+
+    @Test
+    fun perQuestion_comboBlockedByLowMaxOptions() {
+        val result = checker.checkPerQuestion(AchievementContext(maxCombo = 10, maxOptions = 3))
+        assertFalse("combo5 not unlocked with maxOptions < 4", result.any { it.id == "combo5" })
+        assertFalse("combo10 not unlocked with maxOptions < 4", result.any { it.id == "combo10" })
+    }
+
+    @Test
+    fun gameOver_100correct_unlocks() {
+        val stats = com.opoleyes.data.repository.StatsRepository(prefs)
+        repeat(100) { stats.updateStat("key$it", true) }
+        val result = checker.checkGameOver(AchievementContext(gameOver = true))
+        assertTrue("100correct unlocked", result.any { it.id == "100correct" })
+    }
+
+    @Test
+    fun gameOver_500correct_unlocks() {
+        val stats = com.opoleyes.data.repository.StatsRepository(prefs)
+        repeat(500) { stats.updateStat("key$it", true) }
+        val result = checker.checkGameOver(AchievementContext(gameOver = true))
+        assertTrue("500correct unlocked", result.any { it.id == "500correct" })
+    }
+
+    @Test
+    fun gameOver_1000correct_unlocks() {
+        val stats = com.opoleyes.data.repository.StatsRepository(prefs)
+        repeat(1000) { stats.updateStat("key$it", true) }
+        val result = checker.checkGameOver(AchievementContext(gameOver = true))
+        assertTrue("1000correct unlocked", result.any { it.id == "1000correct" })
+    }
+
+    @Test
+    fun gameOver_medalSilver_unlocks() {
+        val result = checker.checkGameOver(AchievementContext(score = 600))
+        assertTrue("medal_silver unlocked", result.any { it.id == "medal_silver" })
+    }
+
+    @Test
+    fun gameOver_recordTimetrial_unlocksOnNewRecord() {
+        val result = checker.checkGameOver(AchievementContext(gameOver = true, newRecord = true, gameMode = "timetrial"))
+        assertTrue("record_timetrial unlocked", result.any { it.id == "record_timetrial" })
+    }
+
+    @Test
+    fun gameOver_recordQuick_unlocksOnNewRecord() {
+        val result = checker.checkGameOver(AchievementContext(gameOver = true, newRecord = true, gameMode = "quick"))
+        assertTrue("record_quick unlocked", result.any { it.id == "record_quick" })
+    }
+
+    @Test
+    fun gameOver_habitual_unlocksAt25Games() {
+        repeat(25) { progressRepo.incrementGamesPlayed() }
+        val result = checker.checkGameOver(AchievementContext(gameOver = true))
+        assertTrue("habitual unlocked at 25 games", result.any { it.id == "habitual" })
+    }
+
+    @Test
+    fun gameOver_addicted_unlocksAt50Games() {
+        repeat(50) { progressRepo.incrementGamesPlayed() }
+        val result = checker.checkGameOver(AchievementContext(gameOver = true))
+        assertTrue("addicted unlocked at 50 games", result.any { it.id == "addicted" })
+    }
+
+    @Test
+    fun gameOver_expert_unlocksAtRank5() {
+        prefs.addXP(7000)
+        val result = checker.checkGameOver(AchievementContext(gameOver = true))
+        assertTrue("expert unlocked at rank 5", result.any { it.id == "expert" })
+    }
+
+    @Test
+    fun gameOver_master_unlocksAtRank7() {
+        prefs.addXP(18000)
+        val result = checker.checkGameOver(AchievementContext(gameOver = true))
+        assertTrue("master unlocked at rank 7", result.any { it.id == "master" })
+    }
+
+    @Test
+    fun gameOver_perfectGame_unlocks() {
+        val result = checker.checkGameOver(AchievementContext(gameOver = true, perfectGame = true, maxOptions = 4))
+        assertTrue("perfect_game unlocked", result.any { it.id == "perfect_game" })
+    }
+
+    @Test
+    fun gameOver_perfectGame_blockedByLowMaxOptions() {
+        val result = checker.checkGameOver(AchievementContext(gameOver = true, perfectGame = true, maxOptions = 3))
+        assertFalse("perfect_game not unlocked with maxOptions < 4", result.any { it.id == "perfect_game" })
+    }
+
+    @Test
+    fun gameOver_sharpshooter_unlocks() {
+        val result = checker.checkGameOver(AchievementContext(gameOver = true, sharpshooter = true, maxOptions = 4))
+        assertTrue("sharpshooter unlocked", result.any { it.id == "sharpshooter" })
+    }
+
+    @Test
+    fun gameOver_sharpshooter_blockedByLowMaxOptions() {
+        val result = checker.checkGameOver(AchievementContext(gameOver = true, sharpshooter = true, maxOptions = 3))
+        assertFalse("sharpshooter not unlocked with maxOptions < 4", result.any { it.id == "sharpshooter" })
+    }
+
+    @Test
+    fun gameOver_firstLaw_doesNotCrashWithNullContext() {
+        // AchievementChecker with null context (via IPreferencesManager constructor)
+        // should handle law achievement checks gracefully (empty temaTests)
+        val result = checker.checkGameOver(AchievementContext(gameOver = true))
+        assertTrue("Should not crash with null context", result.isNotEmpty())
+    }
 }
