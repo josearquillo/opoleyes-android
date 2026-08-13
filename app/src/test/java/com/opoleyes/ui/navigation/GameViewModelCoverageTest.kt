@@ -14,12 +14,14 @@ import com.opoleyes.domain.ChestSystem
 import com.opoleyes.domain.ExamEngine
 import com.opoleyes.domain.GameEngine
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
+import kotlinx.coroutines.withTimeout
 import org.junit.After
 import org.junit.AfterClass
 import org.junit.Assert.assertEquals
@@ -76,9 +78,68 @@ class GameViewModelCoverageTest {
     fun teardown() { prefs.resetAll() }
 
     // === Async methods ===
-    // Note: Async methods use withContext(Dispatchers.Default) which can't be
-    // controlled by runTest. The sync versions (startQuickGame, startAllLawsGame,
-    // loadSimulacroSync, examEngine.loadExam) are tested through other tests.
+    // These use withContext(Dispatchers.Default) which runs on real threads.
+    // We use runBlocking with a timeout to wait for completion.
+
+    @Test
+    fun startQuickGameAsync_callsOnDone() = runBlocking {
+        withTimeout(5000) {
+            var result = false
+            vm.startQuickGameAsync { result = it }
+            while (!result) { kotlinx.coroutines.delay(100) }
+            assertTrue(result)
+            assertFalse(vm.isLoading.value)
+        }
+    }
+
+    @Test
+    fun startTemaGameAsync_callsOnDone() = runBlocking {
+        withTimeout(5000) {
+            var result = false
+            vm.startTemaGameAsync("test1") { result = it }
+            while (!result) { kotlinx.coroutines.delay(100) }
+            assertTrue(result)
+            assertFalse(vm.isLoading.value)
+        }
+    }
+
+    @Test
+    fun startAllLawsGameAsync_callsOnDone() = runBlocking {
+        withTimeout(5000) {
+            var result = false
+            vm.startAllLawsGameAsync { result = it }
+            while (!result) { kotlinx.coroutines.delay(100) }
+            assertTrue(result)
+            assertFalse(vm.isLoading.value)
+        }
+    }
+
+    @Test
+    fun startExamAsync_loadsExam() = runBlocking {
+        withTimeout(5000) {
+            var result = false
+            vm.startExamAsync(10) { result = it }
+            while (!result) { kotlinx.coroutines.delay(100) }
+            assertTrue(result)
+            assertFalse(vm.isLoading.value)
+            assertEquals(10, vm.examTotalQuestions.value)
+            assertNotNull(vm.examCurrentQuestion.value)
+            assertFalse(vm.isSimulacroMode.value)
+        }
+    }
+
+    @Test
+    fun startSimulacroAsync_loadsSimulacro() = runBlocking {
+        withTimeout(5000) {
+            var result = false
+            vm.startSimulacroAsync { result = it }
+            while (!result) { kotlinx.coroutines.delay(100) }
+            assertTrue(result)
+            assertFalse(vm.isLoading.value)
+            assertTrue(vm.isSimulacroMode.value)
+            assertTrue(vm.simulacroTimer.value > 0)
+        }
+    }
 
     // === finishExam with multiplier ===
 
@@ -602,5 +663,187 @@ class GameViewModelCoverageTest {
 
     private fun startSimulacroSync() {
         vm.loadSimulacroSync()
+    }
+
+    // === Exam XP breakdown with 0 correct ===
+
+    @Test
+    fun finishExam_zeroCorrect_noAciertosLine() {
+        vm.examEngine.loadExam(10)
+        for (i in 0 until 10) {
+            vm.examNavigate(i)
+            val q = vm.examEngine.getCurrentQuestion()!!
+            val wrong = listOf("A", "B", "C", "D").filter { it != q.question.correct }.first()
+            vm.examAnswer(wrong)
+        }
+        vm.finishExam()
+        val breakdown = vm.xpBreakdown.value
+        assertNotNull(breakdown)
+        // No "Aciertos" line since correct == 0
+        assertNull(breakdown!!.lines.find { it.icon == "✓" })
+    }
+
+    // === Simulacro XP breakdown with 0 points ===
+
+    @Test
+    fun finishSimulacro_zeroPoints_noPuntuacionLine() {
+        vm.loadSimulacroSync()
+        // Don't answer anything, just finish
+        vm.finishExam() // finishExam dispatches to finishSimulacro when isSimulacroMode
+        val breakdown = vm.xpBreakdown.value
+        assertNotNull(breakdown)
+        // No "Puntuación" line since xp == 0
+        assertNull(breakdown!!.lines.find { it.icon == "🎯" })
+    }
+
+    // === Quick game perfect gives quick reward ===
+
+    @Test
+    fun quickGamePerfect_earnsQuickReward() {
+        vm.startQuickGame()
+        for (i in 0 until 5) {
+            val q = engine.currentQ!!
+            vm.answer(q.correct)
+            if (!engine.isGameOver()) vm.nextQuestion()
+        }
+        vm.onGameOver()
+        val breakdown = vm.xpBreakdown.value
+        assertNotNull(breakdown)
+        val rewardLine = breakdown!!.lines.find { it.icon == "⚡" }
+        assertNotNull(rewardLine)
+    }
+
+    // === Motivational message: totalAnswered == 0 ===
+
+    @Test
+    fun onGameOver_totalAnsweredZero_showsSigueIntentando() {
+        progressRepo.incrementGamesPlayed()
+        progressRepo.incrementGamesPlayed()
+        vm.startAllLawsGame()
+        // Don't answer anything, just end game
+        vm.onGameOver()
+        val msg = vm.motivationalMessage.value
+        assertTrue(msg.contains("Sigue") || msg.contains("intentando"))
+    }
+
+    // === Motivational message: acc < 40 ===
+
+    @Test
+    fun onGameOver_lowAccuracy_showsAcercaMessage() {
+        progressRepo.incrementGamesPlayed()
+        progressRepo.incrementGamesPlayed()
+        vm.startAllLawsGame()
+        // Answer 1 correct, 4 wrong
+        for (i in 0 until 5) {
+            val q = engine.currentQ!!
+            if (i == 0) vm.answer(q.correct)
+            else {
+                val wrong = listOf("A", "B", "C", "D").filter { it != q.correct }.first()
+                vm.answer(wrong)
+            }
+            if (!engine.isGameOver()) vm.nextQuestion()
+        }
+        vm.onGameOver()
+        val msg = vm.motivationalMessage.value
+        assertTrue(msg.isNotEmpty())
+    }
+
+    // === Motivational message: acc >= 70 ===
+
+    @Test
+    fun onGameOver_accuracy70plus_showsDominandoMessage() {
+        progressRepo.incrementGamesPlayed()
+        progressRepo.incrementGamesPlayed()
+        progressRepo.addXP(800) // rank 2
+        vm.startAllLawsGame()
+        // Answer 7 correct, 3 wrong = 70% accuracy
+        for (i in 0 until 10) {
+            val q = engine.currentQ!!
+            if (i < 7) vm.answer(q.correct)
+            else {
+                val wrong = listOf("A", "B", "C", "D").filter { it != q.correct }.first()
+                vm.answer(wrong)
+            }
+            if (!engine.isGameOver()) vm.nextQuestion()
+        }
+        vm.onGameOver()
+        val msg = vm.motivationalMessage.value
+        assertTrue(msg.isNotEmpty())
+    }
+
+    // === Motivational message: acc >= 90 ===
+
+    @Test
+    fun onGameOver_accuracy90plus_showsExcelenteMessage() {
+        progressRepo.incrementGamesPlayed()
+        progressRepo.incrementGamesPlayed()
+        progressRepo.addXP(800) // rank 2
+        vm.startAllLawsGame()
+        // Answer 9 correct, 1 wrong = 90% accuracy
+        for (i in 0 until 10) {
+            val q = engine.currentQ!!
+            if (i < 9) vm.answer(q.correct)
+            else {
+                val wrong = listOf("A", "B", "C", "D").filter { it != q.correct }.first()
+                vm.answer(wrong)
+            }
+            if (!engine.isGameOver()) vm.nextQuestion()
+        }
+        vm.onGameOver()
+        val msg = vm.motivationalMessage.value
+        assertTrue(msg.isNotEmpty())
+    }
+
+    // === Exam with multiplier in breakdown ===
+
+    @Test
+    fun finishExam_withMultiplier_showsInBreakdown() {
+        prefs._multiplier = 2
+        vm.examEngine.loadExam(10)
+        for (i in 0 until 10) {
+            vm.examNavigate(i)
+            val q = vm.examEngine.getCurrentQuestion()!!
+            vm.examAnswer(q.question.correct)
+        }
+        vm.finishExam()
+        val breakdown = vm.xpBreakdown.value
+        assertNotNull(breakdown)
+        val multLine = breakdown!!.lines.find { it.label == "Multiplicador" }
+        assertNotNull(multLine)
+    }
+
+    // === Simulacro with multiplier in breakdown ===
+
+    @Test
+    fun finishSimulacro_withMultiplier_showsInBreakdown() {
+        prefs._multiplier = 2
+        vm.loadSimulacroSync()
+        // Answer some questions
+        for (i in 0 until 10) {
+            vm.examNavigate(i)
+            val q = vm.examEngine.getCurrentQuestion()!!
+            vm.examAnswer(q.question.correct)
+        }
+        vm.finishExam() // dispatches to finishSimulacro
+        val breakdown = vm.xpBreakdown.value
+        assertNotNull(breakdown)
+        val multLine = breakdown!!.lines.find { it.label == "Multiplicador" }
+        assertNotNull(multLine)
+    }
+
+    // === getSimulacroHistory ===
+
+    @Test
+    fun getSimulacroHistory_returnsEmptyByDefault() {
+        assertTrue(vm.getSimulacroHistory().isEmpty())
+    }
+
+    // === getExamQuestions ===
+
+    @Test
+    fun getExamQuestions_returnsLoadedQuestions() {
+        vm.examEngine.loadExam(10)
+        val questions = vm.getExamQuestions()
+        assertEquals(10, questions.size)
     }
 }

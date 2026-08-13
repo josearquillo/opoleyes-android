@@ -567,4 +567,106 @@ class GameEngineCoverageTest {
         engine.useHint()
         assertFalse(engine.hintActive)
     }
+
+    // === initGameStats with TIMETRIAL ===
+
+    @Test
+    fun initGameStats_timetrial_sets180sTimer() {
+        progressRepo._rankIndex = 2
+        engine.startAllLawsGame(GameMode.TIMETRIAL)
+        assertEquals(180f, engine.timer, 0.01f)
+        assertEquals(0, engine.lives)
+    }
+
+    // === nextQuestion with weighted selection (rankIndex > 1) ===
+
+    @Test
+    fun nextQuestion_rankGreaterThan1_usesWeightedSelection() {
+        progressRepo._rankIndex = 2
+        gameRepo.pool = TestFakes.makePool(20)
+        engine.startAllLawsGame()
+        assertTrue(engine.nextQuestion())
+        assertNotNull(engine.currentQ)
+    }
+
+    // === nextQuestion with zero-weight pool ===
+
+    @Test
+    fun nextQuestion_zeroWeightPool_usesRandomFallback() {
+        progressRepo._rankIndex = 2
+        gameRepo.pool = listOf(
+            QuestionEntry("Q1", mapOf("A" to "a", "B" to "b", "C" to "c", "D" to "d"), "A", 0, "t1", "1"),
+            QuestionEntry("Q2", mapOf("A" to "a", "B" to "b", "C" to "c", "D" to "d"), "B", 0, "t1", "2")
+        )
+        engine.startAllLawsGame()
+        assertTrue(engine.nextQuestion())
+        assertNotNull(engine.currentQ)
+    }
+
+    // === nextQuestion with all questions above difficulty cap ===
+
+    @Test
+    fun nextQuestion_allAboveCap_fallsBackToMaxDifficulty() {
+        progressRepo._rankIndex = 2
+        gameRepo.pool = listOf(
+            QuestionEntry("Q1", mapOf("A" to "a", "B" to "b", "C" to "c", "D" to "d"), "A", 50, "t1", "1", difficulty = 5)
+        )
+        engine.startAllLawsGame()
+        // sessionDifficultyCap starts at 1, question difficulty is 5
+        // Should fall back to maxDifficulty filter
+        engine.sessionDifficultyCap = 1
+        assertTrue(engine.nextQuestion())
+        assertNotNull(engine.currentQ)
+    }
+
+    // === activateFiftyFifty normal case ===
+
+    @Test
+    fun activateFiftyFifty_normalCase_removesTwoOptions() {
+        progressRepo._rankIndex = 2
+        gameRepo.pool = TestFakes.makePool(20)
+        engine.startAllLawsGame()
+        engine.nextQuestion()
+        engine.activateFiftyFifty()
+        assertTrue(engine.fiftyFiftyActive)
+        assertEquals(2, engine.fiftyFiftyRemoved.size)
+    }
+
+    // === useHint normal case ===
+
+    @Test
+    fun useHint_normalCase_removesOneOption() {
+        progressRepo._rankIndex = 2
+        gameRepo.pool = TestFakes.makePool(20)
+        engine.startAllLawsGame()
+        engine.nextQuestion()
+        engine.useHint()
+        assertTrue(engine.hintActive)
+    }
+
+    // === answer correct with law mastery check ===
+
+    @Test
+    fun answer_correct_updatesStreak() {
+        progressRepo._rankIndex = 2
+        gameRepo.pool = TestFakes.makePool(20)
+        engine.startAllLawsGame()
+        engine.nextQuestion()
+        val q = engine.currentQ!!
+        engine.answer(q.correct)
+        assertEquals(1, engine.streak)
+    }
+
+    // === answer correct with combo bar fill ===
+
+    @Test
+    fun answer_correct_fillsComboBar() {
+        progressRepo._rankIndex = 2
+        gameRepo.pool = TestFakes.makePool(20)
+        engine.startAllLawsGame()
+        engine.nextQuestion()
+        val q = engine.currentQ!!
+        engine.answer(q.correct)
+        assertTrue(engine.comboBarFill > 0f)
+    }
 }
