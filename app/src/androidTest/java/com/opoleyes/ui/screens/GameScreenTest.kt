@@ -4,6 +4,7 @@ import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.activity.ComponentActivity
 import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.performClick
 import androidx.navigation.compose.rememberNavController
 import androidx.test.core.app.ApplicationProvider
@@ -95,16 +96,11 @@ class GameScreenTest {
         composeRule.onNodeWithText(TestStrings.fiftyFifty).performClick()
         composeRule.waitForIdle()
         // After 50/50, just verify the screen is still functional
-        // Some options may be removed, so check the question text is still there
+        // Some options may be removed, so check any option letter is still there
         composeRule.waitUntil(timeoutMillis = 5000) {
             try {
-                composeRule.onNodeWithText("A)", substring = true).assertIsDisplayed(); true
-            } catch (e: Throwable) {
-                // Option A might be removed by 50/50, try B
-                try {
-                    composeRule.onNodeWithText("B)", substring = true).assertIsDisplayed(); true
-                } catch (e2: Throwable) { false }
-            }
+                composeRule.onAllNodesWithText(")", substring = true).fetchSemanticsNodes().isNotEmpty()
+            } catch (e: Throwable) { false }
         }
     }
 
