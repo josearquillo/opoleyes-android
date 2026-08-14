@@ -75,4 +75,62 @@ class ConstantsCoverageTest {
         assertEquals(5, entry.wrong)
         assertEquals(3, entry.unanswered)
     }
+
+    @Test
+    fun getRankByIndex_outOfBounds_returnsLastRank() {
+        val rank = Constants.getRankByIndex(999)
+        assertEquals("Leyenda", rank.name)
+    }
+
+    @Test
+    fun getRankByIndex_negative_returnsLastRank() {
+        val rank = Constants.getRankByIndex(-1)
+        assertEquals("Leyenda", rank.name)
+    }
+
+    @Test
+    fun getRankByIndex_validIndex_returnsCorrectRank() {
+        assertEquals("Novato", Constants.getRankByIndex(0).name)
+        assertEquals("Maestro", Constants.getRankByIndex(7).name)
+    }
+
+    @Test
+    fun ranks_allHaveUniqueNames() {
+        val names = Constants.RANKS.map { it.name }
+        assertEquals(names.size, names.toSet().size)
+    }
+
+    @Test
+    fun powerupPointsMultiplier_containsExpectedValues() {
+        assertEquals(0.5f, Constants.POWERUP_POINTS_MULTIPLIER["hint"])
+        assertEquals(0.25f, Constants.POWERUP_POINTS_MULTIPLIER["fiftyFifty"])
+    }
+
+    @Test
+    fun maxOptionsByRank_allRanksCovered() {
+        for (i in 0..8) {
+            assertNotNull(Constants.MAX_OPTIONS_BY_RANK[i])
+        }
+    }
+
+    @Test
+    fun maxLivesByRank_allRanksCovered() {
+        for (i in 0..8) {
+            assertNotNull(Constants.MAX_LIVES_BY_RANK[i])
+        }
+    }
+
+    @Test
+    fun maxDifficultyByRank_allRanksCovered() {
+        for (i in 0..8) {
+            assertNotNull(Constants.MAX_DIFFICULTY_BY_RANK[i])
+        }
+    }
+
+    @Test
+    fun availablePowerupsByRank_allRanksCovered() {
+        for (i in 0..8) {
+            assertNotNull(Constants.AVAILABLE_POWERUPS_BY_RANK[i])
+        }
+    }
 }
