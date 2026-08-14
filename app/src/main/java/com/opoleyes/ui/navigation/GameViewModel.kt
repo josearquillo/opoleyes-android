@@ -243,6 +243,9 @@ class GameViewModel private constructor(
     var lastExamQuestionCount: Int = 10
         private set
 
+    var isRetrying = false
+        private set
+
     private val _examAnswered = MutableStateFlow(0)
     val examAnswered: StateFlow<Int> = _examAnswered.asStateFlow()
 
@@ -379,32 +382,35 @@ class GameViewModel private constructor(
 
     fun startExamAsync(questionCount: Int, onDone: (Boolean) -> Unit) {
         _isLoading.value = true
-        _examResult.value = null
         _isSimulacroMode.value = false
         _xpBreakdown.value = null
         missionRepo.clearSessionCompletedMissions()
         pendingMode = GameMode.EXAM
         lastExamQuestionCount = questionCount
+        isRetrying = true
         viewModelScope.launch {
             withContext(Dispatchers.Default) { examEngine.loadExam(questionCount) }
+            _examResult.value = null
             _examQuestionNum.value = 0
             _examAnswered.value = 0
             _examTotalQuestions.value = examEngine.getQuestionCount()
             _examCurrentQuestion.value = examEngine.getCurrentQuestion()
             _isLoading.value = false
             onDone(true)
+            isRetrying = false
         }
     }
 
     fun startSimulacroAsync(onDone: (Boolean) -> Unit) {
         _isLoading.value = true
-        _examResult.value = null
-        _simulacroResult.value = null
         _isSimulacroMode.value = true
         _xpBreakdown.value = null
         missionRepo.clearSessionCompletedMissions()
+        isRetrying = true
         viewModelScope.launch {
             withContext(Dispatchers.Default) { examEngine.loadSimulacro() }
+            _examResult.value = null
+            _simulacroResult.value = null
             _examQuestionNum.value = 0
             _examAnswered.value = 0
             _examTotalQuestions.value = examEngine.getQuestionCount()
@@ -412,6 +418,7 @@ class GameViewModel private constructor(
             _simulacroTimer.value = ExamEngine.SIMULACRO_TIME_SECONDS
             _isLoading.value = false
             onDone(true)
+            isRetrying = false
         }
     }
 
@@ -427,6 +434,20 @@ class GameViewModel private constructor(
         _examTotalQuestions.value = examEngine.getQuestionCount()
         _examCurrentQuestion.value = examEngine.getCurrentQuestion()
         _simulacroTimer.value = ExamEngine.SIMULACRO_TIME_SECONDS
+    }
+
+    fun loadExamSync(questionCount: Int) {
+        _examResult.value = null
+        _isSimulacroMode.value = false
+        _xpBreakdown.value = null
+        missionRepo.clearSessionCompletedMissions()
+        pendingMode = GameMode.EXAM
+        lastExamQuestionCount = questionCount
+        examEngine.loadExam(questionCount)
+        _examQuestionNum.value = 0
+        _examAnswered.value = 0
+        _examTotalQuestions.value = examEngine.getQuestionCount()
+        _examCurrentQuestion.value = examEngine.getCurrentQuestion()
     }
 
     fun examAnswer(letter: String) {

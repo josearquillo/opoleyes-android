@@ -38,7 +38,7 @@ fun ExamResultScreen(navController: NavController, gameViewModel: GameViewModel)
     val xpGained by gameViewModel.xpGained.collectAsState()
     val isLoading by gameViewModel.isLoading.collectAsState()
 
-    if (result == null && simulacroResult == null) {
+    if (result == null && simulacroResult == null && !gameViewModel.isRetrying) {
         var navigated by remember { mutableStateOf(false) }
         LaunchedEffect(Unit) {
             if (!navigated) {
@@ -98,9 +98,8 @@ fun ExamResultScreen(navController: NavController, gameViewModel: GameViewModel)
                     color1 = Success,
                     color2 = SuccessDark
                 ) {
-                    gameViewModel.startSimulacroAsync { ok ->
-                        if (ok) navController.navigate(Routes.EXAM) { popUpTo(Routes.HOME) }
-                    }
+                    gameViewModel.startSimulacroAsync { }
+                    navController.navigate(Routes.EXAM) { popUpTo(Routes.EXAM_RESULT) { inclusive = true } }
                 }
                 GameButton(
                     text = stringResource(R.string.menu),
@@ -161,9 +160,8 @@ fun ExamResultScreen(navController: NavController, gameViewModel: GameViewModel)
                     color1 = Success,
                     color2 = SuccessDark
                 ) {
-                    gameViewModel.startExamAsync(gameViewModel.lastExamQuestionCount) { ok ->
-                        if (ok) navController.navigate(Routes.EXAM) { popUpTo(Routes.HOME) }
-                    }
+                    gameViewModel.startExamAsync(gameViewModel.lastExamQuestionCount) { }
+                    navController.navigate(Routes.EXAM) { popUpTo(Routes.EXAM_RESULT) { inclusive = true } }
                 }
                 GameButton(
                     text = stringResource(R.string.menu),

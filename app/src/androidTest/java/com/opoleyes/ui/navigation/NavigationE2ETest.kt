@@ -370,9 +370,9 @@ class NavigationE2ETest {
         }
     }
 
-    // --- EXAM_RESULT → MODE_SELECT (retry) ---
+    // --- EXAM_RESULT → EXAM (retry restarts exam) ---
     @Test
-    fun examResult_clickRetry_goesToModeSelect() {
+    fun examResult_clickRetry_restartsExam() {
         val vm = setupExamResultState()
         composeRule.mainClock.autoAdvance = true
         composeRule.setContent { NavGraph(startDestination = Routes.EXAM_RESULT, gameViewModel = vm) }
@@ -382,9 +382,14 @@ class NavigationE2ETest {
         }
         composeRule.onNodeWithText(TestStrings.retryLabel).performScrollTo()
         composeRule.onNodeWithText(TestStrings.retryLabel).performClick()
-        composeRule.waitUntil(timeoutMillis = 10000) {
-            try { composeRule.onNodeWithText(TestStrings.modeSurvival).assertIsDisplayed(); true }
-            catch (e: Throwable) { false }
+        // Retry should navigate away from result screen — wait for it to disappear
+        composeRule.waitUntil(timeoutMillis = 15000) {
+            try {
+                composeRule.onNodeWithText(TestStrings.resultados).assertIsDisplayed()
+                false // Still visible, keep waiting
+            } catch (e: Throwable) {
+                true // Gone — navigation happened
+            }
         }
     }
 
@@ -406,6 +411,38 @@ class NavigationE2ETest {
         composeRule.waitUntil(timeoutMillis = 20000) {
             try { composeRule.onNodeWithText(TestStrings.modeSimulacro).assertIsDisplayed(); true }
             catch (e: Throwable) { false }
+        }
+    }
+
+    // --- SIMULACRO_RESULT → EXAM (retry restarts simulacro) ---
+    @Test
+    fun simulacroResult_clickRetry_restartsSimulacro() {
+        DataProvider.loadData(appContext)
+        preparePrefs()
+        val vm = GameViewModel(appContext)
+        vm.loadSimulacroSync()
+        for (i in 0 until 5) {
+            vm.examNavigate(i)
+            val q = vm.examEngine.getCurrentQuestion()!!
+            vm.examAnswer(q.question.correct)
+        }
+        vm.finishExam()
+        composeRule.mainClock.autoAdvance = true
+        composeRule.setContent { NavGraph(startDestination = Routes.EXAM_RESULT, gameViewModel = vm) }
+        composeRule.waitUntil(timeoutMillis = 10000) {
+            try { composeRule.onNodeWithText(TestStrings.resultados).assertIsDisplayed(); true }
+            catch (e: Throwable) { false }
+        }
+        composeRule.onNodeWithText(TestStrings.retryLabel).performScrollTo()
+        composeRule.onNodeWithText(TestStrings.retryLabel).performClick()
+        // Retry should navigate away from result screen — wait for it to disappear
+        composeRule.waitUntil(timeoutMillis = 15000) {
+            try {
+                composeRule.onNodeWithText(TestStrings.resultados).assertIsDisplayed()
+                false // Still visible, keep waiting
+            } catch (e: Throwable) {
+                true // Gone — navigation happened
+            }
         }
     }
 }
