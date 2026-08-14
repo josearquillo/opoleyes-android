@@ -111,4 +111,57 @@ class ExamScreenTest {
         composeRule.waitForIdle()
         composeRule.onNodeWithText(TestStrings.modeExam).assertIsDisplayed()
     }
+
+    @Test
+    fun examScreen_displaysAnsweredCount() {
+        setupExamScreen()
+        // Should show "0/10" or similar answered count
+        composeRule.onNodeWithText("0/10", substring = true).assertIsDisplayed()
+    }
+
+    @Test
+    fun examScreen_clickFinish_showsFinishDialog() {
+        setupExamScreen()
+        // Answer all questions
+        for (i in 0 until 10) {
+            composeRule.onAllNodesWithText("A")[0].performClick()
+            composeRule.waitForIdle()
+            if (i < 9) {
+                composeRule.onNodeWithText(TestStrings.next).performScrollTo().performClick()
+                composeRule.waitForIdle()
+            }
+        }
+        // Click finish
+        composeRule.onNodeWithText(TestStrings.finish).performScrollTo().performClick()
+        composeRule.waitForIdle()
+        // Should show finish confirmation dialog
+        composeRule.onNodeWithText(TestStrings.finishExam).assertIsDisplayed()
+    }
+
+    @Test
+    fun examScreen_clickCancelOnExitDialog_dismisses() {
+        setupExamScreen()
+        composeRule.onNodeWithContentDescription("Salir").performClick()
+        composeRule.waitForIdle()
+        composeRule.onNodeWithText(TestStrings.cancel).performClick()
+        composeRule.waitForIdle()
+        // Should still be on exam screen
+        composeRule.onNodeWithText(TestStrings.modeExam).assertIsDisplayed()
+    }
+
+    @Test
+    fun examScreen_allAnswered_showsAllAnsweredMessage() {
+        setupExamScreen()
+        // Answer all 10 questions
+        for (i in 0 until 10) {
+            composeRule.onAllNodesWithText("A")[0].performClick()
+            composeRule.waitForIdle()
+            if (i < 9) {
+                composeRule.onNodeWithText(TestStrings.next).performScrollTo().performClick()
+                composeRule.waitForIdle()
+            }
+        }
+        // Should show "10/10" answered count
+        composeRule.onNodeWithText("10/10", substring = true).assertIsDisplayed()
+    }
 }

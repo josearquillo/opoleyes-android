@@ -77,4 +77,16 @@ class ProfileScreenTest {
         composeRule.onNodeWithText(TestStrings.reset).assertIsDisplayed()
         composeRule.onNodeWithText(TestStrings.cancel).assertIsDisplayed()
     }
+
+    @Test
+    fun profileScreen_clickCancelOnReset_dismissesDialog() {
+        setupProfileScreen()
+        composeRule.onNodeWithText(TestStrings.resetProgress).performScrollTo()
+        composeRule.onNodeWithText(TestStrings.resetProgress).performClick()
+        composeRule.waitForIdle()
+        composeRule.onNodeWithText(TestStrings.cancel).performClick()
+        composeRule.waitForIdle()
+        // Should still be on profile screen
+        composeRule.onNodeWithText(TestStrings.profile).assertIsDisplayed()
+    }
 }
