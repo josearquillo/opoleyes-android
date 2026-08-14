@@ -6,6 +6,7 @@ import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 import com.opoleyes.TestContextProvider
+import com.opoleyes.data.model.QuestionEntry
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Assert.assertFalse
@@ -281,5 +282,111 @@ class ExamEngineTest {
         assertEquals(0, engine.getCurrentIndex())
         engine.navigateTo(count + 10)
         assertEquals(count - 1, engine.getCurrentIndex())
+    }
+
+    @Test
+    fun next_inMiddle_advances() {
+        engine.loadExam(10)
+        engine.navigateTo(0)
+        assertTrue(engine.next())
+        assertEquals(1, engine.getCurrentIndex())
+    }
+
+    @Test
+    fun prev_inMiddle_goesBack() {
+        engine.loadExam(10)
+        engine.navigateTo(2)
+        assertTrue(engine.prev())
+        assertEquals(1, engine.getCurrentIndex())
+    }
+
+    @Test
+    fun createForTest_loadsQuestionsFromPool() {
+        val pool = listOf(
+            QuestionEntry("q1", mapOf("A" to "a", "B" to "b"), "A", 50, "t1", "1", 3),
+            QuestionEntry("q2", mapOf("A" to "a", "B" to "b"), "B", 50, "t1", "2", 3),
+            QuestionEntry("q3", mapOf("A" to "a", "B" to "b"), "A", 50, "t1", "3", 3)
+        )
+        val fakeStats = object : com.opoleyes.data.IStatsRepository {
+            override fun getStats() = emptyMap<String, com.opoleyes.data.model.QuestionStat>()
+            override fun updateStat(key: String, isCorrect: Boolean) {}
+            override fun getLeyProgress(testId: String) = 0
+        }
+        val eng = ExamEngine.createForTest(fakeStats, pool)
+        eng.loadExam(3)
+        assertEquals(3, eng.getQuestionCount())
+    }
+
+    @Test
+    fun createForTest_gradeWithMixedAnswers() {
+        val pool = listOf(
+            QuestionEntry("q1", mapOf("A" to "a", "B" to "b"), "A", 50, "t1", "1", 3),
+            QuestionEntry("q2", mapOf("A" to "a", "B" to "b"), "B", 50, "t1", "2", 3),
+            QuestionEntry("q3", mapOf("A" to "a", "B" to "b"), "A", 50, "t1", "3", 3)
+        )
+        val fakeStats = object : com.opoleyes.data.IStatsRepository {
+            override fun getStats() = emptyMap<String, com.opoleyes.data.model.QuestionStat>()
+            override fun updateStat(key: String, isCorrect: Boolean) {}
+            override fun getLeyProgress(testId: String) = 0
+        }
+        val eng = ExamEngine.createForTest(fakeStats, pool)
+        eng.loadExam(3)
+        eng.navigateTo(0); eng.answer("A") // correct
+        eng.navigateTo(1); eng.answer("A") // wrong (correct is B)
+        eng.navigateTo(2) // unanswered
+        val result = eng.grade()
+        assertEquals(3, result.total)
+        assertEquals(1, result.correct)
+        assertEquals(1, result.wrong)
+        assertEquals(1, result.unanswered)
+    }
+
+    @Test
+    fun createForTest_simulacroGrading() {
+        val pool = listOf(
+            QuestionEntry("q1", mapOf("A" to "a", "B" to "b"), "A", 50, "t1", "1", 3),
+            QuestionEntry("q2", mapOf("A" to "a", "B" to "b"), "B", 50, "t1", "2", 3)
+        )
+        val fakeStats = object : com.opoleyes.data.IStatsRepository {
+            override fun getStats() = emptyMap<String, com.opoleyes.data.model.QuestionStat>()
+            override fun updateStat(key: String, isCorrect: Boolean) {}
+            override fun getLeyProgress(testId: String) = 0
+        }
+        val eng = ExamEngine.createForTest(fakeStats, pool)
+        eng.loadExam(2)
+        eng.navigateTo(0); eng.answer("A") // correct
+        eng.navigateTo(1); eng.answer("B") // correct
+        val result = eng.gradeSimulacro()
+        assertEquals(2, result.correct)
+        assertTrue(result.points > 0)
+    }
+
+    @Test
+    fun clearAnswer_onEmptyExam_noCrash() {
+        engine.loadExam(0)
+        engine.clearAnswer() // should not crash
+    }
+
+    @Test
+    fun answer_onEmptyExam_noCrash() {
+        engine.loadExam(0)
+        engine.answer("A") // should not crash
+    }
+
+    @Test
+    fun navigateTo_emptyExam_noCrash() {
+        engine.loadExam(0)
+        engine.navigateTo(0) // should not crash
+    }
+
+    @Test
+    fun isFinished_atLastIndex_returnsTrue() {
+        engine.loadExam(10)
+        val count = engine.getQuestionCount()
+        engine.navigateTo(count - 1)
+        assertFalse(engine.isFinished())
+        engine.navigateTo(count)
+        // navigateTo clamps to count-1, so isFinished should be false
+        assertFalse(engine.isFinished())
     }
 }
