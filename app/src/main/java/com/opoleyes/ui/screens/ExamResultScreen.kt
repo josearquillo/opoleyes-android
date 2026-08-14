@@ -27,6 +27,7 @@ import com.opoleyes.ui.navigation.GameViewModel
 import com.opoleyes.ui.navigation.Routes
 import com.opoleyes.ui.theme.*
 import com.opoleyes.ui.components.GameButton
+import com.opoleyes.ui.components.LoadingOverlay
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -35,6 +36,7 @@ fun ExamResultScreen(navController: NavController, gameViewModel: GameViewModel)
     val simulacroResult by gameViewModel.simulacroResult.collectAsState()
     val isSimulacro by gameViewModel.isSimulacroMode.collectAsState()
     val xpGained by gameViewModel.xpGained.collectAsState()
+    val isLoading by gameViewModel.isLoading.collectAsState()
 
     if (result == null && simulacroResult == null) {
         var navigated by remember { mutableStateOf(false) }
@@ -96,7 +98,9 @@ fun ExamResultScreen(navController: NavController, gameViewModel: GameViewModel)
                     color1 = Success,
                     color2 = SuccessDark
                 ) {
-                    navController.navigate(Routes.SIMULACRO_INTRO) { popUpTo(Routes.HOME) }
+                    gameViewModel.startSimulacroAsync { ok ->
+                        if (ok) navController.navigate(Routes.EXAM) { popUpTo(Routes.HOME) }
+                    }
                 }
                 GameButton(
                     text = stringResource(R.string.menu),
@@ -157,7 +161,9 @@ fun ExamResultScreen(navController: NavController, gameViewModel: GameViewModel)
                     color1 = Success,
                     color2 = SuccessDark
                 ) {
-                    navController.navigate(Routes.MODE_SELECT) { popUpTo(Routes.HOME) }
+                    gameViewModel.startExamAsync(gameViewModel.lastExamQuestionCount) { ok ->
+                        if (ok) navController.navigate(Routes.EXAM) { popUpTo(Routes.HOME) }
+                    }
                 }
                 GameButton(
                     text = stringResource(R.string.menu),
@@ -171,6 +177,10 @@ fun ExamResultScreen(navController: NavController, gameViewModel: GameViewModel)
         }
         Spacer(Modifier.height(32.dp))
         }
+    }
+
+    if (isLoading) {
+        LoadingOverlay()
     }
 }
 

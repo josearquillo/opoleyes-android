@@ -240,6 +240,9 @@ class GameViewModel private constructor(
     private val _examQuestionNum = MutableStateFlow(0)
     val examQuestionNum: StateFlow<Int> = _examQuestionNum.asStateFlow()
 
+    var lastExamQuestionCount: Int = 10
+        private set
+
     private val _examAnswered = MutableStateFlow(0)
     val examAnswered: StateFlow<Int> = _examAnswered.asStateFlow()
 
@@ -381,6 +384,7 @@ class GameViewModel private constructor(
         _xpBreakdown.value = null
         missionRepo.clearSessionCompletedMissions()
         pendingMode = GameMode.EXAM
+        lastExamQuestionCount = questionCount
         viewModelScope.launch {
             withContext(Dispatchers.Default) { examEngine.loadExam(questionCount) }
             _examQuestionNum.value = 0
