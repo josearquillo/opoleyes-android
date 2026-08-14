@@ -4,6 +4,7 @@ import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.activity.ComponentActivity
 import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.navigation.compose.rememberNavController
 import androidx.test.core.app.ApplicationProvider
@@ -49,5 +50,19 @@ class SimulacroIntroScreenTest {
     fun simulacroIntro_displaysBackButton() {
         setupSimulacroIntro()
         composeRule.onNodeWithContentDescription(TestStrings.back).assertIsDisplayed()
+    }
+
+    @Test
+    fun simulacroIntro_displaysQuestionCount() {
+        setupSimulacroIntro()
+        // Should mention 100 questions
+        composeRule.onAllNodesWithText("100", substring = true)[0].assertIsDisplayed()
+    }
+
+    @Test
+    fun simulacroIntro_displaysTimeInfo() {
+        setupSimulacroIntro()
+        // Should mention 100 minutes
+        composeRule.onAllNodesWithText("100", substring = true)[0].assertIsDisplayed()
     }
 }

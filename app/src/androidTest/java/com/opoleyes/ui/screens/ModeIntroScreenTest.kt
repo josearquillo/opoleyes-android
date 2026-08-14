@@ -5,6 +5,7 @@ import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.activity.ComponentActivity
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.onNodeWithContentDescription
+import androidx.compose.ui.test.performClick
 import androidx.navigation.compose.rememberNavController
 import androidx.test.core.app.ApplicationProvider
 import android.app.Application
@@ -51,5 +52,26 @@ class ModeIntroScreenTest {
     fun modeIntro_displaysDontShowAgainCheckbox() {
         setupModeIntro(GameMode.QUICK)
         composeRule.onNodeWithText(TestStrings.introDontShowAgain).assertIsDisplayed()
+    }
+
+    @Test
+    fun modeIntro_timetrial_displaysPlayButton() {
+        setupModeIntro(GameMode.TIMETRIAL)
+        composeRule.onNodeWithText(TestStrings.introPlay).assertIsDisplayed()
+    }
+
+    @Test
+    fun modeIntro_survival_displaysPlayButton() {
+        setupModeIntro(GameMode.SURVIVAL)
+        composeRule.onNodeWithText(TestStrings.introPlay).assertIsDisplayed()
+    }
+
+    @Test
+    fun modeIntro_clickDontShowAgain_noCrash() {
+        setupModeIntro(GameMode.QUICK)
+        composeRule.onNodeWithText(TestStrings.introDontShowAgain).performClick()
+        composeRule.waitForIdle()
+        // Should still be on the intro screen
+        composeRule.onNodeWithText(TestStrings.introPlay).assertIsDisplayed()
     }
 }
