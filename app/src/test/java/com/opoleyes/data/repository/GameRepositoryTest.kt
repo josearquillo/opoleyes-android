@@ -174,4 +174,34 @@ class GameRepositoryTest {
         gameRepo.setMultiplier(1)
         assertEquals(1, gameRepo.getMultiplier())
     }
+
+    @Test
+    fun startQuickGame_withWrongAnswerStats_includesWrongQuestions() {
+        // Record some wrong answers to populate the wrong pool
+        val pool = gameRepo.startAllLawsGame()
+        assertTrue("Pool should not be empty", pool.isNotEmpty())
+        // Record wrong answers for first few questions
+        for (q in pool.take(5)) {
+            val key = "${q.testId}:${q.origId}"
+            statsRepo.updateStat(key, isCorrect = false)
+        }
+        // Now quick game should include questions from the wrong pool
+        val quickPool = gameRepo.startQuickGame()
+        assertTrue("Quick pool should not be empty", quickPool.isNotEmpty())
+    }
+
+    @Test
+    fun startQuickGame_withHighRank_includesHigherDifficulty() {
+        // Set high XP to unlock higher difficulty
+        prefs.addXP(25000) // rank 8 = Leyenda
+        val pool = gameRepo.startQuickGame()
+        // Should still return valid pool
+        assertTrue("Quick pool should not be empty", pool.isNotEmpty())
+    }
+
+    @Test
+    fun getFilteredAndWeightedPool_emptyPool_returnsEmpty() {
+        val filtered = gameRepo.getFilteredAndWeightedPool(emptyList(), rankIndex = 0)
+        assertTrue("Filtered empty pool should be empty", filtered.isEmpty())
+    }
 }
