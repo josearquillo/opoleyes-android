@@ -61,6 +61,7 @@ object TestStrings {
     val resultados = ctx.getString(com.opoleyes.R.string.resultados)
     val examResult = ctx.getString(com.opoleyes.R.string.exam_result)
     val retryLabel = ctx.getString(com.opoleyes.R.string.retry_label)
+    val hideReview = ctx.getString(com.opoleyes.R.string.hide_review)
 
     // Exam screen
     val exit = ctx.getString(com.opoleyes.R.string.exit)

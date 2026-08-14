@@ -4,6 +4,7 @@ import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.activity.ComponentActivity
 import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
 import androidx.navigation.compose.rememberNavController
 import androidx.test.core.app.ApplicationProvider
@@ -64,5 +65,81 @@ class ExamResultScreenTest {
     fun examResultScreen_displaysReviewButton() {
         setupExamResultScreen()
         composeRule.onNodeWithText(TestStrings.reviewAnswers).assertIsDisplayed()
+    }
+
+    @Test
+    fun examResultScreen_clickReview_showsReviewContent() {
+        setupExamResultScreen()
+        composeRule.onNodeWithText(TestStrings.reviewAnswers).performClick()
+        composeRule.waitForIdle()
+        // Review content should show question review cards
+        composeRule.waitUntil(timeoutMillis = 5000) {
+            try {
+                composeRule.onNodeWithText(TestStrings.hideReview).assertIsDisplayed(); true
+            } catch (e: Throwable) { false }
+        }
+    }
+
+    @Test
+    fun examResultScreen_displaysScore() {
+        setupExamResultScreen()
+        // Should show "/ 10" text
+        composeRule.onNodeWithText("/ 10").assertIsDisplayed()
+    }
+
+    @Test
+    fun examResultScreen_displaysCorrectLabel() {
+        setupExamResultScreen()
+        composeRule.onNodeWithText("Aciertos").assertIsDisplayed()
+    }
+
+    @Test
+    fun examResultScreen_displaysWrongLabel() {
+        setupExamResultScreen()
+        composeRule.onNodeWithText("Fallos").assertIsDisplayed()
+    }
+
+    @Test
+    fun examResultScreen_displaysPerLawSection() {
+        setupExamResultScreen()
+        composeRule.onNodeWithText("Desglose por ley").performScrollTo()
+        composeRule.onNodeWithText("Desglose por ley").assertIsDisplayed()
+    }
+
+    @Test
+    fun examResultScreen_displaysXpEarned() {
+        setupExamResultScreen()
+        // XP earned text contains "XP ganados"
+        composeRule.waitUntil(timeoutMillis = 5000) {
+            try {
+                composeRule.onNodeWithText("XP ganados", substring = true).assertIsDisplayed(); true
+            } catch (e: Throwable) { false }
+        }
+    }
+
+    @Test
+    fun examResultScreen_simulacroResult_displaysContent() {
+        val ctx = ApplicationProvider.getApplicationContext<Application>()
+        DataProvider.loadData(ctx)
+        val vm = GameViewModel(ctx)
+        vm.loadSimulacroSync()
+        // Answer a few questions
+        for (i in 0 until 10) {
+            vm.examNavigate(i)
+            val q = vm.examEngine.getCurrentQuestion()!!
+            vm.examAnswer(q.question.correct)
+        }
+        vm.finishExam() // dispatches to finishSimulacro since isSimulacroMode
+
+        composeRule.mainClock.autoAdvance = true
+        composeRule.setContent {
+            ExamResultScreen(rememberNavController(), vm)
+        }
+        // Should show simulacro result content
+        composeRule.waitUntil(timeoutMillis = 10000) {
+            try {
+                composeRule.onNodeWithText("Aciertos").assertIsDisplayed(); true
+            } catch (e: Throwable) { false }
+        }
     }
 }
