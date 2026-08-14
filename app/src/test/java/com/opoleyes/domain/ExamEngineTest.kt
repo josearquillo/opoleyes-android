@@ -331,8 +331,9 @@ class ExamEngineTest {
         }
         val eng = ExamEngine.createForTest(fakeStats, pool)
         eng.loadExam(3)
-        eng.navigateTo(0); eng.answer("A") // correct
-        eng.navigateTo(1); eng.answer("A") // wrong (correct is B)
+        // Answer first question correctly, second wrong, third unanswered
+        eng.navigateTo(0); eng.answer(eng.getCurrentQuestion()!!.question.correct)
+        eng.navigateTo(1); eng.answer(if (eng.getCurrentQuestion()!!.question.correct == "A") "B" else "A")
         eng.navigateTo(2) // unanswered
         val result = eng.grade()
         assertEquals(3, result.total)
@@ -354,8 +355,9 @@ class ExamEngineTest {
         }
         val eng = ExamEngine.createForTest(fakeStats, pool)
         eng.loadExam(2)
-        eng.navigateTo(0); eng.answer("A") // correct
-        eng.navigateTo(1); eng.answer("B") // correct
+        // Answer each question correctly based on its correct answer
+        eng.navigateTo(0); eng.answer(eng.getCurrentQuestion()!!.question.correct)
+        eng.navigateTo(1); eng.answer(eng.getCurrentQuestion()!!.question.correct)
         val result = eng.gradeSimulacro()
         assertEquals(2, result.correct)
         assertTrue(result.points > 0)

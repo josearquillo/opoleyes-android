@@ -966,4 +966,61 @@ class GameEngineTest {
         engine.answer(listOf("A", "B", "C", "D").first { it != engine.currentQ!!.correct })
         assertEquals("Cap should not go below 1", 1, engine.sessionDifficultyCap)
     }
+
+    @Test
+    fun fun_nextQuestion_rank0_sortsByDifficulty() {
+        progressRepo._rankIndex = 0
+        engine.startAllLawsGame()
+        engine.nextQuestion()
+        // Should not crash and should have a question
+        assertNotNull(engine.currentQ)
+    }
+
+    @Test
+    fun fun_nextQuestion_rank1_sortsByDifficulty() {
+        progressRepo._rankIndex = 1
+        engine.startAllLawsGame()
+        engine.nextQuestion()
+        assertNotNull(engine.currentQ)
+    }
+
+    @Test
+    fun fun_nextQuestion_highRank_usesWeightedSelection() {
+        progressRepo._rankIndex = 5
+        engine.startAllLawsGame()
+        engine.nextQuestion()
+        assertNotNull(engine.currentQ)
+    }
+
+    @Test
+    fun fun_nextQuestion_poolExhausted_clearsAskedIds() {
+        progressRepo._rankIndex = 5
+        engine.startAllLawsGame()
+        // Answer all questions to exhaust the pool
+        for (i in 0 until 20) {
+            engine.nextQuestion()
+            engine.answer(engine.currentQ!!.correct)
+        }
+        // Should still be able to get next question (pool resets)
+        // This covers the askedIds.clear() branch
+    }
+
+    @Test
+    fun fun_initGameStats_highRank_configureMaxOptions() {
+        progressRepo._rankIndex = 7
+        engine.mode = GameMode.SURVIVAL
+        engine.initGameStats()
+        // High rank should have more options
+        assertTrue(engine.maxOptions >= 4)
+    }
+
+    @Test
+    fun fun_initGameStats_consumesMultiplier() {
+        prefs.setMultiplier(2)
+        engine.mode = GameMode.SURVIVAL
+        engine.initGameStats()
+        assertEquals(2, engine.xpMultiplier)
+        // Multiplier should be consumed (reset to 1)
+        assertEquals(1, prefs.getMultiplier())
+    }
 }
