@@ -63,6 +63,8 @@ class ExamEngine private constructor(
             testData: List<TestData>
         ) = ExamEngine(null, statsRepo, null, testData)
 
+        fun createFailing(statsRepo: IStatsRepository) = ExamEngine(null, statsRepo, null, null)
+
         const val SIMULACRO_QUESTIONS = 100
         const val SIMULACRO_TIME_SECONDS = 100 * 60
         const val SIMULACRO_CORRECT_POINTS = 0.60f

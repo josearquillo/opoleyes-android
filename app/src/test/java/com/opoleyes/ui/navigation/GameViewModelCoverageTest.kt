@@ -141,6 +141,44 @@ class GameViewModelCoverageTest {
         }
     }
 
+    // === Async error paths ===
+
+    @Test
+    fun startExamAsync_failure_resetsLoadingAndIsRetrying() = runBlocking {
+        val failingEngine = ExamEngine.createFailing(statsRepo)
+        val failingVm = GameViewModel.createForTest(
+            progressRepo, statsRepo, missionRepo,
+            AchievementChecker(prefs), ChestSystem(prefs),
+            prefs, engine, failingEngine
+        )
+        withTimeout(5000) {
+            var result: Boolean? = null
+            failingVm.startExamAsync(10) { result = it }
+            while (result == null) { kotlinx.coroutines.delay(100) }
+            assertFalse(result!!)
+            assertFalse(failingVm.isLoading.value)
+            assertFalse(failingVm.isRetrying)
+        }
+    }
+
+    @Test
+    fun startSimulacroAsync_failure_resetsLoadingAndIsRetrying() = runBlocking {
+        val failingEngine = ExamEngine.createFailing(statsRepo)
+        val failingVm = GameViewModel.createForTest(
+            progressRepo, statsRepo, missionRepo,
+            AchievementChecker(prefs), ChestSystem(prefs),
+            prefs, engine, failingEngine
+        )
+        withTimeout(5000) {
+            var result: Boolean? = null
+            failingVm.startSimulacroAsync { result = it }
+            while (result == null) { kotlinx.coroutines.delay(100) }
+            assertFalse(result!!)
+            assertFalse(failingVm.isLoading.value)
+            assertFalse(failingVm.isRetrying)
+        }
+    }
+
     // === finishExam with multiplier ===
 
     @Test

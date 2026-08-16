@@ -4,6 +4,7 @@ import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.activity.ComponentActivity
 import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.performClick
 import androidx.navigation.compose.rememberNavController
 import androidx.test.core.app.ApplicationProvider
@@ -11,6 +12,7 @@ import android.app.Application
 import com.opoleyes.data.local.DataProvider
 import com.opoleyes.ui.navigation.GameViewModel
 import com.opoleyes.ui.navigation.TestStrings
+import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -127,5 +129,51 @@ class GameOverScreenTest {
                 } catch (e2: Throwable) { false }
             }
         }
+    }
+
+    @Test
+    fun chestOverlay_displaysTapToOpenHint() {
+        val chest = com.opoleyes.data.model.ChestReward(
+            type = com.opoleyes.data.model.ChestType.BRONZE,
+            xp = 100,
+            powerUps = emptyList(),
+            multiplier = false
+        )
+        composeRule.mainClock.autoAdvance = false
+        composeRule.setContent {
+            ChestOverlay(
+                chest = chest,
+                opened = false,
+                shakeCount = 0,
+                onOpen = {},
+                onDismiss = {}
+            )
+        }
+        // Verify "¡Bonus desbloqueado!" title is shown
+        composeRule.onNodeWithText("¡Bonus desbloqueado!").assertIsDisplayed()
+        // Verify the tap-to-open hint is displayed while chest is unopened
+        composeRule.onNodeWithText(TestStrings.tapToOpen).assertIsDisplayed()
+    }
+
+    @Test
+    fun chestOverlay_opened_doesNotDisplayTapToOpenHint() {
+        val chest = com.opoleyes.data.model.ChestReward(
+            type = com.opoleyes.data.model.ChestType.BRONZE,
+            xp = 100,
+            powerUps = emptyList(),
+            multiplier = false
+        )
+        composeRule.mainClock.autoAdvance = false
+        composeRule.setContent {
+            ChestOverlay(
+                chest = chest,
+                opened = true,
+                shakeCount = 0,
+                onOpen = {},
+                onDismiss = {}
+            )
+        }
+        // Verify the tap-to-open hint is NOT displayed when chest is opened
+        assertEquals(0, composeRule.onAllNodesWithText(TestStrings.tapToOpen).fetchSemanticsNodes().size)
     }
 }

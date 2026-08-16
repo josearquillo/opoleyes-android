@@ -91,4 +91,7 @@ object TestStrings {
     // Game screen
     val hint = ctx.getString(com.opoleyes.R.string.hint)
     val fiftyFifty = ctx.getString(com.opoleyes.R.string.fifty_fifty)
+
+    // Chest overlay
+    val tapToOpen = ctx.getString(com.opoleyes.R.string.tap_to_open)
 }
