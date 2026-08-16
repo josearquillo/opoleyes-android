@@ -278,7 +278,7 @@ class ExamEngine private constructor(
         }
 
         val total = questions.size
-        val points = correct * SIMULACRO_CORRECT_POINTS - wrong * SIMULACRO_WRONG_PENALTY
+        val points = (correct * SIMULACRO_CORRECT_POINTS - wrong * SIMULACRO_WRONG_PENALTY).coerceAtLeast(0f)
         val passed = points >= SIMULACRO_PASSING_SCORE
 
         return SimulacroResult(
