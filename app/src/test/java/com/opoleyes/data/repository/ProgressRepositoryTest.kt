@@ -147,7 +147,7 @@ class ProgressRepositoryTest {
         assertTrue("FiftyFifty should be unlocked at rank 0", unlocks.fiftyFifty)
         assertFalse("Hint should be locked at rank 0", unlocks.hint)
         assertFalse("DoubleScore should be locked (removed)", unlocks.doubleScore)
-        assertEquals("Daily missions should be 1 at rank 0", 1, unlocks.dailyMissions)
+        assertEquals("Daily missions should be 2 at rank 0", 2, unlocks.dailyMissions)
     }
 
     @Test
@@ -164,7 +164,7 @@ class ProgressRepositoryTest {
         val unlocks = repo.getUnlocks()
         assertTrue("Quick should be unlocked at rank 5", unlocks.quick)
         assertFalse("Exam should still be locked at rank 5", unlocks.exam)
-        assertEquals("Daily missions should be 2 at rank 5", 2, unlocks.dailyMissions)
+        assertEquals("Daily missions should be 3 at rank 5", 3, unlocks.dailyMissions)
     }
 
     @Test
@@ -266,14 +266,14 @@ class ProgressRepositoryTest {
     // === getMissionCount ===
 
     @Test
-    fun getMissionCount_rank0_returns1() {
-        assertEquals("Rank 0 should have 1 daily mission", 1, repo.getMissionCount())
+    fun getMissionCount_rank0_returns2() {
+        assertEquals("Rank 0 should have 2 daily missions", 2, repo.getMissionCount())
     }
 
     @Test
-    fun getMissionCount_rank4_returns2() {
+    fun getMissionCount_rank4_returns3() {
         repo.addXP(4000) // rank 4
-        assertEquals("Rank 4 should have 2 daily missions", 2, repo.getMissionCount())
+        assertEquals("Rank 4 should have 3 daily missions", 3, repo.getMissionCount())
     }
 
     @Test

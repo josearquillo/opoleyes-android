@@ -694,7 +694,7 @@ class GameViewModel private constructor(
             maxOptions = engine.maxOptions
         ))
 
-        missionRepo.checkOnGameOver(mode, engine.maxCombo, engine.maxStreak, engine.totalAnswered, engine.category, engine.correctCount, engine.score)
+        missionRepo.checkOnGameOver(mode, engine.maxCombo, engine.maxStreak, engine.totalAnswered, engine.category, engine.correctCount, engine.score, engine.powerUpsUsedCount, engine.totalAnswered - engine.correctCount)
 
         if (engine.mode == GameMode.QUICK && engine.totalAnswered >= Constants.QUICK_MODE_QUESTIONS) {
             if (engine.correctCount == engine.totalAnswered) {

@@ -203,7 +203,7 @@ fun HomeScreen(navController: NavController, gameViewModel: GameViewModel) {
                         MissionCard(m) {
                             if (!m.completed) {
                                 when (m.type) {
-                                    "review" -> {
+                                    "review", "perfect_quick" -> {
                                         gameViewModel.startQuickGameAsync { ok ->
                                             if (ok) {
                                                 if (gameViewModel.shouldShowModeIntro(GameMode.QUICK)) {
@@ -238,7 +238,7 @@ fun HomeScreen(navController: NavController, gameViewModel: GameViewModel) {
                                             }
                                         }
                                     }
-                                    "quality", "combo" -> {
+                                    "quality", "combo", "no_powerups", "perfect_game", "no_powerups_combo", "play_count" -> {
                                         gameViewModel.pendingMode = GameMode.SURVIVAL
                                         gameViewModel.startAllLawsGameAsync { ok ->
                                             if (ok) {

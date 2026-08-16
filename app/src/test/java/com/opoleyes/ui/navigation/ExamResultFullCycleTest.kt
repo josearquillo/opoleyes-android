@@ -243,8 +243,8 @@ class ExamResultFullCycleTest {
         assertEquals(0, sr.correct)
         assertEquals(100, sr.wrong)
         assertEquals(0, sr.unanswered)
-        // points = 0 * 0.60 - 100 * 0.15 = -15.0
-        val expectedPoints = 0 * 0.60f - 100 * 0.15f
+        // points = max(0 * 0.60 - 100 * 0.15, 0) = max(-15.0, 0) = 0.0
+        val expectedPoints = 0f
         assertEquals(expectedPoints, sr.points, 0.01f)
         assertFalse("Should fail with all wrong", sr.passed)
         // XP = max(points * 10, 0) = max(-150, 0) = 0

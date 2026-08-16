@@ -135,19 +135,24 @@ class MissionRepositoryTest {
     }
 
     @Test
-    fun updateProgress_progress_lawSpecific_usesMax() {
-        saveMissions(makeMission(key = "progress_test1", target = 50, reward = 50, current = 30))
-        missionRepo.updateProgress("progress", 45)
-        assertEquals(45, missionRepo.getDailyMissions()!!.missions[0].current)
-        missionRepo.updateProgress("progress", 40)
-        assertEquals(45, missionRepo.getDailyMissions()!!.missions[0].current)
+    fun updateProgress_playCount_accumulates() {
+        saveMissions(makeMission(key = "play_count", target = 3, reward = 50, current = 1))
+        missionRepo.updateProgress("play_count", 1)
+        assertEquals(2, missionRepo.getDailyMissions()!!.missions[0].current)
     }
 
     @Test
-    fun updateProgress_progress_any_accumulates() {
-        saveMissions(makeMission(key = "progress_any", target = 10, reward = 50, current = 3))
-        missionRepo.updateProgress("progress_any", 4)
-        assertEquals(7, missionRepo.getDailyMissions()!!.missions[0].current)
+    fun updateProgress_noPowerups_completesWithOne() {
+        saveMissions(makeMission(key = "no_powerups", target = 1, reward = 50, current = 0))
+        missionRepo.updateProgress("no_powerups", 1)
+        assertTrue(missionRepo.getDailyMissions()!!.missions[0].completed)
+    }
+
+    @Test
+    fun updateProgress_perfectGame_completesWithOne() {
+        saveMissions(makeMission(key = "perfect_game", target = 1, reward = 100, current = 0))
+        missionRepo.updateProgress("perfect_game", 1)
+        assertTrue(missionRepo.getDailyMissions()!!.missions[0].completed)
     }
 
     @Test
@@ -232,10 +237,38 @@ class MissionRepositoryTest {
     }
 
     @Test
-    fun checkOnGameOver_survival_updatesProgressAny() {
-        saveMissions(makeMission(key = "progress_any", target = 10, reward = 50, current = 0))
+    fun checkOnGameOver_survival_updatesPlayCount() {
+        saveMissions(makeMission(key = "play_count", target = 1, reward = 50, current = 0))
         missionRepo.checkOnGameOver("survival", maxCombo = 0, maxStreak = 0, totalAnswered = 10, gameCategory = "", correctCount = 10, score = 0)
         assertTrue(missionRepo.getDailyMissions()!!.missions[0].completed)
+    }
+
+    @Test
+    fun checkOnGameOver_survival_noPowerups_completesNoPowerups() {
+        saveMissions(makeMission(key = "no_powerups", target = 1, reward = 50, current = 0))
+        missionRepo.checkOnGameOver("survival", maxCombo = 0, maxStreak = 0, totalAnswered = 5, gameCategory = "", correctCount = 5, score = 0, powerUpsUsed = 0, wrongCount = 0)
+        assertTrue(missionRepo.getDailyMissions()!!.missions[0].completed)
+    }
+
+    @Test
+    fun checkOnGameOver_survival_withPowerups_doesNotCompleteNoPowerups() {
+        saveMissions(makeMission(key = "no_powerups", target = 1, reward = 50, current = 0))
+        missionRepo.checkOnGameOver("survival", maxCombo = 0, maxStreak = 0, totalAnswered = 5, gameCategory = "", correctCount = 5, score = 0, powerUpsUsed = 2, wrongCount = 0)
+        assertFalse(missionRepo.getDailyMissions()!!.missions[0].completed)
+    }
+
+    @Test
+    fun checkOnGameOver_survival_perfectGame_completesPerfectGame() {
+        saveMissions(makeMission(key = "perfect_game", target = 1, reward = 100, current = 0))
+        missionRepo.checkOnGameOver("survival", maxCombo = 5, maxStreak = 5, totalAnswered = 5, gameCategory = "", correctCount = 5, score = 0, powerUpsUsed = 0, wrongCount = 0)
+        assertTrue(missionRepo.getDailyMissions()!!.missions[0].completed)
+    }
+
+    @Test
+    fun checkOnGameOver_survival_withWrong_doesNotCompletePerfectGame() {
+        saveMissions(makeMission(key = "perfect_game", target = 1, reward = 100, current = 0))
+        missionRepo.checkOnGameOver("survival", maxCombo = 0, maxStreak = 0, totalAnswered = 5, gameCategory = "", correctCount = 4, score = 0, powerUpsUsed = 0, wrongCount = 1)
+        assertFalse(missionRepo.getDailyMissions()!!.missions[0].completed)
     }
 
     @Test
@@ -253,12 +286,10 @@ class MissionRepositoryTest {
     }
 
     @Test
-    fun checkOnGameOver_survival_updatesProgressLawSpecific() {
-        saveMissions(makeMission(key = "progress_test1", target = 50, reward = 50, current = 30, testId = "test1"))
-        missionRepo.checkOnGameOver("survival", maxCombo = 0, maxStreak = 0, totalAnswered = 10, gameCategory = "test1", correctCount = 10, score = 0)
-        // progress_test1 should be updated via statsRepo.getLeyProgress("test1") which returns 0 without context
-        // So current should be maxOf(30, 0) = 30, not completed
-        assertFalse(missionRepo.getDailyMissions()!!.missions[0].completed)
+    fun checkOnGameOver_quick_perfectCompletesPerfectQuick() {
+        saveMissions(makeMission(key = "perfect_quick", target = 1, reward = 100, current = 0))
+        missionRepo.checkOnGameOver("quick", maxCombo = 0, maxStreak = 0, totalAnswered = 5, gameCategory = "", correctCount = 5, score = 0, powerUpsUsed = 0, wrongCount = 0)
+        assertTrue(missionRepo.getDailyMissions()!!.missions[0].completed)
     }
 
     @Test
@@ -308,46 +339,43 @@ class MissionRepositoryTest {
     // === generateDailyMissions: rank-based generation ===
 
     @Test
-    fun generateDailyMissions_rank0_generates1Mission() {
+    fun generateDailyMissions_rank0_generates2Missions() {
         val data = missionRepo.generateDailyMissions()
-        assertEquals(1, data.missions.size)
+        assertEquals(2, data.missions.size)
         assertEquals(LocalDate.now().toString(), data.date)
     }
 
     @Test
-    fun generateDailyMissions_rank1_generates1MissionBeginner() {
+    fun generateDailyMissions_rank1_generates2MissionsBeginner() {
         prefs.addXP(200) // rank 1
         val data = missionRepo.generateDailyMissions()
-        assertEquals(1, data.missions.size)
+        assertEquals(2, data.missions.size)
         val easyMission = data.missions.find { it.difficulty == MissionDifficulty.EASY }!!
         assertTrue("Rank 1 easy target should be 5", easyMission.target == 5 || easyMission.target == 3)
     }
 
     @Test
-    fun generateDailyMissions_rank2_generates1MissionNonBeginner() {
+    fun generateDailyMissions_rank2_generates3MissionsNonBeginner() {
         prefs.addXP(800) // rank 2
         val data = missionRepo.generateDailyMissions()
-        assertEquals(1, data.missions.size)
-        // Non-beginner easy pool should have variety or progress missions
-        assertTrue("Should have variety or progress key", data.missions.any { it.key.startsWith("variety_") || it.key.startsWith("progress_") })
-    }
-
-    @Test
-    fun generateDailyMissions_rank3_generates1MissionNonBeginner() {
-        prefs.addXP(2000) // rank 3 - still only 1 daily mission (need rank 4 for 2)
-        val data = missionRepo.generateDailyMissions()
-        assertEquals(1, data.missions.size)
-        // Rank 3 > 2, so medium pool uses the else branch with timetrial
+        assertEquals(3, data.missions.size)
+        // Non-beginner pools should have diverse mission types
         assertTrue("Should have easy mission", data.missions.any { it.difficulty == MissionDifficulty.EASY })
     }
 
     @Test
-    fun generateDailyMissions_rank5_generates2MissionsWithQuick() {
+    fun generateDailyMissions_rank3_generates3MissionsNonBeginner() {
+        prefs.addXP(2000) // rank 3 - 3 daily missions
+        val data = missionRepo.generateDailyMissions()
+        assertEquals(3, data.missions.size)
+        assertTrue("Should have easy mission", data.missions.any { it.difficulty == MissionDifficulty.EASY })
+    }
+
+    @Test
+    fun generateDailyMissions_rank5_generates3MissionsWithQuick() {
         prefs.addXP(7000) // rank 5 - quick unlocked
         val data = missionRepo.generateDailyMissions()
-        assertEquals(2, data.missions.size)
-        // With quick unlocked, easy pool may include quick_review mission
-        // Medium pool may include timetrial (unlocked at rank 3)
+        assertEquals(3, data.missions.size)
     }
 
     @Test
@@ -368,13 +396,13 @@ class MissionRepositoryTest {
     }
 
     @Test
-    fun generateDailyMissions_rank4_hardPoolUsesRank3Branch() {
-        prefs.addXP(4000) // rank 4
+    fun generateDailyMissions_rank4_generates3MissionsWithHard() {
+        prefs.addXP(4000) // rank 4 - 3 daily missions
         val data = missionRepo.generateDailyMissions()
-        assertEquals(2, data.missions.size)
-        // Rank 4 > 3, so hard pool uses the else branch (but only 2 missions, no hard)
+        assertEquals(3, data.missions.size)
         assertTrue("Should have easy mission", data.missions.any { it.difficulty == MissionDifficulty.EASY })
         assertTrue("Should have medium mission", data.missions.any { it.difficulty == MissionDifficulty.MEDIUM })
+        assertTrue("Should have hard mission", data.missions.any { it.difficulty == MissionDifficulty.HARD })
     }
 
     @Test
@@ -393,10 +421,10 @@ class MissionRepositoryTest {
     }
 
     @Test
-    fun generateDailyMissions_rank4_generates2Missions() {
-        prefs.addXP(4000) // rank 4 = 2 missions
+    fun generateDailyMissions_rank4_generates3Missions() {
+        prefs.addXP(4000) // rank 4 = 3 missions
         val data = missionRepo.generateDailyMissions()
-        assertEquals(2, data.missions.size)
+        assertEquals(3, data.missions.size)
     }
 
     @Test

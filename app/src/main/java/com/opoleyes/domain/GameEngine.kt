@@ -84,6 +84,7 @@ class GameEngine private constructor(
     var ctxFirstMistakeForgiven: Boolean = false
     var powerUpUsedThisQuestion: Boolean = false
     var powerUpUsedType: String = ""
+    var powerUpsUsedCount: Int = 0
     var lastPtsEarned: Int = 0
     var consecutiveWrong: Int = 0
     var firstMistakeUsed: Boolean = false
@@ -98,6 +99,7 @@ class GameEngine private constructor(
         ctxFiftyFiftyUsed = false; ctxLifeRecovered = false
         powerUpUsedThisQuestion = false
         powerUpUsedType = ""
+        powerUpsUsedCount = 0
         startRankIndex = progressRepo.getRankIndex()
         startXP = progressRepo.getXP()
         xpFromCorrect = 0
@@ -330,6 +332,7 @@ class GameEngine private constructor(
         fiftyFiftyActive = true; ctxFiftyFiftyUsed = true
         powerUpUsedThisQuestion = true
         powerUpUsedType = "fiftyFifty"
+        powerUpsUsedCount++
         fiftyFiftyRemoved = removed
     }
 
@@ -347,6 +350,7 @@ class GameEngine private constructor(
         hintActive = true
         powerUpUsedThisQuestion = true
         powerUpUsedType = "hint"
+        powerUpsUsedCount++
     }
 
     fun isGameOver(): Boolean {

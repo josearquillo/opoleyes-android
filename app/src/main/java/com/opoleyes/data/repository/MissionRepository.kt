@@ -98,7 +98,6 @@ class MissionRepository private constructor(
         val easyPool = mutableListOf<Mission>()
 
         if (isBeginner) {
-            // Ranks 0-1: extremely simple missions, only Supervivencia, no law mention
             val correctTarget = if (rankIndex == 0) 3 else 5
             easyPool.add(Mission("variety", "🌍",
                 "Acierta $correctTarget preguntas en Supervivencia",
@@ -108,24 +107,36 @@ class MissionRepository private constructor(
                 "Acierta ${if (rankIndex == 0) 2 else 3} preguntas seguidas en Supervivencia",
                 if (rankIndex == 0) 2 else 3, 0, false, easyReward, "streak",
                 null, MissionDifficulty.EASY))
+            easyPool.add(Mission("play_count", "🎮",
+                "Juega ${if (rankIndex == 0) 2 else 3} partidas hoy",
+                if (rankIndex == 0) 2 else 3, 0, false, easyReward, "play_count",
+                null, MissionDifficulty.EASY))
         } else {
-            // Ranks 2+: can include law-specific missions
             val varietyTargetEasy = 3 + rankIndex
             easyPool.add(Mission("variety", "🌍",
                 if (unplayedLaw != null) "Acierta $varietyTargetEasy preguntas en Supervivencia en \"${unplayedLaw.title.ifEmpty { unplayedLaw.name }}\""
                 else "Acierta $varietyTargetEasy preguntas en Supervivencia en cualquier ley",
                 varietyTargetEasy, 0, false, easyReward,
                 "variety_${unplayedLaw?.id ?: "any"}", unplayedLaw?.id, MissionDifficulty.EASY))
-            easyPool.add(Mission("progress", "📈",
-                if (lowestLaw != null) "Sube el progreso de \"${lowestLaw.title.ifEmpty { lowestLaw.name }}\" al ${minOf(100, lowestPct + 5)}% en Supervivencia"
+            easyPool.add(Mission("variety", "📈",
+                if (lowestLaw != null) "Responde $varietyTargetEasy preguntas correctamente en \"${lowestLaw.title.ifEmpty { lowestLaw.name }}\" en Supervivencia"
                 else "Acierta al menos $varietyTargetEasy preguntas en Supervivencia (cualquier ley)",
-                if (lowestLaw != null) minOf(100, lowestPct + 5) else varietyTargetEasy,
-                if (lowestLaw != null) lowestPct else 0, false, easyReward,
-                "progress_${lowestLaw?.id ?: "any"}", lowestLaw?.id, MissionDifficulty.EASY))
+                varietyTargetEasy, 0, false, easyReward,
+                "variety_${lowestLaw?.id ?: "any"}", lowestLaw?.id, MissionDifficulty.EASY))
+            easyPool.add(Mission("play_count", "🎮",
+                "Juega ${2 + rankIndex / 3} partidas hoy (cualquier modo)",
+                2 + rankIndex / 3, 0, false, easyReward, "play_count",
+                null, MissionDifficulty.EASY))
             if (unlocks.quick) {
                 easyPool.add(Mission("review", "🔄",
                     "Responde ${minOf(15, maxOf(5, wrongCount / 2))} preguntas en Repaso Express",
                     minOf(15, maxOf(5, wrongCount / 2)), 0, false, easyReward, "quick_review",
+                    null, MissionDifficulty.EASY))
+            }
+            if (unlocks.timetrial) {
+                easyPool.add(Mission("timetrial", "⏱️",
+                    "Juega una partida de Contrarreloj",
+                    1, 0, false, easyReward, "timetrial_play",
                     null, MissionDifficulty.EASY))
             }
         }
@@ -134,7 +145,6 @@ class MissionRepository private constructor(
         val mediumPool = mutableListOf<Mission>()
 
         if (rankIndex <= 2) {
-            // Ranks 2-3: moderate streak/combo targets, no law-specific missions
             val streakTarget = maxOf(3, rankIndex)
             mediumPool.add(Mission("quality", "🎯",
                 "Acierta $streakTarget preguntas seguidas en Supervivencia (todas las leyes)",
@@ -144,8 +154,11 @@ class MissionRepository private constructor(
                 "Llega a combo x${maxOf(3, streakTarget + 1)} en Supervivencia (todas las leyes)",
                 maxOf(3, streakTarget + 1), 0, false, mediumReward, "combo",
                 null, MissionDifficulty.MEDIUM))
+            mediumPool.add(Mission("no_powerups", "🚫",
+                "Completa una partida de Supervivencia sin usar power-ups",
+                1, 0, false, mediumReward, "no_powerups",
+                null, MissionDifficulty.MEDIUM))
         } else {
-            // Ranks 4+: full medium pool with law-specific and timetrial missions
             val varietyTargetMedium = 5 + rankIndex
             mediumPool.add(Mission("quality", "🎯",
                 "Acierta $streakTargetMedium preguntas seguidas en Supervivencia (todas las leyes)",
@@ -167,35 +180,52 @@ class MissionRepository private constructor(
                     ttTarget, 0, false, mediumReward, "timetrial_score",
                     null, MissionDifficulty.MEDIUM))
             }
+            mediumPool.add(Mission("no_powerups", "🚫",
+                "Completa una partida de Supervivencia sin usar power-ups",
+                1, 0, false, mediumReward, "no_powerups",
+                null, MissionDifficulty.MEDIUM))
+            if (unlocks.quick) {
+                mediumPool.add(Mission("review", "🔄",
+                    "Completa un Repaso Express sin fallar ninguna pregunta",
+                    1, 0, false, mediumReward, "perfect_quick",
+                    null, MissionDifficulty.MEDIUM))
+            }
         }
 
         // === HARD pool ===
         val hardPool = mutableListOf<Mission>()
 
-        if (rankIndex <= 3) {
-            // Ranks 0-3: hard is still achievable — moderate streak/combo
-            val streakTarget = maxOf(4, rankIndex + 2)
-            hardPool.add(Mission("quality", "🎯",
-                "Acierta $streakTarget preguntas seguidas en Supervivencia (todas las leyes)",
-                streakTarget, 0, false, hardReward, "streak",
-                null, MissionDifficulty.HARD))
-            hardPool.add(Mission("combo", "🔥",
-                "Llega a combo x${streakTarget + 1} en Supervivencia (todas las leyes)",
-                streakTarget + 1, 0, false, hardReward, "combo",
-                null, MissionDifficulty.HARD))
-        } else {
-            // Ranks 4+: full hard pool with dynamic mission based on unlocked modes
-            hardPool.add(Mission("quality", "🎯",
+        // First hard mission: rotate between streak, combo, and no_powerups
+        val hardRotation = rng() % 3
+        when (hardRotation.toInt()) {
+            0 -> hardPool.add(Mission("quality", "🎯",
                 "Acierta $streakTargetHard preguntas seguidas en Supervivencia (todas las leyes)",
                 streakTargetHard, 0, false, hardReward, "streak",
                 null, MissionDifficulty.HARD))
-            hardPool.add(Mission("combo", "🔥",
+            1 -> hardPool.add(Mission("combo", "🔥",
                 "Llega a combo x$comboTargetHard en Supervivencia (todas las leyes)",
                 comboTargetHard, 0, false, hardReward, "combo",
                 null, MissionDifficulty.HARD))
+            2 -> hardPool.add(Mission("no_powerups", "🚫",
+                "Llega a combo x${maxOf(3, comboTargetHard - 2)} en Supervivencia sin usar power-ups",
+                maxOf(3, comboTargetHard - 2), 0, false, hardReward, "no_powerups_combo",
+                null, MissionDifficulty.HARD))
         }
 
-        // Dynamic mission 3 based on highest unlocked mode
+        // Second hard mission: perfect game or high streak
+        val hardRotation2 = rng() % 2
+        when (hardRotation2.toInt()) {
+            0 -> hardPool.add(Mission("perfect_game", "💎",
+                "Completa una partida de Supervivencia sin fallar ninguna pregunta",
+                1, 0, false, hardReward, "perfect_game",
+                null, MissionDifficulty.HARD))
+            1 -> hardPool.add(Mission("quality", "🎯",
+                "Acierta ${streakTargetHard + 2} preguntas seguidas en Supervivencia (todas las leyes)",
+                streakTargetHard + 2, 0, false, hardReward, "streak",
+                null, MissionDifficulty.HARD))
+        }
+
+        // Third hard mission: dynamic based on highest unlocked mode
         when {
             unlocks.simulacro -> {
                 hardPool.add(Mission("simulacro", "🎯",
@@ -214,6 +244,13 @@ class MissionRepository private constructor(
                 hardPool.add(Mission("review", "🔄",
                     "Completa un Repaso Express",
                     1, 0, false, hardReward, "quick_complete",
+                    null, MissionDifficulty.HARD))
+            }
+            unlocks.timetrial -> {
+                val ttTarget = 500 + rankIndex * 100
+                hardPool.add(Mission("timetrial", "⏱️",
+                    "Alcanza $ttTarget puntos en Contrarreloj (todas las leyes)",
+                    ttTarget, 0, false, hardReward, "timetrial_score",
                     null, MissionDifficulty.HARD))
             }
             else -> {
@@ -248,13 +285,17 @@ class MissionRepository private constructor(
                 type == "streak" && m.key == "streak" -> m.current = maxOf(m.current, value)
                 type == "combo" && m.key == "combo" -> m.current = maxOf(m.current, value)
                 type == "quick_review" && m.key == "quick_review" -> m.current += value
-                type == "progress" && m.key.startsWith("progress_") && m.key != "progress_any" -> m.current = maxOf(m.current, value)
-                type == "progress_any" && m.key == "progress_any" -> m.current += value
                 type == "variety" && m.key.startsWith("variety_") -> m.current += value
                 type == "timetrial_score" && m.key == "timetrial_score" -> m.current = maxOf(m.current, value)
                 type == "exam_score" && m.key == "exam_score" -> m.current = maxOf(m.current, value)
                 type == "simulacro_complete" && m.key == "simulacro_complete" -> m.current = maxOf(m.current, value)
                 type == "quick_complete" && m.key == "quick_complete" -> m.current = maxOf(m.current, value)
+                type == "play_count" && m.key == "play_count" -> m.current += value
+                type == "no_powerups" && m.key == "no_powerups" && value == 1 -> m.current = 1
+                type == "no_powerups_combo" && m.key == "no_powerups_combo" -> m.current = maxOf(m.current, value)
+                type == "perfect_game" && m.key == "perfect_game" && value == 1 -> m.current = 1
+                type == "perfect_quick" && m.key == "perfect_quick" && value == 1 -> m.current = 1
+                type == "timetrial_play" && m.key == "timetrial_play" && value == 1 -> m.current = 1
             }
             if (m.current >= m.target && !m.completed) {
                 m.completed = true
@@ -265,32 +306,40 @@ class MissionRepository private constructor(
         saveDailyMissions(data)
     }
 
-    fun checkOnGameOver(mode: String, maxCombo: Int, maxStreak: Int, totalAnswered: Int, gameCategory: String, correctCount: Int, score: Int = 0) {
+    fun checkOnGameOver(mode: String, maxCombo: Int, maxStreak: Int, totalAnswered: Int, gameCategory: String, correctCount: Int, score: Int = 0, powerUpsUsed: Int = 0, wrongCount: Int = 0) {
         val data = getDailyMissions() ?: return
-        // streak, combo, variety and progress missions say "en Supervivencia" in their text,
-        // so only update them when the game mode is actually survival.
+        // play_count tracks any game mode
+        updateProgress("play_count", 1)
         if (mode == "survival") {
             updateProgress("streak", maxStreak)
             updateProgress("combo", maxCombo)
             for (m in data.missions) {
-                if (m.key.startsWith("progress_")) {
-                    val lawId = m.key.removePrefix("progress_")
-                    if (lawId == "any") updateProgress("progress_any", correctCount)
-                    else updateProgress("progress", statsRepo.getLeyProgress(lawId))
-                }
                 if (m.key.startsWith("variety_")) {
                     val lawId = m.key.removePrefix("variety_")
                     if (lawId == "any" || lawId == gameCategory) updateProgress("variety", correctCount)
                 }
+            }
+            // no_powerups: completed a survival game without using power-ups
+            if (powerUpsUsed == 0 && totalAnswered >= 3) {
+                updateProgress("no_powerups", 1)
+                updateProgress("no_powerups_combo", maxCombo)
+            }
+            // perfect_game: completed survival with 0 wrong answers
+            if (wrongCount == 0 && totalAnswered >= 3) {
+                updateProgress("perfect_game", 1)
             }
         }
         if (mode == "quick") {
             updateProgress("quick_review", totalAnswered)
             if (totalAnswered >= Constants.QUICK_MODE_QUESTIONS) {
                 updateProgress("quick_complete", 1)
+                if (wrongCount == 0) updateProgress("perfect_quick", 1)
             }
         }
-        if (mode == "timetrial") updateProgress("timetrial_score", score)
+        if (mode == "timetrial") {
+            updateProgress("timetrial_score", score)
+            updateProgress("timetrial_play", 1)
+        }
     }
 
     fun checkExamResult(scorePct: Int) {

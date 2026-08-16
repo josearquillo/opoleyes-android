@@ -77,7 +77,7 @@ open class ProgressRepository(
             fiftyFifty = true,
             lifeRecovery = true,
             doubleScore = false,
-            dailyMissions = if (r >= 6) 3 else if (r >= 4) 2 else 1
+            dailyMissions = if (r >= 2) 3 else 2
         )
     }
 
