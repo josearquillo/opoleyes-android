@@ -205,4 +205,21 @@ class ChestSystemTest {
         chestSystem.openChest(reward)
         assertEquals("GOLD XP should be applied", xpBefore + reward.xp, progressRepo.getXP())
     }
+
+    // === Rank scaling ===
+
+    @Test
+    fun generateChest_xpScalesWithRank() {
+        // At rank 0, gold chest XP is in 300-600 range
+        progressRepo.addXP(0) // rank 0
+        val rewardRank0 = chestSystem.generateChest(newRecord = true, accuracy = 95, totalAnswered = 15)!!
+        assertTrue("Rank 0 GOLD XP should be >= 300, got ${rewardRank0.xp}", rewardRank0.xp >= 300)
+        assertTrue("Rank 0 GOLD XP should be <= 600, got ${rewardRank0.xp}", rewardRank0.xp <= 600)
+
+        // At rank 8, gold chest XP should be significantly higher (scale = 4.2)
+        progressRepo.addXP(160000) // rank 8 = Leyenda
+        val rewardRank8 = chestSystem.generateChest(newRecord = true, accuracy = 95, totalAnswered = 15)!!
+        assertTrue("Rank 8 GOLD XP should be >= 1260, got ${rewardRank8.xp}", rewardRank8.xp >= 1260)
+        assertTrue("Rank 8 GOLD XP should be <= 2520, got ${rewardRank8.xp}", rewardRank8.xp <= 2520)
+    }
 }

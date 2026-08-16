@@ -193,7 +193,7 @@ class GameRepositoryTest {
     @Test
     fun startQuickGame_withHighRank_includesHigherDifficulty() {
         // Set high XP to unlock higher difficulty
-        prefs.addXP(25000) // rank 8 = Leyenda
+        prefs.addXP(160000) // rank 8 = Leyenda
         val pool = gameRepo.startQuickGame()
         // Should still return valid pool
         assertTrue("Quick pool should not be empty", pool.isNotEmpty())

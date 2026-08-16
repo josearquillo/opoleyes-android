@@ -36,7 +36,9 @@ class ChestSystem(
             ChestType.SILVER -> 150 to 350
             ChestType.GOLD -> 300 to 600
         }
-        val lootXP = (xpMin..xpMax).random()
+        val rankIndex = progressRepo.getRankIndex()
+        val scale = (10 + rankIndex * 4) / 10f
+        val lootXP = ((xpMin..xpMax).random() * scale).toInt()
         val multiplier = type == ChestType.GOLD
 
         return ChestReward(type, lootXP, emptyList(), multiplier)

@@ -232,7 +232,7 @@ class GameEngine private constructor(
                 if (comboOverchargeCharges <= 0) comboOverchargeActive = false
             }
 
-            var pts = if (mode == GameMode.QUICK) 15 * combo else 10 * combo
+            var pts = if (mode == GameMode.QUICK) 15 * minOf(combo, 10) else 10 * minOf(combo, 10)
             // Apply power-up penalty: fewer points if a power-up was used this question
             if (powerUpUsedType.isNotEmpty()) {
                 val multiplier = Constants.POWERUP_POINTS_MULTIPLIER[powerUpUsedType] ?: 1f
@@ -307,7 +307,7 @@ class GameEngine private constructor(
             }
             // XP consolation for beginners: earn a small amount even when wrong
             if (rankIndex <= 1) {
-                val consolationXp = 1 * xpMultiplier
+                val consolationXp = 5 * xpMultiplier
                 progressRepo.addXP(consolationXp)
                 xpFromConsolation += consolationXp
             }

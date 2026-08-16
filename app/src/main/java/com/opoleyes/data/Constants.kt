@@ -6,14 +6,14 @@ import com.opoleyes.data.model.Rank
 object Constants {
     val RANKS = listOf(
         Rank("Novato", "🌱", 0, 0),
-        Rank("Principiante", "🌿", 200, 1),
-        Rank("Aprendiz", "📚", 800, 2),
-        Rank("Estudiante", "📝", 2000, 3),
-        Rank("Avanzado", "🔥", 4000, 4),
-        Rank("Experto", "⚖️", 7000, 5),
-        Rank("Veterano", "🎯", 12000, 6),
-        Rank("Maestro", "👑", 18000, 7),
-        Rank("Leyenda", "💎", 25000, 8),
+        Rank("Principiante", "🌿", 8000, 1),
+        Rank("Aprendiz", "📚", 18000, 2),
+        Rank("Estudiante", "📝", 31000, 3),
+        Rank("Avanzado", "🔥", 47000, 4),
+        Rank("Experto", "⚖️", 67000, 5),
+        Rank("Veterano", "🎯", 92000, 6),
+        Rank("Maestro", "👑", 122000, 7),
+        Rank("Leyenda", "💎", 160000, 8),
     )
 
     val ACHIEVEMENTS = listOf(

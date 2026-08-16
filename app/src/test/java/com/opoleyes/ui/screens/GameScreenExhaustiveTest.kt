@@ -40,7 +40,7 @@ class GameScreenExhaustiveTest {
         // Grant Aprendiz (rank 2) so the engine uses full mechanics: 4 options,
         // 3 lives, and all power-ups available. Tests assert 3 lives and rely
         // on power-ups being usable, which requires rank >= 2.
-        prefs.addXP(800)
+        prefs.addXP(18000)
         vm = GameViewModel(app)
         // Disable real-time clock advancement so waitForIdle() doesn't wait
         // for real milliseconds. Only advanceTimeBy() moves the virtual clock.

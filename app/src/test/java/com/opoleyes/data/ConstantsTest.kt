@@ -30,7 +30,7 @@ class ConstantsTest {
     @Test
     fun ranks_lastIsLeyenda() {
         assertEquals("Leyenda", Constants.RANKS.last().name)
-        assertEquals(25000, Constants.RANKS.last().xp)
+        assertEquals(160000, Constants.RANKS.last().xp)
     }
 
     @Test
@@ -117,6 +117,19 @@ class ConstantsTest {
     fun ranks_allHaveIndices() {
         Constants.RANKS.forEachIndexed { index, rank ->
             assertEquals(index, rank.index)
+        }
+    }
+
+    @Test
+    fun ranks_brechasAreMonotonicallyIncreasing() {
+        // The gap between consecutive ranks must grow (or stay equal) as rank increases.
+        // This ensures the late-game feels progressively harder.
+        var prevGap = 0
+        for (i in 1 until Constants.RANKS.size) {
+            val gap = Constants.RANKS[i].xp - Constants.RANKS[i - 1].xp
+            assertTrue("Gap at rank $i ($gap) should be >= previous gap ($prevGap)",
+                gap >= prevGap)
+            prevGap = gap
         }
     }
 }

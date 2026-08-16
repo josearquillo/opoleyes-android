@@ -54,7 +54,7 @@ class GameModeAdversarialTest {
     fun setup() {
         prefs = FakePreferencesManager()
         prefs.resetAll()
-        prefs.xp = 800 // Rank 2 (Aprendiz): 4 options, 3 lives, all power-ups
+        prefs.xp = 18000 // Rank 2 (Aprendiz): 4 options, 3 lives, all power-ups
         progressRepo = ProgressRepository(prefs)
         val statsRepo = StatsRepository(prefs)
         val missionRepo = MissionRepository(prefs)

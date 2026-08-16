@@ -206,6 +206,23 @@ class GameEngineTest {
     }
 
     @Test
+    fun fun_answer_comboCapLimitsXpAtCombo10() {
+        // The combo multiplier is capped at 10: pts = 10 * minOf(combo, 10).
+        // So combo 11 should give the same points as combo 10.
+        engine.startAllLawsGame()
+        // Answer 11 questions correctly
+        for (i in 1..11) {
+            engine.nextQuestion()
+            engine.answer(engine.currentQ!!.correct)
+        }
+        // Score for combos 1..10 = 10*(1+2+...+10) = 10*55 = 550
+        // Score for combo 11 = 10*minOf(11,10) = 10*10 = 100
+        // Total = 550 + 100 = 650
+        assertEquals(650, engine.score)
+        assertEquals(11, engine.combo)
+    }
+
+    @Test
     fun fun_answer_streakIncrementsOnCorrect() {
         engine.startAllLawsGame()
         engine.nextQuestion()
@@ -912,9 +929,9 @@ class GameEngineTest {
         val q = engine.currentQ!!
         val wrong = listOf("A", "B", "C", "D").first { it != q.correct }
         engine.answer(wrong)
-        assertEquals("XP consolation of 1 should be granted at rank 0",
-            1, progressRepo.getXP() - xpBefore)
-        assertTrue("xpFromConsolation should be 1", engine.xpFromConsolation == 1)
+        assertEquals("XP consolation of 5 should be granted at rank 0",
+            5, progressRepo.getXP() - xpBefore)
+        assertTrue("xpFromConsolation should be 5", engine.xpFromConsolation == 5)
     }
 
     @Test

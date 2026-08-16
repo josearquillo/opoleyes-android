@@ -36,6 +36,8 @@ open class PreferencesManager(private val context: Context) : com.opoleyes.data.
         const val SIMULACRO_UNLOCKED = "simulacro_unlocked"
         const val SIMULACRO_HISTORY_JSON = "simulacro_history_json"
         const val LAST_KNOWN_RANK_INDEX = "last_known_rank_index"
+        const val XP_CURVE_VERSION = "xp_curve_version"
+        const val CURRENT_XP_CURVE_VERSION = 2
         val EXAM_QUESTION_PRESETS = listOf(10, 20, 30, 40, 50)
         fun recordKey(mode: String) = "record_$mode"
         fun recordComboKey(mode: String) = "record_combo_$mode"
@@ -44,7 +46,37 @@ open class PreferencesManager(private val context: Context) : com.opoleyes.data.
         fun introShownKey(key: String) = "intro_shown_$key"
     }
 
-    override fun getXP(): Int = prefs.getInt(XP, 0)
+    override fun getXP(): Int {
+        migrateXpIfNeeded()
+        return prefs.getInt(XP, 0)
+    }
+
+    private fun migrateXpIfNeeded() {
+        val version = prefs.getInt(XP_CURVE_VERSION, 0)
+        if (version >= CURRENT_XP_CURVE_VERSION) return
+        // Skip migration in debug mode (debug uses a fixed XP of 100000)
+        if (isDebugMode()) {
+            internalWrite = true
+            try {
+                prefs.edit().putInt(XP_CURVE_VERSION, CURRENT_XP_CURVE_VERSION).apply()
+            } finally {
+                internalWrite = false
+            }
+            return
+        }
+        val oldXp = prefs.getInt(XP, 0)
+        // Scale factor = 160000 / 25000 = 6.4 (new Leyenda / old Leyenda)
+        val newXp = (oldXp * 6.4).toInt()
+        internalWrite = true
+        try {
+            prefs.edit()
+                .putInt(XP, newXp)
+                .putInt(XP_CURVE_VERSION, CURRENT_XP_CURVE_VERSION)
+                .apply()
+        } finally {
+            internalWrite = false
+        }
+    }
 
     override fun addXP(amount: Int): Int {
         if (isWriteBlocked()) return getXP()

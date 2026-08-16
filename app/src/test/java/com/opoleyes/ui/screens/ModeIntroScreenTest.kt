@@ -181,7 +181,7 @@ class ModeIntroScreenTest {
     @Test
     fun modeIntro_rank2_showsModoCompletoTitle() {
         // Promote to rank 2 (Aprendiz) for the "modo completo" intro
-        prefs.addXP(800)
+        prefs.addXP(18000)
         vm.pendingMode = GameMode.SURVIVAL
         val ok = vm.startAllLawsGame()
         assertTrue(ok)

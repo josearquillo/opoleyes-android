@@ -497,7 +497,8 @@ class GameViewModel private constructor(
         progressRepo.incrementGamesPlayed()
         val multiplier = prefs.getMultiplier()
         if (multiplier > 1) prefs.setMultiplier(1)
-        val xp = result.correct * 10 * multiplier
+        val rankScale = (3 + progressRepo.getRankIndex()) / 3f
+        val xp = (result.correct * 10 * rankScale * multiplier).toInt()
         progressRepo.addXP(xp)
         val scorePct = if (result.total > 0) (result.correct * 100 / result.total) else 0
         missionRepo.checkExamResult(scorePct)
@@ -527,7 +528,8 @@ class GameViewModel private constructor(
         progressRepo.incrementGamesPlayed()
         val multiplier = prefs.getMultiplier()
         if (multiplier > 1) prefs.setMultiplier(1)
-        val xp = ((result.points * 10).toInt().coerceAtLeast(0)) * multiplier
+        val rankScale = (3 + progressRepo.getRankIndex()) / 3f
+        val xp = ((result.points * 10 * rankScale).toInt().coerceAtLeast(0)) * multiplier
         progressRepo.addXP(xp)
         progressRepo.addSimulacroHistory(
             SimulacroHistoryEntry(
@@ -784,10 +786,11 @@ class GameViewModel private constructor(
     private fun buildExamXpBreakdown(correct: Int, total: Int, multiplier: Int = 1): XpBreakdown {
         val lines = mutableListOf<XpLine>()
         if (correct > 0) {
+            val rankScale = (3 + progressRepo.getRankIndex()) / 3f
             lines.add(XpLine(
                 icon = "✓",
                 label = "Aciertos ($correct/$total)",
-                value = correct * 10 * multiplier,
+                value = (correct * 10 * rankScale * multiplier).toInt(),
                 color = AccentLight
             ))
         }
@@ -812,7 +815,8 @@ class GameViewModel private constructor(
 
     private fun buildSimulacroXpBreakdown(points: Float, correct: Int, multiplier: Int = 1): XpBreakdown {
         val lines = mutableListOf<XpLine>()
-        val xp = ((points * 10).toInt().coerceAtLeast(0)) * multiplier
+        val rankScale = (3 + progressRepo.getRankIndex()) / 3f
+        val xp = ((points * 10 * rankScale).toInt().coerceAtLeast(0)) * multiplier
         if (xp > 0) {
             lines.add(XpLine(
                 icon = "🎯",
