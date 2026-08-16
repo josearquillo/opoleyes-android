@@ -13,6 +13,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
+import com.opoleyes.ui.rememberHaptics
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalLifecycleOwner
@@ -60,6 +61,8 @@ fun GameScreen(navController: NavController, gameViewModel: GameViewModel) {
 
     BackHandler { showExitDialog = true }
 
+    val haptics = rememberHaptics()
+
     // Question slide animation
     var questionVisible by remember { mutableStateOf(false) }
     LaunchedEffect(q) {
@@ -73,8 +76,10 @@ fun GameScreen(navController: NavController, gameViewModel: GameViewModel) {
         if (uiState.answered && uiState.selectedOption != null) {
             if (uiState.selectedOption == q.correct) {
                 particleTrigger = Any()
+                haptics.correct()
             } else {
                 shakeTrigger = Any()
+                haptics.wrong()
             }
         }
     }

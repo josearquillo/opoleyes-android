@@ -46,6 +46,7 @@
     <!-- Tema select -->
     <string name="select_law">Selecciona ley</string>
     <string name="search_law">Buscar ley…</string>
+    <string name="no_results">Sin resultados</string>
     <string name="all_laws">Todas las leyes</string>
     <string name="dominated_suffix">%1$d%% dominado</string>
 

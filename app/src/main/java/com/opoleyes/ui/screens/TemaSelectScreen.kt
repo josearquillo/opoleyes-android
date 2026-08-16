@@ -108,6 +108,20 @@ fun TemaSelectScreen(navController: NavController, gameViewModel: GameViewModel)
                     }
                     Spacer(Modifier.height(6.dp))
                 }
+                if (filteredTests.isEmpty()) {
+                    item {
+                        Box(
+                            modifier = Modifier.fillMaxWidth().padding(vertical = 48.dp),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text(
+                                stringResource(R.string.no_results),
+                                color = TextMuted,
+                                fontSize = 15.sp
+                            )
+                        }
+                    }
+                }
             }
         }
     }

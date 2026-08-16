@@ -4,6 +4,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.dp
 
 val BgDark = Color(0xFF0f172a)
 val BgCard = Color(0xFF1e293b)
@@ -49,6 +50,22 @@ val ConfettiPurple = Color(0xFFa855f7)
 val ConfettiCyan = Color(0xFF06b6d4)
 val ConfettiPink = Color(0xFFec4899)
 val ConfettiLime = Color(0xFF84cc16)
+
+/**
+ * Spacing constants for consistent padding across screens.
+ * Use [Spacing.screen] for screen-level content padding,
+ * [Spacing.card] for card-internal padding,
+ * [Spacing.compact] for tight spacing between elements.
+ */
+object Spacing {
+    val screen = 16.dp
+    val card = 16.dp
+    val comfortable = 20.dp
+    val generous = 24.dp
+    val compact = 8.dp
+    val tight = 6.dp
+    val micro = 4.dp
+}
 
 private val DarkColorScheme = darkColorScheme(
     primary = Primary,

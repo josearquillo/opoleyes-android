@@ -43,23 +43,38 @@ fun NavGraph(startDestination: String = Routes.LOADING, gameViewModel: GameViewM
         }
     )
 
+    // Transiciones contextuales: las pantallas "overlay" (gameover, examresult,
+    // modeintro) usan fade+scale para no confundirse con navegación real.
+    val slideEnter: AnimatedContentTransitionScope<NavBackStackEntry>.() -> EnterTransition = {
+        slideInHorizontally(animationSpec = tween(350, easing = FastOutSlowInEasing), initialOffsetX = { it / 3 }) +
+        fadeIn(tween(350)) + scaleIn(initialScale = 0.92f, animationSpec = tween(350))
+    }
+    val slidePopExit: AnimatedContentTransitionScope<NavBackStackEntry>.() -> ExitTransition = {
+        slideOutHorizontally(animationSpec = tween(350, easing = FastOutSlowInEasing), targetOffsetX = { it / 3 }) +
+        fadeOut(tween(200)) + scaleOut(targetScale = 0.95f, animationSpec = tween(200))
+    }
+    val slidePopEnter: AnimatedContentTransitionScope<NavBackStackEntry>.() -> EnterTransition = {
+        slideInHorizontally(animationSpec = tween(350, easing = FastOutSlowInEasing), initialOffsetX = { -it / 3 }) +
+        fadeIn(tween(350)) + scaleIn(initialScale = 0.92f, animationSpec = tween(350))
+    }
+    val slideExit: AnimatedContentTransitionScope<NavBackStackEntry>.() -> ExitTransition = {
+        fadeOut(tween(200)) + scaleOut(targetScale = 0.95f, animationSpec = tween(200))
+    }
+    val fadeEnter: AnimatedContentTransitionScope<NavBackStackEntry>.() -> EnterTransition = {
+        fadeIn(tween(300)) + scaleIn(initialScale = 0.92f, animationSpec = tween(300))
+    }
+    val fadeExit: AnimatedContentTransitionScope<NavBackStackEntry>.() -> ExitTransition = {
+        fadeOut(tween(200)) + scaleOut(targetScale = 0.95f, animationSpec = tween(200))
+    }
+
     NavHost(
         navController = navController,
         startDestination = startDestination,
         modifier = Modifier.fillMaxSize().windowInsetsPadding(WindowInsets.systemBars),
-        enterTransition = {
-            slideInHorizontally(animationSpec = tween(350, easing = FastOutSlowInEasing), initialOffsetX = { it / 3 }) +
-            fadeIn(tween(350)) + scaleIn(initialScale = 0.92f, animationSpec = tween(350))
-        },
-        exitTransition = { fadeOut(tween(200)) + scaleOut(targetScale = 0.95f, animationSpec = tween(200)) },
-        popEnterTransition = {
-            slideInHorizontally(animationSpec = tween(350, easing = FastOutSlowInEasing), initialOffsetX = { -it / 3 }) +
-            fadeIn(tween(350)) + scaleIn(initialScale = 0.92f, animationSpec = tween(350))
-        },
-        popExitTransition = {
-            slideOutHorizontally(animationSpec = tween(350, easing = FastOutSlowInEasing), targetOffsetX = { it / 3 }) +
-            fadeOut(tween(200)) + scaleOut(targetScale = 0.95f, animationSpec = tween(200))
-        },
+        enterTransition = { slideEnter() },
+        exitTransition = { slideExit() },
+        popEnterTransition = { slidePopEnter() },
+        popExitTransition = { slidePopExit() },
     ) {
         composable(Routes.LOADING) { LoadingScreen(navController, vm) }
         composable(Routes.ERROR) { ErrorScreen(navController) }
@@ -67,12 +82,30 @@ fun NavGraph(startDestination: String = Routes.LOADING, gameViewModel: GameViewM
         composable(Routes.MODE_SELECT) { ModeSelectScreen(navController, vm) }
         composable(Routes.TEMA_SELECT) { TemaSelectScreen(navController, vm) }
         composable(Routes.GAME) { GameScreen(navController, vm) }
-        composable(Routes.GAME_OVER) { GameOverScreen(navController, vm) }
+        composable(
+            Routes.GAME_OVER,
+            enterTransition = { fadeEnter() },
+            exitTransition = { fadeExit() },
+            popEnterTransition = { fadeEnter() },
+            popExitTransition = { fadeExit() }
+        ) { GameOverScreen(navController, vm) }
         composable(Routes.EXAM) { ExamScreen(navController, vm) }
-        composable(Routes.EXAM_RESULT) { ExamResultScreen(navController, vm) }
+        composable(
+            Routes.EXAM_RESULT,
+            enterTransition = { fadeEnter() },
+            exitTransition = { fadeExit() },
+            popEnterTransition = { fadeEnter() },
+            popExitTransition = { fadeExit() }
+        ) { ExamResultScreen(navController, vm) }
         composable(Routes.PROFILE) { ProfileScreen(navController, vm) }
         composable(Routes.HELP) { HelpScreen(navController, vm) }
         composable(Routes.SIMULACRO_INTRO) { SimulacroIntroScreen(navController, vm) }
-        composable(Routes.MODE_INTRO) { ModeIntroScreen(navController, vm) }
+        composable(
+            Routes.MODE_INTRO,
+            enterTransition = { fadeEnter() },
+            exitTransition = { fadeExit() },
+            popEnterTransition = { fadeEnter() },
+            popExitTransition = { fadeExit() }
+        ) { ModeIntroScreen(navController, vm) }
     }
 }

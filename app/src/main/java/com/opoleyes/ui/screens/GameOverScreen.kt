@@ -37,6 +37,7 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.opoleyes.ui.rememberHaptics
 import com.opoleyes.R
 import com.opoleyes.data.model.ChestReward
 import com.opoleyes.data.model.ChestType
@@ -78,6 +79,8 @@ fun GameOverScreen(navController: NavController, gameViewModel: GameViewModel) {
 
     val chestBlocking = chestReward != null && !chestOpened
 
+    val haptics = rememberHaptics()
+
     // Show chest popup after the XP summary overlay is dismissed (or immediately
     // if there is no XP breakdown). Waits for the user to skip/continue the
     // breakdown so the chest doesn't overlap the XP animation.
@@ -96,6 +99,7 @@ fun GameOverScreen(navController: NavController, gameViewModel: GameViewModel) {
             delay(400)
             chestOpened = true
             gameViewModel.openChest()
+            haptics.reward()
         }
     }
 
@@ -342,6 +346,7 @@ fun GameOverScreen(navController: NavController, gameViewModel: GameViewModel) {
                     onOpen = {
                         chestOpened = true
                         gameViewModel.openChest()
+                        haptics.reward()
                     },
                     onDismiss = {
                         gameViewModel.clearChest()
@@ -356,6 +361,7 @@ fun GameOverScreen(navController: NavController, gameViewModel: GameViewModel) {
         // Rank-up overlay (shown only after XP summary and chest are dismissed)
         rankUpOverlay?.let { overlay ->
             if (chestDismissed) {
+                LaunchedEffect(Unit) { haptics.reward() }
                 RankUpOverlayView(overlay) {
                     gameViewModel.clearRankUp()
                 }

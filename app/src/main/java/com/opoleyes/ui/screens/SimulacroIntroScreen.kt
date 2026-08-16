@@ -49,7 +49,7 @@ fun SimulacroIntroScreen(navController: NavController, gameViewModel: GameViewMo
                 .fillMaxSize()
                 .verticalScroll(rememberScrollState())
                 .padding(paddingValues)
-                .padding(24.dp),
+                .padding(Spacing.screen),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Spacer(Modifier.height(16.dp))
