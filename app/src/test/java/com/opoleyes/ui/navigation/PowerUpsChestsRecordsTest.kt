@@ -53,7 +53,7 @@ class PowerUpsChestsRecordsTest {
         prefs.resetAll()
         // Give enough XP for rank 2 (Aprendiz) so both fiftyFifty and hint are available
         // and full mechanics (4 options, 3 lives) apply
-        prefs.xp = 18000
+        prefs.xp = 1500
         progressRepo = ProgressRepository(prefs)
         statsRepo = StatsRepository(prefs)
         val missionRepo = MissionRepository(prefs)

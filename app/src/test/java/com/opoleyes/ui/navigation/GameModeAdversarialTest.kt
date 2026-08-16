@@ -54,7 +54,7 @@ class GameModeAdversarialTest {
     fun setup() {
         prefs = FakePreferencesManager()
         prefs.resetAll()
-        prefs.xp = 18000 // Rank 2 (Aprendiz): 4 options, 3 lives, all power-ups
+        prefs.xp = 1500 // Rank 2 (Aprendiz): 4 options, 3 lives, all power-ups
         progressRepo = ProgressRepository(prefs)
         val statsRepo = StatsRepository(prefs)
         val missionRepo = MissionRepository(prefs)
@@ -163,7 +163,7 @@ class GameModeAdversarialTest {
         vm.pendingMode = GameMode.SURVIVAL
         vm.startAllLawsGame()
         assertEquals(GameMode.SURVIVAL, vm.getEngineMode())
-        assertEquals(3, vm.uiState.value.lives) // Rank 2 = 3 lives
+        assertEquals(4, vm.uiState.value.lives) // Rank 2 = 4 lives
 
         // Answer some correctly first
         vm.answer(vm.uiState.value.currentQ!!.correct)
@@ -188,7 +188,7 @@ class GameModeAdversarialTest {
         // Restart
         vm.startAllLawsGame()
         assertEquals(0, vm.uiState.value.score)
-        assertEquals(3, vm.uiState.value.lives)
+        assertEquals(4, vm.uiState.value.lives)
     }
 
     @Test
@@ -216,7 +216,7 @@ class GameModeAdversarialTest {
         vm0.pendingMode = GameMode.SURVIVAL
         vm0.startAllLawsGame()
         val initialLives = vm0.uiState.value.lives
-        assertEquals(7, initialLives) // Rank 0 = 7 lives
+        assertEquals(6, initialLives) // Rank 0 = 6 lives
 
         // First wrong answer - should be forgiven
         val q = vm0.uiState.value.currentQ!!

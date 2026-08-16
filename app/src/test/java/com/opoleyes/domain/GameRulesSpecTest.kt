@@ -113,9 +113,9 @@ class GameRulesSpecTest {
     }
 
     @Test
-    fun survival_starts3Lives() {
-        // Help: "Supervivencia: 3 vidas"
+    fun survival_starts4LivesAtRank2() {
+        // Rank 2 (Aprendiz) has 4 lives
         engine.startAllLawsGame()
-        assertEquals(3, engine.lives)
+        assertEquals(4, engine.lives)
     }
 }

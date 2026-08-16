@@ -69,9 +69,9 @@ class MissionRepository private constructor(
         val temaTests = context?.let { DataProvider.getTemaTests(it) } ?: emptyList()
 
         val rankIndex = progressRepo.getRankIndex()
-        val easyReward = 30 * (2 + rankIndex) / 2
-        val mediumReward = 60 * (2 + rankIndex) / 2
-        val hardReward = 100 * (2 + rankIndex) / 2
+        val easyReward = 30 * (10 + rankIndex * 3) / 10
+        val mediumReward = 60 * (10 + rankIndex * 3) / 10
+        val hardReward = 100 * (10 + rankIndex * 3) / 10
 
         val comboRecord = progressRepo.getMaxComboRecord()
         val comboTargetMedium = maxOf(3, comboRecord + 2)

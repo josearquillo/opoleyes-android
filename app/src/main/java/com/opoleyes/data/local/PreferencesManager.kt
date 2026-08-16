@@ -37,7 +37,7 @@ open class PreferencesManager(private val context: Context) : com.opoleyes.data.
         const val SIMULACRO_HISTORY_JSON = "simulacro_history_json"
         const val LAST_KNOWN_RANK_INDEX = "last_known_rank_index"
         const val XP_CURVE_VERSION = "xp_curve_version"
-        const val CURRENT_XP_CURVE_VERSION = 2
+        const val CURRENT_XP_CURVE_VERSION = 3
         val EXAM_QUESTION_PRESETS = listOf(10, 20, 30, 40, 50)
         fun recordKey(mode: String) = "record_$mode"
         fun recordComboKey(mode: String) = "record_combo_$mode"
@@ -65,8 +65,8 @@ open class PreferencesManager(private val context: Context) : com.opoleyes.data.
             return
         }
         val oldXp = prefs.getInt(XP, 0)
-        // Scale factor = 160000 / 25000 = 6.4 (new Leyenda / old Leyenda)
-        val newXp = (oldXp * 6.4).toInt()
+        // Scale factor = 50000 / 25000 = 2.0, rounded to 2.5 to preserve rank 1 (200 XP → 500 XP)
+        val newXp = (oldXp * 2.5).toInt()
         internalWrite = true
         try {
             prefs.edit()

@@ -40,7 +40,7 @@ class GameScreenExhaustiveTest {
         // Grant Aprendiz (rank 2) so the engine uses full mechanics: 4 options,
         // 3 lives, and all power-ups available. Tests assert 3 lives and rely
         // on power-ups being usable, which requires rank >= 2.
-        prefs.addXP(18000)
+        prefs.addXP(1500)
         vm = GameViewModel(app)
         // Disable real-time clock advancement so waitForIdle() doesn't wait
         // for real milliseconds. Only advanceTimeBy() moves the virtual clock.
@@ -214,7 +214,7 @@ class GameScreenExhaustiveTest {
         val wrong = listOf("A","B","C","D").first { it != q.correct }
         vm.answer(wrong)
         composeRule.waitForIdle()
-        assertEquals(2, vm.uiState.value.lives)
+        assertEquals(3, vm.uiState.value.lives)
         assertEquals(0, vm.uiState.value.combo)
     }
 
@@ -287,7 +287,7 @@ class GameScreenExhaustiveTest {
     fun fun_displayMetrics_updateCorrectly() {
         startSurvival(); render()
         val q1Num = vm.uiState.value.questionNum
-        assertEquals(3, vm.uiState.value.lives)
+        assertEquals(4, vm.uiState.value.lives)
         assertEquals(0, vm.uiState.value.score)
 
         vm.answer(vm.uiState.value.currentQ!!.correct)

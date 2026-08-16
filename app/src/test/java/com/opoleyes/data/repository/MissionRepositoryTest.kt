@@ -370,7 +370,7 @@ class MissionRepositoryTest {
 
     @Test
     fun generateDailyMissions_rank1_generates2MissionsBeginner() {
-        prefs.addXP(8000) // rank 1
+        prefs.addXP(500) // rank 1
         val data = missionRepo.generateDailyMissions()
         assertEquals(2, data.missions.size)
         val easyMission = data.missions.find { it.difficulty == MissionDifficulty.EASY }!!
@@ -379,7 +379,7 @@ class MissionRepositoryTest {
 
     @Test
     fun generateDailyMissions_rank2_generates3MissionsNonBeginner() {
-        prefs.addXP(18000) // rank 2
+        prefs.addXP(1500) // rank 2
         val data = missionRepo.generateDailyMissions()
         assertEquals(3, data.missions.size)
         // Non-beginner pools should have diverse mission types
@@ -388,7 +388,7 @@ class MissionRepositoryTest {
 
     @Test
     fun generateDailyMissions_rank3_generates3MissionsNonBeginner() {
-        prefs.addXP(31000) // rank 3 - 3 daily missions
+        prefs.addXP(3500) // rank 3 - 3 daily missions
         val data = missionRepo.generateDailyMissions()
         assertEquals(3, data.missions.size)
         assertTrue("Should have easy mission", data.missions.any { it.difficulty == MissionDifficulty.EASY })
@@ -396,14 +396,14 @@ class MissionRepositoryTest {
 
     @Test
     fun generateDailyMissions_rank5_generates3MissionsWithQuick() {
-        prefs.addXP(67000) // rank 5 - quick unlocked
+        prefs.addXP(11000) // rank 5 - quick unlocked
         val data = missionRepo.generateDailyMissions()
         assertEquals(3, data.missions.size)
     }
 
     @Test
     fun generateDailyMissions_rank7_generates3MissionsWithExam() {
-        prefs.addXP(122000) // rank 7 - exam unlocked, 3 daily missions
+        prefs.addXP(30000) // rank 7 - exam unlocked, 3 daily missions
         val data = missionRepo.generateDailyMissions()
         assertEquals(3, data.missions.size)
         // Hard pool should have a hard mission (exam_score since exam unlocked at rank 7)
@@ -412,7 +412,7 @@ class MissionRepositoryTest {
 
     @Test
     fun generateDailyMissions_rank8_generates3MissionsWithSimulacro() {
-        prefs.addXP(200000) // rank 8 (Leyenda) - simulacro may be unlocked
+        prefs.addXP(60000) // rank 8 (Leyenda) - simulacro may be unlocked
         // Simulacro is unlocked separately, not rank-based
         val data = missionRepo.generateDailyMissions()
         assertEquals(3, data.missions.size)
@@ -420,7 +420,7 @@ class MissionRepositoryTest {
 
     @Test
     fun generateDailyMissions_rank4_generates3MissionsWithHard() {
-        prefs.addXP(47000) // rank 4 - 3 daily missions
+        prefs.addXP(6500) // rank 4 - 3 daily missions
         val data = missionRepo.generateDailyMissions()
         assertEquals(3, data.missions.size)
         assertTrue("Should have easy mission", data.missions.any { it.difficulty == MissionDifficulty.EASY })
@@ -445,21 +445,21 @@ class MissionRepositoryTest {
 
     @Test
     fun generateDailyMissions_rank4_generates3Missions() {
-        prefs.addXP(47000) // rank 4 = 3 missions
+        prefs.addXP(6500) // rank 4 = 3 missions
         val data = missionRepo.generateDailyMissions()
         assertEquals(3, data.missions.size)
     }
 
     @Test
     fun generateDailyMissions_rank6_generates3Missions() {
-        prefs.addXP(92000) // rank 6 = 3 missions
+        prefs.addXP(18000) // rank 6 = 3 missions
         val data = missionRepo.generateDailyMissions()
         assertEquals(3, data.missions.size)
     }
 
     @Test
     fun generateDailyMissions_hasOneEasyOneMediumOneHard() {
-        prefs.addXP(92000) // rank 6 = 3 missions
+        prefs.addXP(18000) // rank 6 = 3 missions
         val data = missionRepo.generateDailyMissions()
         assertTrue("Should have at least 1 easy", data.missions.any { it.difficulty == MissionDifficulty.EASY })
         assertTrue("Should have at least 1 medium", data.missions.any { it.difficulty == MissionDifficulty.MEDIUM })

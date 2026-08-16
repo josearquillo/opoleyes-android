@@ -316,7 +316,7 @@ class GameViewModelCoverageTest {
 
     @Test
     fun openChest_addsXpAndUpdatesBreakdown() {
-        progressRepo.addXP(18000) // rank 2
+        progressRepo.addXP(1500) // rank 2
         vm.startAllLawsGame()
         // Answer enough questions to generate a chest (totalAnswered >= 3)
         for (i in 0 until 5) {
@@ -335,7 +335,7 @@ class GameViewModelCoverageTest {
 
     @Test
     fun openChest_doubleCall_isNoOp() {
-        progressRepo.addXP(18000) // rank 2
+        progressRepo.addXP(1500) // rank 2
         vm.startAllLawsGame()
         val q = engine.currentQ!!
         vm.answer(q.correct)
@@ -376,7 +376,7 @@ class GameViewModelCoverageTest {
 
     @Test
     fun onGameOver_mediumAccuracy_showsGoodPathMessage() {
-        progressRepo.addXP(18000) // rank 2
+        progressRepo.addXP(1500) // rank 2
         vm.startAllLawsGame()
         // Answer 5 correct, 5 wrong to get ~50% accuracy
         for (i in 0 until 10) {
@@ -396,7 +396,7 @@ class GameViewModelCoverageTest {
 
     @Test
     fun onGameOver_highAccuracy_showsExcellentMessage() {
-        progressRepo.addXP(18000) // rank 2
+        progressRepo.addXP(1500) // rank 2
         vm.startAllLawsGame()
         for (i in 0 until 10) {
             val q = engine.currentQ!!
@@ -412,7 +412,7 @@ class GameViewModelCoverageTest {
 
     @Test
     fun onGameOver_highScore_goldMedal() {
-        progressRepo.addXP(18000) // rank 2
+        progressRepo.addXP(1500) // rank 2
         vm.startAllLawsGame()
         // Get a high score (100+ pts per correct × 10+ correct)
         for (i in 0 until 15) {
@@ -426,7 +426,7 @@ class GameViewModelCoverageTest {
 
     @Test
     fun onGameOver_mediumScore_silverMedal() {
-        progressRepo.addXP(18000) // rank 2
+        progressRepo.addXP(1500) // rank 2
         vm.startAllLawsGame()
         engine.score = 650
         engine.totalAnswered = 10
@@ -437,7 +437,7 @@ class GameViewModelCoverageTest {
 
     @Test
     fun onGameOver_lowScore_bronzeMedal() {
-        progressRepo.addXP(18000) // rank 2
+        progressRepo.addXP(1500) // rank 2
         vm.startAllLawsGame()
         engine.score = 350
         engine.totalAnswered = 10
@@ -448,7 +448,7 @@ class GameViewModelCoverageTest {
 
     @Test
     fun onGameOver_veryLowScore_noMedal() {
-        progressRepo.addXP(18000) // rank 2
+        progressRepo.addXP(1500) // rank 2
         vm.startAllLawsGame()
         engine.score = 100
         engine.totalAnswered = 10
@@ -595,7 +595,7 @@ class GameViewModelCoverageTest {
 
     @Test
     fun answer_correctWithCombo3_addsComboPopup() {
-        progressRepo.addXP(18000) // rank 2
+        progressRepo.addXP(1500) // rank 2
         vm.startAllLawsGame()
         for (i in 0 until 3) {
             val q = engine.currentQ!!
@@ -607,7 +607,7 @@ class GameViewModelCoverageTest {
 
     @Test
     fun answer_correctWithCombo10_addsComboPopup() {
-        progressRepo.addXP(18000) // rank 2
+        progressRepo.addXP(1500) // rank 2
         vm.startAllLawsGame()
         for (i in 0 until 10) {
             val q = engine.currentQ!!
@@ -754,7 +754,7 @@ class GameViewModelCoverageTest {
     fun onGameOver_accuracy70plus_showsDominandoMessage() {
         progressRepo.incrementGamesPlayed()
         progressRepo.incrementGamesPlayed()
-        progressRepo.addXP(18000) // rank 2
+        progressRepo.addXP(1500) // rank 2
         vm.startAllLawsGame()
         // Answer 7 correct, 3 wrong = 70% accuracy
         for (i in 0 until 10) {
@@ -777,7 +777,7 @@ class GameViewModelCoverageTest {
     fun onGameOver_accuracy90plus_showsExcelenteMessage() {
         progressRepo.incrementGamesPlayed()
         progressRepo.incrementGamesPlayed()
-        progressRepo.addXP(18000) // rank 2
+        progressRepo.addXP(1500) // rank 2
         vm.startAllLawsGame()
         // Answer 9 correct, 1 wrong = 90% accuracy
         for (i in 0 until 10) {

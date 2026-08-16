@@ -271,8 +271,8 @@ class GameEngine private constructor(
                 val newPct = statsRepo.getLeyProgress(q.testId)
                 if (newPct >= 100 && !prefs.isLawMastered(q.testId)) {
                     prefs.setLawMastered(q.testId)
-                    progressRepo.addXP(200 * xpMultiplier)
-                    xpFromLawMastery += 200 * xpMultiplier
+                    progressRepo.addXP(100 * xpMultiplier)
+                    xpFromLawMastery += 100 * xpMultiplier
                     lawsMasteredThisGame++
                 }
             }

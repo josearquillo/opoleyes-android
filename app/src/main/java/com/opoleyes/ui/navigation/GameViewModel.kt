@@ -497,7 +497,7 @@ class GameViewModel private constructor(
         progressRepo.incrementGamesPlayed()
         val multiplier = prefs.getMultiplier()
         if (multiplier > 1) prefs.setMultiplier(1)
-        val rankScale = (3 + progressRepo.getRankIndex()) / 3f
+        val rankScale = (4 + progressRepo.getRankIndex()) / 4f
         val xp = (result.correct * 10 * rankScale * multiplier).toInt()
         progressRepo.addXP(xp)
         val scorePct = if (result.total > 0) (result.correct * 100 / result.total) else 0
@@ -528,7 +528,7 @@ class GameViewModel private constructor(
         progressRepo.incrementGamesPlayed()
         val multiplier = prefs.getMultiplier()
         if (multiplier > 1) prefs.setMultiplier(1)
-        val rankScale = (3 + progressRepo.getRankIndex()) / 3f
+        val rankScale = (4 + progressRepo.getRankIndex()) / 4f
         val xp = ((result.points * 10 * rankScale).toInt().coerceAtLeast(0)) * multiplier
         progressRepo.addXP(xp)
         progressRepo.addSimulacroHistory(
@@ -702,7 +702,7 @@ class GameViewModel private constructor(
         if (engine.mode == GameMode.QUICK && engine.totalAnswered >= Constants.QUICK_MODE_QUESTIONS) {
             if (engine.correctCount == engine.totalAnswered) {
                 _quickRewardEarned.value = true
-                val quickReward = 50 * (1 + engine.rankIndex)
+                val quickReward = 40 * (2 + engine.rankIndex) / 2
                 progressRepo.addXP(quickReward)
             } else {
                 _quickRewardMissed.value = true
@@ -710,7 +710,7 @@ class GameViewModel private constructor(
         }
 
         val missionRewards = missionRepo.getSessionCompletedMissions().sumOf { it.reward }
-        val quickReward = if (_quickRewardEarned.value) 50 * (1 + engine.rankIndex) else 0
+        val quickReward = if (_quickRewardEarned.value) 40 * (2 + engine.rankIndex) / 2 else 0
         _xpGained.value = engine.xpFromCorrect + engine.xpFromLawMastery + engine.xpFromConsolation + missionRewards + quickReward
         _xpBreakdown.value = buildGameXpBreakdown()
 
@@ -756,7 +756,7 @@ class GameViewModel private constructor(
             ))
         }
         if (_quickRewardEarned.value) {
-            val quickReward = 50 * (1 + engine.rankIndex)
+            val quickReward = 40 * (2 + engine.rankIndex) / 2
             lines.add(XpLine(
                 icon = "⚡",
                 label = "Repaso Express perfecto",

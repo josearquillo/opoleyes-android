@@ -30,7 +30,7 @@ class ConstantsTest {
     @Test
     fun ranks_lastIsLeyenda() {
         assertEquals("Leyenda", Constants.RANKS.last().name)
-        assertEquals(160000, Constants.RANKS.last().xp)
+        assertEquals(50000, Constants.RANKS.last().xp)
     }
 
     @Test
@@ -73,10 +73,10 @@ class ConstantsTest {
 
     @Test
     fun rankUnlocks_containsExpectedEntries() {
+        assertTrue(Constants.RANK_UNLOCKS.containsKey(1))
+        assertTrue(Constants.RANK_UNLOCKS.containsKey(2))
         assertTrue(Constants.RANK_UNLOCKS.containsKey(3))
-        assertTrue(Constants.RANK_UNLOCKS.containsKey(4))
         assertTrue(Constants.RANK_UNLOCKS.containsKey(5))
-        assertTrue(Constants.RANK_UNLOCKS.containsKey(6))
         assertTrue(Constants.RANK_UNLOCKS.containsKey(7))
         assertTrue(Constants.RANK_UNLOCKS.containsKey(8))
     }

@@ -57,7 +57,7 @@ class GameEngineTest {
         assertEquals(0, engine.correctCount)
         assertEquals(0, engine.totalAnswered)
         assertEquals(0, engine.streak)
-        assertEquals(3, engine.lives)
+        assertEquals(4, engine.lives)
         assertFalse(engine.answered)
     }
 
@@ -65,7 +65,7 @@ class GameEngineTest {
     fun fun_initGameStats_survivalHas3Lives() {
         engine.mode = GameMode.SURVIVAL
         engine.initGameStats()
-        assertEquals(3, engine.lives)
+        assertEquals(4, engine.lives)
         assertEquals(0f, engine.timer, 0.01f)
     }
 
@@ -152,7 +152,7 @@ class GameEngineTest {
         assertEquals(0, engine.combo)
         assertEquals(0, engine.correctCount)
         assertEquals(1, engine.totalAnswered)
-        assertEquals(2, engine.lives)
+        assertEquals(3, engine.lives)
     }
 
     @Test
@@ -435,11 +435,11 @@ class GameEngineTest {
     fun fun_streak_lifeRecoveryGivesFiftyFiftyWhenLivesFull() {
         prefs.setDebugMode(true); progressRepo.unlocked.addAll(listOf("lifeRecovery","survival","timetrial","quick","challenge","exam","powerUps","hint","fiftyFifty"))
         engine.startAllLawsGame()
-        engine.lives = 3
+        engine.lives = 4
         engine.streak = 4
         engine.nextQuestion()
         engine.answer(engine.currentQ!!.correct)
-        assertEquals("Lives should stay at 3", 3, engine.lives)
+        assertEquals("Lives should stay at 4", 4, engine.lives)
     }
 
     @Test
@@ -565,11 +565,11 @@ class GameEngineTest {
     fun fun_answer_livesCappedAt3InSurvival() {
         prefs.setDebugMode(true); progressRepo.unlocked.addAll(listOf("lifeRecovery","survival","timetrial","quick","challenge","exam","powerUps","hint","fiftyFifty"))
         engine.startAllLawsGame()
-        engine.lives = 3
+        engine.lives = 4
         engine.streak = 4
         engine.nextQuestion()
         engine.answer(engine.currentQ!!.correct)
-        assertTrue("Lives should not exceed 3 in survival", engine.lives <= 3)
+        assertTrue("Lives should not exceed 4 in survival", engine.lives <= 4)
     }
 
     @Test

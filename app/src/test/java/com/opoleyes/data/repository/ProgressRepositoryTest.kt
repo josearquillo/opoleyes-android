@@ -34,17 +34,17 @@ class ProgressRepositoryTest {
     @Test
     fun rankIndex_correctForXpThresholds() {
         assertEquals(0, repo.getRankIndex())
-        repo.addXP(8000)
+        repo.addXP(500)
         assertEquals(1, repo.getRankIndex())
-        repo.addXP(10000)
+        repo.addXP(1000)
         assertEquals(2, repo.getRankIndex())
-        repo.addXP(13000)
+        repo.addXP(2000)
         assertEquals(3, repo.getRankIndex())
     }
 
     @Test
     fun rankIndex_clampsAtMax() {
-        repo.addXP(200000)
+        repo.addXP(60000)
         assertEquals(8, repo.getRankIndex())
     }
 
@@ -83,15 +83,15 @@ class ProgressRepositoryTest {
     @Test
     fun getRank_returnsCorrectRankForXp() {
         assertEquals("Novato", repo.getRank().name)
-        repo.addXP(8000)
+        repo.addXP(500)
         assertEquals("Principiante", repo.getRank().name)
-        repo.addXP(10000)
+        repo.addXP(1000)
         assertEquals("Aprendiz", repo.getRank().name)
     }
 
     @Test
     fun getRank_maxRankForHighXp() {
-        repo.addXP(200000)
+        repo.addXP(60000)
         assertEquals("Leyenda", repo.getRank().name)
     }
 
@@ -101,26 +101,26 @@ class ProgressRepositoryTest {
     fun getXPProgress_correctForRank0() {
         val progress = repo.getXPProgress()
         assertEquals(0, progress.intoRank)
-        assertEquals(8000, progress.rankSpan)
+        assertEquals(500, progress.rankSpan)
         assertEquals(0, progress.pct)
-        assertEquals(8000, progress.nextXp)
+        assertEquals(500, progress.nextXp)
     }
 
     @Test
     fun getXPProgress_correctForMidRank() {
-        repo.addXP(19000) // rank 2 (Aprendiz, 18000 XP), 1000 into rank
+        repo.addXP(2500) // rank 2 (Aprendiz, 1500 XP), 1000 into rank
         val progress = repo.getXPProgress()
         assertEquals(1000, progress.intoRank)
-        // rankSpan = 31000 - 18000 = 13000
-        assertEquals(13000, progress.rankSpan)
-        // pct = 1000 * 100 / 13000 = 7
-        assertEquals(7, progress.pct)
-        assertEquals(31000, progress.nextXp)
+        // rankSpan = 3500 - 1500 = 2000
+        assertEquals(2000, progress.rankSpan)
+        // pct = 1000 * 100 / 2000 = 50
+        assertEquals(50, progress.pct)
+        assertEquals(3500, progress.nextXp)
     }
 
     @Test
     fun getXPProgress_maxRankIs100Percent() {
-        repo.addXP(200000) // rank 8 (Leyenda)
+        repo.addXP(60000) // rank 8 (Leyenda)
         val progress = repo.getXPProgress()
         assertEquals(100, progress.pct)
     }
@@ -152,7 +152,7 @@ class ProgressRepositoryTest {
 
     @Test
     fun getUnlocks_rank3_unlocksTimetrial() {
-        repo.addXP(31000) // rank 3
+        repo.addXP(3500) // rank 3
         val unlocks = repo.getUnlocks()
         assertTrue("Timetrial should be unlocked at rank 3", unlocks.timetrial)
         assertFalse("Quick should still be locked at rank 3", unlocks.quick)
@@ -160,7 +160,7 @@ class ProgressRepositoryTest {
 
     @Test
     fun getUnlocks_rank5_unlocksQuick() {
-        repo.addXP(67000) // rank 5
+        repo.addXP(11000) // rank 5
         val unlocks = repo.getUnlocks()
         assertTrue("Quick should be unlocked at rank 5", unlocks.quick)
         assertFalse("Exam should still be locked at rank 5", unlocks.exam)
@@ -169,14 +169,14 @@ class ProgressRepositoryTest {
 
     @Test
     fun getUnlocks_rank6_unlocks3DailyMissions() {
-        repo.addXP(92000) // rank 6
+        repo.addXP(18000) // rank 6
         val unlocks = repo.getUnlocks()
         assertEquals("Daily missions should be 3 at rank 6", 3, unlocks.dailyMissions)
     }
 
     @Test
     fun getUnlocks_rank7_unlocksExam() {
-        repo.addXP(122000) // rank 7
+        repo.addXP(30000) // rank 7
         val unlocks = repo.getUnlocks()
         assertTrue("Exam should be unlocked at rank 7", unlocks.exam)
     }
@@ -272,13 +272,13 @@ class ProgressRepositoryTest {
 
     @Test
     fun getMissionCount_rank4_returns3() {
-        repo.addXP(47000) // rank 4
+        repo.addXP(6500) // rank 4
         assertEquals("Rank 4 should have 3 daily missions", 3, repo.getMissionCount())
     }
 
     @Test
     fun getMissionCount_rank6_returns3() {
-        repo.addXP(92000) // rank 6
+        repo.addXP(18000) // rank 6
         assertEquals("Rank 6 should have 3 daily missions", 3, repo.getMissionCount())
     }
 
@@ -292,7 +292,7 @@ class ProgressRepositoryTest {
     @Test
     fun isUnlocked_timetrial_rankDependent() {
         assertFalse("Timetrial locked at rank 0", repo.isUnlocked("timetrial"))
-        repo.addXP(31000) // rank 3
+        repo.addXP(3500) // rank 3
         assertTrue("Timetrial unlocked at rank 3", repo.isUnlocked("timetrial"))
     }
 
@@ -343,7 +343,7 @@ class ProgressRepositoryTest {
 
     @Test
     fun resetAll_clearsRankIndex() {
-        repo.addXP(31000) // rank 3
+        repo.addXP(3500) // rank 3
         repo.resetAll()
         assertEquals(0, repo.getRankIndex())
     }
@@ -433,14 +433,14 @@ class ProgressRepositoryTest {
     @Test
     fun isUnlocked_quick_rankDependent() {
         assertFalse("Quick locked at rank 0", repo.isUnlocked("quick"))
-        repo.addXP(67000) // rank 5
+        repo.addXP(11000) // rank 5
         assertTrue("Quick unlocked at rank 5", repo.isUnlocked("quick"))
     }
 
     @Test
     fun isUnlocked_exam_rankDependent() {
         assertFalse("Exam locked at rank 0", repo.isUnlocked("exam"))
-        repo.addXP(122000) // rank 7
+        repo.addXP(30000) // rank 7
         assertTrue("Exam unlocked at rank 7", repo.isUnlocked("exam"))
     }
 
@@ -459,7 +459,7 @@ class ProgressRepositoryTest {
     @Test
     fun isUnlocked_hint_rankDependent() {
         assertFalse("Hint locked at rank 0", repo.isUnlocked("hint"))
-        repo.addXP(8000) // rank 1
+        repo.addXP(500) // rank 1
         assertTrue("Hint unlocked at rank 1", repo.isUnlocked("hint"))
     }
 
@@ -486,9 +486,9 @@ class ProgressRepositoryTest {
     @Test
     fun getXPProgressFor_specificXp() {
         val progress = repo.getXPProgressFor(13000)
-        assertEquals(5000, progress.intoRank) // 13000 - 8000 = 5000
-        assertEquals(10000, progress.rankSpan) // 18000 - 8000 = 10000
-        assertEquals(50, progress.pct) // 5000 * 100 / 10000 = 50
+        assertEquals(2000, progress.intoRank) // 13000 - 11000 = 2000
+        assertEquals(7000, progress.rankSpan) // 18000 - 11000 = 7000
+        assertEquals(28, progress.pct) // 2000 * 100 / 7000 = 28
     }
 
     @Test

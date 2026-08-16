@@ -217,7 +217,7 @@ class ChestSystemTest {
         assertTrue("Rank 0 GOLD XP should be <= 600, got ${rewardRank0.xp}", rewardRank0.xp <= 600)
 
         // At rank 8, gold chest XP should be significantly higher (scale = 4.2)
-        progressRepo.addXP(160000) // rank 8 = Leyenda
+        progressRepo.addXP(50000) // rank 8 = Leyenda
         val rewardRank8 = chestSystem.generateChest(newRecord = true, accuracy = 95, totalAnswered = 15)!!
         assertTrue("Rank 8 GOLD XP should be >= 1260, got ${rewardRank8.xp}", rewardRank8.xp >= 1260)
         assertTrue("Rank 8 GOLD XP should be <= 2520, got ${rewardRank8.xp}", rewardRank8.xp <= 2520)

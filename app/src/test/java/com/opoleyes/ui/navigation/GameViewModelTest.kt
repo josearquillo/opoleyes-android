@@ -209,22 +209,22 @@ class GameViewModelTest {
         vm.dismissModeIntro(GameMode.SURVIVAL, dontShowAgain = true)
         assertFalse(vm.shouldShowModeIntro(GameMode.SURVIVAL))
 
-        // Promote to rank 1 (XP 8000) and verify rank 1 intro still shows.
-        prefs.addXP(8000)
+        // Promote to rank 1 (XP 500) and verify rank 1 intro still shows.
+        prefs.addXP(500)
         assertTrue("Rank 1 survival intro should still show", vm.shouldShowModeIntro(GameMode.SURVIVAL))
     }
 
     @Test
     fun dismissModeIntro_survivalRank2CoversHigherRanks() {
         // Dismiss the rank-2 "modo completo" intro. All ranks >= 2 should skip it.
-        prefs.addXP(18000) // rank 2 (Aprendiz)
+        prefs.addXP(1500) // rank 2 (Aprendiz)
         vm.dismissModeIntro(GameMode.SURVIVAL, dontShowAgain = true)
         assertFalse("Rank 2 intro dismissed", vm.shouldShowModeIntro(GameMode.SURVIVAL))
 
-        prefs.addXP(13000) // rank 3 (Estudiante)
+        prefs.addXP(2000) // rank 3 (Estudiante) (cumulative: 1500 + 2000 = 3500)
         assertFalse("Rank 3 reuses rank_2 key -> still dismissed", vm.shouldShowModeIntro(GameMode.SURVIVAL))
 
-        prefs.addXP(130000) // rank 8 (Leyenda)
+        prefs.addXP(46500) // rank 8 (Leyenda) (cumulative: 3500 + 46500 = 50000)
         assertFalse("Rank 8 reuses rank_2 key -> still dismissed", vm.shouldShowModeIntro(GameMode.SURVIVAL))
     }
 
@@ -234,7 +234,7 @@ class GameViewModelTest {
         assertFalse(vm.shouldShowModeIntro(GameMode.TIMETRIAL))
 
         // Promote to a higher rank; timetrial intro should still be dismissed.
-        prefs.addXP(160000) // rank 8
+        prefs.addXP(50000) // rank 8
         assertFalse("Timetrial intro stays dismissed across ranks", vm.shouldShowModeIntro(GameMode.TIMETRIAL))
     }
 
@@ -283,7 +283,7 @@ class GameViewModelTest {
     @Test
     fun gameLifeCycle_noRankUp_overlayIsNull() {
         // User at rank 0 (0 XP). Answer 1 question correctly = 10 XP.
-        // 10 XP is not enough to reach rank 1 (8000 XP).
+        // 10 XP is not enough to reach rank 1 (500 XP).
         assertTrue(playSurvivalGame(1))
         assertNull("rankUpOverlay should be null when no rank-up occurred",
             vm.rankUpOverlay.value)
@@ -291,9 +291,9 @@ class GameViewModelTest {
 
     @Test
     fun gameLifeCycle_rankUp_overlayIsShown() {
-        // Give user enough XP to be close to rank 1 (needs 8000 XP).
-        // 1 correct answer with combo=1 gives 10 XP -> total 8000 -> rank 1
-        prefs.addXP(7990)
+        // Give user enough XP to be close to rank 1 (needs 500 XP).
+        // 1 correct answer with combo=1 gives 10 XP -> total 500 -> rank 1
+        prefs.addXP(490)
         assertTrue(playSurvivalGame(1))
         assertNotNull("rankUpOverlay should be shown when rank-up occurred",
             vm.rankUpOverlay.value)
@@ -306,7 +306,7 @@ class GameViewModelTest {
     @Test
     fun gameLifeCycle_rankUp_showsOverlay() {
         // Rank 0 -> 1 should show rank-up overlay
-        prefs.addXP(7990)
+        prefs.addXP(490)
         assertTrue(playSurvivalGame(1))
         val overlay = vm.rankUpOverlay.value
         assertNotNull(overlay)
@@ -315,7 +315,7 @@ class GameViewModelTest {
     @Test
     fun gameLifeCycle_secondGame_noStaleRankUpOverlay() {
         // First game: cause a rank-up
-        prefs.addXP(7990)
+        prefs.addXP(490)
         assertTrue(playSurvivalGame(1))
         assertNotNull("First game should have rank-up overlay", vm.rankUpOverlay.value)
         vm.clearRankUp()
@@ -329,14 +329,14 @@ class GameViewModelTest {
     @Test
     fun gameLifeCycle_xpGainedMatchesExpected() {
         // Fresh user (0 XP, rank 0). 1 correct answer = 10 XP (combo 1).
-        // At rank 0: 7 lives + first mistake forgiven = 8 wrong answers to end game.
-        // Each wrong answer gives 5 XP consolation = 40 XP.
-        // Total XP = 10 + 40 = 50.
+        // At rank 0: 6 lives + first mistake forgiven = 7 wrong answers to end game.
+        // Each wrong answer gives 5 XP consolation = 35 XP.
+        // Total XP = 10 + 35 = 45.
         assertTrue(playSurvivalGame(1))
-        assertEquals("XP gained should be 50 (10 correct + 40 consolation)",
-            50, vm.xpGained.value)
-        assertEquals("Total XP should be 50",
-            50, progressRepo.getXP())
+        assertEquals("XP gained should be 45 (10 correct + 35 consolation)",
+            45, vm.xpGained.value)
+        assertEquals("Total XP should be 45",
+            45, progressRepo.getXP())
     }
 
     @Test
@@ -357,11 +357,11 @@ class GameViewModelTest {
 
     @Test
     fun gameLifeCycle_chestRankUp_detectedOnOpen() {
-        // Give user 7940 XP. 3 correct answers give 60 XP (total 8000, rank 1).
-        // Then the chest gives bonus XP that could push to rank 2 (18000 XP).
+        // Give user 490 XP. 3 correct answers give 60 XP (total 550, rank 1).
+        // Then the chest gives bonus XP that could push to rank 2 (1500 XP).
         // We need a chest to be generated. Chest requires totalAnswered >= 3
         // and accuracy >= 60. Let's answer 3 correctly, then fail to end game.
-        prefs.addXP(7940)
+        prefs.addXP(490)
         // Answer 3 correctly then fail all remaining lives
         vm.pendingMode = GameMode.SURVIVAL
         vm.startAllLawsGame()
@@ -391,7 +391,7 @@ class GameViewModelTest {
     @Test
     fun gameLifeCycle_resetProgress_clearsOverlays() {
         // Populate state
-        prefs.addXP(7990)
+        prefs.addXP(490)
         assertTrue(playSurvivalGame(1))
         // resetProgress should clear everything
         vm.resetProgress()
@@ -406,7 +406,7 @@ class GameViewModelTest {
     @Test
     fun gameLifeCycle_quickMode_clearsOverlaysOnStart() {
         // Populate state from survival
-        prefs.addXP(7990)
+        prefs.addXP(490)
         assertTrue(playSurvivalGame(1))
         assertNotNull(vm.rankUpOverlay.value)
         // Start quick game - should clear
@@ -420,7 +420,7 @@ class GameViewModelTest {
     @Test
     fun gameLifeCycle_temaGame_clearsOverlaysOnStart() {
         // Populate state from survival
-        prefs.addXP(7990)
+        prefs.addXP(490)
         assertTrue(playSurvivalGame(1))
         assertNotNull(vm.rankUpOverlay.value)
         // Start tema game - should clear
@@ -482,8 +482,8 @@ class GameViewModelTest {
 
     @Test
     fun quickMode_endsWith5Questions() {
-        // Rank 5 (7000 XP) unlocks QUICK mode and gives maxDifficulty=4
-        prefs.addXP(67000)
+        // Rank 5 (11000 XP) unlocks QUICK mode and gives maxDifficulty=4
+        prefs.addXP(11000)
         assertTrue(playQuickGame(5))
         assertEquals("Quick mode should end with exactly 5 questions answered",
             5, vm.engine.totalAnswered)
@@ -491,7 +491,7 @@ class GameViewModelTest {
 
     @Test
     fun quickMode_perfectGame_earnsQuickReward() {
-        prefs.addXP(67000)
+        prefs.addXP(11000)
         assertTrue(playQuickGame(5))
         assertEquals("All 5 answers should be correct", 5, vm.engine.correctCount)
         assertTrue("Perfect quick game should earn quick reward",
@@ -500,7 +500,7 @@ class GameViewModelTest {
 
     @Test
     fun quickMode_imperfectGame_missesQuickReward() {
-        prefs.addXP(67000)
+        prefs.addXP(11000)
         assertTrue(playQuickGame(4))
         assertTrue("Imperfect quick game should show missed reward",
             vm.quickRewardMissed.value)
@@ -509,18 +509,18 @@ class GameViewModelTest {
 
     @Test
     fun quickMode_xpGainedMatchesExpected() {
-        prefs.addXP(67000)
-        // 5 correct: combo 1..5 = 15*(1+2+3+4+5) = 225 XP + 300 quick reward (50*(1+5)) = 525 XP
+        prefs.addXP(11000)
+        // 5 correct: combo 1..5 = 15*(1+2+3+4+5) = 225 XP + 140 quick reward (40*(2+5)/2) = 365 XP
         assertTrue(playQuickGame(5))
-        assertEquals("XP for 5 correct in quick mode (15*combo + 300 quick reward at rank 5)",
-            525, vm.xpGained.value)
+        assertEquals("XP for 5 correct in quick mode (15*combo + 140 quick reward at rank 5)",
+            365, vm.xpGained.value)
     }
 
     @Test
     fun quickMode_rankUp_overlayShown() {
-        // Rank 5 (67000 XP); close to rank 6 (92000 XP)
-        prefs.addXP(91990)
-        // 1 correct = 15 XP (combo 1) -> total 92005 -> rank 6
+        // Rank 5 (11000 XP); close to rank 6 (18000 XP)
+        prefs.addXP(17990)
+        // 1 correct = 15 XP (combo 1) -> total 18005 -> rank 6
         assertTrue(playQuickGame(1))
         assertNotNull("Quick mode rank-up should show overlay",
             vm.rankUpOverlay.value)
@@ -528,7 +528,7 @@ class GameViewModelTest {
 
     @Test
     fun quickMode_clearsOverlaysOnNextStart() {
-        prefs.addXP(91990)
+        prefs.addXP(17990)
         assertTrue(playQuickGame(1))
         assertNotNull(vm.rankUpOverlay.value)
         vm.startQuickGame()
@@ -602,8 +602,8 @@ class GameViewModelTest {
 
     @Test
     fun timetrialMode_rankUp_overlayShown() {
-        prefs.addXP(7990)
-        // 1 correct = 10 XP -> total 8000 -> rank 1
+        prefs.addXP(490)
+        // 1 correct = 10 XP -> total 500 -> rank 1
         assertTrue(playTimetrialGame(1))
         assertNotNull("Timetrial rank-up should show overlay",
             vm.rankUpOverlay.value)
@@ -618,7 +618,7 @@ class GameViewModelTest {
 
     @Test
     fun timetrialMode_clearsOverlaysOnNextStart() {
-        prefs.addXP(7990)
+        prefs.addXP(490)
         assertTrue(playTimetrialGame(1))
         assertNotNull(vm.rankUpOverlay.value)
         vm.pendingMode = GameMode.TIMETRIAL
@@ -684,7 +684,7 @@ class GameViewModelTest {
 
     @Test
     fun examMode_rankUp_overlayShown() {
-        prefs.addXP(7990)
+        prefs.addXP(490)
         vm.examEngine.loadExam(10)
         for (i in 0 until 10) {
             vm.examNavigate(i)
@@ -692,7 +692,7 @@ class GameViewModelTest {
             vm.examAnswer(q.question.correct)
         }
         vm.finishExam()
-        // 10 correct * 10 = 100 XP -> total 8090 -> rank 1 (8000 XP threshold)
+        // 10 correct * 10 = 100 XP -> total 590 -> rank 1 (500 XP threshold)
         assertNotNull("Exam rank-up should show overlay",
             vm.rankUpOverlay.value)
     }
@@ -800,9 +800,9 @@ class GameViewModelTest {
     @Test
     fun simulacroMode_rankUp_overlayShown() {
         // Need 2 correct: 2 * 0.60 = 1.2 points * 10 = 12 XP
-        // Start with 7988 XP -> total 8000 -> rank 1 (8000 XP threshold)
+        // Start with 488 XP -> total 500 -> rank 1 (500 XP threshold)
         prefs.resetAll()
-        prefs.addXP(7988)
+        prefs.addXP(488)
         assertTrue(startSimulacro())
         vm.examNavigate(0)
         val q0 = vm.examEngine.getCurrentQuestion()!!
@@ -867,7 +867,7 @@ class GameViewModelTest {
     @Test
     fun crossMode_survivalToQuick_clearsOverlays() {
         // Play survival, get rank-up, then start quick
-        prefs.addXP(7990)
+        prefs.addXP(490)
         assertTrue(playSurvivalGame(1))
         assertNotNull(vm.rankUpOverlay.value)
         vm.startQuickGame()
@@ -880,7 +880,7 @@ class GameViewModelTest {
     @Test
     fun crossMode_quickToSurvival_clearsOverlays() {
         // Play quick, then start survival
-        prefs.addXP(91990)
+        prefs.addXP(17990)
         assertTrue(playQuickGame(1))
         assertNotNull("Quick game should have rank-up overlay", vm.rankUpOverlay.value)
         vm.pendingMode = GameMode.SURVIVAL
@@ -891,7 +891,7 @@ class GameViewModelTest {
 
     @Test
     fun crossMode_survivalToTimetrial_clearsOverlays() {
-        prefs.addXP(7990)
+        prefs.addXP(490)
         assertTrue(playSurvivalGame(1))
         assertNotNull(vm.rankUpOverlay.value)
         vm.pendingMode = GameMode.TIMETRIAL
@@ -902,7 +902,7 @@ class GameViewModelTest {
 
     @Test
     fun crossMode_timetrialToSurvival_clearsOverlays() {
-        prefs.addXP(7990)
+        prefs.addXP(490)
         assertTrue(playTimetrialGame(1))
         assertNotNull(vm.rankUpOverlay.value)
         vm.pendingMode = GameMode.SURVIVAL

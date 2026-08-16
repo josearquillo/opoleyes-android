@@ -229,14 +229,14 @@ class AchievementCheckerTest {
 
     @Test
     fun gameOver_expert_unlocksAtRank5() {
-        prefs.addXP(67000)
+        prefs.addXP(11000)
         val result = checker.checkGameOver(AchievementContext(gameOver = true))
         assertTrue("expert unlocked at rank 5", result.any { it.id == "expert" })
     }
 
     @Test
     fun gameOver_master_unlocksAtRank7() {
-        prefs.addXP(122000)
+        prefs.addXP(30000)
         val result = checker.checkGameOver(AchievementContext(gameOver = true))
         assertTrue("master unlocked at rank 7", result.any { it.id == "master" })
     }

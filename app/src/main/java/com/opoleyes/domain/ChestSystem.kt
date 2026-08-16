@@ -37,7 +37,7 @@ class ChestSystem(
             ChestType.GOLD -> 300 to 600
         }
         val rankIndex = progressRepo.getRankIndex()
-        val scale = (10 + rankIndex * 4) / 10f
+        val scale = (4 + rankIndex) / 4f
         val lootXP = ((xpMin..xpMax).random() * scale).toInt()
         val multiplier = type == ChestType.GOLD
 

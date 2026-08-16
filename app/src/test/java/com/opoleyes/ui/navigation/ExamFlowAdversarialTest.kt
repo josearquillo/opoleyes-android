@@ -55,7 +55,7 @@ class ExamFlowAdversarialTest {
     fun setup() {
         prefs = FakePreferencesManager()
         prefs.resetAll()
-        prefs.xp = 18000 // Rank 2 (Aprendiz) for full mechanics
+        prefs.xp = 1500 // Rank 2 (Aprendiz) for full mechanics
         progressRepo = ProgressRepository(prefs)
         val statsRepo = StatsRepository(prefs)
         val missionRepo = MissionRepository(prefs)

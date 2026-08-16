@@ -189,9 +189,9 @@ class UserFlowTest {
 
     @Test
     fun flow_rankUp_overlayShown_powerUpsGranted_lastKnownRankUpdated() {
-        // Start just below rank 1 threshold (8000 XP)
-        prefs.addXP(7990)
-        // 1 correct answer = 10 XP (combo 1) → total 8000 → rank 1
+        // Start just below rank 1 threshold (500 XP)
+        prefs.addXP(490)
+        // 1 correct answer = 10 XP (combo 1) → total 500 → rank 1
         assertTrue("Game should start", playSurvivalGame(1))
 
         // Verify rank-up overlay is shown
@@ -365,8 +365,8 @@ class UserFlowTest {
 
     @Test
     fun flow_quickMode_5questions_gameOver() {
-        // Quick mode requires rank 5 (67000 XP)
-        prefs.addXP(67000)
+        // Quick mode requires rank 5 (11000 XP)
+        prefs.addXP(11000)
         vm.startQuickGame()
         vm.engine.sessionDifficultyCap = 5
         vm.engine.maxDifficulty = 5
@@ -485,7 +485,7 @@ class UserFlowTest {
     @Test
     fun flow_chestOpen_canTriggerRankUp() {
         // Start near a rank threshold
-        prefs.addXP(7990) // near rank 1 (8000 XP)
+        prefs.addXP(490) // near rank 1 (500 XP)
         // Play a game with 3 correct to get some XP and a chest
         assertTrue("Game should start", playSurvivalGame(3))
 

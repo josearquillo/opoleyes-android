@@ -6,14 +6,14 @@ import com.opoleyes.data.model.Rank
 object Constants {
     val RANKS = listOf(
         Rank("Novato", "🌱", 0, 0),
-        Rank("Principiante", "🌿", 8000, 1),
-        Rank("Aprendiz", "📚", 18000, 2),
-        Rank("Estudiante", "📝", 31000, 3),
-        Rank("Avanzado", "🔥", 47000, 4),
-        Rank("Experto", "⚖️", 67000, 5),
-        Rank("Veterano", "🎯", 92000, 6),
-        Rank("Maestro", "👑", 122000, 7),
-        Rank("Leyenda", "💎", 160000, 8),
+        Rank("Principiante", "🌿", 500, 1),
+        Rank("Aprendiz", "📚", 1500, 2),
+        Rank("Estudiante", "📝", 3500, 3),
+        Rank("Avanzado", "🔥", 6500, 4),
+        Rank("Experto", "⚖️", 11000, 5),
+        Rank("Veterano", "🎯", 18000, 6),
+        Rank("Maestro", "👑", 30000, 7),
+        Rank("Leyenda", "💎", 50000, 8),
     )
 
     val ACHIEVEMENTS = listOf(
@@ -55,10 +55,10 @@ object Constants {
     const val QUICK_MODE_QUESTIONS = 5
 
     val RANK_UNLOCKS = mapOf(
+        1 to "💡 Pista",
+        2 to "📋 3 misiones diarias",
         3 to "⏱️ Contrarreloj",
-        4 to "📋 2 misiones diarias",
         5 to "⚡ Repaso Express",
-        6 to "📋 3 misiones diarias",
         7 to "📝 Mini Examen",
         8 to "🎯 Simulacro",
     )
@@ -73,7 +73,7 @@ object Constants {
     )
 
     val MAX_LIVES_BY_RANK = mapOf(
-        0 to 7, 1 to 5, 2 to 3, 3 to 3, 4 to 3,
+        0 to 6, 1 to 5, 2 to 4, 3 to 4, 4 to 3,
         5 to 3, 6 to 3, 7 to 3, 8 to 3
     )
 
