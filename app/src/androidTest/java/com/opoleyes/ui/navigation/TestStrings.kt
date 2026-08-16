@@ -94,4 +94,7 @@ object TestStrings {
 
     // Chest overlay
     val tapToOpen = ctx.getString(com.opoleyes.R.string.tap_to_open)
+
+    // Empty states
+    val noResults = ctx.getString(com.opoleyes.R.string.no_results)
 }

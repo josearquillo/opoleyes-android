@@ -87,4 +87,14 @@ class TemaSelectScreenTest {
             } catch (e: Throwable) { false }
         }
     }
+
+    @Test
+    fun temaSelect_searchNoResults_displaysEmptyState() {
+        setupTemaSelectScreen()
+        // Type a query that won't match any law
+        composeRule.onNodeWithText(TestStrings.searchLaw).performTextInput("zzzzz")
+        composeRule.waitForIdle()
+        // Should show "Sin resultados" empty state
+        composeRule.onNodeWithText(TestStrings.noResults).assertIsDisplayed()
+    }
 }
