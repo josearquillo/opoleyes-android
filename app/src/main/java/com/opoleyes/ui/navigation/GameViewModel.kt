@@ -389,15 +389,20 @@ class GameViewModel private constructor(
         lastExamQuestionCount = questionCount
         isRetrying = true
         viewModelScope.launch {
-            withContext(Dispatchers.Default) { examEngine.loadExam(questionCount) }
-            _examResult.value = null
-            _examQuestionNum.value = 0
-            _examAnswered.value = 0
-            _examTotalQuestions.value = examEngine.getQuestionCount()
-            _examCurrentQuestion.value = examEngine.getCurrentQuestion()
-            _isLoading.value = false
-            onDone(true)
-            isRetrying = false
+            try {
+                withContext(Dispatchers.Default) { examEngine.loadExam(questionCount) }
+                _examResult.value = null
+                _examQuestionNum.value = 0
+                _examAnswered.value = 0
+                _examTotalQuestions.value = examEngine.getQuestionCount()
+                _examCurrentQuestion.value = examEngine.getCurrentQuestion()
+                onDone(true)
+            } catch (e: Exception) {
+                onDone(false)
+            } finally {
+                _isLoading.value = false
+                isRetrying = false
+            }
         }
     }
 
@@ -408,17 +413,22 @@ class GameViewModel private constructor(
         missionRepo.clearSessionCompletedMissions()
         isRetrying = true
         viewModelScope.launch {
-            withContext(Dispatchers.Default) { examEngine.loadSimulacro() }
-            _examResult.value = null
-            _simulacroResult.value = null
-            _examQuestionNum.value = 0
-            _examAnswered.value = 0
-            _examTotalQuestions.value = examEngine.getQuestionCount()
-            _examCurrentQuestion.value = examEngine.getCurrentQuestion()
-            _simulacroTimer.value = ExamEngine.SIMULACRO_TIME_SECONDS
-            _isLoading.value = false
-            onDone(true)
-            isRetrying = false
+            try {
+                withContext(Dispatchers.Default) { examEngine.loadSimulacro() }
+                _examResult.value = null
+                _simulacroResult.value = null
+                _examQuestionNum.value = 0
+                _examAnswered.value = 0
+                _examTotalQuestions.value = examEngine.getQuestionCount()
+                _examCurrentQuestion.value = examEngine.getCurrentQuestion()
+                _simulacroTimer.value = ExamEngine.SIMULACRO_TIME_SECONDS
+                onDone(true)
+            } catch (e: Exception) {
+                onDone(false)
+            } finally {
+                _isLoading.value = false
+                isRetrying = false
+            }
         }
     }
 

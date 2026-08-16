@@ -426,6 +426,20 @@ fun ChestOverlay(chest: ChestReward, opened: Boolean, shakeCount: Int, onOpen: (
                 }
                 Spacer(Modifier.height(16.dp))
                 Text("¡Bonus desbloqueado!", color = Warning, fontSize = 20.sp, fontWeight = FontWeight.Bold)
+                Spacer(Modifier.height(8.dp))
+                // Hint pulsante: invita a tocar el cofre para abrirlo.
+                val hintPulse by rememberInfiniteTransition(label = "chestHint").animateFloat(
+                    initialValue = 0.5f,
+                    targetValue = 1f,
+                    animationSpec = infiniteRepeatable(tween(800), RepeatMode.Reverse),
+                    label = "chestHintPulse"
+                )
+                Text(
+                    stringResource(R.string.tap_to_open),
+                    color = TextMuted.copy(alpha = hintPulse),
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.Medium
+                )
             } else {
                 // Scale-in for opened content
                 val contentScale by animateFloatAsState(

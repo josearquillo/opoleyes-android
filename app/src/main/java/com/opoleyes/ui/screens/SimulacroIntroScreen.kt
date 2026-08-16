@@ -101,7 +101,9 @@ fun SimulacroIntroScreen(navController: NavController, gameViewModel: GameViewMo
             Button(
                 onClick = {
                     gameViewModel.startSimulacroAsync { ok ->
-                        if (ok) navController.navigate(Routes.EXAM)
+                        if (ok) navController.navigate(Routes.EXAM) {
+                            popUpTo(Routes.SIMULACRO_INTRO) { inclusive = true }
+                        }
                     }
                 },
                 modifier = Modifier.fillMaxWidth().height(56.dp),
