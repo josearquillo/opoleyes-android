@@ -122,14 +122,16 @@ fun ModeSelectScreen(navController: NavController, gameViewModel: GameViewModel)
             maxQuestions = maxQuestions,
             onDismiss = { showExamDialog = false },
             onStart = { count ->
-                showExamDialog = false
                 gameViewModel.startExamAsync(count) { ok ->
                     if (ok) {
+                        showExamDialog = false
                         if (gameViewModel.shouldShowModeIntro(GameMode.EXAM)) {
                             navController.navigate(Routes.MODE_INTRO)
                         } else {
                             navController.navigate(Routes.EXAM)
                         }
+                    } else {
+                        showExamDialog = false
                     }
                 }
             }
