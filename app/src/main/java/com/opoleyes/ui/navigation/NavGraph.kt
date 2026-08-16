@@ -46,25 +46,26 @@ fun NavGraph(startDestination: String = Routes.LOADING, gameViewModel: GameViewM
     // Transiciones contextuales: las pantallas "overlay" (gameover, examresult,
     // modeintro) usan fade+scale para no confundirse con navegación real.
     val slideEnter: AnimatedContentTransitionScope<NavBackStackEntry>.() -> EnterTransition = {
-        slideInHorizontally(animationSpec = tween(350, easing = FastOutSlowInEasing), initialOffsetX = { it / 3 }) +
-        fadeIn(tween(350)) + scaleIn(initialScale = 0.92f, animationSpec = tween(350))
-    }
-    val slidePopExit: AnimatedContentTransitionScope<NavBackStackEntry>.() -> ExitTransition = {
-        slideOutHorizontally(animationSpec = tween(350, easing = FastOutSlowInEasing), targetOffsetX = { it / 3 }) +
-        fadeOut(tween(200)) + scaleOut(targetScale = 0.95f, animationSpec = tween(200))
-    }
-    val slidePopEnter: AnimatedContentTransitionScope<NavBackStackEntry>.() -> EnterTransition = {
-        slideInHorizontally(animationSpec = tween(350, easing = FastOutSlowInEasing), initialOffsetX = { -it / 3 }) +
-        fadeIn(tween(350)) + scaleIn(initialScale = 0.92f, animationSpec = tween(350))
+        slideInHorizontally(animationSpec = tween(350, easing = FastOutSlowInEasing), initialOffsetX = { it }) +
+        fadeIn(tween(350))
     }
     val slideExit: AnimatedContentTransitionScope<NavBackStackEntry>.() -> ExitTransition = {
-        fadeOut(tween(200)) + scaleOut(targetScale = 0.95f, animationSpec = tween(200))
+        slideOutHorizontally(animationSpec = tween(350, easing = FastOutSlowInEasing), targetOffsetX = { -it }) +
+        fadeOut(tween(350))
+    }
+    val slidePopEnter: AnimatedContentTransitionScope<NavBackStackEntry>.() -> EnterTransition = {
+        slideInHorizontally(animationSpec = tween(350, easing = FastOutSlowInEasing), initialOffsetX = { -it }) +
+        fadeIn(tween(350))
+    }
+    val slidePopExit: AnimatedContentTransitionScope<NavBackStackEntry>.() -> ExitTransition = {
+        slideOutHorizontally(animationSpec = tween(350, easing = FastOutSlowInEasing), targetOffsetX = { it }) +
+        fadeOut(tween(350))
     }
     val fadeEnter: AnimatedContentTransitionScope<NavBackStackEntry>.() -> EnterTransition = {
-        fadeIn(tween(300)) + scaleIn(initialScale = 0.92f, animationSpec = tween(300))
+        fadeIn(tween(300)) + scaleIn(initialScale = 0.85f, animationSpec = tween(300))
     }
     val fadeExit: AnimatedContentTransitionScope<NavBackStackEntry>.() -> ExitTransition = {
-        fadeOut(tween(200)) + scaleOut(targetScale = 0.95f, animationSpec = tween(200))
+        fadeOut(tween(300)) + scaleOut(targetScale = 0.85f, animationSpec = tween(300))
     }
 
     NavHost(

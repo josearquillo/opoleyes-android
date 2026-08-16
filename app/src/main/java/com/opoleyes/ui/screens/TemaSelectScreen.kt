@@ -1,6 +1,7 @@
 package com.opoleyes.ui.screens
 
 import androidx.compose.foundation.*
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -26,6 +27,7 @@ import androidx.navigation.NavController
 import com.opoleyes.R
 import com.opoleyes.data.model.Test
 import com.opoleyes.ui.components.LoadingOverlay
+import com.opoleyes.ui.components.pressScale
 import com.opoleyes.ui.navigation.GameViewModel
 import com.opoleyes.ui.navigation.Routes
 import com.opoleyes.ui.theme.*
@@ -134,13 +136,15 @@ fun TemaSelectScreen(navController: NavController, gameViewModel: GameViewModel)
 @Composable
 private fun AllLawsCard(onClick: () -> Unit) {
     val turquoise = Color(0xFF14b8a6)
+    val interactionSource = remember { MutableInteractionSource() }
     Row(
         modifier = Modifier
             .fillMaxWidth()
+            .pressScale(interactionSource = interactionSource)
             .clip(RoundedCornerShape(12.dp))
             .background(Brush.verticalGradient(listOf(BgCard, turquoise.copy(alpha = 0.08f))))
             .border(1.dp, turquoise.copy(alpha = 0.25f), RoundedCornerShape(12.dp))
-            .clickable { onClick() }
+            .clickable(interactionSource = interactionSource, indication = LocalIndication.current) { onClick() }
             .padding(16.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -169,12 +173,14 @@ private fun TemaCard(icon: androidx.compose.ui.graphics.vector.ImageVector, titl
         progress > 0 -> Primary
         else -> SurfaceVariant
     }
+    val interactionSource = remember { MutableInteractionSource() }
     Row(
         modifier = Modifier
             .fillMaxWidth()
+            .pressScale(interactionSource = interactionSource)
             .clip(RoundedCornerShape(12.dp))
             .background(Brush.verticalGradient(listOf(BgCard, BgDark)))
-            .clickable { onClick() }
+            .clickable(interactionSource = interactionSource, indication = LocalIndication.current) { onClick() }
             .padding(16.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {

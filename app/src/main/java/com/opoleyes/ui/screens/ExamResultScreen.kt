@@ -1,6 +1,9 @@
 package com.opoleyes.ui.screens
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -193,6 +196,12 @@ private fun SimulacroResultContent(
     val scoreColor = if (sr.passed) Success else Danger
     val gradeText = if (sr.passed) stringResource(R.string.grade_pass) else stringResource(R.string.grade_fail)
 
+    // Count-up animation
+    val animatedPoints = remember { Animatable(0f) }
+    LaunchedEffect(sr.points) {
+        animatedPoints.animateTo(sr.points, animationSpec = tween(1200, easing = FastOutSlowInEasing))
+    }
+
     Surface(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(16.dp),
@@ -203,7 +212,7 @@ private fun SimulacroResultContent(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(
-                String.format("%.2f", sr.points),
+                String.format("%.2f", animatedPoints.value),
                 color = scoreColor,
                 fontSize = 64.sp,
                 fontWeight = FontWeight.Bold
@@ -224,13 +233,22 @@ private fun SimulacroResultContent(
 
     Spacer(Modifier.height(16.dp))
 
+    // Count-up for simulacro stats
+    val animCorrect = remember { Animatable(0f) }
+    val animWrong = remember { Animatable(0f) }
+    val animUnanswered = remember { Animatable(0f) }
+    LaunchedEffect(sr.correct, sr.wrong, sr.unanswered) {
+        animCorrect.animateTo(sr.correct.toFloat(), animationSpec = tween(800, easing = FastOutSlowInEasing))
+        animWrong.animateTo(sr.wrong.toFloat(), animationSpec = tween(800, easing = FastOutSlowInEasing))
+        animUnanswered.animateTo(sr.unanswered.toFloat(), animationSpec = tween(800, easing = FastOutSlowInEasing))
+    }
     Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceEvenly
     ) {
-        StatItem(Icons.Default.Check, sr.correct.toString(), stringResource(R.string.correct_label), Success)
-        StatItem(Icons.Default.Close, sr.wrong.toString(), stringResource(R.string.wrong_label), Danger)
-        StatItem("—", sr.unanswered.toString(), stringResource(R.string.unanswered_label), TextMuted)
+        StatItem(Icons.Default.Check, animCorrect.value.toInt().toString(), stringResource(R.string.correct_label), Success)
+        StatItem(Icons.Default.Close, animWrong.value.toInt().toString(), stringResource(R.string.wrong_label), Danger)
+        StatItem("—", animUnanswered.value.toInt().toString(), stringResource(R.string.unanswered_label), TextMuted)
     }
 
     Spacer(Modifier.height(16.dp))
@@ -288,6 +306,12 @@ private fun ScoreCard(r: ExamEngine.ExamResult) {
         else -> stringResource(R.string.grade_fail)
     }
 
+    // Count-up animation
+    val animatedScore = remember { Animatable(0f) }
+    LaunchedEffect(r.score) {
+        animatedScore.animateTo(r.score, animationSpec = tween(1200, easing = FastOutSlowInEasing))
+    }
+
     Surface(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(16.dp),
@@ -298,7 +322,7 @@ private fun ScoreCard(r: ExamEngine.ExamResult) {
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(
-                String.format("%.1f", r.score),
+                String.format("%.1f", animatedScore.value),
                 color = scoreColor,
                 fontSize = 64.sp,
                 fontWeight = FontWeight.Bold
@@ -312,13 +336,22 @@ private fun ScoreCard(r: ExamEngine.ExamResult) {
 
 @Composable
 private fun StatsRow(r: ExamEngine.ExamResult) {
+    // Count-up for stats
+    val animatedCorrect = remember { Animatable(0f) }
+    val animatedWrong = remember { Animatable(0f) }
+    val animatedUnanswered = remember { Animatable(0f) }
+    LaunchedEffect(r.correct, r.wrong, r.unanswered) {
+        animatedCorrect.animateTo(r.correct.toFloat(), animationSpec = tween(800, easing = FastOutSlowInEasing))
+        animatedWrong.animateTo(r.wrong.toFloat(), animationSpec = tween(800, easing = FastOutSlowInEasing))
+        animatedUnanswered.animateTo(r.unanswered.toFloat(), animationSpec = tween(800, easing = FastOutSlowInEasing))
+    }
     Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceEvenly
     ) {
-        StatItem(Icons.Default.Check, r.correct.toString(), stringResource(R.string.correct_label), Success)
-        StatItem(Icons.Default.Close, r.wrong.toString(), stringResource(R.string.wrong_label), Danger)
-        StatItem("—", r.unanswered.toString(), stringResource(R.string.unanswered_label), TextMuted)
+        StatItem(Icons.Default.Check, animatedCorrect.value.toInt().toString(), stringResource(R.string.correct_label), Success)
+        StatItem(Icons.Default.Close, animatedWrong.value.toInt().toString(), stringResource(R.string.wrong_label), Danger)
+        StatItem("—", animatedUnanswered.value.toInt().toString(), stringResource(R.string.unanswered_label), TextMuted)
     }
 }
 
@@ -343,6 +376,14 @@ private fun LawBreakdownRow(law: String, lr: ExamEngine.LawResult) {
         pct >= 50 -> Warning
         else -> Danger
     }
+    // Animated bar fill
+    val animatedProgress = remember { Animatable(0f) }
+    LaunchedEffect(lr.correct, lr.total) {
+        animatedProgress.animateTo(
+            if (lr.total > 0) lr.correct.toFloat() / lr.total else 0f,
+            animationSpec = tween(600, easing = FastOutSlowInEasing)
+        )
+    }
     Column {
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -353,7 +394,7 @@ private fun LawBreakdownRow(law: String, lr: ExamEngine.LawResult) {
         }
         Spacer(Modifier.height(4.dp))
         LinearProgressIndicator(
-            progress = { if (lr.total > 0) lr.correct.toFloat() / lr.total else 0f },
+            progress = { animatedProgress.value },
             modifier = Modifier.fillMaxWidth().height(6.dp).clip(RoundedCornerShape(3.dp)),
             color = barColor,
             trackColor = BgDark

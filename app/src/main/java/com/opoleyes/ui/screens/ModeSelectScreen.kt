@@ -3,8 +3,10 @@ package com.opoleyes.ui.screens
 import androidx.compose.animation.*
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.*
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.ui.draw.alpha
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
@@ -33,6 +35,7 @@ import com.opoleyes.data.Constants
 import com.opoleyes.data.model.GameMode
 import com.opoleyes.ui.components.GameButton
 import com.opoleyes.ui.components.LoadingOverlay
+import com.opoleyes.ui.components.pressScale
 import com.opoleyes.ui.navigation.GameViewModel
 import com.opoleyes.ui.navigation.Routes
 import com.opoleyes.ui.theme.*
@@ -53,6 +56,7 @@ fun ModeSelectScreen(navController: NavController, gameViewModel: GameViewModel)
 
     var showExamDialog by remember { mutableStateOf(false) }
     var showQuickDialog by remember { mutableStateOf(false) }
+    var expandingIndex by remember { mutableStateOf<Int?>(null) }
 
     Scaffold(
         topBar = {
@@ -85,7 +89,7 @@ fun ModeSelectScreen(navController: NavController, gameViewModel: GameViewModel)
                     visible = true
                 }
                 AnimatedVisibility(visible = visible) {
-                    ModeCard(mode, enabled = !isLoading) {
+                    ModeCard(mode, enabled = !isLoading, expanding = expandingIndex == index) {
                         when (mode.mode) {
                             GameMode.QUICK -> {
                                 // Start the game first so the reward is generated and available
@@ -98,16 +102,31 @@ fun ModeSelectScreen(navController: NavController, gameViewModel: GameViewModel)
                                 showExamDialog = true
                             }
                             GameMode.SIMULACRO -> {
-                                navController.navigate(Routes.SIMULACRO_INTRO)
+                                expandingIndex = index
                             }
                             else -> {
-                                gameViewModel.pendingMode = mode.mode
-                                navController.navigate(Routes.TEMA_SELECT)
+                                expandingIndex = index
                             }
                         }
                     }
                 }
                 Spacer(Modifier.height(12.dp))
+            }
+        }
+    }
+
+    // Navigate after the expand animation plays
+    LaunchedEffect(expandingIndex) {
+        if (expandingIndex != null) {
+            kotlinx.coroutines.delay(250)
+            val mode = modes[expandingIndex!!]
+            expandingIndex = null
+            when (mode.mode) {
+                GameMode.SIMULACRO -> navController.navigate(Routes.SIMULACRO_INTRO)
+                else -> {
+                    gameViewModel.pendingMode = mode.mode
+                    navController.navigate(Routes.TEMA_SELECT)
+                }
             }
         }
     }
@@ -158,7 +177,7 @@ fun ModeSelectScreen(navController: NavController, gameViewModel: GameViewModel)
 }
 
 @Composable
-private fun ModeCard(mode: ModeInfo, enabled: Boolean = true, onClick: () -> Unit) {
+private fun ModeCard(mode: ModeInfo, enabled: Boolean = true, expanding: Boolean = false, onClick: () -> Unit) {
     val locked = !mode.unlocked
     val colors = when (mode.mode) {
         GameMode.SURVIVAL -> listOf(Danger, DangerDark)
@@ -167,12 +186,31 @@ private fun ModeCard(mode: ModeInfo, enabled: Boolean = true, onClick: () -> Uni
         GameMode.EXAM -> listOf(Success, SuccessDark)
         GameMode.SIMULACRO -> listOf(Accent, AccentLight)
     }
+    val interactionSource = remember { MutableInteractionSource() }
+    // Expand animation: card scales up and fades out when tapped
+    val expandScale by animateFloatAsState(
+        targetValue = if (expanding) 1.15f else 1f,
+        animationSpec = tween(250, easing = FastOutSlowInEasing),
+        label = "expandScale"
+    )
+    val expandAlpha by animateFloatAsState(
+        targetValue = if (expanding) 0f else 1f,
+        animationSpec = tween(250, easing = FastOutSlowInEasing),
+        label = "expandAlpha"
+    )
     Box(
         modifier = Modifier
             .fillMaxWidth()
+            .scale(expandScale)
+            .alpha(expandAlpha)
+            .pressScale(interactionSource = interactionSource)
             .clip(RoundedCornerShape(16.dp))
             .background(Brush.verticalGradient(if (locked) listOf(BgCard, BgDark) else colors))
-            .clickable(enabled = !locked && enabled) { onClick() }
+            .clickable(
+                interactionSource = interactionSource,
+                indication = LocalIndication.current,
+                enabled = !locked && enabled && !expanding
+            ) { onClick() }
             .padding(20.dp)
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
