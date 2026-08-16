@@ -265,6 +265,9 @@ fun HomeScreen(navController: NavController, gameViewModel: GameViewModel) {
                                     "exam" -> {
                                         navController.navigate(Routes.MODE_SELECT)
                                     }
+                                    "simulacro" -> {
+                                        navController.navigate(Routes.SIMULACRO_INTRO)
+                                    }
                                 }
                             }
                         }
