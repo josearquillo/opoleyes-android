@@ -216,8 +216,8 @@ class MissionRepository private constructor(
         val hardRotation2 = rng() % 2
         when (hardRotation2.toInt()) {
             0 -> hardPool.add(Mission("perfect_game", "💎",
-                "Completa una partida de Supervivencia sin fallar ninguna pregunta",
-                1, 0, false, hardReward, "perfect_game",
+                "Acierta ${10 + rankIndex} preguntas seguidas en Supervivencia sin fallar ninguna",
+                10 + rankIndex, 0, false, hardReward, "perfect_game",
                 null, MissionDifficulty.HARD))
             1 -> hardPool.add(Mission("quality", "🎯",
                 "Acierta ${streakTargetHard + 2} preguntas seguidas en Supervivencia (todas las leyes)",
@@ -242,8 +242,8 @@ class MissionRepository private constructor(
             }
             unlocks.quick -> {
                 hardPool.add(Mission("review", "🔄",
-                    "Completa un Repaso Express",
-                    1, 0, false, hardReward, "quick_complete",
+                    "Completa 3 Repasos Express hoy",
+                    3, 0, false, hardReward, "quick_complete",
                     null, MissionDifficulty.HARD))
             }
             unlocks.timetrial -> {
@@ -289,15 +289,29 @@ class MissionRepository private constructor(
                 type == "timetrial_score" && m.key == "timetrial_score" -> m.current = maxOf(m.current, value)
                 type == "exam_score" && m.key == "exam_score" -> m.current = maxOf(m.current, value)
                 type == "simulacro_complete" && m.key == "simulacro_complete" -> m.current = maxOf(m.current, value)
-                type == "quick_complete" && m.key == "quick_complete" -> m.current = maxOf(m.current, value)
+                type == "quick_complete" && m.key == "quick_complete" -> m.current += value
                 type == "play_count" && m.key == "play_count" -> m.current += value
                 type == "no_powerups" && m.key == "no_powerups" && value == 1 -> m.current = 1
                 type == "no_powerups_combo" && m.key == "no_powerups_combo" -> m.current = maxOf(m.current, value)
-                type == "perfect_game" && m.key == "perfect_game" && value == 1 -> m.current = 1
                 type == "perfect_quick" && m.key == "perfect_quick" && value == 1 -> m.current = 1
                 type == "timetrial_play" && m.key == "timetrial_play" && value == 1 -> m.current = 1
             }
             if (m.current >= m.target && !m.completed) {
+                m.completed = true
+                progressRepo.addXP(m.reward)
+                sessionCompletedMissions.add(m)
+            }
+        }
+        saveDailyMissions(data)
+    }
+
+    fun checkLiveProgress(mode: String, wrongCount: Int, totalAnswered: Int) {
+        if (mode != "survival") return
+        val data = getDailyMissions() ?: return
+        for (m in data.missions) {
+            if (m.completed) continue
+            if (m.key == "perfect_game" && wrongCount == 0 && totalAnswered >= m.target) {
+                m.current = m.target
                 m.completed = true
                 progressRepo.addXP(m.reward)
                 sessionCompletedMissions.add(m)
@@ -323,10 +337,6 @@ class MissionRepository private constructor(
             if (powerUpsUsed == 0 && totalAnswered >= 3) {
                 updateProgress("no_powerups", 1)
                 updateProgress("no_powerups_combo", maxCombo)
-            }
-            // perfect_game: completed survival with 0 wrong answers
-            if (wrongCount == 0 && totalAnswered >= 3) {
-                updateProgress("perfect_game", 1)
             }
         }
         if (mode == "quick") {

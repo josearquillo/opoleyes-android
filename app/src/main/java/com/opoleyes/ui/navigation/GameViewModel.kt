@@ -612,6 +612,7 @@ class GameViewModel private constructor(
                     addPopup("¡OVERCHARGE!", com.opoleyes.ui.theme.Warning, 48, 0f, "⚡")
                 }
                 checkAchievementsPerQuestion(AchievementContext(firstCorrect = true, maxCombo = engine.maxCombo, fiftyFiftyUsed = engine.ctxFiftyFiftyUsed, lifeRecovered = engine.ctxLifeRecovered, maxOptions = engine.maxOptions))
+                missionRepo.checkLiveProgress(engine.mode.name.lowercase(), engine.totalAnswered - engine.correctCount, engine.totalAnswered)
             }
             GameEngine.AnswerResult.WRONG -> {
                 if (engine.ctxFirstMistakeForgiven) {
