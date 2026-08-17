@@ -169,7 +169,13 @@ fun GameScreen(navController: NavController, gameViewModel: GameViewModel) {
         modifier = Modifier.fillMaxSize().background(BgDark)
     ) {
         Box(modifier = Modifier.fillMaxSize()) {
-            Column(modifier = Modifier.fillMaxSize().padding(8.dp)) {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(8.dp)
+                    .adaptiveWidth(hudMaxWidth()),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
                 Spacer(Modifier.height(4.dp))
 
                 // Progress bar for questions (only for modes with fixed total)

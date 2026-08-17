@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Tablet adaptation: 0dp means no limit (phone defaults). -->
+    <dimen name="content_max_width">0dp</dimen>
+    <dimen name="card_max_width">0dp</dimen>
+    <dimen name="button_max_width">0dp</dimen>
+    <dimen name="hud_max_width">0dp</dimen>
+    <dimen name="overlay_max_width">0dp</dimen>
+    <dimen name="grid_min_column_width">180dp</dimen>
+    <dimen name="options_grid_min_column_width">320dp</dimen>
+    <dimen name="info_grid_min_column_width">280dp</dimen>
+    <dimen name="review_grid_min_column_width">280dp</dimen>
+    <integer name="achievements_columns">3</integer>
+</resources>

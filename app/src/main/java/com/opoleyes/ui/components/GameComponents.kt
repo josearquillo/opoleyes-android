@@ -885,6 +885,7 @@ fun XpSummaryOverlay(
         Column(
             modifier = Modifier
                 .fillMaxWidth(0.88f)
+                .adaptiveWidth(overlayMaxWidth())
                 .clip(RoundedCornerShape(20.dp))
                 .background(Brush.verticalGradient(listOf(BgCard, BgDark)))
                 .border(2.dp, Accent.copy(alpha = 0.5f), RoundedCornerShape(20.dp))

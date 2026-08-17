@@ -96,6 +96,8 @@ fun ExamResultScreen(navController: NavController, gameViewModel: GameViewModel)
                 .verticalScroll(scrollState)
                 .padding(paddingValues)
                 .padding(16.dp)
+                .adaptiveWidth(),
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
         if (isSimulacro && sr != null) {
             StaggeredAppearance(visibleItems, 0) {

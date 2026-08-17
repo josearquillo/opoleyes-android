@@ -1,10 +1,15 @@
 package com.opoleyes.ui.theme
 
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.dimensionResource
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import com.opoleyes.R
 
 val BgDark = Color(0xFF0f172a)
 val BgCard = Color(0xFF1e293b)
@@ -66,6 +71,36 @@ object Spacing {
     val tight = 6.dp
     val micro = 4.dp
 }
+
+/**
+ * Tablet-adaptive width helpers.
+ *
+ * On phones `content_max_width` is 0dp (no limit) so these are no-ops and
+ * the UI stays pixel-identical to the phone layout. On tablets (sw600dp+)
+ * the content is centered and capped to a comfortable reading width.
+ */
+@Composable
+fun contentMaxWidth(): Dp = dimensionResource(R.dimen.content_max_width)
+
+@Composable
+fun cardMaxWidth(): Dp = dimensionResource(R.dimen.card_max_width)
+
+@Composable
+fun buttonMaxWidth(): Dp = dimensionResource(R.dimen.button_max_width)
+
+@Composable
+fun hudMaxWidth(): Dp = dimensionResource(R.dimen.hud_max_width)
+
+@Composable
+fun overlayMaxWidth(): Dp = dimensionResource(R.dimen.overlay_max_width)
+
+/**
+ * Applies a max width from [contentMaxWidth] when on a tablet, no-op on phone.
+ * Use on scrollable Columns to center their content on wide screens.
+ */
+@Composable
+fun Modifier.adaptiveWidth(maxWidth: Dp = contentMaxWidth()): Modifier =
+    if (maxWidth > 0.dp) this.widthIn(max = maxWidth) else this
 
 private val DarkColorScheme = darkColorScheme(
     primary = Primary,

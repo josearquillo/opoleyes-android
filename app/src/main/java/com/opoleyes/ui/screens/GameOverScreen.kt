@@ -164,7 +164,8 @@ fun GameOverScreen(navController: NavController, gameViewModel: GameViewModel) {
             modifier = Modifier
                 .fillMaxSize()
                 .verticalScroll(scrollState)
-                .padding(16.dp),
+                .padding(16.dp)
+                .adaptiveWidth(),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Spacer(Modifier.height(20.dp))
@@ -446,6 +447,7 @@ fun ChestOverlay(chest: ChestReward, opened: Boolean, shakeCount: Int, onOpen: (
         Column(
             modifier = Modifier
                 .fillMaxWidth(0.85f)
+                .adaptiveWidth(overlayMaxWidth())
                 .shadow((openGlow * 20).dp, RoundedCornerShape(16.dp), clip = false, ambientColor = typeColor.copy(alpha = openGlow * 0.6f), spotColor = typeColor.copy(alpha = openGlow * 0.8f))
                 .clip(RoundedCornerShape(16.dp))
                 .background(Brush.verticalGradient(listOf(BgCard, BgDark)))
@@ -543,6 +545,7 @@ fun RankUpOverlayView(overlay: RankUpOverlay, onDismiss: () -> Unit) {
             Column(
                 modifier = Modifier
                     .fillMaxWidth(0.85f)
+                    .adaptiveWidth(overlayMaxWidth())
                     .shadow(16.dp, RoundedCornerShape(20.dp), clip = false, ambientColor = Warning.copy(alpha = 0.4f), spotColor = Warning.copy(alpha = 0.6f))
                     .clip(RoundedCornerShape(20.dp))
                     .background(Brush.verticalGradient(listOf(BgCard, BgDark)))

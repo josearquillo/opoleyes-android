@@ -17,6 +17,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.res.integerResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -123,7 +124,8 @@ fun ProfileScreen(navController: NavController, gameViewModel: GameViewModel) {
                 .fillMaxSize()
                 .verticalScroll(scrollState)
                 .padding(paddingValues)
-                .padding(16.dp),
+                .padding(16.dp)
+                .adaptiveWidth(),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
         Text(rank.icon, fontSize = 48.sp)
@@ -161,8 +163,9 @@ fun ProfileScreen(navController: NavController, gameViewModel: GameViewModel) {
         // Achievements
         Text(stringResource(R.string.achievements, achievements.size, Constants.ACHIEVEMENTS.size), color = TextLight, fontSize = 18.sp, fontWeight = FontWeight.Bold)
         Spacer(Modifier.height(12.dp))
-        // Use a simple grid via Rows
-        val chunked = Constants.ACHIEVEMENTS.chunked(3)
+        // Use a simple grid via Rows — column count adapts to screen width
+        val columns = integerResource(R.integer.achievements_columns)
+        val chunked = Constants.ACHIEVEMENTS.chunked(columns)
         chunked.forEach { row ->
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
                 row.forEach { ach ->

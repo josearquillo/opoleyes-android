@@ -122,7 +122,8 @@ fun HomeScreen(navController: NavController, gameViewModel: GameViewModel) {
                 .fillMaxSize()
                 .verticalScroll(scrollState)
                 .padding(paddingValues)
-                .padding(horizontal = 16.dp),
+                .padding(horizontal = 16.dp)
+                .adaptiveWidth(),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             // Hero rank card — tap to open profile

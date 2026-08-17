@@ -78,6 +78,8 @@ fun ModeSelectScreen(navController: NavController, gameViewModel: GameViewModel)
                 .verticalScroll(rememberScrollState())
                 .padding(paddingValues)
                 .padding(16.dp)
+                .adaptiveWidth(),
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
             modes.forEachIndexed { index, mode ->
                 var visible by remember { mutableStateOf(false) }
@@ -86,22 +88,24 @@ fun ModeSelectScreen(navController: NavController, gameViewModel: GameViewModel)
                     visible = true
                 }
                 AnimatedVisibility(visible = visible) {
-                    ModeCard(mode, enabled = !isLoading) {
-                        when (mode.mode) {
-                            GameMode.QUICK -> {
-                                gameViewModel.startQuickGameAsync { ok ->
-                                    if (ok) showQuickDialog = true
+                    Box(modifier = Modifier.fillMaxWidth()) {
+                        ModeCard(mode, enabled = !isLoading) {
+                            when (mode.mode) {
+                                GameMode.QUICK -> {
+                                    gameViewModel.startQuickGameAsync { ok ->
+                                        if (ok) showQuickDialog = true
+                                    }
                                 }
-                            }
-                            GameMode.EXAM -> {
-                                showExamDialog = true
-                            }
-                            GameMode.SIMULACRO -> {
-                                navController.navigate(Routes.SIMULACRO_INTRO)
-                            }
-                            else -> {
-                                gameViewModel.pendingMode = mode.mode
-                                navController.navigate(Routes.TEMA_SELECT)
+                                GameMode.EXAM -> {
+                                    showExamDialog = true
+                                }
+                                GameMode.SIMULACRO -> {
+                                    navController.navigate(Routes.SIMULACRO_INTRO)
+                                }
+                                else -> {
+                                    gameViewModel.pendingMode = mode.mode
+                                    navController.navigate(Routes.TEMA_SELECT)
+                                }
                             }
                         }
                     }

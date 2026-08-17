@@ -73,7 +73,8 @@ fun ModeIntroScreen(navController: NavController, gameViewModel: GameViewModel) 
                 .fillMaxSize()
                 .verticalScroll(rememberScrollState())
                 .padding(paddingValues)
-                .padding(Spacing.screen),
+                .padding(Spacing.screen)
+                .adaptiveWidth(),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(

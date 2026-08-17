@@ -107,6 +107,8 @@ fun HelpScreen(navController: NavController, gameViewModel: GameViewModel) {
                 .verticalScroll(scrollState)
                 .padding(paddingValues)
                 .padding(16.dp)
+                .adaptiveWidth(),
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
             val debugOnText = stringResource(R.string.debug_on)
             val debugOffText = stringResource(R.string.debug_off)

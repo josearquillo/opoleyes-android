@@ -60,7 +60,14 @@ fun TemaSelectScreen(navController: NavController, gameViewModel: GameViewModel)
         },
         containerColor = BgDark
     ) { paddingValues ->
-        Column(modifier = Modifier.fillMaxSize().padding(paddingValues).padding(16.dp)) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues)
+                .padding(16.dp)
+                .adaptiveWidth(),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
             OutlinedTextField(
                 value = query,
                 onValueChange = { query = it },

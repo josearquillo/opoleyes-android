@@ -180,6 +180,8 @@ fun ExamScreen(navController: NavController, gameViewModel: GameViewModel) {
                     .verticalScroll(rememberScrollState())
                     .padding(paddingValues)
                     .padding(16.dp)
+                    .adaptiveWidth(),
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 LinearProgressIndicator(
                     progress = { (examQuestionNum + 1f) / totalQuestions },
