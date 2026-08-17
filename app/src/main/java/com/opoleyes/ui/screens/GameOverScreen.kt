@@ -441,13 +441,15 @@ fun ChestOverlay(chest: ChestReward, opened: Boolean, shakeCount: Int, onOpen: (
         modifier = Modifier
             .fillMaxSize()
             .background(Scrim)
-            .then(if (!opened) Modifier.clickable { onOpen() } else Modifier),
+            .then(if (!opened) Modifier.clickable { onOpen() } else Modifier)
+            .verticalScroll(rememberScrollState()),
         contentAlignment = Alignment.Center
     ) {
         Column(
             modifier = Modifier
                 .fillMaxWidth(0.85f)
                 .adaptiveWidth(overlayMaxWidth())
+                .padding(vertical = 24.dp)
                 .shadow((openGlow * 20).dp, RoundedCornerShape(16.dp), clip = false, ambientColor = typeColor.copy(alpha = openGlow * 0.6f), spotColor = typeColor.copy(alpha = openGlow * 0.8f))
                 .clip(RoundedCornerShape(16.dp))
                 .background(Brush.verticalGradient(listOf(BgCard, BgDark)))
@@ -533,7 +535,8 @@ fun RankUpOverlayView(overlay: RankUpOverlay, onDismiss: () -> Unit) {
         modifier = Modifier
             .fillMaxSize()
             .background(ScrimHeavy)
-            .clickable { onDismiss() },
+            .clickable { onDismiss() }
+            .verticalScroll(rememberScrollState()),
         contentAlignment = Alignment.Center
     ) {
         ConfettiBurst(trigger = rankConfetti, modifier = Modifier.fillMaxSize(), durationMs = 2500)

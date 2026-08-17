@@ -13,6 +13,8 @@ import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Timer
@@ -879,13 +881,15 @@ fun XpSummaryOverlay(
         modifier = Modifier
             .fillMaxSize()
             .background(ScrimStrong)
-            .clickable { onDismiss() },
+            .clickable { onDismiss() }
+            .verticalScroll(rememberScrollState()),
         contentAlignment = Alignment.Center
     ) {
         Column(
             modifier = Modifier
                 .fillMaxWidth(0.88f)
                 .adaptiveWidth(overlayMaxWidth())
+                .padding(vertical = 24.dp)
                 .clip(RoundedCornerShape(20.dp))
                 .background(Brush.verticalGradient(listOf(BgCard, BgDark)))
                 .border(2.dp, Accent.copy(alpha = 0.5f), RoundedCornerShape(20.dp))
