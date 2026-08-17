@@ -257,53 +257,51 @@ fun GameOverScreen(navController: NavController, gameViewModel: GameViewModel) {
 
             // Quick reward earned banner
             if (quickRewardEarned && uiState.mode == GameMode.QUICK) {
-                Box(
+                Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .clip(RoundedCornerShape(16.dp))
-                        .background(Brush.verticalGradient(listOf(Success, SuccessDark)))
-                        .padding(16.dp),
-                    contentAlignment = Alignment.Center
+                        .clip(RoundedCornerShape(12.dp))
+                        .background(Success.copy(alpha = 0.12f))
+                        .border(1.dp, Success.copy(alpha = 0.4f), RoundedCornerShape(12.dp))
+                        .padding(horizontal = 14.dp, vertical = 10.dp),
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Icon(
-                            Icons.Default.Star,
-                            contentDescription = null,
-                            tint = Color.White,
-                            modifier = Modifier.size(28.dp)
-                        )
-                        Spacer(Modifier.width(12.dp))
-                        Column {
-                            Text(stringResource(R.string.quick_reward_earned), color = Color.White, fontSize = 16.sp, fontWeight = FontWeight.Bold)
-                            Text("+${50 * (1 + gameViewModel.getEngineRankIndex())} XP bonus", color = Color.White.copy(alpha = 0.8f), fontSize = 13.sp)
-                        }
+                    Icon(
+                        Icons.Default.Star,
+                        contentDescription = null,
+                        tint = Success,
+                        modifier = Modifier.size(20.dp)
+                    )
+                    Spacer(Modifier.width(10.dp))
+                    Column {
+                        Text(stringResource(R.string.quick_reward_earned), color = Success, fontSize = 14.sp, fontWeight = FontWeight.Medium)
+                        Text("+${50 * (1 + gameViewModel.getEngineRankIndex())} XP bonus", color = Success.copy(alpha = 0.8f), fontSize = 12.sp)
                     }
                 }
-                Spacer(Modifier.height(24.dp))
+                Spacer(Modifier.height(20.dp))
             }
 
             // Quick reward missed banner
             if (quickRewardMissed && uiState.mode == GameMode.QUICK) {
-                Box(
+                Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .clip(RoundedCornerShape(16.dp))
-                        .background(Brush.verticalGradient(listOf(Danger, DangerDark)))
-                        .padding(16.dp),
-                    contentAlignment = Alignment.Center
+                        .clip(RoundedCornerShape(12.dp))
+                        .background(Danger.copy(alpha = 0.10f))
+                        .border(1.dp, Danger.copy(alpha = 0.35f), RoundedCornerShape(12.dp))
+                        .padding(horizontal = 14.dp, vertical = 10.dp),
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Icon(
-                            Icons.Default.SentimentDissatisfied,
-                            contentDescription = null,
-                            tint = Color.White,
-                            modifier = Modifier.size(28.dp)
-                        )
-                        Spacer(Modifier.width(12.dp))
-                        Text(stringResource(R.string.quick_reward_missed), color = Color.White, fontSize = 16.sp, fontWeight = FontWeight.Bold)
-                    }
+                    Icon(
+                        Icons.Default.SentimentDissatisfied,
+                        contentDescription = null,
+                        tint = Danger,
+                        modifier = Modifier.size(20.dp)
+                    )
+                    Spacer(Modifier.width(10.dp))
+                    Text(stringResource(R.string.quick_reward_missed), color = Danger.copy(alpha = 0.9f), fontSize = 14.sp, fontWeight = FontWeight.Medium)
                 }
-                Spacer(Modifier.height(24.dp))
+                Spacer(Modifier.height(20.dp))
             }
             Row(
                 modifier = Modifier.fillMaxWidth(),
