@@ -228,92 +228,94 @@ private fun SimulacroResultContent(
         animatedPoints.animateTo(sr.points, animationSpec = tween(1200, easing = FastOutSlowInEasing))
     }
 
-    Surface(
-        modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(16.dp),
-        color = BgCard
-    ) {
-        Column(
-            modifier = Modifier.padding(24.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
+    Column(modifier = Modifier.fillMaxWidth()) {
+        Surface(
+            modifier = Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(16.dp),
+            color = BgCard
         ) {
-            Text(
-                String.format("%.2f", animatedPoints.value),
-                color = scoreColor,
-                fontSize = 64.sp,
-                fontWeight = FontWeight.Bold
-            )
-            Text(
-                stringResource(R.string.out_of_fifteen, sr.maxPoints.toInt()),
-                color = TextMuted, fontSize = 16.sp
-            )
-            Spacer(Modifier.height(8.dp))
-            Text(gradeText, color = scoreColor, fontSize = 20.sp, fontWeight = FontWeight.Bold)
-            Spacer(Modifier.height(4.dp))
-            Text(
-                stringResource(R.string.passing_score, sr.passingScore.toInt()),
-                color = TextMuted, fontSize = 12.sp
-            )
-        }
-    }
-
-    Spacer(Modifier.height(16.dp))
-
-    // Count-up for simulacro stats
-    val animCorrect = remember { Animatable(0f) }
-    val animWrong = remember { Animatable(0f) }
-    val animUnanswered = remember { Animatable(0f) }
-    LaunchedEffect(sr.correct, sr.wrong, sr.unanswered) {
-        animCorrect.animateTo(sr.correct.toFloat(), animationSpec = tween(800, easing = FastOutSlowInEasing))
-        animWrong.animateTo(sr.wrong.toFloat(), animationSpec = tween(800, easing = FastOutSlowInEasing))
-        animUnanswered.animateTo(sr.unanswered.toFloat(), animationSpec = tween(800, easing = FastOutSlowInEasing))
-    }
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.SpaceEvenly
-    ) {
-        StatItem(Icons.Default.Check, animCorrect.value.toInt().toString(), stringResource(R.string.correct_label), Success)
-        StatItem(Icons.Default.Close, animWrong.value.toInt().toString(), stringResource(R.string.wrong_label), Danger)
-        StatItem("—", animUnanswered.value.toInt().toString(), stringResource(R.string.unanswered_label), TextMuted)
-    }
-
-    Spacer(Modifier.height(16.dp))
-
-    Text(stringResource(R.string.per_law), color = TextLight, fontSize = 18.sp, fontWeight = FontWeight.Bold)
-    Spacer(Modifier.height(8.dp))
-    sr.perLaw.forEach { (law, lr) ->
-        LawBreakdownRow(law, lr)
-        Spacer(Modifier.height(6.dp))
-    }
-
-    Spacer(Modifier.height(16.dp))
-    Text(stringResource(R.string.xp_earned, xpGained), color = AccentLight, fontSize = 14.sp, fontWeight = FontWeight.Bold)
-
-    Spacer(Modifier.height(24.dp))
-
-    Button(
-        onClick = onToggleReview,
-        modifier = Modifier.fillMaxWidth(),
-        colors = ButtonDefaults.buttonColors(containerColor = BgCard),
-        border = androidx.compose.foundation.BorderStroke(1.dp, SurfaceVariant)
-    ) {
-        Text(
-            if (showReview) stringResource(R.string.hide_review) else stringResource(R.string.review_answers),
-            color = TextLight
-        )
-    }
-
-    AnimatedVisibility(showReview) {
-        Column {
-            Spacer(Modifier.height(16.dp))
-            allQuestions.forEachIndexed { idx, eq ->
-                QuestionReviewCard(idx + 1, eq)
+            Column(
+                modifier = Modifier.padding(24.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text(
+                    String.format("%.2f", animatedPoints.value),
+                    color = scoreColor,
+                    fontSize = 64.sp,
+                    fontWeight = FontWeight.Bold
+                )
+                Text(
+                    stringResource(R.string.out_of_fifteen, sr.maxPoints.toInt()),
+                    color = TextMuted, fontSize = 16.sp
+                )
                 Spacer(Modifier.height(8.dp))
+                Text(gradeText, color = scoreColor, fontSize = 20.sp, fontWeight = FontWeight.Bold)
+                Spacer(Modifier.height(4.dp))
+                Text(
+                    stringResource(R.string.passing_score, sr.passingScore.toInt()),
+                    color = TextMuted, fontSize = 12.sp
+                )
             }
         }
-    }
 
-    Spacer(Modifier.height(24.dp))
+        Spacer(Modifier.height(16.dp))
+
+        // Count-up for simulacro stats
+        val animCorrect = remember { Animatable(0f) }
+        val animWrong = remember { Animatable(0f) }
+        val animUnanswered = remember { Animatable(0f) }
+        LaunchedEffect(sr.correct, sr.wrong, sr.unanswered) {
+            animCorrect.animateTo(sr.correct.toFloat(), animationSpec = tween(800, easing = FastOutSlowInEasing))
+            animWrong.animateTo(sr.wrong.toFloat(), animationSpec = tween(800, easing = FastOutSlowInEasing))
+            animUnanswered.animateTo(sr.unanswered.toFloat(), animationSpec = tween(800, easing = FastOutSlowInEasing))
+        }
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceEvenly
+        ) {
+            StatItem(Icons.Default.Check, animCorrect.value.toInt().toString(), stringResource(R.string.correct_label), Success)
+            StatItem(Icons.Default.Close, animWrong.value.toInt().toString(), stringResource(R.string.wrong_label), Danger)
+            StatItem("—", animUnanswered.value.toInt().toString(), stringResource(R.string.unanswered_label), TextMuted)
+        }
+
+        Spacer(Modifier.height(16.dp))
+
+        Text(stringResource(R.string.per_law), color = TextLight, fontSize = 18.sp, fontWeight = FontWeight.Bold)
+        Spacer(Modifier.height(8.dp))
+        sr.perLaw.forEach { (law, lr) ->
+            LawBreakdownRow(law, lr)
+            Spacer(Modifier.height(6.dp))
+        }
+
+        Spacer(Modifier.height(16.dp))
+        Text(stringResource(R.string.xp_earned, xpGained), color = AccentLight, fontSize = 14.sp, fontWeight = FontWeight.Bold)
+
+        Spacer(Modifier.height(24.dp))
+
+        Button(
+            onClick = onToggleReview,
+            modifier = Modifier.fillMaxWidth(),
+            colors = ButtonDefaults.buttonColors(containerColor = BgCard),
+            border = androidx.compose.foundation.BorderStroke(1.dp, SurfaceVariant)
+        ) {
+            Text(
+                if (showReview) stringResource(R.string.hide_review) else stringResource(R.string.review_answers),
+                color = TextLight
+            )
+        }
+
+        AnimatedVisibility(showReview) {
+            Column {
+                Spacer(Modifier.height(16.dp))
+                allQuestions.forEachIndexed { idx, eq ->
+                    QuestionReviewCard(idx + 1, eq)
+                    Spacer(Modifier.height(8.dp))
+                }
+            }
+        }
+
+        Spacer(Modifier.height(24.dp))
+    }
 }
 
 
