@@ -233,6 +233,10 @@ class GameEngine private constructor(
             }
 
             var pts = if (mode == GameMode.QUICK) 15 * minOf(combo, 10) else 10 * minOf(combo, 10)
+            // All-laws bonus in Survival: +25% points for the extra difficulty
+            if (mode == GameMode.SURVIVAL && category.isEmpty()) {
+                pts = (pts * 1.25f).toInt()
+            }
             // Apply power-up penalty: fewer points if a power-up was used this question
             if (powerUpUsedType.isNotEmpty()) {
                 val multiplier = Constants.POWERUP_POINTS_MULTIPLIER[powerUpUsedType] ?: 1f

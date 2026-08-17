@@ -263,10 +263,10 @@ fun GameScreen(navController: NavController, gameViewModel: GameViewModel) {
                                     verticalArrangement = Arrangement.spacedBy(4.dp)
                                 ) {
                                     if ("hint" in availablePowerUps && uiState.mode != GameMode.QUICK) {
-                                        PowerUpButton(stringResource(R.string.hint), "💡", 0, WarningDark, enabled = !uiState.answered && !uiState.hintActive && !uiState.powerUpUsedThisQuestion) { gameViewModel.useHint() }
+                                        PowerUpButton(stringResource(R.string.hint), "💡", 0, WarningDark, enabled = !uiState.answered && !uiState.hintActive && !uiState.powerUpUsedThisQuestion, penaltyText = "−50% pts") { gameViewModel.useHint() }
                                     }
                                     if ("fiftyFifty" in availablePowerUps && uiState.mode != GameMode.QUICK) {
-                                        PowerUpButton(stringResource(R.string.fifty_fifty), "✂️", 0, Primary, enabled = !uiState.answered && !uiState.fiftyFiftyActive && !uiState.powerUpUsedThisQuestion) { gameViewModel.activateFiftyFifty() }
+                                        PowerUpButton(stringResource(R.string.fifty_fifty), "✂️", 0, Primary, enabled = !uiState.answered && !uiState.fiftyFiftyActive && !uiState.powerUpUsedThisQuestion, penaltyText = "−75% pts") { gameViewModel.activateFiftyFifty() }
                                     }
                                 }
                                 Spacer(Modifier.height(12.dp))
@@ -497,7 +497,7 @@ fun GameScreen(navController: NavController, gameViewModel: GameViewModel) {
 }
 
 @Composable
-fun PowerUpButton(text: String, icon: String, charges: Int, color: Color, enabled: Boolean = true, onClick: () -> Unit) {
+fun PowerUpButton(text: String, icon: String, charges: Int, color: Color, enabled: Boolean = true, penaltyText: String? = null, onClick: () -> Unit) {
     var pressed by remember { mutableStateOf(false) }
     val scale by animateFloatAsState(
         targetValue = if (pressed) 0.88f else 1f,
@@ -550,6 +550,9 @@ fun PowerUpButton(text: String, icon: String, charges: Int, color: Color, enable
             Text(icon, fontSize = 22.sp, color = Color.White.copy(alpha = alpha))
             Spacer(Modifier.height(2.dp))
             Text(text, color = Color.White.copy(alpha = alpha), fontWeight = FontWeight.Bold, fontSize = 10.sp)
+            if (penaltyText != null) {
+                Text(penaltyText, color = Color.White.copy(alpha = alpha * 0.6f), fontSize = 8.sp)
+            }
         }
         // Circular badge for charges (hidden when 0 = unlimited)
         if (charges > 0) {
