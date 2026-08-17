@@ -4,6 +4,7 @@ import androidx.compose.animation.*
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Assignment
@@ -17,6 +18,8 @@ import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Redeem
 import androidx.compose.material.icons.filled.Shield
+import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.filled.SentimentDissatisfied
 import androidx.compose.material.icons.filled.SwapHoriz
 import androidx.compose.material.icons.filled.TrackChanges
 import androidx.compose.material.icons.filled.AutoAwesome
@@ -185,25 +188,47 @@ fun GameOverScreen(navController: NavController, gameViewModel: GameViewModel) {
             if (anyRecord) {
                 Spacer(Modifier.height(12.dp))
                 Text(stringResource(R.string.new_record), color = Warning, fontSize = 24.sp, fontWeight = FontWeight.Bold)
-                Spacer(Modifier.height(8.dp))
+                Spacer(Modifier.height(10.dp))
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    if (newRecord) Text(stringResource(R.string.score_label), color = Warning, fontSize = 10.sp)
-                    if (newComboRecord) Text("Combo x${uiState.maxCombo}", color = Warning, fontSize = 10.sp)
-                    if (newAccRecord) Text("$accuracy% ${stringResource(R.string.accuracy_label)}", color = Warning, fontSize = 10.sp)
+                    if (newRecord) {
+                        RecordChip(text = stringResource(R.string.score_label))
+                    }
+                    if (newComboRecord) {
+                        RecordChip(text = "Combo x${uiState.maxCombo}")
+                    }
+                    if (newAccRecord) {
+                        RecordChip(text = "$accuracy% ${stringResource(R.string.accuracy_label)}")
+                    }
                 }
             } else if (medal.isNotEmpty()) {
-                Spacer(Modifier.height(8.dp))
-                Text(medal, fontSize = 20.sp)
+                Spacer(Modifier.height(10.dp))
+                Box(
+                    modifier = Modifier
+                        .size(48.dp)
+                        .clip(CircleShape)
+                        .background(Brush.radialGradient(listOf(Warning.copy(alpha = 0.3f), BgDark)))
+                        .border(2.dp, Warning.copy(alpha = 0.6f), CircleShape),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(medal, fontSize = 26.sp)
+                }
             }
 
             if (motivationalMessage.isNotEmpty()) {
-                Spacer(Modifier.height(10.dp))
-                Text(
-                    motivationalMessage,
-                    color = AccentLight,
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.Medium
-                )
+                Spacer(Modifier.height(12.dp))
+                Surface(
+                    shape = RoundedCornerShape(12.dp),
+                    color = Accent.copy(alpha = 0.12f),
+                    border = BorderStroke(1.dp, Accent.copy(alpha = 0.3f))
+                ) {
+                    Text(
+                        motivationalMessage,
+                        color = AccentLight,
+                        fontSize = 15.sp,
+                        fontWeight = FontWeight.Medium,
+                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 10.dp)
+                    )
+                }
             }
 
             Spacer(Modifier.height(20.dp))
@@ -240,7 +265,12 @@ fun GameOverScreen(navController: NavController, gameViewModel: GameViewModel) {
                     contentAlignment = Alignment.Center
                 ) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
-                        Text("⭐", fontSize = 28.sp)
+                        Icon(
+                            Icons.Default.Star,
+                            contentDescription = null,
+                            tint = Color.White,
+                            modifier = Modifier.size(28.dp)
+                        )
                         Spacer(Modifier.width(12.dp))
                         Column {
                             Text(stringResource(R.string.quick_reward_earned), color = Color.White, fontSize = 16.sp, fontWeight = FontWeight.Bold)
@@ -262,7 +292,12 @@ fun GameOverScreen(navController: NavController, gameViewModel: GameViewModel) {
                     contentAlignment = Alignment.Center
                 ) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
-                        Text("😅", fontSize = 28.sp)
+                        Icon(
+                            Icons.Default.SentimentDissatisfied,
+                            contentDescription = null,
+                            tint = Color.White,
+                            modifier = Modifier.size(28.dp)
+                        )
                         Spacer(Modifier.width(12.dp))
                         Text(stringResource(R.string.quick_reward_missed), color = Color.White, fontSize = 16.sp, fontWeight = FontWeight.Bold)
                     }
@@ -517,7 +552,16 @@ fun RankUpOverlayView(overlay: RankUpOverlay, onDismiss: () -> Unit) {
             ) {
                 Icon(Icons.Default.Celebration, contentDescription = null, tint = Warning, modifier = Modifier.size(56.dp))
                 Spacer(Modifier.height(12.dp))
-                Text(overlay.newRank.icon, fontSize = 64.sp)
+                Box(
+                    modifier = Modifier
+                        .size(80.dp)
+                        .clip(CircleShape)
+                        .background(Brush.radialGradient(listOf(Warning.copy(alpha = 0.35f), BgDark)))
+                        .border(2.dp, Warning.copy(alpha = 0.6f), CircleShape),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(overlay.newRank.icon, fontSize = 40.sp)
+                }
                 Spacer(Modifier.height(12.dp))
                 Text(stringResource(R.string.rank_up_message, overlay.newRank.name), color = Warning, fontSize = 22.sp, fontWeight = FontWeight.Bold)
                 Spacer(Modifier.height(8.dp))
@@ -546,5 +590,22 @@ fun RankUpOverlayView(overlay: RankUpOverlay, onDismiss: () -> Unit) {
                 GameButton(stringResource(R.string.continue_label), color1 = Primary, color2 = PurpleDark) { onDismiss() }
             }
         }
+    }
+}
+
+@Composable
+private fun RecordChip(text: String) {
+    Surface(
+        shape = RoundedCornerShape(8.dp),
+        color = Warning.copy(alpha = 0.15f),
+        border = BorderStroke(1.dp, Warning.copy(alpha = 0.5f))
+    ) {
+        Text(
+            text,
+            color = Warning,
+            fontSize = 11.sp,
+            fontWeight = FontWeight.Bold,
+            modifier = Modifier.padding(horizontal = 10.dp, vertical = 5.dp)
+        )
     }
 }

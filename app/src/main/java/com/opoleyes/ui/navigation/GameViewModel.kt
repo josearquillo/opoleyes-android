@@ -1,6 +1,15 @@
 package com.opoleyes.ui.navigation
 
 import android.app.Application
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.LocalFireDepartment
+import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.Timer
+import androidx.compose.material.icons.filled.Bolt
+import androidx.compose.material.icons.filled.Shield
+import androidx.compose.material.icons.filled.AutoAwesome
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.opoleyes.data.IPreferencesManager
@@ -592,43 +601,38 @@ class GameViewModel private constructor(
         when (result) {
             GameEngine.AnswerResult.CORRECT -> {
                 val pts = engine.lastPtsEarned
-                val powerUpLabel = when (engine.powerUpUsedType) {
-                    "fiftyFifty" -> " (50/50)"
-                    "hint" -> " (Pista)"
-                    else -> ""
-                }
-                addPopup("+$pts pts$powerUpLabel", com.opoleyes.ui.theme.AccentLight, 36, 0f, "✅")
+                addPopup("+$pts pts", com.opoleyes.ui.theme.AccentLight, 36, 0f, Icons.Default.Check)
                 if (engine.combo >= 3) {
                     val comboColor = when {
                         engine.combo >= 20 -> com.opoleyes.ui.theme.Warning
                         engine.combo >= 10 -> com.opoleyes.ui.theme.Danger
                         else -> com.opoleyes.ui.theme.Orange
                     }
-                    addPopup("COMBO x${engine.combo}", comboColor, 40, 0f, "🔥")
+                    addPopup("Combo x${engine.combo}", comboColor, 38, 0.1f, Icons.Default.LocalFireDepartment)
                 }
                 val streakThreshold = Constants.STREAK_RECOVERY_THRESHOLD_BY_RANK[engine.rankIndex] ?: 5
                 if (engine.streak > 0 && engine.streak % streakThreshold == 0) {
                     val streakMsg = when {
-                        engine.ctxLifeRecovered -> "¡Vida recuperada! (Racha x${engine.streak})"
-                        engine.mode == GameMode.TIMETRIAL -> "+20s (Racha x${engine.streak})"
+                        engine.ctxLifeRecovered -> "Vida recuperada"
+                        engine.mode == GameMode.TIMETRIAL -> "+20 s"
                         else -> "Racha x${engine.streak}"
                     }
-                    val streakIcon = when {
-                        engine.ctxLifeRecovered -> "❤️"
-                        engine.mode == GameMode.TIMETRIAL -> "⏱️"
-                        else -> "⚡"
+                    val streakIcon: ImageVector = when {
+                        engine.ctxLifeRecovered -> Icons.Default.Favorite
+                        engine.mode == GameMode.TIMETRIAL -> Icons.Default.Timer
+                        else -> Icons.Default.Bolt
                     }
-                    addPopup(streakMsg, com.opoleyes.ui.theme.Warning, 38, 0f, streakIcon)
+                    addPopup(streakMsg, com.opoleyes.ui.theme.Warning, 38, 0.2f, streakIcon)
                 }
                 if (engine.comboOverchargeActive && engine.comboOverchargeCharges == 3) {
-                    addPopup("¡OVERCHARGE!", com.opoleyes.ui.theme.Warning, 48, 0f, "⚡")
+                    addPopup("Overcharge", com.opoleyes.ui.theme.Warning, 44, 0.3f, Icons.Default.AutoAwesome)
                 }
                 checkAchievementsPerQuestion(AchievementContext(firstCorrect = true, maxCombo = engine.maxCombo, fiftyFiftyUsed = engine.ctxFiftyFiftyUsed, lifeRecovered = engine.ctxLifeRecovered, maxOptions = engine.maxOptions))
                 missionRepo.checkLiveProgress(engine.mode.name.lowercase(), engine.totalAnswered - engine.correctCount, engine.totalAnswered)
             }
             GameEngine.AnswerResult.WRONG -> {
                 if (engine.ctxFirstMistakeForgiven) {
-                    addPopup("¡Primer fallo sin contar! Estás aprendiendo 💪", com.opoleyes.ui.theme.Success, 38, 0f, "🛡️")
+                    addPopup("Primer fallo perdonado", com.opoleyes.ui.theme.Success, 38, 0f, Icons.Default.Shield)
                 }
                 checkAchievementsPerQuestion(AchievementContext(maxCombo = engine.maxCombo, maxOptions = engine.maxOptions))
             }
@@ -651,7 +655,7 @@ class GameViewModel private constructor(
 
     fun clearPowerUpToast() { _powerUpToast.value = null }
 
-    private fun addPopup(text: String, color: androidx.compose.ui.graphics.Color, size: Int, delay: Float, icon: String = "") {
+    private fun addPopup(text: String, color: androidx.compose.ui.graphics.Color, size: Int, delay: Float, icon: ImageVector? = null) {
         _popups.value = _popups.value + FloatingPopup(text, color, size, delay, icon)
     }
 

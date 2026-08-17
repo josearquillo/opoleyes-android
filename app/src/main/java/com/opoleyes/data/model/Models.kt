@@ -1,6 +1,7 @@
 package com.opoleyes.data.model
 
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 
 data class Test(
     val id: String = "",
@@ -117,7 +118,7 @@ data class FloatingPopup(
     val color: Color,
     val size: Int,
     val delay: Float,
-    val icon: String = ""
+    val icon: ImageVector? = null
 )
 
 data class PowerUpToast(

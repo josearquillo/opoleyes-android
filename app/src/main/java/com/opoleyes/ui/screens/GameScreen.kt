@@ -7,6 +7,8 @@ import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.EmojiEvents
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -38,7 +40,6 @@ import kotlinx.coroutines.delay
 fun GameScreen(navController: NavController, gameViewModel: GameViewModel) {
     val uiState by gameViewModel.uiState.collectAsState()
     val popups by gameViewModel.popups.collectAsState()
-    val powerUpToast by gameViewModel.powerUpToast.collectAsState()
     val toasts by gameViewModel.toasts.collectAsState()
 
     val q = uiState.currentQ
@@ -142,14 +143,6 @@ fun GameScreen(navController: NavController, gameViewModel: GameViewModel) {
                 gameViewModel.nextQuestion()
                 autoAdvanceTriggered = false
             }
-        }
-    }
-
-    // Auto-dismiss power-up toast
-    LaunchedEffect(powerUpToast) {
-        if (powerUpToast != null) {
-            delay(4000)
-            gameViewModel.clearPowerUpToast()
         }
     }
 
@@ -334,7 +327,7 @@ fun GameScreen(navController: NavController, gameViewModel: GameViewModel) {
                 modifier = Modifier.fillMaxSize()
             )
 
-            // Floating popups overlay
+            // Floating popups overlay — cascading feedback chips with Material icons
             Box(
                 modifier = Modifier.fillMaxSize(),
                 contentAlignment = Alignment.Center
@@ -361,29 +354,35 @@ fun GameScreen(navController: NavController, gameViewModel: GameViewModel) {
                             )
                         ) {
                             Surface(
-                                shape = RoundedCornerShape(16.dp),
+                                shape = RoundedCornerShape(14.dp),
                                 color = ScrimStrong,
-                                shadowElevation = 8.dp,
+                                shadowElevation = 10.dp,
                                 modifier = Modifier
                                     .padding(vertical = 4.dp)
-                                    .clip(RoundedCornerShape(16.dp))
+                                    .clip(RoundedCornerShape(14.dp))
                                     .background(
                                         Brush.horizontalGradient(
                                             listOf(
-                                                popup.color.copy(alpha = 0.3f),
+                                                popup.color.copy(alpha = 0.22f),
                                                 ScrimStrong,
-                                                popup.color.copy(alpha = 0.3f)
+                                                popup.color.copy(alpha = 0.22f)
                                             )
                                         )
                                     )
+                                    .border(1.5.dp, popup.color.copy(alpha = 0.5f), RoundedCornerShape(14.dp))
                             ) {
                                 Row(
-                                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
+                                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 10.dp),
                                     verticalAlignment = Alignment.CenterVertically
                                 ) {
-                                    if (popup.icon.isNotEmpty()) {
-                                        Text(popup.icon, fontSize = (popup.size * 0.7f).sp)
-                                        Spacer(Modifier.width(6.dp))
+                                    if (popup.icon != null) {
+                                        Icon(
+                                            popup.icon,
+                                            contentDescription = null,
+                                            tint = popup.color,
+                                            modifier = Modifier.size((popup.size * 0.6f).dp)
+                                        )
+                                        Spacer(Modifier.width(8.dp))
                                     }
                                     Text(
                                         popup.text,
@@ -391,57 +390,6 @@ fun GameScreen(navController: NavController, gameViewModel: GameViewModel) {
                                         fontSize = popup.size.sp,
                                         fontWeight = FontWeight.Bold
                                     )
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-
-            // Power-up toast
-            if (powerUpToast != null) {
-                var toastVisible by remember { mutableStateOf(false) }
-                LaunchedEffect(powerUpToast) {
-                    toastVisible = powerUpToast != null
-                }
-                Box(
-                    modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.TopCenter
-                ) {
-                    AnimatedVisibility(
-                        visible = toastVisible,
-                        enter = slideInVertically(
-                            animationSpec = spring(
-                                dampingRatio = Spring.DampingRatioMediumBouncy,
-                                stiffness = Spring.StiffnessMedium
-                            ),
-                            initialOffsetY = { -it }
-                        ) + fadeIn(tween(200)),
-                        exit = fadeOut(tween(400)) + slideOutVertically(
-                            animationSpec = tween(400),
-                            targetOffsetY = { -it }
-                        )
-                    ) {
-                        Surface(
-                            modifier = Modifier.padding(top = 60.dp),
-                            shape = RoundedCornerShape(16.dp),
-                            color = ScrimStrong,
-                            shadowElevation = 8.dp
-                        ) {
-                            Box(
-                                modifier = Modifier
-                                    .clip(RoundedCornerShape(16.dp))
-                                    .background(
-                                        Brush.horizontalGradient(
-                                            listOf(SuccessDark, Success.copy(alpha = 0.3f), SuccessDark)
-                                        )
-                                    )
-                                    .padding(horizontal = 20.dp, vertical = 12.dp)
-                            ) {
-                                Row(verticalAlignment = Alignment.CenterVertically) {
-                                    Text(powerUpToast!!.icon, fontSize = 22.sp)
-                                    Spacer(Modifier.width(8.dp))
-                                    Text(powerUpToast!!.text, color = Success, fontWeight = FontWeight.Bold, fontSize = 15.sp)
                                 }
                             }
                         }
@@ -481,20 +429,51 @@ fun GameScreen(navController: NavController, gameViewModel: GameViewModel) {
                             ) {
                                 Surface(
                                     modifier = Modifier.fillMaxWidth().padding(vertical = 3.dp),
-                                    shape = RoundedCornerShape(12.dp),
+                                    shape = RoundedCornerShape(14.dp),
                                     color = BgCard,
-                                    shadowElevation = 8.dp
+                                    shadowElevation = 10.dp,
+                                    border = androidx.compose.foundation.BorderStroke(1.5.dp, Accent.copy(alpha = 0.5f))
                                 ) {
                                     Row(
-                                        modifier = Modifier.padding(10.dp),
+                                        modifier = Modifier.padding(12.dp),
                                         verticalAlignment = Alignment.CenterVertically
                                     ) {
-                                        Text(ach.icon, fontSize = 22.sp)
-                                        Spacer(Modifier.width(10.dp))
-                                        Column {
-                                            Text(stringResource(R.string.achievement_unlocked), color = Accent, fontWeight = FontWeight.Bold, fontSize = 10.sp)
-                                            Text(ach.name, color = Warning, fontWeight = FontWeight.Bold, fontSize = 13.sp)
-                                            Text(ach.desc, color = TextMuted, fontSize = 11.sp, maxLines = 1, overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis)
+                                        // Achievement emoji in a circular badge with accent background
+                                        Box(
+                                            modifier = Modifier
+                                                .size(36.dp)
+                                                .clip(CircleShape)
+                                                .background(Brush.radialGradient(listOf(Accent.copy(alpha = 0.3f), BgDark))),
+                                            contentAlignment = Alignment.Center
+                                        ) {
+                                            Text(ach.icon, fontSize = 20.sp)
+                                        }
+                                        Spacer(Modifier.width(12.dp))
+                                        Column(modifier = Modifier.weight(1f)) {
+                                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                                Icon(
+                                                    Icons.Default.EmojiEvents,
+                                                    contentDescription = null,
+                                                    tint = Accent,
+                                                    modifier = Modifier.size(13.dp)
+                                                )
+                                                Spacer(Modifier.width(4.dp))
+                                                Text(
+                                                    stringResource(R.string.achievement_unlocked),
+                                                    color = Accent,
+                                                    fontWeight = FontWeight.Bold,
+                                                    fontSize = 11.sp
+                                                )
+                                            }
+                                            Spacer(Modifier.height(2.dp))
+                                            Text(ach.name, color = Warning, fontWeight = FontWeight.Bold, fontSize = 14.sp)
+                                            Text(
+                                                ach.desc,
+                                                color = TextMuted,
+                                                fontSize = 11.sp,
+                                                maxLines = 1,
+                                                overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
+                                            )
                                         }
                                     }
                                 }

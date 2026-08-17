@@ -17,6 +17,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Timer
 import androidx.compose.material.icons.filled.Bolt
+import androidx.compose.material.icons.filled.AutoAwesome
+import androidx.compose.material.icons.filled.SkipNext
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -897,17 +899,37 @@ fun XpSummaryOverlay(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text("✨ XP GANADA", color = AccentLight, fontSize = 18.sp, fontWeight = FontWeight.Bold)
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(
+                        Icons.Default.AutoAwesome,
+                        contentDescription = null,
+                        tint = AccentLight,
+                        modifier = Modifier.size(20.dp)
+                    )
+                    Spacer(Modifier.width(6.dp))
+                    Text("XP GANADA", color = AccentLight, fontSize = 18.sp, fontWeight = FontWeight.Bold)
+                }
                 if (!finished) {
-                    Text(
-                        "Saltar ⏭",
-                        color = TextMuted,
-                        fontSize = 13.sp,
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
                         modifier = Modifier
                             .clip(RoundedCornerShape(8.dp))
                             .clickable { onDismiss() }
                             .padding(horizontal = 8.dp, vertical = 4.dp)
-                    )
+                    ) {
+                        Text(
+                            "Saltar",
+                            color = TextMuted,
+                            fontSize = 13.sp
+                        )
+                        Spacer(Modifier.width(4.dp))
+                        Icon(
+                            Icons.Default.SkipNext,
+                            contentDescription = null,
+                            tint = TextMuted,
+                            modifier = Modifier.size(16.dp)
+                        )
+                    }
                 }
             }
             Spacer(Modifier.height(4.dp))
