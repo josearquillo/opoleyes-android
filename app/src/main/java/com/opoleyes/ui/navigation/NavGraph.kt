@@ -43,29 +43,30 @@ fun NavGraph(startDestination: String = Routes.LOADING, gameViewModel: GameViewM
         }
     )
 
-    // Transiciones contextuales: las pantallas "overlay" (gameover, examresult,
-    // modeintro) usan fade+scale para no confundirse con navegación real.
+    // Push: new screen enters from right (1/3 width), old screen exits left (1/6 width = parallax depth)
     val slideEnter: AnimatedContentTransitionScope<NavBackStackEntry>.() -> EnterTransition = {
-        slideInHorizontally(animationSpec = tween(350, easing = FastOutSlowInEasing), initialOffsetX = { it }) +
-        fadeIn(tween(350))
+        slideInHorizontally(animationSpec = tween(350, easing = FastOutSlowInEasing), initialOffsetX = { it / 3 }) +
+        fadeIn(tween(300))
     }
     val slideExit: AnimatedContentTransitionScope<NavBackStackEntry>.() -> ExitTransition = {
-        slideOutHorizontally(animationSpec = tween(350, easing = FastOutSlowInEasing), targetOffsetX = { -it }) +
-        fadeOut(tween(350))
+        slideOutHorizontally(animationSpec = tween(350, easing = FastOutSlowInEasing), targetOffsetX = { -it / 6 }) +
+        fadeOut(tween(300))
     }
+    // Pop: old screen returns from left (1/6), current screen exits right (1/3)
     val slidePopEnter: AnimatedContentTransitionScope<NavBackStackEntry>.() -> EnterTransition = {
-        slideInHorizontally(animationSpec = tween(350, easing = FastOutSlowInEasing), initialOffsetX = { -it }) +
-        fadeIn(tween(350))
+        slideInHorizontally(animationSpec = tween(350, easing = FastOutSlowInEasing), initialOffsetX = { -it / 6 }) +
+        fadeIn(tween(300))
     }
     val slidePopExit: AnimatedContentTransitionScope<NavBackStackEntry>.() -> ExitTransition = {
-        slideOutHorizontally(animationSpec = tween(350, easing = FastOutSlowInEasing), targetOffsetX = { it }) +
-        fadeOut(tween(350))
+        slideOutHorizontally(animationSpec = tween(350, easing = FastOutSlowInEasing), targetOffsetX = { it / 3 }) +
+        fadeOut(tween(300))
     }
+    // Overlay screens (gameover, examresult, modeintro): subtle fade + scale
     val fadeEnter: AnimatedContentTransitionScope<NavBackStackEntry>.() -> EnterTransition = {
-        fadeIn(tween(300)) + scaleIn(initialScale = 0.85f, animationSpec = tween(300))
+        fadeIn(tween(300)) + scaleIn(initialScale = 0.96f, animationSpec = tween(300))
     }
     val fadeExit: AnimatedContentTransitionScope<NavBackStackEntry>.() -> ExitTransition = {
-        fadeOut(tween(300)) + scaleOut(targetScale = 0.85f, animationSpec = tween(300))
+        fadeOut(tween(250)) + scaleOut(targetScale = 0.96f, animationSpec = tween(250))
     }
 
     NavHost(

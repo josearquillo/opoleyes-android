@@ -58,6 +58,14 @@ fun ExamResultScreen(navController: NavController, gameViewModel: GameViewModel)
     val allQuestions = remember { gameViewModel.getExamQuestions() }
     val scrollState = rememberScrollState()
 
+    var visibleItems by remember { mutableStateOf(0) }
+    LaunchedEffect(Unit) {
+        for (i in 1..4) {
+            kotlinx.coroutines.delay(80)
+            visibleItems = i
+        }
+    }
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -90,89 +98,105 @@ fun ExamResultScreen(navController: NavController, gameViewModel: GameViewModel)
                 .padding(16.dp)
         ) {
         if (isSimulacro && sr != null) {
-            SimulacroResultContent(sr, xpGained, allQuestions, showReview) { showReview = !showReview }
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(10.dp)
-            ) {
-                GameButton(
-                    text = stringResource(R.string.retry_label),
-                    modifier = Modifier.weight(1f).height(50.dp),
-                    color1 = Success,
-                    color2 = SuccessDark
-                ) {
-                    gameViewModel.startSimulacroAsync { }
-                    navController.navigate(Routes.EXAM) { popUpTo(Routes.EXAM_RESULT) { inclusive = true } }
-                }
-                GameButton(
-                    text = stringResource(R.string.menu),
-                    modifier = Modifier.weight(1f).height(50.dp),
-                    color1 = Primary,
-                    color2 = PurpleDark
-                ) {
-                    navController.navigate(Routes.HOME) { popUpTo(0) }
-                }
+            StaggeredAppearance(visibleItems, 0) {
+                SimulacroResultContent(sr, xpGained, allQuestions, showReview) { showReview = !showReview }
             }
-        } else if (r != null) {
-            ScoreCard(r)
-            Spacer(Modifier.height(16.dp))
-
-            StatsRow(r)
-            Spacer(Modifier.height(16.dp))
-
-            Text(stringResource(R.string.per_law), color = TextLight, fontSize = 18.sp, fontWeight = FontWeight.Bold)
-            Spacer(Modifier.height(8.dp))
-            r.perLaw.forEach { (law, lr) ->
-                LawBreakdownRow(law, lr)
-                Spacer(Modifier.height(6.dp))
-            }
-
-            Spacer(Modifier.height(16.dp))
-            Text(stringResource(R.string.xp_earned, xpGained), color = AccentLight, fontSize = 14.sp, fontWeight = FontWeight.Bold)
-
             Spacer(Modifier.height(24.dp))
-
-            Button(
-                onClick = { showReview = !showReview },
-                modifier = Modifier.fillMaxWidth(),
-                colors = ButtonDefaults.buttonColors(containerColor = BgCard),
-                border = androidx.compose.foundation.BorderStroke(1.dp, SurfaceVariant)
-            ) {
-                Text(if (showReview) stringResource(R.string.hide_review) else stringResource(R.string.review_answers), color = TextLight)
-            }
-
-            AnimatedVisibility(showReview) {
-                Column {
-                    Spacer(Modifier.height(16.dp))
-                    allQuestions.forEachIndexed { idx, eq ->
-                        QuestionReviewCard(idx + 1, eq)
-                        Spacer(Modifier.height(8.dp))
+            StaggeredAppearance(visibleItems, 1) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(10.dp)
+                ) {
+                    GameButton(
+                        text = stringResource(R.string.retry_label),
+                        modifier = Modifier.weight(1f).height(50.dp),
+                        color1 = Success,
+                        color2 = SuccessDark
+                    ) {
+                        gameViewModel.startSimulacroAsync { }
+                        navController.navigate(Routes.EXAM) { popUpTo(Routes.EXAM_RESULT) { inclusive = true } }
+                    }
+                    GameButton(
+                        text = stringResource(R.string.menu),
+                        modifier = Modifier.weight(1f).height(50.dp),
+                        color1 = Primary,
+                        color2 = PurpleDark
+                    ) {
+                        navController.navigate(Routes.HOME) { popUpTo(0) }
                     }
                 }
             }
+        } else if (r != null) {
+            StaggeredAppearance(visibleItems, 0) {
+                ScoreCard(r)
+            }
+            Spacer(Modifier.height(16.dp))
+
+            StaggeredAppearance(visibleItems, 1) {
+                StatsRow(r)
+            }
+            Spacer(Modifier.height(16.dp))
+
+            StaggeredAppearance(visibleItems, 2) {
+                Column {
+                    Text(stringResource(R.string.per_law), color = TextLight, fontSize = 18.sp, fontWeight = FontWeight.Bold)
+                    Spacer(Modifier.height(8.dp))
+                    r.perLaw.forEach { (law, lr) ->
+                        LawBreakdownRow(law, lr)
+                        Spacer(Modifier.height(6.dp))
+                    }
+                    Spacer(Modifier.height(16.dp))
+                    Text(stringResource(R.string.xp_earned, xpGained), color = AccentLight, fontSize = 14.sp, fontWeight = FontWeight.Bold)
+                }
+            }
 
             Spacer(Modifier.height(24.dp))
 
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(10.dp)
-            ) {
-                GameButton(
-                    text = stringResource(R.string.retry_label),
-                    modifier = Modifier.weight(1f).height(50.dp),
-                    color1 = Success,
-                    color2 = SuccessDark
-                ) {
-                    gameViewModel.startExamAsync(gameViewModel.lastExamQuestionCount) { }
-                    navController.navigate(Routes.EXAM) { popUpTo(Routes.EXAM_RESULT) { inclusive = true } }
-                }
-                GameButton(
-                    text = stringResource(R.string.menu),
-                    modifier = Modifier.weight(1f).height(50.dp),
-                    color1 = Primary,
-                    color2 = PurpleDark
-                ) {
-                    navController.navigate(Routes.HOME) { popUpTo(0) }
+            StaggeredAppearance(visibleItems, 3) {
+                Column {
+                    Button(
+                        onClick = { showReview = !showReview },
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = ButtonDefaults.buttonColors(containerColor = BgCard),
+                        border = androidx.compose.foundation.BorderStroke(1.dp, SurfaceVariant)
+                    ) {
+                        Text(if (showReview) stringResource(R.string.hide_review) else stringResource(R.string.review_answers), color = TextLight)
+                    }
+
+                    AnimatedVisibility(showReview) {
+                        Column {
+                            Spacer(Modifier.height(16.dp))
+                            allQuestions.forEachIndexed { idx, eq ->
+                                QuestionReviewCard(idx + 1, eq)
+                                Spacer(Modifier.height(8.dp))
+                            }
+                        }
+                    }
+
+                    Spacer(Modifier.height(24.dp))
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(10.dp)
+                    ) {
+                        GameButton(
+                            text = stringResource(R.string.retry_label),
+                            modifier = Modifier.weight(1f).height(50.dp),
+                            color1 = Success,
+                            color2 = SuccessDark
+                        ) {
+                            gameViewModel.startExamAsync(gameViewModel.lastExamQuestionCount) { }
+                            navController.navigate(Routes.EXAM) { popUpTo(Routes.EXAM_RESULT) { inclusive = true } }
+                        }
+                        GameButton(
+                            text = stringResource(R.string.menu),
+                            modifier = Modifier.weight(1f).height(50.dp),
+                            color1 = Primary,
+                            color2 = PurpleDark
+                        ) {
+                            navController.navigate(Routes.HOME) { popUpTo(0) }
+                        }
+                    }
                 }
             }
         }
