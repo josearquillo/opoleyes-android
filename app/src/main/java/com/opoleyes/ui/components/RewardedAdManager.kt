@@ -9,14 +9,14 @@ import com.google.android.gms.ads.rewarded.RewardedAdLoadCallback
  * Manages loading and showing a rewarded ad.
  * Uses the test ad unit ID for development; replace with a real ID for production.
  */
-object RewardedAdManager {
+object RewardedAdManager : RewardedAdProvider {
     private var rewardedAd: RewardedAd? = null
     private var isLoading = false
 
     // Test rewarded ad unit ID
     private const val AD_UNIT_ID = "ca-app-pub-3940256099942544/5224354917"
 
-    fun showAd(activity: Activity, onReward: () -> Unit, onDismissed: () -> Unit) {
+    override fun showAd(activity: Activity, onReward: () -> Unit, onDismissed: () -> Unit) {
         val ad = rewardedAd
         if (ad == null) {
             // Ad not loaded — load and show immediately

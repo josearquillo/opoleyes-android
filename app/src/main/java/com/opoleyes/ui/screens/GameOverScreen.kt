@@ -257,11 +257,7 @@ fun GameOverScreen(navController: NavController, gameViewModel: GameViewModel) {
                             .clickable {
                                 val activity = context.findActivity()
                                 if (activity != null) {
-                                    RewardedAdManager.showAd(
-                                        activity = activity,
-                                        onReward = { gameViewModel.doubleXp() },
-                                        onDismissed = { }
-                                    )
+                                    gameViewModel.showRewardedAd(activity)
                                 }
                             }
                             .padding(horizontal = 14.dp, vertical = 12.dp),
