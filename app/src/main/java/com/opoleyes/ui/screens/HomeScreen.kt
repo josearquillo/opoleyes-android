@@ -5,7 +5,6 @@ import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.HelpOutline
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -36,7 +35,6 @@ import kotlinx.coroutines.delay
 @Composable
 fun HomeScreen(navController: NavController, gameViewModel: GameViewModel) {
     val isLoading by gameViewModel.isLoading.collectAsState()
-    val isDebugMode = gameViewModel.isDebugMode()
 
     // Data is precomputed off the main thread during the loading screen.
     // Fallback: compute synchronously (idempotent) if not yet available.
@@ -85,35 +83,7 @@ fun HomeScreen(navController: NavController, gameViewModel: GameViewModel) {
 
     Scaffold(
         topBar = {
-            TopAppBar(
-                title = {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Text(stringResource(R.string.app_name), color = Accent, fontWeight = FontWeight.Bold, fontSize = 22.sp)
-                        if (isDebugMode) {
-                            Spacer(Modifier.width(8.dp))
-                            Text(
-                                stringResource(R.string.debug_badge),
-                                color = BgDark,
-                                fontSize = 10.sp,
-                                fontWeight = FontWeight.Bold,
-                                modifier = Modifier
-                                    .clip(RoundedCornerShape(4.dp))
-                                    .background(Warning)
-                                    .padding(horizontal = 6.dp, vertical = 2.dp)
-                            )
-                        }
-                    }
-                },
-                actions = {
-                    IconButton(onClick = { navController.navigate(Routes.HELP) }) {
-                        Icon(Icons.AutoMirrored.Filled.HelpOutline, contentDescription = stringResource(R.string.help), tint = TextLight)
-                    }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = BgDark,
-                    titleContentColor = Accent
-                )
-            )
+            AdBanner()
         },
         containerColor = BgDark
     ) { paddingValues ->

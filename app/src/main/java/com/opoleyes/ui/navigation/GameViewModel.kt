@@ -334,6 +334,19 @@ class GameViewModel private constructor(
         _quickRewardMissed.value = false
     }
 
+    private var xpDoubled = false
+
+    /** Doubles the XP gained this session via a rewarded ad. Only applies once. */
+    fun doubleXp() {
+        if (xpDoubled || _xpGained.value <= 0) return
+        xpDoubled = true
+        val bonus = _xpGained.value
+        progressRepo.addXP(bonus)
+        _xpGained.value = _xpGained.value + bonus
+    }
+
+    fun isXpDoubled(): Boolean = xpDoubled
+
     fun startTemaGame(testId: String): Boolean {
         _popups.value = emptyList()
         _toasts.value = emptyList()

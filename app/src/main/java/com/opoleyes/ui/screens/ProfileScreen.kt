@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.HelpOutline
 import androidx.compose.material.icons.filled.AutoAwesome
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Lightbulb
@@ -109,6 +110,11 @@ fun ProfileScreen(navController: NavController, gameViewModel: GameViewModel) {
                 navigationIcon = {
                     IconButton(onClick = { navController.popBackStack() }) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.back), tint = TextLight)
+                    }
+                },
+                actions = {
+                    IconButton(onClick = { navController.navigate(Routes.HELP) }) {
+                        Icon(Icons.AutoMirrored.Filled.HelpOutline, contentDescription = stringResource(R.string.help), tint = TextLight)
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
