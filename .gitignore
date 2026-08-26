@@ -9,3 +9,8 @@ app/build
 .externalNativeBuild
 .cxx
 local.properties
+
+# Firma release (NO versionar)
+keystore.properties
+*.jks
+*.keystore

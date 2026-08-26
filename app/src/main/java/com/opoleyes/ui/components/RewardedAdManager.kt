@@ -4,10 +4,12 @@ import android.app.Activity
 import com.google.android.gms.ads.LoadAdError
 import com.google.android.gms.ads.rewarded.RewardedAd
 import com.google.android.gms.ads.rewarded.RewardedAdLoadCallback
+import com.opoleyes.BuildConfig
 
 /**
  * Manages loading and showing a rewarded ad.
  * Uses the test ad unit ID for development; replace with a real ID for production.
+ * In release builds with ADS_ENABLED=false the call is a no-op (dismissed immediately).
  */
 object RewardedAdManager : RewardedAdProvider {
     private var rewardedAd: RewardedAd? = null
@@ -17,6 +19,10 @@ object RewardedAdManager : RewardedAdProvider {
     private const val AD_UNIT_ID = "ca-app-pub-3940256099942544/5224354917"
 
     override fun showAd(activity: Activity, onReward: () -> Unit, onDismissed: () -> Unit) {
+        if (!BuildConfig.ADS_ENABLED) {
+            onDismissed()
+            return
+        }
         val ad = rewardedAd
         if (ad == null) {
             // Ad not loaded — load and show immediately

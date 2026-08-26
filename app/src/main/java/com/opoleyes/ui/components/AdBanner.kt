@@ -14,14 +14,18 @@ import androidx.compose.ui.viewinterop.AndroidView
 import com.google.android.gms.ads.AdRequest
 import com.google.android.gms.ads.AdSize
 import com.google.android.gms.ads.AdView
+import com.opoleyes.BuildConfig
 import com.opoleyes.ui.theme.BgDark
 
 /**
  * Persistent banner ad using Google AdMob.
  * Uses the test ad unit ID for development; replace with a real ID for production.
+ * In release builds with ADS_ENABLED=false the banner renders as an empty box.
  */
 @Composable
 fun AdBanner(modifier: Modifier = Modifier) {
+    if (!BuildConfig.ADS_ENABLED) return
+
     val context = LocalContext.current
     val adView = remember {
         AdView(context).apply {
