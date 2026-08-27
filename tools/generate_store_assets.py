@@ -83,8 +83,8 @@ def draw_icon(draw, cx, cy, scale):
 def make_icon_512(path):
     img = Image.new("RGB", (512, 512), BG_DARK)
     draw = ImageDraw.Draw(img)
-    # Icono centrado, escala ~ 380px (deja margen)
-    draw_icon(draw, 256, 256, 380)
+    # Icono centrado, escala ~ 460px (llena mas area, margen minimo)
+    draw_icon(draw, 256, 256, 460)
     img.save(path, "PNG")
     print(f"Guardado: {path}")
 

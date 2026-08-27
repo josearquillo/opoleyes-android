@@ -62,8 +62,10 @@ android {
             signingConfig = signingConfigs.getByName("release")
             // Sin ID real de AdMob -> anuncios desactivados en release
             buildConfigField("boolean", "ADS_ENABLED", "false")
-            // Placeholder vacío: no se llama a MobileAds.initialize() en release
-            manifestPlaceholders["admobAppId"] = ""
+            // Placeholder no vacío: el SDK de AdMob lee el manifest al iniciar el
+            // proceso y crashea si APPLICATION_ID está vacío. Como ADS_ENABLED=false,
+            // no se llama a MobileAds.initialize(), pero el meta-data debe existir.
+            manifestPlaceholders["admobAppId"] = "ca-app-pub-0000000000000000~0000000000"
         }
     }
 
