@@ -52,3 +52,11 @@ gradlew.bat connectedAndroidTest    # Instrumented tests (requiere dispositivo/e
 ## Política de privacidad
 
 Disponible en [docs/privacy_policy.html](docs/privacy_policy.html).
+
+## Licencia
+
+© 2026 Jose Arquillo. Todos los derechos reservados.
+
+Este código se publica con fines educativos y de consulta. No se permite
+el uso, copia, modificación ni distribución de este código sin permiso
+expreso del autor.
