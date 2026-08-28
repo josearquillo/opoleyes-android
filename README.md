@@ -145,22 +145,25 @@ opoleyes-android/
 ./gradlew connectedAndroidTest
 ```
 
-## Publicación en Google Play Store
+## Build y distribución
 
-### Configuración de firma (release)
+La app se distribuye como APK firmado, disponible en los [releases de GitHub](https://github.com/josearquillo/opoleyes-android/releases).
+
+### Generar APK release
+
+```bash
+./gradlew :app:assembleRelease
+```
+
+El APK se genera en `app/build/outputs/apk/release/app-release.apk`.
+
+### Firma
 
 El proyecto firma los builds de release con un keystore propio, configurado en
-`app/build.gradle.kts` y cuyas credenciales se leen desde `keystore.properties`
-(en la raíz, **no versionado**). Ya se ha generado uno por defecto:
+`app/build.gradle.kts`. Las credenciales se leen desde `keystore.properties`
+(en la raíz, **no versionado**).
 
-- Keystore: `app/release-keystore.jks`
-- Alias: `opoleyes-release`
-- Contraseña (keystore y key): `Opoleyes2026!`
-
-> **Importante:** guarda una copia de seguridad del `.jks` en un lugar seguro.
-> Si lo pierdes no podrás actualizar la app en Play Store con el mismo paquete.
-
-Para regenerar con tus propias credenciales:
+Para regenerar el keystore:
 
 ```bash
 keytool -genkeypair -v \
@@ -172,60 +175,4 @@ keytool -genkeypair -v \
 ```
 
 Y actualiza `keystore.properties` con los nuevos valores.
-
-### Generar el AAB para Play Store
-
-Play Store requiere el formato `.aab` (Android App Bundle), no `.apk`:
-
-```bash
-./gradlew :app:bundleRelease
-```
-
-El archivo se genera en `app/build/outputs/bundle/release/app-release.aab`.
-
-> Recomendado: activa **Play App Signing** en Play Console (Te preguntará al
-> subir el primer AAB). Google re-firma con su clave de distribución y tú
-> conservas tu keystore para futuras actualizaciones.
-
-### Antes de subir (checklist)
-
-1. **Cuenta de desarrollador de Google Play** ($25, una sola vez):
-   https://play.google.com/console/signup — requiere verificación de identidad.
-2. **Política de privacidad**: hospeda `docs/privacy_policy.html` en una URL
-   pública (GitHub Pages, tu web, etc.) y edita el email de contacto
-   (`TU_EMAIL@example.com`). Necesitarás esa URL en Play Console.
-3. **Store listing** (en Play Console):
-   - Nombre de la app, descripción corta (80) y larga (4000)
-   - Icono de la app 512×512 PNG (ya existe `ic_launcher_ol_v3`; exporta una
-     versión 512×512)
-   - Gráfico destacado 1024×500 PNG
-   - Capturas de pantalla (mín. 2; idealmente teléfono 16:9 o 9:16)
-   - Categoría, etiquetas, email de contacto
-4. **App content** (cuestionarios obligatorios en Play Console):
-   - **Data safety**: la app usa almacenamiento local (progreso) y no recopila
-     datos personales. Indica "No" a la recopilación de datos.
-   - **Content rating**: completa el cuestionario (quiz/educación, sin contenido
-     sensible) → suele salir "Todos los públicos".
-   - **Target audience**: selecciona 13+ o "Todas las edades" según corresponda.
-   - **Ads**: la app no muestra anuncios. Marca "No".
-5. **targetSdk**: el proyecto usa `targetSdk = 35` (requisito para apps nuevas
-   desde agosto 2025).
-6. **Versionado**: `versionCode = 1`, `versionName = "1.0"` para el primer
-   release. En cada actualización sube `versionCode` (entero) y opcionalmente
-   `versionName`.
-7. **Prueba interna**: sube el AAB a la pista de "Pruebas internas" en Play
-   Console y pruébalo en un dispositivo real antes de pasar a producción.
-
-### Comandos útiles
-
-```bash
-# Build release AAB
-./gradlew :app:bundleRelease
-
-# Build release APK (solo para pruebas locales; Play Store usa AAB)
-./gradlew :app:assembleRelease
-
-# Limpiar y reconstruir
-./gradlew clean :app:bundleRelease
-```
 
