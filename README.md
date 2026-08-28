@@ -52,7 +52,3 @@ gradlew.bat connectedAndroidTest    # Instrumented tests (requiere dispositivo/e
 ## Política de privacidad
 
 Disponible en [docs/privacy_policy.html](docs/privacy_policy.html).
-
-## Licencia
-
-MIT
