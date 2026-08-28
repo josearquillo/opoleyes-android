@@ -14,3 +14,8 @@ local.properties
 keystore.properties
 *.jks
 *.keystore
+
+# Archivos temporales y logs
+*.log
+check_*.ps1
+assign_difficulty.py
