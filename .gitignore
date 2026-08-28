@@ -20,5 +20,6 @@ keystore.properties
 check_*.ps1
 assign_difficulty.py
 
-# APK (va como GitHub Release, no en el repo)
+# APK/AAB (van como GitHub Release, no en el repo)
 *.apk
+*.aab

@@ -76,7 +76,6 @@
     <string name="continue_label">Continuar</string>
     <string name="menu">Menú</string>
     <string name="tap_to_open">¡Toca para abrir!</string>
-    <string name="tap_to_continue">Toca para continuar</string>
     <string name="next_xp_double">x2 XP en la próxima partida</string>
 
     <!-- Exam -->
@@ -107,8 +106,6 @@
     <string name="hide_review">Ocultar revisión</string>
     <string name="review_answers">Revisar respuestas</string>
     <string name="home_label">Inicio</string>
-    <string name="another_exam">Otro mini examen</string>
-    <string name="another_simulacro">Otro simulacro</string>
     <string name="retry_label">Reintentar</string>
     <string name="simulacro_result">Resultado del Simulacro</string>
     <string name="out_of_fifteen">/ %1$d</string>
