@@ -17,9 +17,6 @@
     <init>();
 }
 
-# AdMob
--keep class com.google.android.gms.ads.** { *; }
-
 # Lottie / dotlottie-android
 -keep class com.airbnb.lottie.** { *; }
 -keep class com.dotlottie.dlplayer.** { *; }

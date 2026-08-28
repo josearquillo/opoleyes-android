@@ -48,8 +48,7 @@ class GameViewModel private constructor(
     private val prefs: IPreferencesManager,
     val engine: GameEngine,
     val examEngine: ExamEngine,
-    private val temaTestsProvider: () -> List<com.opoleyes.data.model.Test>,
-    private val rewardedAdProvider: com.opoleyes.ui.components.RewardedAdProvider
+    private val temaTestsProvider: () -> List<com.opoleyes.data.model.Test>
 ) : ViewModel() {
 
     constructor(application: Application) : this(
@@ -61,8 +60,7 @@ class GameViewModel private constructor(
         PreferencesManager(application),
         GameEngine(application),
         ExamEngine(application),
-        { DataProvider.getTemaTests(application) },
-        com.opoleyes.ui.components.RewardedAdManager
+        { DataProvider.getTemaTests(application) }
     )
 
     companion object {
@@ -75,11 +73,10 @@ class GameViewModel private constructor(
             prefs: IPreferencesManager,
             engine: GameEngine,
             examEngine: ExamEngine,
-            temaTestsProvider: () -> List<com.opoleyes.data.model.Test> = { emptyList() },
-            rewardedAdProvider: com.opoleyes.ui.components.RewardedAdProvider = com.opoleyes.ui.components.RewardedAdManager
+            temaTestsProvider: () -> List<com.opoleyes.data.model.Test> = { emptyList() }
         ) = GameViewModel(
             progressRepo, statsRepo, missionRepo, achievementChecker,
-            chestSystem, prefs, engine, examEngine, temaTestsProvider, rewardedAdProvider
+            chestSystem, prefs, engine, examEngine, temaTestsProvider
         )
     }
 
@@ -335,31 +332,6 @@ class GameViewModel private constructor(
     fun clearQuickReward() {
         _quickRewardEarned.value = false
         _quickRewardMissed.value = false
-    }
-
-    private var xpDoubled = false
-
-    /** Doubles the XP gained this session via a rewarded ad. Only applies once. */
-    fun doubleXp() {
-        if (xpDoubled || _xpGained.value <= 0) return
-        xpDoubled = true
-        val bonus = _xpGained.value
-        progressRepo.addXP(bonus)
-        _xpGained.value = _xpGained.value + bonus
-    }
-
-    fun isXpDoubled(): Boolean = xpDoubled
-
-    /**
-     * Show a rewarded ad to double XP. Delegates to the injected
-     * [RewardedAdProvider] so it can be faked in tests.
-     */
-    fun showRewardedAd(activity: android.app.Activity) {
-        rewardedAdProvider.showAd(
-            activity = activity,
-            onReward = { doubleXp() },
-            onDismissed = { }
-        )
     }
 
     fun startTemaGame(testId: String): Boolean {

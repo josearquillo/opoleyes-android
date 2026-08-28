@@ -1,8 +1,5 @@
 package com.opoleyes.ui.screens
 
-import android.app.Activity
-import android.content.Context
-import android.content.ContextWrapper
 import androidx.compose.animation.*
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.*
@@ -31,7 +28,6 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.draw.alpha
@@ -243,39 +239,6 @@ fun GameOverScreen(navController: NavController, gameViewModel: GameViewModel) {
             if (xpGained > 0) {
                 Spacer(Modifier.height(12.dp))
                 Text("+$xpGained XP", color = AccentLight, fontSize = 28.sp, fontWeight = FontWeight.Bold)
-
-                // Rewarded ad: double XP by watching an ad (once per session)
-                if (!gameViewModel.isXpDoubled()) {
-                    Spacer(Modifier.height(10.dp))
-                    val context = LocalContext.current
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clip(RoundedCornerShape(12.dp))
-                            .background(Accent.copy(alpha = 0.12f))
-                            .border(1.dp, Accent.copy(alpha = 0.4f), RoundedCornerShape(12.dp))
-                            .clickable {
-                                val activity = context.findActivity()
-                                if (activity != null) {
-                                    gameViewModel.showRewardedAd(activity)
-                                }
-                            }
-                            .padding(horizontal = 14.dp, vertical = 12.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Icon(
-                            Icons.Default.AutoAwesome,
-                            contentDescription = null,
-                            tint = Accent,
-                            modifier = Modifier.size(20.dp)
-                        )
-                        Spacer(Modifier.width(10.dp))
-                        Column {
-                            Text("Ver anuncio para doble XP", color = AccentLight, fontSize = 14.sp, fontWeight = FontWeight.Medium)
-                            Text("+$xpGained XP extra", color = Accent.copy(alpha = 0.7f), fontSize = 12.sp)
-                        }
-                    }
-                }
             }
 
             Spacer(Modifier.height(24.dp))
@@ -649,14 +612,4 @@ private fun RecordChip(text: String) {
             modifier = Modifier.padding(horizontal = 10.dp, vertical = 5.dp)
         )
     }
-}
-
-/** Walks up the ContextWrapper chain to find the hosting Activity. */
-private fun Context.findActivity(): Activity? {
-    var context = this
-    while (context is ContextWrapper) {
-        if (context is Activity) return context
-        context = context.baseContext
-    }
-    return null
 }

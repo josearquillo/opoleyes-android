@@ -28,7 +28,7 @@ android {
         applicationId = "com.opoleyes"
         minSdk = 24
         targetSdk = 35
-        versionCode = 1
+        versionCode = 2
         versionName = "1.0"
         vectorDrawables { useSupportLibrary = true }
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
@@ -49,8 +49,6 @@ android {
         debug {
             enableUnitTestCoverage = true
             enableAndroidTestCoverage = true
-            buildConfigField("boolean", "ADS_ENABLED", "true")
-            manifestPlaceholders["admobAppId"] = "ca-app-pub-3940256099942544~3347511713"
         }
         release {
             isMinifyEnabled = true
@@ -60,12 +58,6 @@ android {
                 "proguard-rules.pro"
             )
             signingConfig = signingConfigs.getByName("release")
-            // Sin ID real de AdMob -> anuncios desactivados en release
-            buildConfigField("boolean", "ADS_ENABLED", "false")
-            // Placeholder no vacío: el SDK de AdMob lee el manifest al iniciar el
-            // proceso y crashea si APPLICATION_ID está vacío. Como ADS_ENABLED=false,
-            // no se llama a MobileAds.initialize(), pero el meta-data debe existir.
-            manifestPlaceholders["admobAppId"] = "ca-app-pub-0000000000000000~0000000000"
         }
     }
 
@@ -154,9 +146,6 @@ dependencies {
 
     // Gson
     implementation("com.google.code.gson:gson:2.10.1")
-
-    // AdMob
-    implementation("com.google.android.gms:play-services-ads:23.0.0")
 
     // SplashScreen
     implementation("androidx.core:core-splashscreen:1.0.1")

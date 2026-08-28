@@ -173,19 +173,6 @@ keytool -genkeypair -v \
 
 Y actualiza `keystore.properties` con los nuevos valores.
 
-### Anuncios (AdMob)
-
-En **release** los anuncios están **desactivados** (`BuildConfig.ADS_ENABLED = false`)
-porque no hay ID real de AdMob. Usar el ID de test en producción hace que Google
-rechace la app. Cuando tengas un ID real de AdMob:
-
-1. Crea tu cuenta y app en https://admob.google.com/
-2. En `app/build.gradle.kts`, cambia `ADS_ENABLED` a `true` en `release`
-3. En `app/build.gradle.kts`, pon tu ID real en `manifestPlaceholders["admobAppId"]`
-   (en el bloque `release`)
-4. Sustituye los IDs de test en `AdBanner.kt` y `RewardedAdManager.kt` por los reales
-5. Actualiza la política de privacidad si cambia el uso de datos
-
 ### Generar el AAB para Play Store
 
 Play Store requiere el formato `.aab` (Android App Bundle), no `.apk`:
@@ -215,12 +202,12 @@ El archivo se genera en `app/build/outputs/bundle/release/app-release.aab`.
    - Capturas de pantalla (mín. 2; idealmente teléfono 16:9 o 9:16)
    - Categoría, etiquetas, email de contacto
 4. **App content** (cuestionarios obligatorios en Play Console):
-   - **Data safety**: la app usa almacenamiento local (progreso) y el SDK de
-     AdMob (cuando se active). Indica "No" a la recopilación de datos personales.
+   - **Data safety**: la app usa almacenamiento local (progreso) y no recopila
+     datos personales. Indica "No" a la recopilación de datos.
    - **Content rating**: completa el cuestionario (quiz/educación, sin contenido
      sensible) → suele salir "Todos los públicos".
    - **Target audience**: selecciona 13+ o "Todas las edades" según corresponda.
-   - **Ads**: confirma que la app muestra anuncios (sí, vía AdMob).
+   - **Ads**: la app no muestra anuncios. Marca "No".
 5. **targetSdk**: el proyecto usa `targetSdk = 35` (requisito para apps nuevas
    desde agosto 2025).
 6. **Versionado**: `versionCode = 1`, `versionName = "1.0"` para el primer

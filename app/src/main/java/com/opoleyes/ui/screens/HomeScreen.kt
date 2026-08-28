@@ -82,9 +82,6 @@ fun HomeScreen(navController: NavController, gameViewModel: GameViewModel) {
     }
 
     Scaffold(
-        topBar = {
-            AdBanner()
-        },
         containerColor = BgDark
     ) { paddingValues ->
         Column(
